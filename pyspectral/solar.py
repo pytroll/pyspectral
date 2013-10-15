@@ -25,6 +25,9 @@ Module to read solar irradiance spectra and calculate the solar flux over
 various instrument bands given their relative spectral response functions
 """
 
+import logging
+LOG = logging.getLogger(__name__)
+
 from pkg_resources import resource_filename
 
 # STANDARD SPECTRA from Air Mass Zero: http://rredc.nrel.gov/solar/spectra/am0/
@@ -91,6 +94,7 @@ class SolarIrradianceSpectrum(object):
 
         start = wvl[0]
         end = wvl[-1]
+        LOG.debug("start and end wavelength interval: %f %f " % (start, end))
         dlambda = self._dlambda
         xspl = np.linspace(start, end, (end-start)/dlambda)
 
