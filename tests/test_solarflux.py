@@ -27,18 +27,41 @@ from pyspectral.rsr_read import RelativeSpectralResponse
 from pyspectral.solar import (SolarIrradianceSpectrum, 
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
 
+import logging
+
+#: Default time format
+_DEFAULT_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+
+#: Default log format
+_DEFAULT_LOG_FORMAT = '[%(levelname)s: %(asctime)s : %(name)s] %(message)s'
+
+
 # ---------------------------------------------------------------------------
 if __name__ == '__main__':
 
-    this = RelativeSpectralResponse('eos', 2, 'modis')
-    this.read(channel='20', scale=0.001)
+    from logging import handlers
+    import sys
 
-    that = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, 
-                                   dlambda=0.005)
-    that.read()
+    handler = logging.StreamHandler(sys.stderr)
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(fmt=_DEFAULT_LOG_FORMAT,
+                                  datefmt=_DEFAULT_TIME_FORMAT)
+    handler.setFormatter(formatter)
+    logging.getLogger('').addHandler(handler)
+    logging.getLogger('').setLevel(logging.DEBUG)
+
+    LOG = logging.getLogger('example')
+
+
+    modis = RelativeSpectralResponse('eos', 2, 'modis')
+    modis.read(channel='20', scale=0.001)
+
+    solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, 
+                                  dlambda=0.005)
+    solar_irr.read()
 
     # Calculate the solar-flux:
-    sflux = that.solar_flux_over_band(this.rsr)
+    sflux = solar_irr.solar_flux_over_band(modis.rsr)
     print("Solar flux over Band: ", sflux)
 
     # import matplotlib.pyplot as plt
