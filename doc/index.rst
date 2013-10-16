@@ -55,7 +55,7 @@ A simple use case:
 ('Solar flux over Band: ', 1.9674582420093827)
 
 And, here is how to derive the solar reflectance (removing the thermal part) of
-the Terra MODIS 3.7 micron band:
+the Aqua MODIS 3.7 micron band:
 
 
 >>> from pyspectral.nir_reflectance import reflectance
