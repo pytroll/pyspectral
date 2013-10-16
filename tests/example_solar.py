@@ -41,6 +41,14 @@ if __name__ == '__main__':
     sflux = that.solar_flux_over_band(this.rsr)
     print("Solar flux over Band: ", sflux)
 
+    from pyspectral.nir_reflectance import reflectance
+    SUNZ = 80.
+    TB3 = 290
+    TB4 = 282
+    REFL = reflectance(this.rsr, SUNZ, TB3, TB4)
+    print REFL
+
+
     # import matplotlib.pyplot as plt
 
     # ax = plt.subplot(111)
