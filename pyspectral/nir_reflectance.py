@@ -24,6 +24,8 @@
 thermal range (usually the 3.7-3.9 micron band) using a thermal atmospheric
 window channel (usually around 11-12 microns).
 """
+import logging
+LOG = logging.getLogger(__name__)
 
 import numpy as np
 from scipy.interpolate import InterpolatedUnivariateSpline
@@ -49,7 +51,7 @@ def reflectance(rsr_nir, sunz, tb_nir, tb_therm, solar_flux=None):
         wvl = rsr_nir['wavelength']
         resp = rsr_nir['response']
     except KeyError:
-        print "Calculate for detector = 1"
+        LOG.debug("Calculate for detector = 1")
         wvl = rsr_nir['det-1']['wavelength']
         resp = rsr_nir['det-1']['response']
         
@@ -67,8 +69,8 @@ def reflectance(rsr_nir, sunz, tb_nir, tb_therm, solar_flux=None):
     
     l_nir = integrate.trapz(b_nir, wavel)
     thermal_emiss_one = integrate.trapz(b_nir_thermal_emiss_one, wavel)
-    print("Radiance: ch3b = ", l_nir) 
-    print("Thermal part assuming ch3b emissivity = 1: ", thermal_emiss_one)
+    LOG.debug("Radiance: ch3b = ", l_nir)
+    LOG.debug("Thermal part assuming ch3b emissivity = 1: ", thermal_emiss_one)
 
     if not solar_flux:
         solar_spectrum = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, 
@@ -76,7 +78,7 @@ def reflectance(rsr_nir, sunz, tb_nir, tb_therm, solar_flux=None):
         solar_spectrum.read()
         # Calculate the solar-flux:
         solar_flux = solar_spectrum.solar_flux_over_band(rsr_nir)
-        print "Solar flux = ", solar_flux
+        LOG.info("Solar flux = " + str(solar_flux))
 
     nomin = l_nir - thermal_emiss_one
     mu0 = np.cos(np.deg2rad(sunz))

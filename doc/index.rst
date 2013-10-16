@@ -54,6 +54,20 @@ A simple use case:
 >>> print("Solar flux over Band: ", sflux)
 ('Solar flux over Band: ', 1.9674582420093827)
 
+And, here is how to derive the solar reflectance (removing the thermal part) of
+the Terra MODIS 3.7 micron band:
+
+
+>>> from pyspectral.nir_reflectance import reflectance
+>>> sunz = 80.
+>>> tb3 = 290.0
+>>> tb4 = 282.0
+>>> print reflectance(modis.rsr, sunz, tb3, tb4)
+[ 0.25171415]
+
+
+
+
 
 
 Indices and tables
