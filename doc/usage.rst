@@ -23,9 +23,10 @@ A simple use case::
 And, here is how to derive the solar reflectance (removing the thermal part) of
 the Aqua MODIS 3.7 micron band::
 
-  >>> from pyspectral.nir_reflectance import reflectance
+  >>> from pyspectral.nir_reflectance import Calculator
   >>> sunz = 80.
   >>> tb3 = 290.0
   >>> tb4 = 282.0
-  >>> print reflectance(modis.rsr, sunz, tb3, tb4)
-  [ 0.25171415]
+  >>> refl37 = Calculator(modis.rsr, solar_flux=sflux))
+  >>> print refl37.reflectance(sunz, tb3, tb4)
+  0.258119312599

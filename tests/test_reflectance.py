@@ -27,7 +27,7 @@
 from pyspectral.rsr_read import RelativeSpectralResponse
 from pyspectral.solar import (SolarIrradianceSpectrum, 
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
-from pyspectral.nir_reflectance import reflectance
+from pyspectral.nir_reflectance import Calculator
 
 import os
 import unittest
@@ -63,11 +63,14 @@ class Test(unittest.TestCase):
     def test_reflectance(self):
         """Test the derivation of the refletive part of a 3.7 micron band"""
 
+        refl37 = Calculator(TEST_RSR)
+
         SUNZ = 80.
         TB3 = 290
         TB4 = 282
-        REFL = reflectance(TEST_RSR, SUNZ, TB3, TB4)        
-        self.assertAlmostEqual(REFL, 0.25171415)
+        REFL = refl37.reflectance_from_tbs(SUNZ, TB3, TB4)
+        print REFL
+        self.assertAlmostEqual(REFL, 0.251714015434)
 
 
     def tearDown(self):

@@ -28,8 +28,8 @@ from pyspectral.blackbody import blackbody
 import unittest
 import numpy as np
 
-RAD_11MICRON_300KELVIN = 9570997.121452963
-RAD_11MICRON_301KELVIN = 9712482.1816418115
+RAD_11MICRON_300KELVIN = 9570997.2083220929
+RAD_11MICRON_301KELVIN = 9712484.1049237009
 
 class Test(unittest.TestCase):
     """Unit testing the pps reading"""
@@ -48,6 +48,14 @@ class Test(unittest.TestCase):
 
         b = blackbody(13. * 1E-6, 200.)
         self.assertTrue(np.isscalar(b))
+
+        tb_therm = np.array([[300., 301], [299, 298], [279, 286]])
+        b = blackbody((10. * 1E-6, 11.e-6), tb_therm)
+        print b
+        tb_therm = np.array([[300., 301], [0., 298], [279, 286]])
+        b = blackbody((10. * 1E-6, 11.e-6), tb_therm)
+        print b
+
 
     def tearDown(self):
         """Clean up"""

@@ -54,20 +54,24 @@ if __name__ == '__main__':
     modis.read(channel='20', scale=0.001)
 
     solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, 
-                                  dlambda=0.005)
+                                        dlambda=0.005)
     solar_irr.read()
 
     # Calculate the solar-flux:
     sflux = solar_irr.solar_flux_over_band(modis.rsr)
     print("Solar flux over Band: ", sflux)
 
-    from pyspectral.nir_reflectance import reflectance
+    from pyspectral.nir_reflectance import Calculator
+    #refl37 = Calculator(modis.rsr, solar_flux=sflux)
+    refl37 = Calculator(modis.rsr)
+
     SUNZ = 80.
     TB3 = 290
     TB4 = 282
-    REFL = reflectance(this.rsr, SUNZ, TB3, TB4)
+    REFL = refl37.reflectance_from_tbs(SUNZ, TB3, TB4)
     print REFL
 
+    refl37.make_tb2rad_lut('./modis_aqua_band20_tb2rad_lut.npz')
 
     # import matplotlib.pyplot as plt
 

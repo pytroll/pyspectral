@@ -12,9 +12,10 @@ Let us try calculate the 3.9 micron reflectance for Meteosat-10:
   >>> sunz = 80.
   >>> tb3 = 290.0
   >>> tb4 = 282.0
-  >>> from pyspectral.nir_reflectance import reflectance
-  >>> print reflectance(rsr, sunz, tb3, tb4)
-  [ 0.55432461]
+  >>> from pyspectral.nir_reflectance import Calculator
+  >>> refl39 = Calculator(rsr)
+  >>> print refl39.reflectance(sunz, tb3, tb4)
+
 
 You can also provide the in-band solar flux from outside when calculating the
 reflectance, saving a few milliseconds per call::
@@ -24,5 +25,4 @@ reflectance, saving a few milliseconds per call::
   >>> solar_irr.read()
   >>> sflux = solar_irr.solar_flux_over_band(rsr)
   >>> print reflectance(rsr, sunz, tb3, tb4, solar_flux=sflux)
-  [ 0.55432461]
-
+  0.554324450696

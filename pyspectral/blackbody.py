@@ -27,6 +27,8 @@ h_planck = 6.6262*1e-34 # SI-unit = [J*s]
 k_boltzmann = 1.3806e-23 # SI-unit = [J/K]
 c_speed = 2.99793e8 # SI-unit = [m/s]
 
+EPSILON = 0.000001
+
 # -------------------------------------------------------------------
 def blackbody(wl, temperature):
     """The Planck radiation or Blackbody radiation as a function of wavelength
@@ -43,6 +45,9 @@ def blackbody(wl, temperature):
     if np.isscalar(temperature):
         temperature = [temperature, ]
     temperature = np.array(temperature, dtype='float64')
+    shape = temperature.shape
+    #print("temperature min and max = " + str(temperature.min()) + 
+    #      " " + str(temperature.max()))
     if np.isscalar(wl):
         wl = [wl,]
     wl = np.array(wl, dtype='float64')
@@ -51,14 +56,29 @@ def blackbody(wl, temperature):
     wlpow5 = wl*wl*wl*wl*wl
     nom = const / wlpow5
     arg1 = h_planck*c_speed / (k_boltzmann * wl)
-    arg2 = np.array(1. / temperature).reshape(-1, 1)
-    denom = np.exp(np.multiply(arg1, arg2)) - 1
+    arg2 = np.where(np.greater(np.abs(temperature), EPSILON), 
+                    np.array(1. / temperature), -9).reshape(-1, 1)
+    arg2 = np.ma.masked_array(arg2, mask = arg2==-9)
+    #print("Max and min - arg1: " + str(arg1.max()) + '   ' + str(arg1.min()))
+    #print("Max and min - arg2: " + str(arg2.max()) + '   ' + str(arg2.min()))
+    exp_arg = np.multiply(arg1.astype('float32'), arg2.astype('float32'))
+    #print("Max and min before exp: " + str(exp_arg.max()) + 
+    #      ' ' + str(exp_arg.min()))
+    denom = np.exp(exp_arg) - 1
 
     rad = nom / denom
+    #print "rad.shape = ", rad.shape
+    radshape = rad.shape
     if wl.shape[0] == 1:
         if temperature.shape[0] == 1:
             return rad[0, 0]
         else:
-            return rad[:, 0]
+            return rad[:, 0].reshape(shape)
     else:
-        return rad
+        if temperature.shape[0] == 1:
+            return rad[0, :]
+        else:
+            if len(shape) == 1:
+                return np.reshape(rad, (shape[0], radshape[1]))
+            else:
+                return np.reshape(rad, (shape[0], shape[1], radshape[1]))

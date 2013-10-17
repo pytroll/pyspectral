@@ -34,12 +34,14 @@ try:
     CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
 except KeyError:
     LOG.exception('Environment variable PSP_CONFIG_FILE not set!')
-    
+    raise
+
 CONF = ConfigParser.ConfigParser()
 try:
     CONF.read(CONFIG_FILE)
-except IOError: 
+except ConfigParser.NoSectionError:
     LOG.exception('Failed reading configuration file: ' + str(CONFIG_FILE))
+    raise
 
 OPTIONS = {}
 for option, value in CONF.items('seviri', raw = True):
