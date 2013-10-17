@@ -62,19 +62,19 @@ spectral response with the Planck function:
 
 .. math::
 
-    L_{3.7} = int_0^\infty \Phi_{3.7}(\lambda) B_{\lambda} (T_{3.7}) \mathrm{d}\lambda
+    L_{3.7} = \int_0^\infty \Phi_{3.7}(\lambda) B_{\lambda} (T_{3.7}) \mathrm{d}\lambda
 
 
 Determination of the in-band solar flux
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The solar flux (SI unit :math:`\frac{W}{m^2}`) over a spectral sensor band can
-be derived by convolving the top of atmosphere spectral irradiance spectrum and
-the sensor relative spectral response curve, so for the :math:`3.7\mu m` band
-this would be:
+be derived by convolving the top of atmosphere spectral irradiance and the
+sensor relative spectral response curve, so for the :math:`3.7\mu m` band this
+would be:
 
 .. math::
 
-    F_{3.7} = int_0^\infty \Phi_{3.7}(\lambda) S(\lambda) \mathrm{d}\lambda 
+    F_{3.7} = \int_0^\infty \Phi_{3.7}(\lambda) S(\lambda) \mathrm{d}\lambda 
 
 where :math:`S(\lambda)` is the spectral solar irradiance.
