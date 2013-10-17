@@ -1,0 +1,6 @@
+[general]
+
+
+[seviri]
+path = /path/to/unzipped/seviri/data/MSG_SEVIRI_Spectral_Response_Characterisation.XLS
+

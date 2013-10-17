@@ -63,7 +63,7 @@ setup(name='pyspectral',
       # installed or upgraded on the target machine
       install_requires=['docutils>=0.3', 
                         'numpy', 'scipy'],
-      extras_require = {},
+      extras_require = {'xlrd': ['xlrd']},
       scripts = [],      
       data_files=[('etc', ['etc/pyspectral.cfg'])],
       test_suite="nose.collector",
