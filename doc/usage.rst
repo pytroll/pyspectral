@@ -15,7 +15,6 @@ A simple use case::
   >>> modis = RelativeSpectralResponse('eos', 2, 'modis')
   >>> modis.read(channel='20', scale=0.001)
   >>> solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, dlambda=0.005)
-  >>> solar_irr.read()
   >>> sflux = solar_irr.solar_flux_over_band(modis.rsr)
   >>> print("Solar flux over Band: ", sflux)
   ('Solar flux over Band: ', 1.9674582420093827)

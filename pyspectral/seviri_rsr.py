@@ -36,29 +36,32 @@ except KeyError:
     LOG.exception('Environment variable PSP_CONFIG_FILE not set!')
     raise
 
-CONF = ConfigParser.ConfigParser()
 if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
     raise IOError(str(CONFIG_FILE) + " pointed to by the environment " + 
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
-
-try:
-    CONF.read(CONFIG_FILE)
-except ConfigParser.NoSectionError:
-    LOG.exception('Failed reading configuration file: ' + str(CONFIG_FILE))
-    raise
-
-OPTIONS = {}
-for option, value in CONF.items('seviri', raw = True):
-    OPTIONS[option] = value
-
-SEVIRI_PATH = OPTIONS.get('path')
 
 
 from xlrd import open_workbook
 import numpy as np
 
-def read(filename=SEVIRI_PATH):
-    """Read the bloody rsr data"""
+def load(filename=None):
+    """Read the SEVIRI rsr data"""
+
+    conf = ConfigParser.ConfigParser()
+    try:
+        conf.read(CONFIG_FILE)
+    except ConfigParser.NoSectionError:
+        LOG.exception('Failed reading configuration file: ' + str(CONFIG_FILE))
+        raise
+
+    options = {}
+    for option, value in conf.items('seviri', raw = True):
+        options[option] = value
+
+    seviri_path = options.get('path')
+    if not filename:
+        filename = seviri_path
+
 
     wb = open_workbook(filename)
 

@@ -65,8 +65,6 @@ class Test(unittest.TestCase):
                                                  dlambda=0.005)
         self.assertTrue(os.path.exists(self.solar_irr.filename))
 
-        self.solar_irr.read()
-
         self.assertEqual(self.solar_irr.wavelength.shape[0], 1697)
         self.assertEqual(self.solar_irr.irradiance.shape[0], 1697)
 
@@ -75,10 +73,8 @@ class Test(unittest.TestCase):
         """Calculate the solar-flux"""
         self.solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, 
                                                  dlambda=0.005)
-        self.solar_irr.read()
         sflux = self.solar_irr.solar_flux_over_band(self.rsr)
         self.assertAlmostEqual(sflux, 1.9674582420093827)
-
 
     def tearDown(self):
         """Clean up"""

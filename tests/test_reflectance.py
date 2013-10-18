@@ -25,8 +25,6 @@
 
 
 from pyspectral.rsr_read import RelativeSpectralResponse
-from pyspectral.solar import (SolarIrradianceSpectrum, 
-                              TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
 from pyspectral.nir_reflectance import Calculator
 
 import os
