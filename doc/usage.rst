@@ -27,6 +27,6 @@ the Aqua MODIS 3.7 micron band::
   >>> sunz = 80.
   >>> tb3 = 290.0
   >>> tb4 = 282.0
-  >>> refl37 = Calculator(modis.rsr, solar_flux=sflux))
+  >>> refl37 = Calculator(modis.rsr, solar_flux=sflux)
   >>> print refl37.reflectance_from_tbs(sunz, tb3, tb4)
   0.258119312599

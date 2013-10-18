@@ -7,8 +7,7 @@ Let us try calculate the 3.9 micron reflectance for Meteosat-10:
 
   >>> from pyspectral.seviri_rsr import read
   >>> seviri = read()
-  >>> rsr = {'wavelength': seviri['IR3.9']['wavelength'], 
-             'response': seviri['IR3.9']['met10']['95']}
+  >>> rsr = {'wavelength': seviri['IR3.9']['wavelength'], 'response': seviri['IR3.9']['met10']['95']}
   >>> sunz = 80.
   >>> tb3 = 290.0
   >>> tb4 = 282.0
