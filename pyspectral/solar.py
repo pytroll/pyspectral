@@ -63,8 +63,10 @@ class SolarIrradianceSpectrum(object):
             self._dlambda = options['dlambda']
         else:
             self._dlambda = 0.005
+
+        self._load()
         
-    def read(self):
+    def _load(self):
         """Read the tabulated spectral irradiance data from file"""
         import numpy as np
         self.wavelength, self.irradiance = np.genfromtxt(self.filename, unpack=True)

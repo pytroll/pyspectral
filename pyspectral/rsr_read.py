@@ -38,6 +38,13 @@ for bnum in range(1,20):
     MODIS_AQUA_RESPONSES['%d' % bnum] = resource_filename(__name__, 
                                                           'data/modis/aqua/%s' % fname)
 
+MODIS_TERRA_RESPONSES = {}
+for bnum in range(1,37):
+    fname = "rsr.%d.oobd.det" % (bnum)
+    MODIS_TERRA_RESPONSES['%d' % bnum] = resource_filename(__name__, 
+                                                          'data/modis/terra/Reference_RSR_Dataset/%s' % fname)
+
+
 # ----------------------------------------------------
 class RelativeSpectralResponse(object):
     """Container for the relative spectral response functions for various
@@ -57,9 +64,8 @@ class RelativeSpectralResponse(object):
         if self.platform == "eos":
             self.satellite_id = "%s-%d" % (self.platform, self.satnum)
             if self.satnum == 1:
-                for bnum in range(1,37):
-                    fname = "%s/rsr.%d.oobd.det"%(MODIS_TERRA_RESPONSE_DIR, bnum)
-                    self.filenames['%d' % bnum] = fname 
+                for bnum in range(1, 37):
+                    self.filenames = MODIS_TERRA_RESPONSES
                 self.filenames['3.7'] = self.filenames['20']
             elif self.satnum == 2:
                 for bnum in range(1, 37):
@@ -106,7 +112,7 @@ class RelativeSpectralResponse(object):
             #else:
             #    IOError("Satellite number %d for platform %s not supported!" % \
             #                (self.satnum, self.platform))
-            detector = read_modis_terra_response(filename, scale)
+            detector = read_modis_response(filename, scale)
 
 
         else:
@@ -154,7 +160,7 @@ def sort_data(x, y):
     return x, y
 
 # -------------------------------------------------------------
-def read_modis_terra_response(filename, scale=1.0):
+def read_modis_response(filename, scale=1.0):
     """Read the Terra/Aqua MODIS relative spectral responses. Be aware that
     MODIS has several detectors (more than one) compared to e.g. AVHRR which
     has always only one.

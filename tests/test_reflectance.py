@@ -20,11 +20,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Unittesting the solar_flux calculations
+"""Unit testing the 3.7 micron reflectance calculations
 """
 
-from pyspectral.solar import (SolarIrradianceSpectrum, 
-                              TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
+
+from pyspectral.rsr_read import RelativeSpectralResponse
+from pyspectral.nir_reflectance import Calculator
+
 import os
 import unittest
 import numpy as np
@@ -49,34 +51,26 @@ TEST_RSR['det-1']['response'] = np.array([
         1.     ,  0.92676,  0.67429,  0.44715,  0.27762,  0.14852,
         0.07141,  0.04151,  0.02925,  0.02085,  0.01414,  0.01 ], dtype='double')
 
+
 class Test(unittest.TestCase):
     """Unit testing the pps reading"""
            
     def setUp(self):
         """Set up"""
-        self.solar_irr = None
-        self.rsr = TEST_RSR
-        return
 
-    def test_read(self):
-        """Test that solar irradiance spctrum"""
-        
-        self.solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, 
-                                                 dlambda=0.005)
-        self.assertTrue(os.path.exists(self.solar_irr.filename))
+    def test_reflectance(self):
+        """Test the derivation of the refletive part of a 3.7 micron band"""
 
-        self.assertEqual(self.solar_irr.wavelength.shape[0], 1697)
-        self.assertEqual(self.solar_irr.irradiance.shape[0], 1697)
+        refl37 = Calculator(TEST_RSR)
 
+        SUNZ = 80.
+        TB3 = 290
+        TB4 = 282
+        REFL = refl37.reflectance_from_tbs(SUNZ, TB3, TB4)
+        print REFL
+        self.assertAlmostEqual(REFL, 0.251714015434)
 
-    def test_solar_flux(self):
-        """Calculate the solar-flux"""
-        self.solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, 
-                                                 dlambda=0.005)
-        sflux = self.solar_irr.solar_flux_over_band(self.rsr)
-        self.assertAlmostEqual(sflux, 1.9674582420093827)
 
     def tearDown(self):
         """Clean up"""
-        return
 
