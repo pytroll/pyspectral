@@ -37,6 +37,10 @@ except KeyError:
     raise
 
 CONF = ConfigParser.ConfigParser()
+if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
+    raise IOError(str(CONFIG_FILE) + " pointed to by the environment " + 
+                  "variable PSP_CONFIG_FILE is not a file or does not exist!")
+
 try:
     CONF.read(CONFIG_FILE)
 except ConfigParser.NoSectionError:
