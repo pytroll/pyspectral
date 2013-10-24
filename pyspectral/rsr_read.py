@@ -44,13 +44,15 @@ for bnum in range(1,37):
     MODIS_TERRA_RESPONSES['%d' % bnum] = resource_filename(__name__, 
                                                           'data/modis/terra/Reference_RSR_Dataset/%s' % fname)
 
+from pyspectral.viirs_rsr import ViirsRSR
+
 
 # ----------------------------------------------------
 class RelativeSpectralResponse(object):
     """Container for the relative spectral response functions for various
     satellite imagers
     """
-    def __init__(self, platform='noaa', satnum=19, instrument='avhrr', 
+    def __init__(self, platform='noaa', satnum='19', instrument='avhrr', 
                  sort = True):
         self.platform = platform
         self.satnum = satnum
@@ -62,33 +64,46 @@ class RelativeSpectralResponse(object):
         
         # So far only support for Modis:
         if self.platform == "eos":
-            self.satellite_id = "%s-%d" % (self.platform, self.satnum)
-            if self.satnum == 1:
+            self.satellite_id = "%s-%s" % (self.platform, self.satnum)
+            if self.satnum == '1':
                 for bnum in range(1, 37):
                     self.filenames = MODIS_TERRA_RESPONSES
                 self.filenames['3.7'] = self.filenames['20']
-            elif self.satnum == 2:
+            elif self.satnum == '2':
                 for bnum in range(1, 37):
                     self.filenames = MODIS_AQUA_RESPONSES
                 self.filenames['3.7'] = self.filenames['20']
             else:
-                raise IOError("Invalid satellite id: %s-%d" % (self.platform, self.satnum))
+                raise IOError("Invalid satellite id: %s-%s" % (self.platform, self.satnum))
 
-    def read(self, **args):
+
+
+    def load(self, **args):
         """Read the relative spectral response data from file. Be aware that
         these raw data may not be sorted. They may not have monotonically
         increasing wavelengths and there may be duplicates. The sort method
         must be called to fix that. This is done on default.
         """
 
+        if 'band' in args:
+            band = args['band']
+        else:
+            band = None # E.g. 'M12'
+
+        if self.platform == "npp":
+            viirs = ViirsRSR(band)
+
+            self.rsr = viirs.rsr
+            if self._sort:
+                self.sort()
+            self.filename = viirs.filename
+            return
+
+
         if 'channel' in args:
             channel = args['channel']
         else:
             channel = None # '3.7'        
-        if 'band' in args:
-            band = args['band']
-        else:
-            band = None # 'M12'
         if 'scale' in args:
             scale = args['scale']
         else:
@@ -105,16 +120,7 @@ class RelativeSpectralResponse(object):
 
 
         if self.instrument == "modis" and self.platform == "eos":
-            #if self.satnum == 1:
-            #    scale = 1.0 # Scale should be 0.001 for VIS/NIR channels
-            #elif self.satnum == 2:
-            #    scale = 0.001
-            #else:
-            #    IOError("Satellite number %d for platform %s not supported!" % \
-            #                (self.satnum, self.platform))
             detector = read_modis_response(filename, scale)
-
-
         else:
             raise IOError("Platform %s or imager " % self.platform + 
                           "%s not supported yet!" % self.instrument)
@@ -123,6 +129,20 @@ class RelativeSpectralResponse(object):
         if self._sort:
             self.sort()
 
+    def integral(self):
+        """Calculate the integral of the spectral response function. Should
+        equals one if the reponse function is a true 'relative spectral
+        response'
+        """
+
+        intg = {}
+        for det in self.rsr.keys():
+            wvl = self.rsr[det]['wavelength']
+            resp = self.rsr[det]['response']
+            intg[det] = np.trapz(resp, wvl)
+        return intg
+
+ 
     def sort(self):
         """Sort the data so that x is monotonically increasing and contains
         no duplicates."""

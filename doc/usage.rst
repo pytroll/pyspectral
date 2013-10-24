@@ -12,8 +12,8 @@ A simple use case::
 
   >>> from pyspectral.rsr_read import RelativeSpectralResponse
   >>> from pyspectral.solar import (SolarIrradianceSpectrum, TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
-  >>> modis = RelativeSpectralResponse('eos', 2, 'modis')
-  >>> modis.read(channel='20', scale=0.001)
+  >>> modis = RelativeSpectralResponse('eos', '2', 'modis')
+  >>> modis.load(channel='20', scale=0.001)
   >>> solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, dlambda=0.005)
   >>> sflux = solar_irr.solar_flux_over_band(modis.rsr)
   >>> print("Solar flux over Band: ", sflux)
@@ -28,4 +28,4 @@ the Aqua MODIS 3.7 micron band::
   >>> tb4 = 282.0
   >>> refl37 = Calculator(modis.rsr, solar_flux=sflux)
   >>> print refl37.reflectance_from_tbs(sunz, tb3, tb4)
-  0.258119312599
+  0.258304816313

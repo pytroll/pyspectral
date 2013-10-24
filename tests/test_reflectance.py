@@ -68,7 +68,7 @@ class Test(unittest.TestCase):
         TB4 = 282
         REFL = refl37.reflectance_from_tbs(SUNZ, TB3, TB4)
         print REFL
-        self.assertAlmostEqual(REFL, 0.251714015434)
+        self.assertAlmostEqual(REFL, 0.251893180316)
 
 
     def tearDown(self):

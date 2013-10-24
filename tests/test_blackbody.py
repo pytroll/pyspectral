@@ -28,8 +28,8 @@ from pyspectral.blackbody import blackbody
 import unittest
 import numpy as np
 
-RAD_11MICRON_300KELVIN = 9570997.2083220929
-RAD_11MICRON_301KELVIN = 9712484.1049237009
+RAD_11MICRON_300KELVIN = 9572498.1141643394
+RAD_11MICRON_301KELVIN = 9713997.9623772576
 
 class Test(unittest.TestCase):
     """Unit testing the pps reading"""

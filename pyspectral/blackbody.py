@@ -23,11 +23,61 @@
 """Planck radiation equation
 """
 
-h_planck = 6.6262*1e-34 # SI-unit = [J*s]
-k_boltzmann = 1.3806e-23 # SI-unit = [J/K]
-c_speed = 2.99793e8 # SI-unit = [m/s]
+import numpy as np
+
+h_planck = 6.626206957*1e-34 # SI-unit = [J*s]
+k_boltzmann = 1.3806488*1e-23 # SI-unit = [J/K]
+c_speed = 2.99792458*1e8 # SI-unit = [m/s]
 
 EPSILON = 0.000001
+
+# -------------------------------------------------------------------
+def blackbody_wn(wavnum, temperature):
+    """The Planck radiation or Blackbody radiation as a function of wave number
+    SI units!
+    blackbody_wn(wavnum, temperature)
+      wavnum = Array of wave numbers (m-1)
+      temperature = Array of temperatures (K)
+
+    Output: The spectral radiance in Watts per square meter per steradian
+            per m-1:
+            Unit = W/m^2 sr^-1 (m^-1)^-1 = W/m sr^-1
+                 = mW/m^2 sr^-1 (cm^-1)^-1 * 0.1
+    """
+
+    if np.isscalar(temperature):
+        temperature = [temperature, ]
+    temperature = np.array(temperature, dtype='float64')
+    shape = temperature.shape
+    if np.isscalar(wavnum):
+        wavnum = [wavnum,]
+    wavnum = np.array(wavnum, dtype='float64')
+
+    wnpow3 = wavnum*wavnum*wavnum
+    nom = 2 * h_planck * c_speed * c_speed * wnpow3
+    arg1 = h_planck * c_speed * wavnum / k_boltzmann
+    arg2 = np.where(np.greater(np.abs(temperature), EPSILON), 
+                    np.array(1. / temperature), -9).reshape(-1, 1)
+
+    arg2 = np.ma.masked_array(arg2, mask = arg2==-9)
+    exp_arg = np.multiply(arg1.astype('float32'), arg2.astype('float32'))
+    denom = np.exp(exp_arg) - 1
+
+    rad = nom / denom
+    radshape = rad.shape
+    if wavnum.shape[0] == 1:
+        if temperature.shape[0] == 1:
+            return rad[0, 0]
+        else:
+            return rad[:, 0].reshape(shape)
+    else:
+        if temperature.shape[0] == 1:
+            return rad[0, :]
+        else:
+            if len(shape) == 1:
+                return np.reshape(rad, (shape[0], radshape[1]))
+            else:
+                return np.reshape(rad, (shape[0], shape[1], radshape[1]))
 
 # -------------------------------------------------------------------
 def blackbody(wl, temperature):
@@ -38,9 +88,8 @@ def blackbody(wl, temperature):
       temperature = Array of temperatures (K)
 
     Output: The spectral radiance per meter (not micron!)
-
+            Unit = W/m^2 sr^-1 m^-1
     """
-    import numpy as np
 
     if np.isscalar(temperature):
         temperature = [temperature, ]

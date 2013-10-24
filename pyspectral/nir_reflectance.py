@@ -33,7 +33,14 @@ from scipy import integrate
 
 from pyspectral.solar import (SolarIrradianceSpectrum, 
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
-from pyspectral.blackbody import blackbody
+from pyspectral.blackbody import blackbody, blackbody_wn
+
+WAVE_LENGTH = 'wavelength'
+WAVE_NUMBER = 'wavenumber'
+
+EPSILON = 0.01
+TB_MIN = 180.
+TB_MAX = 360.
 
 class Calculator(object):
     """A thermal near-infrared (e.g. 3.7 micron) band reflectance calculator.
@@ -46,13 +53,27 @@ class Calculator(object):
 
     The relfectance calculated is without units and should be between 0 and 1.
     """
-    def __init__(self, rsr_nir, solar_flux=None):
+    def __init__(self, rsr_nir, solar_flux=None, **options):
         """
         Input: 
-          rsr_nir = thermal near-infrared band relative spectral response
+          rsr_nir = thermal near-infrared band relative spectral response in
+          wavelength space (micro meters)
         Optional:
           solar_flux = In-band solar flux
         """
+        if 'wavespace' in options:
+            if options['wavespace'] not in [WAVE_LENGTH, WAVE_NUMBER]:
+                raise AttributeError('Wave space not %s or %s!' % (WAVE_LENGTH, 
+                                                                   WAVE_NUMBER))
+            self.wavespace = options['wavespace']
+        else:
+            self.wavespace = WAVE_LENGTH
+        if 'tb_resolution' in options:
+            self.tb_resolution = options['tb_resolution']
+        else:
+            self.tb_resolution = 0.1
+        self.tb_scale = 1./self.tb_resolution
+
         # Resample/Interpolate the response curve:
         try:
             wvl = rsr_nir['wavelength']
@@ -62,16 +83,34 @@ class Calculator(object):
             wvl = rsr_nir['det-1']['wavelength']
             resp = rsr_nir['det-1']['response']
         
+        # Conversion from wavelengths to wave numbers:
+        if self.wavespace == WAVE_NUMBER:
+            wvl = 1./wvl[::-1] 
+            resp = resp[::-1]
+            scale = 1000000.0
+            unit = 'm-1'
+        elif self.wavespace == WAVE_LENGTH:
+            scale = 1./1000000.0 # microns -> meters
+            unit = 'm'
+        else:
+            raise AttributeError('wavespace ' + self.wavespace + 
+                                 ' not supported!')
+
+        wvl = wvl * scale
         start = wvl[0]
         end = wvl[-1]
-        dlambda = 0.0005
+        dlambda = (end - start) / 3000.
+
         xspl = np.linspace(start, end, (end-start)/dlambda)
         ius = InterpolatedUnivariateSpline(wvl, resp)
         resp_ipol = ius(xspl)
-        wavel = xspl / 1000000.0 # microns -> meters
+        wavel = xspl
 
-        self.rsr = {'wavelength': wavel, 'response': resp_ipol, 
-                    'units': ('m', None)}
+        self.rsr = {self.wavespace: wavel, 'response': resp_ipol, 
+                    'units': (unit, None)}
+        self.rsr_integral = np.trapz(resp_ipol, wavel)
+        #print("RSR integral: " + str(self.rsr_integral))
+
         self.rsr_input = rsr_nir
 
         if solar_flux == None:
@@ -79,6 +118,9 @@ class Calculator(object):
         else:
             self.solar_flux = solar_flux
 
+        self._rad37 = None
+        self._rad37_t11 = None
+        self._solar_radiance = None
 
     def _get_solarflux(self):
         """Derive the in-band solar flux from rsr"""
@@ -86,20 +128,29 @@ class Calculator(object):
                                                  dlambda=0.0005)
         self.solar_flux = solar_spectrum.solar_flux_over_band(self.rsr_input)
 
-    def tb2radiance(self, tb_):
+    def tb2radiance(self, tb_, lut=False):
         """Get the radiance from the brightness temperature (Tb) given the
         thermal near-infrared band spectral response"""
  
-        planck = blackbody(self.rsr['wavelength'], tb_) * self.rsr['response']
-        return integrate.trapz(planck, (self.rsr['wavelength']))
+        if lut:
+            ntb = (tb_ * self.tb_scale).astype('int16')
+            start = int(lut['tb'][0] * self.tb_scale)
+            return lut['radiance'][ntb - start]
+            
+        if self.wavespace == WAVE_LENGTH:
+            planck = (blackbody(self.rsr['wavelength'], tb_) * 
+                      self.rsr['response'])
+        else:
+            planck = (blackbody_wn(self.rsr[self.wavespace], tb_) * 
+                      self.rsr['response'])
 
-    def make_tb2rad_lut(self, filepath, resolution=0.1):
+        return integrate.trapz(planck, (self.rsr[self.wavespace]))
+
+    def make_tb2rad_lut(self, filepath):
         """Generate a Tb to radiance look-up table"""
 
-        tb_ = np.arange(180.0, 360.0, resolution)
-        #print "Tb shape = ", tb_.shape
+        tb_ = np.arange(TB_MIN, TB_MAX, self.tb_resolution)
         rad = self.tb2radiance(tb_)
-        #print "Radiance shape = ", rad.shape
         
         np.savez(filepath, tb=tb_, radiance=rad.compressed())
 
@@ -128,14 +179,16 @@ class Calculator(object):
         # The following can be done by applying a look-up-table:
         if lookuptable and os.path.exists(lookuptable):
             LOG.info("Using radiance-tb look up table to derive radiances")
-            ntb_therm = (tb_therm * 10).astype('int16')
-            ntb_nir = (tb_nir * 10).astype('int16')
+            ntb_therm = (tb_therm * self.tb_scale).astype('int16')
+            ntb_nir = (tb_nir * self.tb_scale).astype('int16')
             lut = self.read_tb2rad_lut(lookuptable)
-            start = int(lut['tb'][0] * 10)
-            #print "Start tb in lut * 10: ", start
-            #dx_ = (lut['tb'][1] - lut['tb'][0]) * 10
+            start = int(lut['tb'][0] * self.tb_scale)
+            end = int(lut['tb'][-1] * self.tb_scale)
             thermal_emiss_one = lut['radiance'][ntb_therm - start]
-            l_nir = lut['radiance'][ntb_nir - start]
+            ntb_nir = np.ma.masked_less(ntb_nir, start).filled(start)
+            ntb_nir = np.ma.masked_greater(ntb_nir, end).filled(end)
+            idx = ntb_nir - start
+            l_nir = lut['radiance'][idx]
         else:
             thermal_emiss_one = self.tb2radiance(tb_therm)
             l_nir = self.tb2radiance(tb_nir)
@@ -143,10 +196,27 @@ class Calculator(object):
         #print thermal_emiss_one.min(), thermal_emiss_one.max()
         #print l_nir.min(), l_nir.max()
 
-        nomin = l_nir - thermal_emiss_one
         mu0 = np.cos(np.deg2rad(sunz))
-        LOG.debug("Shapes: " + str(mu0.shape) + "  " + str(thermal_emiss_one.shape))
-        denom = 1./np.pi * self.solar_flux * mu0 - thermal_emiss_one
+        #mu0 = np.where(np.less(mu0, 0.1), 0.1, mu0)
+        self._rad37 = l_nir
+        self._rad37_t11 = thermal_emiss_one
+        self._solar_radiance = 1./np.pi * self.solar_flux * mu0
+
+        mask = thermal_emiss_one > l_nir
+
+        nomin = l_nir - thermal_emiss_one
+        LOG.debug("Shapes: " + str(mu0.shape) + "  " + 
+                  str(thermal_emiss_one.shape))
+        denom = self._solar_radiance - thermal_emiss_one
         
-        retv = np.where(np.greater(abs(denom), 0.00001), nomin / denom, -9)
-        return np.ma.masked_array(retv, mask = retv < 0)
+        #nomin = np.where(np.less(nomin, 0), 0, nomin)
+        #denom = np.where(np.less(denom, 0), 0, denom)
+
+        #retv = np.where(np.greater(abs(denom), 
+        #                           nomin.max()*EPSILON), 
+        #                nomin/denom, nomin/(nomin.max()*EPSILON))
+        #return np.ma.masked_where(retv < 0, retv)
+        retv = nomin / denom
+        retv = np.ma.masked_array(retv, mask = mask)
+        return np.ma.masked_where(retv < 0, retv)
+        
