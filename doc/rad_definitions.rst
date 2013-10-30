@@ -83,7 +83,7 @@ is to support both representations. The units are of course dependent of which
 representation is used. 
 
 In wavelength space we write :math:`E(\lambda)` and it is given in units of
-:math:`W/m^2 \nu m^{-1}`.
+:math:`W/m^2 \mu m^{-1}`.
 
 In wavenumber space we write :math:`E(\nu)` and it is given in units of
 :math:`W/m^2 (cm^{-1})^{-1}`.
@@ -100,7 +100,7 @@ And if the units are not SI but rather given by the units shown above we have to
 
 .. math::
 
-    E_\nu = E_\lambda \lambda^2 \times 0.1
+    E_\nu = {E_\lambda * \lambda^2 * 0.1}
 
 
 
