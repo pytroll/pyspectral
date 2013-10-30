@@ -22,7 +22,7 @@ The source code of the module can be found on the github_ page.
    usage
    seviri_example
    37_reflectance
-
+   rad_definitions
 
 Indices and tables
 ==================
