@@ -73,8 +73,8 @@ class Test(unittest.TestCase):
         """Calculate the solar-flux"""
         self.solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, 
                                                  dlambda=0.005)
-        sflux = self.solar_irr.solar_flux_over_band(self.rsr)
-        self.assertAlmostEqual(sflux, 1.9674582420093827)
+        sflux = self.solar_irr.inband_solarflux(self.rsr)
+        self.assertAlmostEqual(sflux, 2.0029277645144234)
 
     def tearDown(self):
         """Clean up"""

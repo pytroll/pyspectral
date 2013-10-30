@@ -126,7 +126,7 @@ class Calculator(object):
         """Derive the in-band solar flux from rsr"""
         solar_spectrum = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, 
                                                  dlambda=0.0005)
-        self.solar_flux = solar_spectrum.solar_flux_over_band(self.rsr_input)
+        self.solar_flux = solar_spectrum.inband_solarflux(self.rsr_input)
 
     def tb2radiance(self, tb_, lut=False):
         """Get the radiance from the brightness temperature (Tb) given the
