@@ -121,6 +121,19 @@ class Calculator(object):
         self._rad37 = None
         self._rad37_t11 = None
         self._solar_radiance = None
+        self._rad39_correction = 1.0
+
+    def derive_rad39_corr(self, bt11, bt13, method='rosenfeld'):
+        """Derive the 3.9 radiance correction factor to account for the
+        attenuation of the emitted 3.9 radiance by CO2 absorption. Requires the
+        11 micron window band and the 13.4 CO2 absorption band, as
+        e.g. available on SEVIRI. Currently only supports the Rosenfeld method"""
+        if method != 'rosenfeld':
+            raise AttributeError("Only CO2 correction for SEVIRI using " + 
+                                 "the Rosenfeld equation is supported!")
+
+        LOG.debug("Derive the 3.9 micron radiance CO2 correction coefficent")
+        self._rad39_correction = (bt11 - 0.25 * (bt11 - bt13)) ** 4 / bt11 ** 4
 
     def _get_solarflux(self):
         """Derive the in-band solar flux from rsr"""
@@ -202,12 +215,15 @@ class Calculator(object):
         self._rad37_t11 = thermal_emiss_one
         self._solar_radiance = 1./np.pi * self.solar_flux * mu0
 
+        # CO2 correction to the 3.9 radiance:
+        # self._rad39_correction
+
         mask = thermal_emiss_one > l_nir
 
-        nomin = l_nir - thermal_emiss_one
+        nomin = l_nir - thermal_emiss_one * self._rad39_correction
         LOG.debug("Shapes: " + str(mu0.shape) + "  " + 
                   str(thermal_emiss_one.shape))
-        denom = self._solar_radiance - thermal_emiss_one
+        denom = self._solar_radiance - thermal_emiss_one * self._rad39_correction
         
         #nomin = np.where(np.less(nomin, 0), 0, nomin)
         #denom = np.where(np.less(denom, 0), 0, denom)
