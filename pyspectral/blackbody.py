@@ -36,13 +36,12 @@ def blackbody_wn(wavnum, temperature):
     """The Planck radiation or Blackbody radiation as a function of wave number
     SI units!
     blackbody_wn(wavnum, temperature)
-      wavnum = Array of wave numbers (m-1)
-      temperature = Array of temperatures (K)
+    wavnum = Array of wave numbers (m-1)
+    temperature = Array of temperatures (K)
 
     Output: The spectral radiance in Watts per square meter per steradian
             per m-1:
-            Unit = W/m^2 sr^-1 (m^-1)^-1 = W/m sr^-1
-                 = mW/m^2 sr^-1 (cm^-1)^-1 * 0.1
+            Unit = W/m^2 sr^-1 (m^-1)^-1 = W/m sr^-1 = mW/m^2 sr^-1 (cm^-1)^-1 * 0.1
     """
 
     if np.isscalar(temperature):
@@ -84,8 +83,8 @@ def blackbody(wl, temperature):
     """The Planck radiation or Blackbody radiation as a function of wavelength
     SI units.
     blackbody(wl, temperature)
-      wl = Array of wavelengths (m)
-      temperature = Array of temperatures (K)
+    wl = Array of wavelengths (m)
+    temperature = Array of temperatures (K)
 
     Output: The spectral radiance per meter (not micron!)
             Unit = W/m^2 sr^-1 m^-1

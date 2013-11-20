@@ -47,10 +47,10 @@ class SolarIrradianceSpectrum(object):
     def __init__(self, filename, **options):
         """
         Input:
-          filename: Filename of the solar irradiance spectrum
-          dlambda:
-          Delta wavelength => the step in wavelength defining the resolution on
-          which to integrate/convolute.
+        filename: Filename of the solar irradiance spectrum
+        dlambda:
+        Delta wavelength: the step in wavelength defining the resolution on
+        which to integrate/convolute.
         """
         self.wavelength = None
         self.wavenumber = None
@@ -121,10 +121,10 @@ class SolarIrradianceSpectrum(object):
         of one AU.
 
         rsr: Relative Spectral Response (one detector only)
-             Dictionary with two members 'wavelength' and 'response'
+        Dictionary with two members 'wavelength' and 'response'
         options:
-             detector: Detector number (between 1 and N - N=number of detectors
-             for channel)
+        detector: Detector number (between 1 and N - N=number of detectors
+        for channel)
         """
         import numpy as np
         from scipy.interpolate import InterpolatedUnivariateSpline
@@ -186,10 +186,10 @@ class SolarIrradianceSpectrum(object):
         start = Start of the wavelength interval (left/lower)
         end = End of the wavelength interval (right/upper end)
         options:
-          dlambda: Delta wavelength used when interpolating/resampling
-          ival_wavelength: Tuple. The start and end interval in wavelength
-          space, defining where to integrate/convolute the spectral response
-          curve on the spectral irradiance data.
+        dlambda: Delta wavelength used when interpolating/resampling
+        ival_wavelength: Tuple. The start and end interval in wavelength
+        space, defining where to integrate/convolute the spectral response
+        curve on the spectral irradiance data.
         """        
         from numpy import linspace
         from scipy.interpolate import InterpolatedUnivariateSpline

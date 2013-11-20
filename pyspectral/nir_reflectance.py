@@ -28,8 +28,6 @@ import logging
 LOG = logging.getLogger(__name__)
 
 import numpy as np
-from scipy.interpolate import InterpolatedUnivariateSpline
-from scipy import integrate
 
 from pyspectral.solar import (SolarIrradianceSpectrum, 
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
@@ -56,11 +54,13 @@ class Calculator(object):
     def __init__(self, rsr_nir, solar_flux=None, **options):
         """
         Input: 
-          rsr_nir = thermal near-infrared band relative spectral response in
-          wavelength space (micro meters)
+        rsr_nir = thermal near-infrared band relative spectral response in
+        wavelength space (micro meters)
         Optional:
-          solar_flux = In-band solar flux
+        solar_flux = In-band solar flux
         """
+        from scipy.interpolate import InterpolatedUnivariateSpline
+
         if 'wavespace' in options:
             if options['wavespace'] not in [WAVE_LENGTH, WAVE_NUMBER]:
                 raise AttributeError('Wave space not %s or %s!' % (WAVE_LENGTH, 
@@ -144,7 +144,8 @@ class Calculator(object):
     def tb2radiance(self, tb_, lut=False):
         """Get the radiance from the brightness temperature (Tb) given the
         thermal near-infrared band spectral response"""
- 
+        from scipy import integrate
+
         if lut:
             ntb = (tb_ * self.tb_scale).astype('int16')
             start = int(lut['tb'][0] * self.tb_scale)

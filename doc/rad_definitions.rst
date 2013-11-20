@@ -100,7 +100,7 @@ And if the units are not SI but rather given by the units shown above we have to
 
 .. math::
 
-    E_\nu = {0.1 E_\lambda \lambda^2}
+    E_\nu = {E_\lambda \lambda^2 * 0.1}
 
 
 
