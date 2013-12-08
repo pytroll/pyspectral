@@ -109,7 +109,7 @@ class SolarIrradianceSpectrum(object):
         return self._band_calculations(rsr, True, **options)
 
     def inband_solarirradiance(self, rsr, **options):
-        """Derive the inband solar flux for a given instrument relative
+        """Derive the inband solar irradiance for a given instrument relative
         spectral response valid for an earth-sun distance of one AU."""
 
         return self._band_calculations(rsr, False, **options)
@@ -172,7 +172,7 @@ class SolarIrradianceSpectrum(object):
 
         # Calculate the solar-flux: (w/m2)
         if flux:
-            return np.trapz(irr*resp_ipol, wvl) # / np.trapz(resp_ipol, wvl)
+            return np.trapz(irr*resp_ipol, wvl)
         else:
             return np.trapz(irr*resp_ipol, wvl)  / np.trapz(resp_ipol, wvl)
             
