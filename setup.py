@@ -62,7 +62,7 @@ setup(name='pyspectral',
       # Project should use reStructuredText, so ensure that the docutils get
       # installed or upgraded on the target machine
       install_requires=['docutils>=0.3', 
-                        'numpy', 'scipy'],
+                        'numpy>=1.5.1', 'scipy>=0.8.1'],
       extras_require = {'xlrd': ['xlrd']},
       scripts = [],      
       data_files=[('etc', ['etc/pyspectral.cfg'])],
