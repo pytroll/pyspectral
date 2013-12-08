@@ -9,3 +9,10 @@ install:
 # command to run tests, e.g. python setup.py test
 #script:  python setup.py test
 script: coverage run --source=pyspectral setup.py test
+virtualenv:
+  system_site_packages: true
+before_install:
+  - pip install numpy
+  - pip install scipy
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq libatlas-dev libatlas-base-dev liblapack-dev gfortran
