@@ -65,7 +65,7 @@ setup(name='pyspectral',
                         'numpy>=1.5.1', 'scipy>=0.8.1'],
       extras_require = {'xlrd': ['xlrd']},
       scripts = [],      
-      data_files=[('etc', ['etc/pyspectral.cfg'])],
+      data_files=[('etc', ['etc/pyspectral.cfg_template'])],
       test_suite="nose.collector",
       tests_require=[],
 
