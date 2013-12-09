@@ -24,10 +24,8 @@
 """
 
 
-from pyspectral.rsr_read import RelativeSpectralResponse
 from pyspectral.nir_reflectance import Calculator
 
-import os
 import unittest
 import numpy as np
 
