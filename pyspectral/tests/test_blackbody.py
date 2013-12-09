@@ -31,8 +31,8 @@ import numpy as np
 RAD_11MICRON_300KELVIN = 9572498.1141643394
 RAD_11MICRON_301KELVIN = 9713997.9623772576
 
-class Test(unittest.TestCase):
-    """Unit testing the pps reading"""
+class TestBlackbody(unittest.TestCase):
+    """Unit testing the blackbody function"""
            
     def setUp(self):
         """Set up"""
@@ -61,3 +61,12 @@ class Test(unittest.TestCase):
         """Clean up"""
         return
 
+
+def suite():
+    """The suite for test_blackbody.
+    """
+    loader = unittest.TestLoader()
+    mysuite = unittest.TestSuite()
+    mysuite.addTest(loader.loadTestsFromTestCase(TestBlackbody))
+    
+    return mysuite
