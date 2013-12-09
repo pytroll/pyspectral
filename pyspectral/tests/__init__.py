@@ -25,10 +25,7 @@
 
 from pyspectral import (solar, 
                         nir_reflectance,
-                        blackbody,
-                        viirs_rsr,
-                        seviri_rsr)
-                        
+                        blackbody)
 from pyspectral.tests import (test_blackbody, 
                               test_reflectance, 
                               test_solarflux)
@@ -46,6 +43,11 @@ def suite():
     mysuite.addTests(doctest.DocTestSuite(blackbody))
     # Use the unittests also
     mysuite.addTests(test_blackbody.suite())
+
+    mysuite.addTests(doctest.DocTestSuite(solar))
+    mysuite.addTests(test_solarflux.suite())
+    mysuite.addTests(doctest.DocTestSuite(nir_reflectance))
+    mysuite.addTests(test_reflectance.suite())
     
     return mysuite
 
