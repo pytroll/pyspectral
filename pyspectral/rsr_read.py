@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013 Adam.Dybbroe
+# Copyright (c) 2013, 2014 Adam.Dybbroe
 
 # Author(s):
 
@@ -45,7 +45,7 @@ for bnum in range(1,37):
                                                           'data/modis/terra/Reference_RSR_Dataset/%s' % fname)
 
 from pyspectral.viirs_rsr import ViirsRSR
-
+from pyspectral.avhrr_rsr import AvhrrRSR
 
 # ----------------------------------------------------
 class RelativeSpectralResponse(object):
@@ -97,6 +97,15 @@ class RelativeSpectralResponse(object):
             if self._sort:
                 self.sort()
             self.filename = viirs.filename
+            return
+
+        if self.platform == "noaa" and self.satnum=="19":
+            avhrr = AvhrrRSR(band, self.platform + self.satnum)
+
+            self.rsr = avhrr.rsr
+            if self._sort:
+                self.sort()
+            self.filename = avhrr.filename
             return
 
 
