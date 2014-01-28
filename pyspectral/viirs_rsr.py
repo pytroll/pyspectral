@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013 Adam.Dybbroe
+# Copyright (c) 2013, 2014 Adam.Dybbroe
 
 # Author(s):
 
@@ -53,7 +53,7 @@ class ViirsRSR(object):
         self.rsr = None
 
         self._get_bandfile()
-        print("Filename: " + str(self.filename))
+        LOG.debug("Filename: " + str(self.filename))
         self._load()
 
     def _get_bandfile(self):
@@ -100,14 +100,27 @@ class ViirsRSR(object):
         """
         import numpy as np
         
-        data = np.genfromtxt(self.filename, 
-                             unpack=True, 
-                             names=['bandname', 
-                                    'detector',
-                                    'subsample',
-                                    'wavelength',
-                                    'response'])
-
+        try:
+            data = np.genfromtxt(self.filename, 
+                                 unpack=True, 
+                                 names=['bandname', 
+                                        'detector',
+                                        'subsample',
+                                        'wavelength',
+                                        'band_avg_snr',
+                                        'asr',
+                                        'response',
+                                        'quality_flag',
+                                        'xtalk_flag'])
+        except ValueError:
+            data = np.genfromtxt(self.filename, 
+                                 unpack=True, 
+                                 names=['bandname', 
+                                        'detector',
+                                        'subsample',
+                                        'wavelength',
+                                        'response'])
+            
         wavelength = data['wavelength'] * scale
         response = data['response']
         det = data['detector']

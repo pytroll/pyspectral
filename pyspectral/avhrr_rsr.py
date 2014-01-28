@@ -57,7 +57,7 @@ class AvhrrRSR(object):
         self.rsr = None
 
         self._get_bandfilenames()
-        print("Filenames: " + str(self.filenames))
+        LOG.debug("Filenames: " + str(self.filenames))
         if os.path.exists(self.filenames[bandname]):
             self.requested_band_filename = self.filenames[bandname]
             self._load()
@@ -84,9 +84,9 @@ class AvhrrRSR(object):
 
         path = options["path"]
         for band in AVHRR_BAND_NAMES:
-            print "Band= " + str(band)
+            LOG.debug("Band= " + str(band))
             self.filenames[band] = os.path.join(path, options[band])
-            print self.filenames[band]
+            LOG.debug(self.filenames[band])
             if not os.path.exists(self.filenames[band]):
                 LOG.warning("Couldn't find an existing file for this band: " + 
                             str(self.filenames[band]))
