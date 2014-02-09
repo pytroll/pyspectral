@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013 Adam.Dybbroe
+# Copyright (c) 2013, 2014 Adam.Dybbroe
 
 # Author(s):
 
@@ -20,7 +20,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Unittesting the solar_flux calculations
+"""Unit testing the solar_flux calculations
 """
 
 from pyspectral.solar import (SolarIrradianceSpectrum, 
@@ -88,4 +88,3 @@ def suite():
     mysuite.addTest(loader.loadTestsFromTestCase(TestSolarflux))
     
     return mysuite
-

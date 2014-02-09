@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013 Adam.Dybbroe
+# Copyright (c) 2013, 2014 Adam.Dybbroe
 
 # Author(s):
 
@@ -25,7 +25,7 @@
 
 import numpy as np
 
-h_planck = 6.626206957*1e-34 # SI-unit = [J*s]
+h_planck = 6.62606957*1e-34 # SI-unit = [J*s]
 k_boltzmann = 1.3806488*1e-23 # SI-unit = [J/K]
 c_speed = 2.99792458*1e8 # SI-unit = [m/s]
 
@@ -41,7 +41,10 @@ def blackbody_wn(wavnum, temperature):
 
     Output: The spectral radiance in Watts per square meter per steradian
             per m-1:
-            Unit = W/m^2 sr^-1 (m^-1)^-1 = W/m sr^-1 = mW/m^2 sr^-1 (cm^-1)^-1 * 0.1
+            Unit = W/m^2 sr^-1 (m^-1)^-1 = W/m sr^-1
+
+            Converting from SI units to mW/m^2 sr^-1 (cm^-1)^-1:
+            1.0 W/m^2 sr^-1 (m^-1)^-1 = 0.1 mW/m^2 sr^-1 (cm^-1)^-1
     """
 
     if np.isscalar(temperature):
