@@ -29,6 +29,8 @@ LOG = logging.getLogger(__name__)
 
 import ConfigParser
 import os
+import numpy as np
+
 
 try:
     CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
@@ -56,7 +58,23 @@ class AvhrrRSR(object):
             self.filenames[band] = None
         self.rsr = None
 
-        self._get_bandfilenames()
+        conf = ConfigParser.ConfigParser()
+        try:
+            conf.read(CONFIG_FILE)
+        except ConfigParser.NoSectionError:
+            LOG.exception('Failed reading configuration file: ' + str(CONFIG_FILE))
+            raise
+
+        options = {}
+        for option, value in conf.items(self.satname + '-avhrr', raw = True):
+            options[option] = value
+
+        for option, value in conf.items('general', raw = True):
+            options[option] = value
+
+        self.output_dir = options.get('rsr_dir', './')
+
+        self._get_bandfilenames(**options)
         LOG.debug("Filenames: " + str(self.filenames))
         if os.path.exists(self.filenames[bandname]):
             self.requested_band_filename = self.filenames[bandname]
@@ -68,19 +86,8 @@ class AvhrrRSR(object):
         # To be compatible with VIIRS....
         self.filename = self.requested_band_filename 
 
-    def _get_bandfilenames(self):
+    def _get_bandfilenames(self, **options):
         """Get the AVHRR rsr filenames"""
-
-        conf = ConfigParser.ConfigParser()
-        try:
-            conf.read(CONFIG_FILE)
-        except ConfigParser.NoSectionError:
-            LOG.exception('Failed reading configuration file: ' + str(CONFIG_FILE))
-            raise
-
-        options = {}
-        for option, value in conf.items(self.satname + '-avhrr', raw = True):
-            options[option] = value
 
         path = options["path"]
         for band in AVHRR_BAND_NAMES:
@@ -105,3 +112,37 @@ class AvhrrRSR(object):
         response = data['response']
 
         self.rsr = {'wavelength': wavelength, 'response': response}
+
+def get_central_wave(wavl, resp):
+    """Calculate the central wavelength or the central wavenumber, depending on
+    what is input"""
+
+    return np.trapz(resp*wavl, wavl) / np.trapz(resp, wavl)
+
+if __name__ == "__main__":
+
+    import h5py
+
+    platform_id, sat_number = "noaa", 19
+    avhrr = AvhrrRSR('ch1', 'noaa19')
+    filename = os.path.join(avhrr.output_dir, 
+                            "rsr_avhrr_%s%d.h5" % (platform_id, sat_number))
+
+    with h5py.File(filename, "w") as h5f:
+        for chname in AVHRR_BAND_NAMES:
+            avhrr = AvhrrRSR(chname, 'noaa19')
+            h5f.attrs['description'] = 'Relative Spectral Responses for AVHRR'
+            h5f.attrs['platform'] = platform_id
+            h5f.attrs['sat_number'] = sat_number
+            grp = h5f.create_group(chname)
+            wvl = avhrr.rsr['wavelength'][~np.isnan(avhrr.rsr['wavelength'])]
+            rsp = avhrr.rsr['response'][~np.isnan(avhrr.rsr['wavelength'])]
+            grp.attrs['central_wavelength'] = get_central_wave(wvl, rsp)
+            arr = avhrr.rsr['wavelength']
+            dset = grp.create_dataset('wavelength', arr.shape, dtype='f')
+            dset.attrs['unit'] = 'm'
+            dset.attrs['scale'] = 1e-06
+            dset[...] = arr
+            arr = avhrr.rsr['response']
+            dset = grp.create_dataset('response', arr.shape, dtype='f')
+            dset[...] = arr

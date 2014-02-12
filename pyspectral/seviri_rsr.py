@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013 Adam.Dybbroe
+# Copyright (c) 2013, 2014 Adam.Dybbroe
 
 # Author(s):
 
@@ -54,6 +54,25 @@ class Seviri(object):
         default. Can be 'wavenumber' in which case the unit is in cm-1.
 
         """
+
+        conf = ConfigParser.ConfigParser()
+        try:
+            conf.read(CONFIG_FILE)
+        except ConfigParser.NoSectionError:
+            LOG.exception('Failed reading configuration file: ' + str(CONFIG_FILE))
+            raise
+
+        options = {}
+        for option, value in conf.items('seviri', raw = True):
+            options[option] = value
+
+        self.seviri_path = options.get('path')
+
+        for option, value in conf.items('general', raw = True):
+            options[option] = value
+
+        self.output_dir = options.get('rsr_dir', './')
+
         self.rsr = None
         self._load()
         self.wavespace = wavespace
@@ -74,21 +93,9 @@ class Seviri(object):
     def _load(self, filename=None):
         """Read the SEVIRI rsr data"""
 
-        conf = ConfigParser.ConfigParser()
-        try:
-            conf.read(CONFIG_FILE)
-        except ConfigParser.NoSectionError:
-            LOG.exception('Failed reading configuration file: ' + str(CONFIG_FILE))
-            raise
 
-        options = {}
-        for option, value in conf.items('seviri', raw = True):
-            options[option] = value
-
-        seviri_path = options.get('path')
         if not filename:
-            filename = seviri_path
-
+            filename = self.seviri_path
 
         wb = open_workbook(filename)
 
@@ -200,3 +207,43 @@ def get_central_wave(wavl, resp):
 
     return np.trapz(resp*wavl, wavl) / np.trapz(resp, wavl)
 
+def generate_seviri_file(seviri, platform_id, sat_number):
+    """Generate the pyspectral internal common format relative response
+    function file for one SEVIRI"""
+
+    filename = os.path.join(sevObj.output_dir, 
+                            "rsr_seviri_%s%d.h5" % (platform_id, sat_number))
+
+    with h5py.File(filename, "w") as h5f:
+
+        for key in seviri.rsr.keys():
+            h5f.attrs['description'] = 'Relative Spectral Responses for SEVIRI'
+            h5f.attrs['platform'] = platform_id
+            h5f.attrs['sat_number'] = sat_number
+            grp = h5f.create_group(key)
+            if isinstance(seviri.central_wavelength[key]['met10'], dict):
+                grp.attrs['central_wavelength'] = seviri.central_wavelength[key]['met10']['95']
+            else:
+                grp.attrs['central_wavelength'] = seviri.central_wavelength[key]['met10']
+            arr = seviri.rsr[key]['wavelength']
+            dset = grp.create_dataset('wavelength', arr.shape, dtype='f')
+            dset.attrs['unit'] = 'm'
+            dset.attrs['scale'] = 1e-06
+            dset[...] = arr
+            try:
+                arr = seviri.rsr[key]['met10']['95']
+            except ValueError:
+                arr = seviri.rsr[key]['met10']
+            dset = grp.create_dataset('response', arr.shape, dtype='f')
+            dset[...] = arr
+
+    return
+
+if __name__ == "__main__":
+    sevObj = Seviri()
+
+    import h5py
+    for satnum in [8, 9, 10, 11]:        
+        generate_seviri_file(sevObj, 'meteosat', satnum)
+        print "meteosat%d done..." % satnum
+    

@@ -1,4 +1,5 @@
 [general]
+rsr_dir = /path/to/internal/rsr_data
 
 
 [seviri]
