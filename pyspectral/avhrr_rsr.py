@@ -31,6 +31,7 @@ import ConfigParser
 import os
 import numpy as np
 
+from pyspectral.utils import get_central_wave
 
 try:
     CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
@@ -113,24 +114,19 @@ class AvhrrRSR(object):
 
         self.rsr = {'wavelength': wavelength, 'response': response}
 
-def get_central_wave(wavl, resp):
-    """Calculate the central wavelength or the central wavenumber, depending on
-    what is input"""
-
-    return np.trapz(resp*wavl, wavl) / np.trapz(resp, wavl)
 
 if __name__ == "__main__":
 
     import h5py
 
-    platform_id, sat_number = "noaa", 19
-    avhrr = AvhrrRSR('ch1', 'noaa19')
+    platform_id, sat_number = "noaa", 18
+    avhrr = AvhrrRSR('ch1', 'noaa18')
     filename = os.path.join(avhrr.output_dir, 
                             "rsr_avhrr_%s%d.h5" % (platform_id, sat_number))
 
     with h5py.File(filename, "w") as h5f:
         for chname in AVHRR_BAND_NAMES:
-            avhrr = AvhrrRSR(chname, 'noaa19')
+            avhrr = AvhrrRSR(chname, 'noaa18')
             h5f.attrs['description'] = 'Relative Spectral Responses for AVHRR'
             h5f.attrs['platform'] = platform_id
             h5f.attrs['sat_number'] = sat_number
