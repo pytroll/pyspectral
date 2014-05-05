@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013 Adam.Dybbroe
+# Copyright (c) 2013, 2014 Adam.Dybbroe
 
 # Author(s):
 
@@ -28,8 +28,10 @@ from pyspectral.blackbody import blackbody
 import unittest
 import numpy as np
 
-RAD_11MICRON_300KELVIN = 9572498.1141643394
-RAD_11MICRON_301KELVIN = 9713997.9623772576
+#RAD_11MICRON_300KELVIN = 9572498.1141643394
+RAD_11MICRON_300KELVIN = 9573177.8811719529
+#RAD_11MICRON_301KELVIN = 9713997.9623772576
+RAD_11MICRON_301KELVIN = 9714688.2959563732
 
 class TestBlackbody(unittest.TestCase):
     """Unit testing the blackbody function"""

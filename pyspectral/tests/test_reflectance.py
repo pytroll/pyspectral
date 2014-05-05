@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013 Adam.Dybbroe
+# Copyright (c) 2013, 2014 Adam.Dybbroe
 
 # Author(s):
 
@@ -65,8 +65,9 @@ class TestReflectance(unittest.TestCase):
         TB3 = 290
         TB4 = 282
         REFL = refl37.reflectance_from_tbs(SUNZ, TB3, TB4)
-        print REFL
-        self.assertAlmostEqual(REFL, 0.251173635575)
+        #print REFL
+        #self.assertAlmostEqual(REFL, 0.251173635575)
+        self.assertAlmostEqual(REFL, 0.251268628723)
 
 
     def tearDown(self):
