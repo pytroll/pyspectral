@@ -107,7 +107,8 @@ class AvhrrRSR(object):
         data = np.genfromtxt(self.requested_band_filename,
                              unpack=True, 
                              names=['wavelength',
-                                    'response'])
+                                    'response'],
+                             skip_header=1)
 
         wavelength = data['wavelength'] * scale
         response = data['response']
@@ -115,21 +116,25 @@ class AvhrrRSR(object):
         self.rsr = {'wavelength': wavelength, 'response': response}
 
 
-if __name__ == "__main__":
+def convert2hdf5(platform_id, sat_number):
+    """Retrieve original RSR data and convert to internal hdf5 format"""
 
     import h5py
 
-    platform_id, sat_number = "noaa", 18
-    avhrr = AvhrrRSR('ch1', 'noaa18')
+    satellite_id = platform_id + str(sat_number)
+    
+    avhrr = AvhrrRSR('ch1', satellite_id)
     filename = os.path.join(avhrr.output_dir, 
                             "rsr_avhrr_%s%d.h5" % (platform_id, sat_number))
 
     with h5py.File(filename, "w") as h5f:
+        h5f.attrs['description'] = 'Relative Spectral Responses for AVHRR'
+        h5f.attrs['platform'] = platform_id
+        h5f.attrs['sat_number'] = sat_number
+        h5f.attrs['band_names'] = AVHRR_BAND_NAMES
+
         for chname in AVHRR_BAND_NAMES:
             avhrr = AvhrrRSR(chname, 'noaa18')
-            h5f.attrs['description'] = 'Relative Spectral Responses for AVHRR'
-            h5f.attrs['platform'] = platform_id
-            h5f.attrs['sat_number'] = sat_number
             grp = h5f.create_group(chname)
             wvl = avhrr.rsr['wavelength'][~np.isnan(avhrr.rsr['wavelength'])]
             rsp = avhrr.rsr['response'][~np.isnan(avhrr.rsr['wavelength'])]
@@ -142,3 +147,8 @@ if __name__ == "__main__":
             arr = avhrr.rsr['response']
             dset = grp.create_dataset('response', arr.shape, dtype='f')
             dset[...] = arr
+    
+if __name__ == "__main__":
+
+    for noaa_number in [18, 19]:
+        convert2hdf5('noaa', noaa_number)

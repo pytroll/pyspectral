@@ -197,11 +197,13 @@ if __name__ == "__main__":
                             "rsr_viirs_%s.h5" % platform_id)
 
     with h5py.File(filename, "w") as h5f:
+        h5f.attrs['description'] = 'Relative Spectral Responses for VIIRS'
+        h5f.attrs['platform'] = platform_id
+        h5f.attrs['sat_number'] = np.nan
+        h5f.attrs['band_names'] = VIIRS_BAND_NAMES
+
         for chname in VIIRS_BAND_NAMES:
             viirs = ViirsRSR(chname)
-            h5f.attrs['description'] = 'Relative Spectral Responses for VIIRS'
-            h5f.attrs['platform'] = platform_id
-            h5f.attrs['sat_number'] = np.nan
             grp = h5f.create_group(chname)
             grp.attrs['number_of_detetors'] = len(viirs.rsr.keys())
             # Loop over each detector to check if the sampling wavelengths are

@@ -40,9 +40,14 @@ if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
     raise IOError(str(CONFIG_FILE) + " pointed to by the environment " + 
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
 
-
 from xlrd import open_workbook
 import numpy as np
+
+METEOSAT_SAT = {'meteosat10': 'met10',
+                'meteosat9': 'met9',
+                'meteosat8': 'met8',
+                'meteosat11': 'met11',
+                }
 
 class Seviri(object):
     def __init__(self, wavespace='wavelength'):
@@ -214,26 +219,30 @@ def generate_seviri_file(seviri, platform_id, sat_number):
     filename = os.path.join(sevObj.output_dir, 
                             "rsr_seviri_%s%d.h5" % (platform_id, sat_number))
 
+    sat_name = METEOSAT_SAT['%s%d' % (platform_id, sat_number)]
     with h5py.File(filename, "w") as h5f:
 
+        h5f.attrs['description'] = 'Relative Spectral Responses for SEVIRI'
+        h5f.attrs['platform'] = platform_id
+        h5f.attrs['sat_number'] = sat_number        
+        bandlist = [ str(key) for key in seviri.rsr.keys() ]
+        h5f.attrs['band_names'] = bandlist
+        
         for key in seviri.rsr.keys():
-            h5f.attrs['description'] = 'Relative Spectral Responses for SEVIRI'
-            h5f.attrs['platform'] = platform_id
-            h5f.attrs['sat_number'] = sat_number
             grp = h5f.create_group(key)
-            if isinstance(seviri.central_wavelength[key]['met10'], dict):
-                grp.attrs['central_wavelength'] = seviri.central_wavelength[key]['met10']['95']
+            if isinstance(seviri.central_wavelength[key][sat_name], dict):
+                grp.attrs['central_wavelength'] = seviri.central_wavelength[key][sat_name]['95']
             else:
-                grp.attrs['central_wavelength'] = seviri.central_wavelength[key]['met10']
+                grp.attrs['central_wavelength'] = seviri.central_wavelength[key][sat_name]
             arr = seviri.rsr[key]['wavelength']
             dset = grp.create_dataset('wavelength', arr.shape, dtype='f')
             dset.attrs['unit'] = 'm'
             dset.attrs['scale'] = 1e-06
             dset[...] = arr
             try:
-                arr = seviri.rsr[key]['met10']['95']
+                arr = seviri.rsr[key][sat_name]['95']
             except ValueError:
-                arr = seviri.rsr[key]['met10']
+                arr = seviri.rsr[key][sat_name]
             dset = grp.create_dataset('response', arr.shape, dtype='f')
             dset[...] = arr
 
