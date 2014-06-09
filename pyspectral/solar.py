@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013 Adam.Dybbroe
+# Copyright (c) 2013, 2014 Adam.Dybbroe
 
 # Author(s):
 
@@ -35,7 +35,6 @@ from pkg_resources import resource_filename
 #      (119.5 - 1,000,000.0 nm)
 TOTAL_IRRADIANCE_SPECTRUM_2000ASTM = resource_filename(__name__, 
                                                        'data/e490_00a.dat')
-
 
 
 class SolarIrradianceSpectrum(object):
@@ -102,20 +101,20 @@ class SolarIrradianceSpectrum(object):
         else:
             raise TypeError('Neither wavelengths nor wavenumbers available!')
 
-    def inband_solarflux(self, rsr, **options):
+    def inband_solarflux(self, rsr, scale=1e+6, **options):
         """Derive the inband solar flux for a given instrument relative
         spectral response valid for an earth-sun distance of one AU."""
 
-        return self._band_calculations(rsr, True, **options)
+        return self._band_calculations(rsr, True, scale, **options)
 
-    def inband_solarirradiance(self, rsr, **options):
+    def inband_solarirradiance(self, rsr, scale=1e+6, **options):
         """Derive the inband solar irradiance for a given instrument relative
         spectral response valid for an earth-sun distance of one AU."""
 
         return self._band_calculations(rsr, False, **options)
 
 
-    def _band_calculations(self, rsr, flux, **options):
+    def _band_calculations(self, rsr, flux, scale, **options):
         """Derive the inband solar flux or inband solar irradiance for a given
         instrument relative spectral response valid for an earth-sun distance
         of one AU.
@@ -140,7 +139,7 @@ class SolarIrradianceSpectrum(object):
                 wvl = rsr['wavelength']
                 resp = rsr['response']
             else:
-                wvl = rsr['det-%d' % detector]['wavelength']
+                wvl = rsr['det-%d' % detector]['wavelength'] * scale
                 resp = rsr['det-%d' % detector]['response']
         else:
             if 'response' in rsr:

@@ -23,6 +23,9 @@
 """Planck radiation equation
 """
 
+import logging
+LOG = logging.getLogger(__name__)
+
 import numpy as np
 
 h_planck = 6.62606957*1e-34 # SI-unit = [J*s]
@@ -47,6 +50,7 @@ def blackbody_wn(wavnum, temperature):
             1.0 W/m^2 sr^-1 (m^-1)^-1 = 0.1 mW/m^2 sr^-1 (cm^-1)^-1
     """
 
+    LOG.debug("Using wave numbers when calculating the Blackbody temp...")
     if np.isscalar(temperature):
         temperature = [temperature, ]
     temperature = np.array(temperature, dtype='float64')
@@ -92,6 +96,11 @@ def blackbody(wl, temperature):
     Output: The spectral radiance per meter (not micron!)
             Unit = W/m^2 sr^-1 m^-1
     """
+
+    LOG.debug("Using wavelengths when calculating the Blackbody temp...")
+
+    print wl[0:5]
+    print temperature[0:5]
 
     if np.isscalar(temperature):
         temperature = [temperature, ]

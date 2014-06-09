@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013 Adam.Dybbroe
+# Copyright (c) 2013, 2014 Adam.Dybbroe
 
 # Author(s):
 
@@ -206,6 +206,9 @@ class Calculator(object):
         else:
             thermal_emiss_one = self.tb2radiance(tb_therm)
             l_nir = self.tb2radiance(tb_nir)
+
+        LOG.info('thermal_emiss_one = ' + str(thermal_emiss_one))
+        LOG.info('l_nir = ' + str(l_nir))
 
         #print thermal_emiss_one.min(), thermal_emiss_one.max()
         #print l_nir.min(), l_nir.max()

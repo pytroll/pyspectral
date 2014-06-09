@@ -53,10 +53,10 @@ class Calculator(RadtbConverter):
 
     The relfectance calculated is without units and should be between 0 and 1.
     """
-    def __init__(self, platform, satnum, instrument, solar_flux=None, 
-                 **options): 
+    def __init__(self, platform, satnum, instrument, bandname,
+                 solar_flux=None, **options): 
         super(Calculator, self).__init__(platform, satnum, instrument, 
-                                         method=1, **options)
+                                         bandname, method=1, **options)
 
         if solar_flux == None:
             self._get_solarflux()
@@ -66,6 +66,14 @@ class Calculator(RadtbConverter):
         self._rad37_t11 = None
         self._solar_radiance = None
         self._rad39_correction = 1.0
+
+        if 'detector' in options:
+            self.detector = options['detector']
+        else:
+            self.detector = 'det-1'
+
+        #if self.rsr:
+        #    self.rsr = self.rsr[bandname][self.detector]
 
 
     def derive_rad39_corr(self, bt11, bt13, method='rosenfeld'):
@@ -103,12 +111,29 @@ class Calculator(RadtbConverter):
             raise ValueError('Dimensions does not match!' + 
                              str(tb_therm.shape) + ' and ' + str(tb_nir.shape))
 
-        if not self.instrument == 'seviri':
-            raise NotImplementedError('Not yey support for other ' + 
-                                      'instruments than SEVIRI!')
+        if self.instrument == 'seviri':
+            ch11name = 'IR10.8'
+            ch37name = 'IR3.9'
+        elif self.instrument == 'modis':
+            ch11name = '31'
+            ch37name = '20'
+        else:
+            raise NotImplementedError('Not yet support for this ' + 
+                                      'instrument ' + str(self.instrument))
+            
+        if not self.rsr:
+            # What should this really be?
+            # ch37name or ch11name!!??
+            # FIXME!
+            thermal_emiss_one = self.tb2radiance_simple(tb_therm, ch11name)
+            l_nir = self.tb2radiance_simple(tb_nir, ch37name)
+        else:
+            thermal_emiss_one = self.tb2radiance(tb_therm, ch37name)
+            l_nir = self.tb2radiance(tb_nir, ch37name)
 
-        thermal_emiss_one = self.tb2radiance_simple('IR10.8', tb_therm)
-        l_nir = self.tb2radiance_simple('IR3.9', tb_nir)
+        LOG.info('thermal_emiss_one = ' + str(thermal_emiss_one))
+        LOG.info('l_nir = ' + str(l_nir))
+
 
         mu0 = np.cos(np.deg2rad(sunz))
         #mu0 = np.where(np.less(mu0, 0.1), 0.1, mu0)

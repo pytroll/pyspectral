@@ -88,7 +88,7 @@ class Calculator(object):
       2: non-linear approximation using tabulated coefficients 
     """
 
-    def __init__(self, platform, satnum, instrument, method=1, 
+    def __init__(self, platform, satnum, instrument, bandname, method=1, 
                  **options): 
         """E.g.:
            platform = 'meteosat'
@@ -99,7 +99,13 @@ class Calculator(object):
         self.satnumber = satnum
         self.instrument = instrument        
         self.rsr = None
+        self.bandname = bandname
 
+        if 'detector' in options:
+            self.detector = options['detector']
+        else:
+            self.detector = 'det-1'
+        
         if 'wavespace' in options:
             if options['wavespace'] not in [WAVE_LENGTH, WAVE_NUMBER]:
                 raise AttributeError('Wave space not %s or %s!' % (WAVE_LENGTH, 
@@ -117,52 +123,59 @@ class Calculator(object):
         if method == 1:
             self.get_rsr()
 
-    def get_rsr(self, channels=None):
-        """Read in all relative spectral responses for the sensor"""
+    def get_rsr(self):
+        """Get all spectral responses for the sensor"""
 
-        from scipy.interpolate import InterpolatedUnivariateSpline
-        #from pyspectral.rsr_read import RelativeSpectralResponse
-        from pyspectral.seviri_rsr import Seviri
+        from pyspectral.rsr_reader import RelativeSpectralResponse
+        sensor = RelativeSpectralResponse(self.platform, self.satnumber, 
+                                          self.instrument)
+        self.rsr = sensor.rsr
 
-        satname = self._getsatname()
-        seviri = Seviri()
-        self.rsr = {}
-        for key in seviri.rsr.keys():
-            if channels and key not in channels:
-                # Load only the requested channels/bands 
-                continue
+    # def get_rsr(self, channels=None):
+    #     """Read in all relative spectral responses for the sensor"""
 
-            wvl = seviri.rsr[key]['wavelength']
-            try: 
-                resp = seviri.rsr[key][satname]['95']
-            except ValueError:
-                resp = seviri.rsr[key][satname]
+    #     from scipy.interpolate import InterpolatedUnivariateSpline
+    #     from pyspectral.rsr_reader import RelativeSpectralResponse
 
-            # Conversion from wavelengths to wave numbers:
-            if self.wavespace == WAVE_NUMBER:
-                wvl = 1./wvl[::-1] 
-                resp = resp[::-1]
-                scale = 1000000.0
-                unit = 'm-1'
-            elif self.wavespace == WAVE_LENGTH:
-                scale = 1./1000000.0 # microns -> meters
-                unit = 'm'
-            else:
-                raise AttributeError('wavespace ' + self.wavespace + 
-                                     ' not supported!')
+    #     satname = self._getsatname()
+    #     seviri = Seviri()
+    #     self.rsr = {}
+    #     for key in seviri.rsr.keys():
+    #         if channels and key not in channels:
+    #             # Load only the requested channels/bands 
+    #             continue
 
-            wvl = wvl * scale
-            start = wvl[0]
-            end = wvl[-1]
-            dlambda = (end - start) / 3000.
+    #         wvl = seviri.rsr[key]['wavelength']
+    #         try: 
+    #             resp = seviri.rsr[key][satname]['95']
+    #         except ValueError:
+    #             resp = seviri.rsr[key][satname]
+
+    #         # Conversion from wavelengths to wave numbers:
+    #         if self.wavespace == WAVE_NUMBER:
+    #             wvl = 1./wvl[::-1] 
+    #             resp = resp[::-1]
+    #             scale = 1000000.0
+    #             unit = 'm-1'
+    #         elif self.wavespace == WAVE_LENGTH:
+    #             scale = 1./1000000.0 # microns -> meters
+    #             unit = 'm'
+    #         else:
+    #             raise AttributeError('wavespace ' + self.wavespace + 
+    #                                  ' not supported!')
+
+    #         wvl = wvl * scale
+    #         start = wvl[0]
+    #         end = wvl[-1]
+    #         dlambda = (end - start) / 3000.
             
-            xspl = np.linspace(start, end, (end-start)/dlambda)
-            ius = InterpolatedUnivariateSpline(wvl, resp)
-            resp_ipol = ius(xspl)
-            wavel = xspl
+    #         xspl = np.linspace(start, end, (end-start)/dlambda)
+    #         ius = InterpolatedUnivariateSpline(wvl, resp)
+    #         resp_ipol = ius(xspl)
+    #         wavel = xspl
 
-            self.rsr[key] = {self.wavespace: wavel, 'response': resp_ipol, 
-                             'units': (unit, None)}
+    #         self.rsr[key] = {self.wavespace: wavel, 'response': resp_ipol, 
+    #                          'units': (unit, None)}
 
     def _getsatname(self):
         """Get the satellite name used in the rsr-reader, from the platform and
@@ -174,13 +187,13 @@ class Calculator(object):
             raise NotImplementedError('Platform ' + str(self.platform) + 
                                       ' not yet supported...')
 
-    def tb2radiance(self, tb_, bandname=None, lut=False):
+    def tb2radiance(self, tb_, bandname, lut=False):
         """Get the radiance from the brightness temperature (Tb) given the
         band name. 
         """
         from scipy import integrate
-
-        if not bandname and not lut:
+            
+        if not bandname and not np.any(lut):
             raise SyntaxError('Either a band name or a lut needs ' + 
                               'to be provided as input to the function call!')
 
@@ -189,14 +202,15 @@ class Calculator(object):
             start = int(lut['tb'][0] * self.tb_scale)
             return lut['radiance'][ntb - start]
 
-        if self.wavespace == WAVE_LENGTH:
-            planck = (blackbody(self.rsr[bandname]['wavelength'], tb_) * 
-                      self.rsr[bandname]['response'])
-        else:
-            planck = (blackbody_wn(self.rsr[bandname][self.wavespace], tb_) * 
-                      self.rsr[bandname]['response'])
+        if not self.wavespace == WAVE_LENGTH:
+            raise NotImplementedError('Wavenumber representation of ' + 
+                                      'rsr data not implemented at the moment!')
 
-        return integrate.trapz(planck, (self.rsr[bandname][self.wavespace])) / np.trapz(self.rsr[bandname]['response'], self.rsr[bandname][self.wavespace])
+        wvl = self.rsr[bandname][self.detector]['wavelength']
+        resp = self.rsr[bandname][self.detector]['response']
+        planck = blackbody(wvl, tb_) * resp
+
+        return integrate.trapz(planck, wvl)
 
     def make_tb2rad_lut(self, bandname, filepath):
         """Generate a Tb to radiance look-up table"""
@@ -213,7 +227,7 @@ class Calculator(object):
         return retv
 
 
-    def tb2radiance_simple(self, bandname, tb_):
+    def tb2radiance_simple(self, tb_, bandname):
         """Get the radiance from the Tb using the simple non-linear regression
         method. SI units of course!"""
 
