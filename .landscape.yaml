@@ -1,0 +1,11 @@
+doc-warnings: yes
+test-warnings: yes
+strictness: high
+max-line-length: 120
+autodetect: yes
+ignore-paths:
+    - doc
+    - etc
+ignore-patterns:
+    - ^example/doc_.*\.py$
+    - (^|/)doc(/|$)
