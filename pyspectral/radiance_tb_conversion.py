@@ -77,7 +77,7 @@ SEVIRI = {'IR3.9': {'8': [2567.330, 0.9956, 3.410],
           }
 
 
-class Calculator(object):
+class RadTbConverter(object):
     """A radiance to brightness temperature calculator
 
     It can do the conversion either based on direct use of the band relative

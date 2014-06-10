@@ -40,9 +40,9 @@ EPSILON = 0.01
 TB_MIN = 150.
 TB_MAX = 360.
 
-from pyspectral.radiance_tb_conversion import Calculator as RadtbConverter
+from pyspectral.radiance_tb_conversion import RadTbConverter
 
-class Calculator(RadtbConverter):
+class Calculator(RadTbConverter):
     """A thermal near-infrared (e.g. 3.7 micron) band reflectance calculator.
     
     Given the relative spectral response of the NIR band, the solar zenith
@@ -90,7 +90,8 @@ class Calculator(RadtbConverter):
         3.9 microns)"""
         solar_spectrum = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, 
                                                  dlambda=0.0005)
-        self.solar_flux = solar_spectrum.inband_solarflux(self.rsr['IR3.9'])
+        #self.solar_flux = solar_spectrum.inband_solarflux(self.rsr['IR3.9'])
+        self.solar_flux = solar_spectrum.inband_solarflux(self.rsr[self.bandname])
 
     def reflectance_from_tbs(self, sunz, tb_nir, tb_therm, 
                              lookuptable=None):
