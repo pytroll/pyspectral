@@ -99,9 +99,6 @@ def blackbody(wl, temperature):
 
     LOG.debug("Using wavelengths when calculating the Blackbody temp...")
 
-    print wl[0:5]
-    print temperature[0:5]
-
     if np.isscalar(temperature):
         temperature = [temperature, ]
     temperature = np.array(temperature, dtype='float64')

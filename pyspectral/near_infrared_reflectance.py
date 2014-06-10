@@ -72,9 +72,6 @@ class Calculator(RadtbConverter):
         else:
             self.detector = 'det-1'
 
-        #if self.rsr:
-        #    self.rsr = self.rsr[bandname][self.detector]
-
 
     def derive_rad39_corr(self, bt11, bt13, method='rosenfeld'):
         """Derive the 3.9 radiance correction factor to account for the

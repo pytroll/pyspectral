@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013 Adam.Dybbroe
+# Copyright (c) 2013, 2014 Adam.Dybbroe
 
 # Author(s):
 
@@ -23,9 +23,10 @@
 """The tests package
 """
 
-from pyspectral import (solar, 
-                        nir_reflectance,
-                        blackbody)
+from pyspectral import (blackbody,
+                        near_infrared_reflectance,
+                        solar)
+
 from pyspectral.tests import (test_blackbody, 
                               test_reflectance, 
                               test_solarflux)
@@ -38,7 +39,7 @@ def suite():
     """
     mysuite = unittest.TestSuite()
     # Test sphinx documentation pages:
-    #mysuite.addTests(doctest.DocFileSuite('../doc/usage.rst'))
+    mysuite.addTests(doctest.DocFileSuite('../../doc/usage.rst'))
     # Test the documentation strings
     mysuite.addTests(doctest.DocTestSuite(blackbody))
     # Use the unittests also
@@ -46,8 +47,8 @@ def suite():
 
     mysuite.addTests(doctest.DocTestSuite(solar))
     mysuite.addTests(test_solarflux.suite())
-    mysuite.addTests(doctest.DocTestSuite(nir_reflectance))
-    mysuite.addTests(test_reflectance.suite())
+    #mysuite.addTests(doctest.DocTestSuite(nir_reflectance))
+    #mysuite.addTests(test_reflectance.suite())
     
     return mysuite
 
