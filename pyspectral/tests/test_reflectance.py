@@ -23,6 +23,7 @@
 """Unit testing the 3.7 micron reflectance calculations
 """
 
+from mock import MagicMock
 
 from pyspectral.near_infrared_reflectance import Calculator
 
@@ -49,6 +50,10 @@ TEST_RSR['20']['det-1']['response'] = np.array([
         1.     ,  0.92676,  0.67429,  0.44715,  0.27762,  0.14852,
         0.07141,  0.04151,  0.02925,  0.02085,  0.01414,  0.01 ], dtype='double')
 
+class ProductionClass(Calculator):
+    def get_rsr(self):
+        self.rsr = TEST_RSR
+        print("Calling static reader")
 
 
 class TestReflectance(unittest.TestCase):
@@ -60,15 +65,13 @@ class TestReflectance(unittest.TestCase):
     def test_reflectance(self):
         """Test the derivation of the refletive part of a 3.7 micron band"""
 
-        refl37 = Calculator(TEST_RSR)
-
+        refl37 = ProductionClass('eos', '2', 'modis', '20')
+        
         SUNZ = 80.
         TB3 = 290
         TB4 = 282
         REFL = refl37.reflectance_from_tbs(SUNZ, TB3, TB4)
-        #print REFL
-        #self.assertAlmostEqual(REFL, 0.251173635575)
-        self.assertAlmostEqual(REFL, 0.251268628723)
+        self.assertAlmostEqual(REFL, 0.251245010648)
 
 
     def tearDown(self):
