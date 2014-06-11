@@ -12,23 +12,23 @@ Symbols and definitions used in Pyspectral
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
   +---------------------------------+----------------------------------------------------------------------------------------+
-  | :math:`\lambda`                 |  Wavelength (in :math:`\mu m`)                                                         |
+  | :math:`\lambda`                 |  Wavelength (:math:`\mu m`)                                                            |
   +---------------------------------+----------------------------------------------------------------------------------------+
-  | :math:`\nu = \frac{1}{\lambda}` | Wavenumber (in :math:`cm^{-1}`)                                                        |
+  | :math:`\nu = \frac{1}{\lambda}` | Wavenumber (:math:`cm^{-1}`)                                                           |
   +---------------------------------+----------------------------------------------------------------------------------------+
-  | :math:`\lambda_{c}`             | Central wavelength for a given band/channel (in :math:`\mu m`)                         |
+  | :math:`\lambda_{c}`             | Central wavelength for a given band/channel (:math:`\mu m`)                            |
   +---------------------------------+----------------------------------------------------------------------------------------+
-  | :math:`\nu_{c}`                 | Central wavelength for a given band/channel (in :math:`cm^{-1}`)                       |
+  | :math:`\nu_{c}`                 | Central wavelength for a given band/channel (:math:`cm^{-1}`)                          |
   +---------------------------------+----------------------------------------------------------------------------------------+
   | :math:`\Phi_{i}(\lambda)`       | Relative spectral response for band :math:`i` as a function of wavelength              |
   +---------------------------------+----------------------------------------------------------------------------------------+
-  | :math:`E_{\lambda}`             | Spectral irradiance at wavelength :math:`\lambda` (in :math:`W/m^2 \mu m^{-1}`)        |
+  | :math:`E_{\lambda}`             | Spectral irradiance at wavelength :math:`\lambda` (:math:`W/m^2 \mu m^{-1}`)           |
   +---------------------------------+----------------------------------------------------------------------------------------+
-  | :math:`E_{\nu}`                 | Spectral irradiance at wavenumber :math:`\nu` (in :math:`W/m^2 (cm^{-1})^{-1}`)        |
+  | :math:`E_{\nu}`                 | Spectral irradiance at wavenumber :math:`\nu` (:math:`W/m^2 (cm^{-1})^{-1}`)           |
   +---------------------------------+----------------------------------------------------------------------------------------+
-  | :math:`L_{\nu}`                 | Spectral radiance at wavenumber :math:`\nu` (in :math:`W/m^2 sr^{-1} (cm^{-1})^{-1}`)  |
+  | :math:`L_{\nu}`                 | Spectral radiance at wavenumber :math:`\nu` (:math:`W/m^2 sr^{-1} (cm^{-1})^{-1}`)     |
   +---------------------------------+----------------------------------------------------------------------------------------+
-  | :math:`L_{\lambda}`             | Spectral radiance at wavelength :math:`\lambda` (in :math:`W/m^2 sr^{-1} \mu m^{-1}`)  |
+  | :math:`L_{\lambda}`             | Spectral radiance at wavelength :math:`\lambda` (:math:`W/m^2 sr^{-1} \mu m^{-1}`)     |
   +---------------------------------+----------------------------------------------------------------------------------------+
 
 
@@ -63,6 +63,25 @@ And from this we see that in general :math:`\nu_c \neq 1/\lambda_c`.
 Taking SEVIRI as an example, and looking at the visible channel on Meteosat 8,
 we see that this is indeed true:
 
+  >>> from rsr_reader import RelativeSpectralResponse
+  >>> from utils import convert2wavenumber, get_central_wave
+  >>> seviri = RelativeSpectralResponse('meteosat', '8', 'seviri')
+  >>> print get_central_wave(seviri.rsr['VIS0.6']['det-1']['wavelength'], seviri.rsr['VIS0.6']['det-1']['response'])
+0.640215
+  >>> rsr, unit = convert2wavenumber(seviri.rsr)
+  >>> print unit
+cm-1
+wvc = get_central_wave(rsr['VIS0.6']['det-1']['wavenumber'], rsr['VIS0.6']['det-1']['response'])
+  >>> print wvc
+15682.6
+  >>> print 1./wvc*1e4
+0.637648392581
+
+
+This was using the pysepctral unified hdf5 formatet spectral response data. If
+you want to use the original spectral response data from EUMETSAT the code may
+look like this:
+ 
   >>> from pyspectral.seviri_rsr import Seviri
   >>> seviri = Seviri()
   >>> print seviri.central_wavelength['VIS0.6']['met8']
@@ -72,6 +91,7 @@ we see that this is indeed true:
   15682.623379
   >>> print 1./seviri.central_wavenumber['VIS0.6']['met8']*1e4
   0.637648418783
+
 
 
 Spectral Irradiance
