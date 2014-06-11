@@ -114,6 +114,10 @@ class RadTbConverter(object):
         else:
             self.wavespace = WAVE_LENGTH
 
+        self._wave_unit = ''
+        self._wave_si_scale = 1.0
+
+
         if 'tb_resolution' in options:
             self.tb_resolution = options['tb_resolution']
         else:
@@ -126,56 +130,21 @@ class RadTbConverter(object):
     def get_rsr(self):
         """Get all spectral responses for the sensor"""
 
+        from utils import convert2wavenumber
         from pyspectral.rsr_reader import RelativeSpectralResponse
+
         sensor = RelativeSpectralResponse(self.platform, self.satnumber, 
                                           self.instrument)
-        self.rsr = sensor.rsr
+        LOG.debug("Wavenumber? " + str(self.wavespace))
+        if self.wavespace == WAVE_NUMBER:
+            LOG.debug("Converting to wavenumber...")
+            self.rsr, info = convert2wavenumber(sensor.rsr)
+        else:
+            self.rsr = sensor.rsr
+            info = {'unit': sensor.unit, 'si_scale': sensor.si_scale}
 
-    # def get_rsr(self, channels=None):
-    #     """Read in all relative spectral responses for the sensor"""
-
-    #     from scipy.interpolate import InterpolatedUnivariateSpline
-    #     from pyspectral.rsr_reader import RelativeSpectralResponse
-
-    #     satname = self._getsatname()
-    #     seviri = Seviri()
-    #     self.rsr = {}
-    #     for key in seviri.rsr.keys():
-    #         if channels and key not in channels:
-    #             # Load only the requested channels/bands 
-    #             continue
-
-    #         wvl = seviri.rsr[key]['wavelength']
-    #         try: 
-    #             resp = seviri.rsr[key][satname]['95']
-    #         except ValueError:
-    #             resp = seviri.rsr[key][satname]
-
-    #         # Conversion from wavelengths to wave numbers:
-    #         if self.wavespace == WAVE_NUMBER:
-    #             wvl = 1./wvl[::-1] 
-    #             resp = resp[::-1]
-    #             scale = 1000000.0
-    #             unit = 'm-1'
-    #         elif self.wavespace == WAVE_LENGTH:
-    #             scale = 1./1000000.0 # microns -> meters
-    #             unit = 'm'
-    #         else:
-    #             raise AttributeError('wavespace ' + self.wavespace + 
-    #                                  ' not supported!')
-
-    #         wvl = wvl * scale
-    #         start = wvl[0]
-    #         end = wvl[-1]
-    #         dlambda = (end - start) / 3000.
-            
-    #         xspl = np.linspace(start, end, (end-start)/dlambda)
-    #         ius = InterpolatedUnivariateSpline(wvl, resp)
-    #         resp_ipol = ius(xspl)
-    #         wavel = xspl
-
-    #         self.rsr[key] = {self.wavespace: wavel, 'response': resp_ipol, 
-    #                          'units': (unit, None)}
+        self._wave_unit = info['unit']
+        self._wave_si_scale = info['si_scale']
 
     def _getsatname(self):
         """Get the satellite name used in the rsr-reader, from the platform and
@@ -202,15 +171,22 @@ class RadTbConverter(object):
             start = int(lut['tb'][0] * self.tb_scale)
             return lut['radiance'][ntb - start]
 
-        if not self.wavespace == WAVE_LENGTH:
-            raise NotImplementedError('Wavenumber representation of ' + 
-                                      'rsr data not implemented at the moment!')
+        if self.wavespace == WAVE_LENGTH:
+            wv_ = (self.rsr[bandname][self.detector]['wavelength'] * 
+                   self._wave_si_scale)
+            resp = self.rsr[bandname][self.detector]['response']
+            planck = blackbody(wv_, tb_) * resp
+        elif self.wavespace == WAVE_NUMBER:
+            wv_ = (self.rsr[bandname][self.detector]['wavenumber'] * 
+                   self._wave_si_scale)
+            resp = self.rsr[bandname][self.detector]['response']
+            planck = blackbody_wn(wv_, tb_) * resp
+        else:
+            raise NotImplementedError(str(self.wavespace) + 
+                                      ' representation of ' + 
+                                      'rsr data not supported!')
 
-        wvl = self.rsr[bandname][self.detector]['wavelength']
-        resp = self.rsr[bandname][self.detector]['response']
-        planck = blackbody(wvl, tb_) * resp
-
-        return integrate.trapz(planck, wvl)
+        return integrate.trapz(planck, wv_)
 
     def make_tb2rad_lut(self, bandname, filepath):
         """Generate a Tb to radiance look-up table"""
@@ -225,7 +201,6 @@ class RadTbConverter(object):
 
         retv = np.load(filepath, 'r')
         return retv
-
 
     def tb2radiance_simple(self, tb_, bandname):
         """Get the radiance from the Tb using the simple non-linear regression

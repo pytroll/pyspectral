@@ -25,6 +25,37 @@
 
 import numpy as np
 
+def convert2wavenumber(rsr):
+    """Take rsr data set with all channels and detectors for an instrument each
+    with a set of wavelengths and normalised responses and convert to
+    wavenumbers and responses"""
+
+    retv = {}
+    for chname in rsr.keys(): # Go through bands/channels
+        #print("Channel = " + str(chname))
+        retv[chname] = {}
+        for det in rsr[chname].keys(): # Go through detectors
+            #print("Detector = " + str(det))
+            retv[chname][det] = {}
+            for sat in rsr[chname][det].keys():
+                #print("sat = " + str(sat))
+                if sat == "wavelength":
+                    wnum = 1./(1e-4 * rsr[chname][det][sat]) # micro meters to cm
+                    retv[chname][det]['wavenumber'] = wnum[::-1]
+                else:
+                    if type(rsr[chname][det][sat]) is dict:
+                        retv[chname][det][sat] = {}
+                        for name in rsr[chname][det][sat].keys():
+                            resp = rsr[chname][det][sat][name]
+                            retv[chname][det][sat][name] = resp[::-1]
+                    else:
+                        resp = rsr[chname][det][sat]
+                        retv[chname][det][sat] = resp[::-1]
+                    
+    unit = 'cm-1'
+    si_scale = 100.0
+    return retv, {'unit': unit, 'si_scale': si_scale}
+
 def get_central_wave(wavl, resp):
     """Calculate the central wavelength or the central wavenumber, depending on
     what is input"""

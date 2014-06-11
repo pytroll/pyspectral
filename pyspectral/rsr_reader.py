@@ -54,6 +54,8 @@ class RelativeSpectralResponse(object):
         self.rsr = {}
         self.description = "Unknown"
         self.band_names = None
+        self.unit = '1e-6 m'
+        self.si_scale = 1e-6 # How to scale the wavelengths to become SI unit
 
         conf = ConfigParser.ConfigParser()
         try:
@@ -92,8 +94,10 @@ class RelativeSpectralResponse(object):
             for bandname in self.band_names:
                 self.rsr[bandname] = {}
                 try:
+                    # Spelling error in files!
+                    # FIXME!
                     num_of_det = h5f[bandname].attrs['number_of_detetors']
-                except AttributeError:
+                except KeyError:
                     LOG.debug("No detectors found - assume only one...")
                     num_of_det = 1
 
@@ -102,19 +106,20 @@ class RelativeSpectralResponse(object):
                     self.rsr[bandname][dname] = {}
                     try:
                         resp = h5f[bandname][dname]['response'][:]
-                    except AttributeError:
+                    except KeyError:
                         resp = h5f[bandname]['response'][:]
                         
                     self.rsr[bandname][dname]['response'] = resp
 
-                    if 'wavelength' in h5f[bandname][dname].keys():
+                    try:
                         wvl = (h5f[bandname][dname]['wavelength'][:] * 
                                h5f[bandname][dname]['wavelength'].attrs['scale'])
-                    else:
+                    except KeyError:
                         wvl = (h5f[bandname]['wavelength'][:] * 
                                h5f[bandname]['wavelength'].attrs['scale'])
 
-                    self.rsr[bandname][dname]['wavelength'] = wvl
+                    # The wavelength is given in micro meters!
+                    self.rsr[bandname][dname]['wavelength'] = wvl * 1e6
 
     def integral(self, bandname):
         """Calculate the integral of the spectral response function.

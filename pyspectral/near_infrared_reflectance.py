@@ -121,9 +121,10 @@ class Calculator(RadTbConverter):
             
         if not self.rsr:
             # What should this really be?
-            # ch37name or ch11name!!??
+            # ch37name or ch11name!?
+            # Check doc!
             # FIXME!
-            thermal_emiss_one = self.tb2radiance_simple(tb_therm, ch11name)
+            thermal_emiss_one = self.tb2radiance_simple(tb_therm, ch37name)
             l_nir = self.tb2radiance_simple(tb_nir, ch37name)
         else:
             thermal_emiss_one = self.tb2radiance(tb_therm, ch37name)
@@ -131,7 +132,6 @@ class Calculator(RadTbConverter):
 
         LOG.info('thermal_emiss_one = ' + str(thermal_emiss_one))
         LOG.info('l_nir = ' + str(l_nir))
-
 
         mu0 = np.cos(np.deg2rad(sunz))
         #mu0 = np.where(np.less(mu0, 0.1), 0.1, mu0)

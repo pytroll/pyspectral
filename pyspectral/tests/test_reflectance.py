@@ -23,8 +23,6 @@
 """Unit testing the 3.7 micron reflectance calculations
 """
 
-from mock import MagicMock
-
 from pyspectral.near_infrared_reflectance import Calculator
 
 import unittest
@@ -40,7 +38,7 @@ TEST_RSR['20']['det-1']['wavelength'] = np.array([
         3.8063589,  3.8163606,  3.8264089,  3.8364836,  3.8463381,
         3.8563975,  3.8664163,  3.8763755,  3.8864797,  3.8964978,
         3.9064275,  3.9164873,  3.9264729,  3.9364026,  3.9465107,
-        3.9535347], dtype='double') * 1e-6
+        3.9535347], dtype='double')
 
 TEST_RSR['20']['det-1']['response'] = np.array([
         0.01   ,  0.0118 ,  0.01987,  0.03226,  0.05028,  0.0849 ,
@@ -53,8 +51,9 @@ TEST_RSR['20']['det-1']['response'] = np.array([
 class ProductionClass(Calculator):
     def get_rsr(self):
         self.rsr = TEST_RSR
-        print("Calling static reader")
-
+        self._wave_unit = '1e-6 m'
+        self._wave_si_scale = 1e-6
+        
 
 class TestReflectance(unittest.TestCase):
     """Unit testing the reflectance calculations"""
@@ -63,13 +62,13 @@ class TestReflectance(unittest.TestCase):
         """Set up"""
 
     def test_reflectance(self):
-        """Test the derivation of the refletive part of a 3.7 micron band"""
+        """Test the derivation of the reflective part of a 3.7 micron band"""
 
         refl37 = ProductionClass('eos', '2', 'modis', '20')
         
         SUNZ = 80.
-        TB3 = 290
-        TB4 = 282
+        TB3 = 290.
+        TB4 = 282.
         REFL = refl37.reflectance_from_tbs(SUNZ, TB3, TB4)
         self.assertAlmostEqual(REFL, 0.251245010648)
 

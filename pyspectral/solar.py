@@ -36,7 +36,6 @@ from pkg_resources import resource_filename
 TOTAL_IRRADIANCE_SPECTRUM_2000ASTM = resource_filename(__name__, 
                                                        'data/e490_00a.dat')
 
-
 class SolarIrradianceSpectrum(object):
     """Total Top of Atmosphere (TOA) Solar Irradiance Spectrum
     Wavelength is in units of microns (10^-6 m).
@@ -76,10 +75,19 @@ class SolarIrradianceSpectrum(object):
 
         if self.wavespace == 'wavenumber':
             self.convert2wavenumber()
-
-
+            self.units = {'irradiance': 'mW/m^2 (cm^{-1})^{-1}',
+                          'flux': 'mW/m^2'}
+        else:
+            self.units = {'irradiance': '$W/m^2 (1e-6*m)^{-1})',
+                          'flux': 'W/m^2'}
+            
     def convert2wavenumber(self):
-        """Convert from wavelengths to wavenumber"""
+        """Convert from wavelengths to wavenumber. 
+        Units:
+          Wavelength: micro meters (1e-6 m)
+          Wavenumber: cm-1
+        """
+        
         self.wavenumber = 1./(1e-4 * self.wavelength[::-1])
         self.irradiance = (self.irradiance[::-1] * 
                            self.wavelength[::-1] * self.wavelength[::-1] * 0.1)
@@ -101,17 +109,17 @@ class SolarIrradianceSpectrum(object):
         else:
             raise TypeError('Neither wavelengths nor wavenumbers available!')
 
-    def inband_solarflux(self, rsr, scale=1e+6, **options):
+    def inband_solarflux(self, rsr, scale=1.0, **options):
         """Derive the inband solar flux for a given instrument relative
         spectral response valid for an earth-sun distance of one AU."""
 
         return self._band_calculations(rsr, True, scale, **options)
 
-    def inband_solarirradiance(self, rsr, scale=1e+6, **options):
+    def inband_solarirradiance(self, rsr, scale=1.0, **options):
         """Derive the inband solar irradiance for a given instrument relative
         spectral response valid for an earth-sun distance of one AU."""
 
-        return self._band_calculations(rsr, False, **options)
+        return self._band_calculations(rsr, False, scale, **options)
 
 
     def _band_calculations(self, rsr, flux, scale, **options):
@@ -136,17 +144,17 @@ class SolarIrradianceSpectrum(object):
         # Resample/Interpolate the response curve:
         if self.wavespace == 'wavelength':
             if 'response' in rsr:
-                wvl = rsr['wavelength']
+                wvl = rsr['wavelength'] * scale
                 resp = rsr['response']
             else:
                 wvl = rsr['det-%d' % detector]['wavelength'] * scale
                 resp = rsr['det-%d' % detector]['response']
         else:
             if 'response' in rsr:
-                wvl = rsr['wavenumber']
+                wvl = rsr['wavenumber'] * scale
                 resp = rsr['response']
             else:
-                wvl = rsr['det-%d' % detector]['wavenumber']
+                wvl = rsr['det-%d' % detector]['wavenumber'] * scale
                 resp = rsr['det-%d' % detector]['response']
 
         start = wvl[0]
