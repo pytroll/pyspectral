@@ -37,6 +37,7 @@ import doctest
 import os
 TRAVIS = os.environ.get("TRAVIS", False)
 
+
 def suite():
     """The global test suite.
     """
