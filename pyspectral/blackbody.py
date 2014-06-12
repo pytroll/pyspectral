@@ -28,19 +28,20 @@ LOG = logging.getLogger(__name__)
 
 import numpy as np
 
-h_planck = 6.62606957*1e-34 # SI-unit = [J*s]
-k_boltzmann = 1.3806488*1e-23 # SI-unit = [J/K]
-c_speed = 2.99792458*1e8 # SI-unit = [m/s]
+H_PLANCK = 6.62606957*1e-34 # SI-unit = [J*s]
+K_BOLTZMANN = 1.3806488*1e-23 # SI-unit = [J/K]
+C_SPEED = 2.99792458*1e8 # SI-unit = [m/s]
 
 EPSILON = 0.000001
 
 # -------------------------------------------------------------------
-def blackbody_wn(wavnum, temperature):
+def blackbody_wn(wavenumber, temp):
     """The Planck radiation or Blackbody radiation as a function of wave number
     SI units!
     blackbody_wn(wavnum, temperature)
-    wavnum = Array of wave numbers (m-1)
-    temperature = Array of temperatures (K)
+    wavenumber = A wavenumber (scalar) or a sequence of wave numbers (m-1)
+    temp = A temperatfure (scalar) or a sequence of temperatures (K)
+
 
     Output: The spectral radiance in Watts per square meter per steradian
             per m-1:
@@ -51,17 +52,18 @@ def blackbody_wn(wavnum, temperature):
     """
 
     LOG.debug("Using wave numbers when calculating the Blackbody temp...")
-    if np.isscalar(temperature):
-        temperature = [temperature, ]
-    temperature = np.array(temperature, dtype='float64')
+    if np.isscalar(temp):
+        temperature = np.array([temp, ], dtype='float64')
+    else:
+        temperature = np.array(temp, dtype='float64')
     shape = temperature.shape
-    if np.isscalar(wavnum):
-        wavnum = [wavnum,]
-    wavnum = np.array(wavnum, dtype='float64')
+    if np.isscalar(wavenumber):
+        wavnum = np.array([wavenumber, ], dtype='float64')
+    else:
+        wavnum = np.array(wavnum, dtype='float64')
 
-    wnpow3 = wavnum*wavnum*wavnum
-    nom = 2 * h_planck * c_speed * c_speed * wnpow3
-    arg1 = h_planck * c_speed * wavnum / k_boltzmann
+    nom = 2 * H_PLANCK * C_SPEED * C_SPEED * wavnum**3
+    arg1 = H_PLANCK * C_SPEED * wavnum / K_BOLTZMANN
     arg2 = np.where(np.greater(np.abs(temperature), EPSILON), 
                     np.array(1. / temperature), -9).reshape(-1, 1)
 
@@ -86,12 +88,13 @@ def blackbody_wn(wavnum, temperature):
                 return np.reshape(rad, (shape[0], shape[1], radshape[1]))
 
 # -------------------------------------------------------------------
-def blackbody(wl, temperature):
+def blackbody(wavel, temp):
     """The Planck radiation or Blackbody radiation as a function of wavelength
     SI units.
-    blackbody(wl, temperature)
-    wl = Array of wavelengths (m)
-    temperature = Array of temperatures (K)
+    blackbody(wavelength, temperature)
+    wavel = Wavelength or a sequence of wavelengths (m)
+    temp = Temperature (scalar) or a sequence of temperatures (K)
+
 
     Output: The spectral radiance per meter (not micron!)
             Unit = W/m^2 sr^-1 m^-1
@@ -99,20 +102,22 @@ def blackbody(wl, temperature):
 
     LOG.debug("Using wavelengths when calculating the Blackbody temp...")
 
-    if np.isscalar(temperature):
-        temperature = [temperature, ]
-    temperature = np.array(temperature, dtype='float64')
+    if np.isscalar(temp):
+        temperature = np.array([temp, ], dtype='float64')
+    else:
+        temperature = np.array(temp, dtype='float64')
+
     shape = temperature.shape
     #print("temperature min and max = " + str(temperature.min()) + 
     #      " " + str(temperature.max()))
-    if np.isscalar(wl):
-        wl = [wl,]
-    wl = np.array(wl, dtype='float64')
+    if np.isscalar(wavel):
+        wavelength = np.array([wavel, ], dtype='float64')
+    else:
+        wavelength = np.array(wavel, dtype='float64')
 
-    const = 2 * h_planck * c_speed * c_speed
-    wlpow5 = wl*wl*wl*wl*wl
-    nom = const / wlpow5
-    arg1 = h_planck*c_speed / (k_boltzmann * wl)
+    const = 2 * H_PLANCK * C_SPEED * C_SPEED
+    nom = const / wavelength**5
+    arg1 = H_PLANCK * C_SPEED / (K_BOLTZMANN * wavelength)
     arg2 = np.where(np.greater(np.abs(temperature), EPSILON), 
                     np.array(1. / temperature), -9).reshape(-1, 1)
     arg2 = np.ma.masked_array(arg2, mask = arg2==-9)
@@ -126,7 +131,7 @@ def blackbody(wl, temperature):
     rad = nom / denom
     #print "rad.shape = ", rad.shape
     radshape = rad.shape
-    if wl.shape[0] == 1:
+    if wavelength.shape[0] == 1:
         if temperature.shape[0] == 1:
             return rad[0, 0]
         else:
