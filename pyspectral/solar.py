@@ -31,17 +31,20 @@ LOG = logging.getLogger(__name__)
 from pkg_resources import resource_filename
 
 # STANDARD SPECTRA from Air Mass Zero: http://rredc.nrel.gov/solar/spectra/am0/
-#    * 2000 ASTM Standard Extraterrestrial Spectrum Reference E-490-00   
+#    * 2000 ASTM Standard Extraterrestrial Spectrum Reference E-490-00
 #      (119.5 - 1,000,000.0 nm)
-TOTAL_IRRADIANCE_SPECTRUM_2000ASTM = resource_filename(__name__, 
+TOTAL_IRRADIANCE_SPECTRUM_2000ASTM = resource_filename(__name__,
                                                        'data/e490_00a.dat')
 
+
 class SolarIrradianceSpectrum(object):
+
     """Total Top of Atmosphere (TOA) Solar Irradiance Spectrum
     Wavelength is in units of microns (10^-6 m).
     The spectral Irradiance in the file TOTAL_IRRADIANCE_SPECTRUM_2000ASTM is
     in units of W/m^2/micron
     """
+
     def __init__(self, filename, **options):
         """
         Input:
@@ -57,7 +60,7 @@ class SolarIrradianceSpectrum(object):
         self.ipol_wavelength = None
         self.ipol_irradiance = None
         self.ipol_channel_response = None
-        # Delta wavelength used when resampling the 
+        # Delta wavelength used when resampling the
         # spectrum to an evenly spaced grid (using interpolation)
         if 'wavespace' in options:
             self.wavespace = options['wavespace']
@@ -69,7 +72,7 @@ class SolarIrradianceSpectrum(object):
             if self.wavespace == 'wavelength':
                 self._dlambda = 0.005
             else:
-                self._dlambda = 1./(0.005 * 100.)
+                self._dlambda = 1. / (0.005 * 100.)
 
         self._load()
 
@@ -80,24 +83,24 @@ class SolarIrradianceSpectrum(object):
         else:
             self.units = {'irradiance': '$W/m^2 (1e-6*m)^{-1})',
                           'flux': 'W/m^2'}
-            
+
     def convert2wavenumber(self):
         """Convert from wavelengths to wavenumber. 
         Units:
           Wavelength: micro meters (1e-6 m)
           Wavenumber: cm-1
         """
-        
-        self.wavenumber = 1./(1e-4 * self.wavelength[::-1])
-        self.irradiance = (self.irradiance[::-1] * 
+
+        self.wavenumber = 1. / (1e-4 * self.wavelength[::-1])
+        self.irradiance = (self.irradiance[::-1] *
                            self.wavelength[::-1] * self.wavelength[::-1] * 0.1)
         self.wavelength = None
-
 
     def _load(self):
         """Read the tabulated spectral irradiance data from file"""
         import numpy as np
-        self.wavelength, self.irradiance = np.genfromtxt(self.filename, unpack=True)
+        self.wavelength, self.irradiance = np.genfromtxt(
+            self.filename, unpack=True)
 
     def solar_constant(self):
         """Calculate the solar constant"""
@@ -120,7 +123,6 @@ class SolarIrradianceSpectrum(object):
         spectral response valid for an earth-sun distance of one AU."""
 
         return self._band_calculations(rsr, False, scale, **options)
-
 
     def _band_calculations(self, rsr, flux, scale, **options):
         """Derive the inband solar flux or inband solar irradiance for a given
@@ -159,17 +161,17 @@ class SolarIrradianceSpectrum(object):
 
         start = wvl[0]
         end = wvl[-1]
-        #print "Start and end: ", start, end
+        # print "Start and end: ", start, end
         LOG.debug("Begin and end wavelength/wavenumber: %f %f " % (start, end))
         dlambda = self._dlambda
-        xspl = np.linspace(start, end, (end-start)/dlambda)
+        xspl = np.linspace(start, end, (end - start) / dlambda)
 
         ius = InterpolatedUnivariateSpline(wvl, resp)
         resp_ipol = ius(xspl)
 
         # Interpolate solar spectrum to specified resolution and over specified
         # Spectral interval:
-        self.interpolate(dlambda = dlambda, ival_wavelength = (start, end))
+        self.interpolate(dlambda=dlambda, ival_wavelength=(start, end))
 
         # Mask out outside the response curve:
         maskidx = np.logical_and(np.greater_equal(self.ipol_wavelength, start),
@@ -179,16 +181,15 @@ class SolarIrradianceSpectrum(object):
 
         # Calculate the solar-flux: (w/m2)
         if flux:
-            return np.trapz(irr*resp_ipol, wvl)
+            return np.trapz(irr * resp_ipol, wvl)
         else:
-            return np.trapz(irr*resp_ipol, wvl)  / np.trapz(resp_ipol, wvl)
-            
+            return np.trapz(irr * resp_ipol, wvl) / np.trapz(resp_ipol, wvl)
 
     def interpolate(self, **options):
         """Interpolate Irradiance to a specified evenly spaced resolution/grid
         This is necessary to make integration and folding (with a channel
         relative spectral response) straightforward.
- 
+
         dlambda = wavelength interval in microns
         start = Start of the wavelength interval (left/lower)
         end = End of the wavelength interval (right/upper end)
@@ -197,17 +198,17 @@ class SolarIrradianceSpectrum(object):
         ival_wavelength: Tuple. The start and end interval in wavelength
         space, defining where to integrate/convolute the spectral response
         curve on the spectral irradiance data.
-        """        
+        """
         from numpy import linspace
         from scipy.interpolate import InterpolatedUnivariateSpline
-        
+
         # The user defined wavelength span is not yet used:
         # FIXME!
         if 'ival_wavelength' in options:
             ival_wavelength = options['ival_wavelength']
         else:
             ival_wavelength = None
-        
+
         if 'dlambda' in options:
             self._dlambda = options['dlambda']
 
@@ -221,18 +222,19 @@ class SolarIrradianceSpectrum(object):
         else:
             start, end = ival_wavelength
 
-        xspl = linspace(start, end, (end-start)/self._dlambda)
+        xspl = linspace(start, end, (end - start) / self._dlambda)
         if self.wavespace == 'wavelength':
-            ius = InterpolatedUnivariateSpline(self.wavelength, self.irradiance)
+            ius = InterpolatedUnivariateSpline(
+                self.wavelength, self.irradiance)
         else:
-            ius = InterpolatedUnivariateSpline(self.wavenumber, self.irradiance)
+            ius = InterpolatedUnivariateSpline(
+                self.wavenumber, self.irradiance)
         yspl = ius(xspl)
 
         self.ipol_wavelength = xspl
         self.ipol_irradiance = yspl
 
-
-    def plot(self, plotname = None, **options):
+    def plot(self, plotname=None, **options):
         """Plot the data"""
         if 'color' in options:
             color = options['color']
@@ -251,18 +253,17 @@ class SolarIrradianceSpectrum(object):
             xwl, yir = self.wavenumber, self.irradiance
         else:
             raise TypeError('Neither wavelengths nor wavenumbers available!')
-            
 
-        import pylab 
+        import pylab
         from matplotlib import rcParams
         rcParams['text.usetex'] = True
         rcParams['text.latex.unicode'] = True
-        
-        fig = pylab.figure(figsize=(8,4))
+
+        fig = pylab.figure(figsize=(8, 4))
         plot_title = "Solar Irradiance Spectrum"
         pylab.title(plot_title)
         ax = fig.add_subplot(111)
-    
+
         ax.plot(xwl, yir, '-', color=color)
 
         pylab.xlabel(xlabel)

@@ -29,7 +29,7 @@ LOG = logging.getLogger(__name__)
 
 import numpy as np
 
-from pyspectral.solar import (SolarIrradianceSpectrum, 
+from pyspectral.solar import (SolarIrradianceSpectrum,
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
 
 
@@ -42,9 +42,11 @@ TB_MAX = 360.
 
 from pyspectral.radiance_tb_conversion import RadTbConverter
 
+
 class Calculator(RadTbConverter):
+
     """A thermal near-infrared (e.g. 3.7 micron) band reflectance calculator.
-    
+
     Given the relative spectral response of the NIR band, the solar zenith
     angle, and the brightness temperatures of the NIR and the Thermal bands,
     derive the solar reflectance for the NIR band removing the thermal
@@ -53,9 +55,10 @@ class Calculator(RadTbConverter):
 
     The relfectance calculated is without units and should be between 0 and 1.
     """
+
     def __init__(self, platform, satnum, instrument, bandname,
-                 solar_flux=None, **options): 
-        super(Calculator, self).__init__(platform, satnum, instrument, 
+                 solar_flux=None, **options):
+        super(Calculator, self).__init__(platform, satnum, instrument,
                                          bandname, method=1, **options)
 
         if solar_flux == None:
@@ -72,14 +75,13 @@ class Calculator(RadTbConverter):
         else:
             self.detector = 'det-1'
 
-
     def derive_rad39_corr(self, bt11, bt13, method='rosenfeld'):
         """Derive the 3.9 radiance correction factor to account for the
         attenuation of the emitted 3.9 radiance by CO2 absorption. Requires the
         11 micron window band and the 13.4 CO2 absorption band, as
         e.g. available on SEVIRI. Currently only supports the Rosenfeld method"""
         if method != 'rosenfeld':
-            raise AttributeError("Only CO2 correction for SEVIRI using " + 
+            raise AttributeError("Only CO2 correction for SEVIRI using " +
                                  "the Rosenfeld equation is supported!")
 
         LOG.debug("Derive the 3.9 micron radiance CO2 correction coefficent")
@@ -88,12 +90,13 @@ class Calculator(RadTbConverter):
     def _get_solarflux(self):
         """Derive the in-band solar flux from rsr over the Near IR band (3.7 or
         3.9 microns)"""
-        solar_spectrum = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, 
+        solar_spectrum = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM,
                                                  dlambda=0.0005)
         #self.solar_flux = solar_spectrum.inband_solarflux(self.rsr['IR3.9'])
-        self.solar_flux = solar_spectrum.inband_solarflux(self.rsr[self.bandname])
+        self.solar_flux = solar_spectrum.inband_solarflux(
+            self.rsr[self.bandname])
 
-    def reflectance_from_tbs(self, sunz, tb_nir, tb_therm, 
+    def reflectance_from_tbs(self, sunz, tb_nir, tb_therm,
                              lookuptable=None):
         """
         The relfectance calculated is without units and should be between 0 and 1.
@@ -106,7 +109,7 @@ class Calculator(RadTbConverter):
             tb_therm = np.array([tb_therm, ])
 
         if tb_therm.shape != tb_nir.shape:
-            raise ValueError('Dimensions does not match!' + 
+            raise ValueError('Dimensions does not match!' +
                              str(tb_therm.shape) + ' and ' + str(tb_nir.shape))
 
         if self.instrument == 'seviri':
@@ -116,9 +119,9 @@ class Calculator(RadTbConverter):
             ch11name = '31'
             ch37name = '20'
         else:
-            raise NotImplementedError('Not yet support for this ' + 
+            raise NotImplementedError('Not yet support for this ' +
                                       'instrument ' + str(self.instrument))
-            
+
         if not self.rsr:
             # What should this really be?
             # ch37name or ch11name!?
@@ -137,7 +140,7 @@ class Calculator(RadTbConverter):
         #mu0 = np.where(np.less(mu0, 0.1), 0.1, mu0)
         self._rad37 = l_nir
         self._rad37_t11 = thermal_emiss_one
-        self._solar_radiance = 1./np.pi * self.solar_flux * mu0
+        self._solar_radiance = 1. / np.pi * self.solar_flux * mu0
 
         # CO2 correction to the 3.9 radiance:
         # self._rad39_correction
@@ -145,10 +148,11 @@ class Calculator(RadTbConverter):
         mask = thermal_emiss_one > l_nir
 
         nomin = l_nir - thermal_emiss_one * self._rad39_correction
-        LOG.debug("Shapes: " + str(mu0.shape) + "  " + 
+        LOG.debug("Shapes: " + str(mu0.shape) + "  " +
                   str(thermal_emiss_one.shape))
-        denom = self._solar_radiance - thermal_emiss_one * self._rad39_correction
-        
+        denom = self._solar_radiance - \
+            thermal_emiss_one * self._rad39_correction
+
         retv = nomin / denom
-        retv = np.ma.masked_array(retv, mask = mask)
+        retv = np.ma.masked_array(retv, mask=mask)
         return np.ma.masked_where(retv < 0, retv)

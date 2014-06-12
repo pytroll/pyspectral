@@ -39,13 +39,16 @@ except KeyError:
     raise
 
 if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
-    raise IOError(str(CONFIG_FILE) + " pointed to by the environment " + 
+    raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
 
+
 class RelativeSpectralResponse(object):
+
     """Container for the relative spectral response functions for various
     satellite imagers
     """
+
     def __init__(self, platform, satnum, instrument):
         self.platform = platform
         self.satnum = satnum
@@ -55,29 +58,29 @@ class RelativeSpectralResponse(object):
         self.description = "Unknown"
         self.band_names = None
         self.unit = '1e-6 m'
-        self.si_scale = 1e-6 # How to scale the wavelengths to become SI unit
+        self.si_scale = 1e-6  # How to scale the wavelengths to become SI unit
 
         conf = ConfigParser.ConfigParser()
         try:
             conf.read(CONFIG_FILE)
         except ConfigParser.NoSectionError:
-            LOG.exception('Failed reading configuration file: ' + 
+            LOG.exception('Failed reading configuration file: ' +
                           str(CONFIG_FILE))
             raise
 
         options = {}
-        for option, value in conf.items('general', raw = True):
+        for option, value in conf.items('general', raw=True):
             options[option] = value
 
         rsr_dir = options['rsr_dir']
 
-        self.filename = os.path.join(rsr_dir, 'rsr_%s_%s%s.h5' % (instrument, 
-                                                                  platform, 
+        self.filename = os.path.join(rsr_dir, 'rsr_%s_%s%s.h5' % (instrument,
+                                                                  platform,
                                                                   satnum))
         LOG.debug('Filename: ' + str(self.filename))
 
         if not os.path.exists(self.filename):
-            raise IOError('pyspectral RSR file does not exist! Filename = ' + 
+            raise IOError('pyspectral RSR file does not exist! Filename = ' +
                           str(self.filename))
 
         self.load()
@@ -87,7 +90,7 @@ class RelativeSpectralResponse(object):
         """
 
         import h5py
-        
+
         with h5py.File(self.filename, 'r') as h5f:
             self.band_names = h5f.attrs['band_names'].tolist()
             self.description = h5f.attrs['description']
@@ -108,14 +111,14 @@ class RelativeSpectralResponse(object):
                         resp = h5f[bandname][dname]['response'][:]
                     except KeyError:
                         resp = h5f[bandname]['response'][:]
-                        
+
                     self.rsr[bandname][dname]['response'] = resp
 
                     try:
-                        wvl = (h5f[bandname][dname]['wavelength'][:] * 
+                        wvl = (h5f[bandname][dname]['wavelength'][:] *
                                h5f[bandname][dname]['wavelength'].attrs['scale'])
                     except KeyError:
-                        wvl = (h5f[bandname]['wavelength'][:] * 
+                        wvl = (h5f[bandname]['wavelength'][:] *
                                h5f[bandname]['wavelength'].attrs['scale'])
 
                     # The wavelength is given in micro meters!
@@ -128,7 +131,7 @@ class RelativeSpectralResponse(object):
         intg = {}
         for det in self.rsr[bandname].keys():
             wvl = self.rsr[bandname][det]['wavelength']
-            resp = self.rsr[bandname][det]['response']            
+            resp = self.rsr[bandname][det]['response']
             intg[det] = np.trapz(resp, wvl)
         return intg
 

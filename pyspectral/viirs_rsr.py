@@ -36,13 +36,13 @@ except KeyError:
     raise
 
 if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
-    raise IOError(str(CONFIG_FILE) + " pointed to by the environment " + 
+    raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
 
 import numpy as np
 from pyspectral.utils import get_central_wave
 
-VIIRS_BAND_NAMES = ['M1', 'M2', 'M3', 'M4', 'M5', 
+VIIRS_BAND_NAMES = ['M1', 'M2', 'M3', 'M4', 'M5',
                     'M6', 'M7', 'M8', 'M9', 'M10',
                     'M11', 'M12', 'M13', 'M14', 'M15', 'M16',
                     'I1', 'I2', 'I3', 'I4', 'I5',
@@ -54,8 +54,11 @@ _DEFAULT_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 #: Default log format
 _DEFAULT_LOG_FORMAT = '[%(levelname)s: %(asctime)s : %(name)s] %(message)s'
 
+
 class ViirsRSR(object):
+
     """Container for the (S-NPP) VIIRS RSR data"""
+
     def __init__(self, bandname, satname='npp'):
         """
         """
@@ -68,15 +71,15 @@ class ViirsRSR(object):
         try:
             conf.read(CONFIG_FILE)
         except ConfigParser.NoSectionError:
-            LOG.exception('Failed reading configuration file: ' + 
+            LOG.exception('Failed reading configuration file: ' +
                           str(CONFIG_FILE))
             raise
 
         options = {}
-        for option, value in conf.items('viirs', raw = True):
+        for option, value in conf.items('viirs', raw=True):
             options[option] = value
 
-        for option, value in conf.items('general', raw = True):
+        for option, value in conf.items('general', raw=True):
             options[option] = value
 
         self.output_dir = options.get('rsr_dir', './')
@@ -93,7 +96,7 @@ class ViirsRSR(object):
         # Need to understand why there are A&B files for band M16. FIXME!
         # Anyway, the absolute response differences are small, below 0.05
         if self.bandname == 'M16':
-            values = {"bandname": 'M16A'} 
+            values = {"bandname": 'M16A'}
         else:
             values = {"bandname": self.bandname}
 
@@ -109,7 +112,7 @@ class ViirsRSR(object):
                   options["mband_ir_names"] % values,
                   options["dnb_name"] % values
                   ]
-                  
+
         LOG.debug("paths = " + str(paths))
         LOG.debug("fnames = " + str(fnames))
 
@@ -120,19 +123,18 @@ class ViirsRSR(object):
                 return
 
         if not band_file:
-            raise IOError("Couldn't find an existing file for this band: " + 
+            raise IOError("Couldn't find an existing file for this band: " +
                           str(self.bandname))
-
 
     def _load(self, scale=0.001):
         """Load the VIIRS RSR data for the band requested
         """
         import numpy as np
-        
+
         try:
-            data = np.genfromtxt(self.filename, 
+            data = np.genfromtxt(self.filename,
                                  unpack=True, skip_header=1,
-                                 names=['bandname', 
+                                 names=['bandname',
                                         'detector',
                                         'subsample',
                                         'wavelength',
@@ -141,41 +143,43 @@ class ViirsRSR(object):
                                         'response',
                                         'quality_flag',
                                         'xtalk_flag'],
-                                 dtype = [('bandname', '|S3'), 
-                                          ('detector', '<i4'), 
-                                          ('subsample', '<i4'), 
-                                          ('wavelength', '<f8'), 
-                                          ('band_avg_snr', '<f8'), 
-                                          ('asr', '<f8'), 
-                                          ('response', '<f8'), 
-                                          ('quality_flag', '<i4'), 
-                                          ('xtalk_flag', '<i4')])
+                                 dtype=[('bandname', '|S3'),
+                                        ('detector', '<i4'),
+                                        ('subsample', '<i4'),
+                                        ('wavelength', '<f8'),
+                                        ('band_avg_snr', '<f8'),
+                                        ('asr', '<f8'),
+                                        ('response', '<f8'),
+                                        ('quality_flag', '<i4'),
+                                        ('xtalk_flag', '<i4')])
         except ValueError:
-            data = np.genfromtxt(self.filename, 
+            data = np.genfromtxt(self.filename,
                                  unpack=True, skip_header=1,
-                                 names=['bandname', 
+                                 names=['bandname',
                                         'detector',
                                         'subsample',
                                         'wavelength',
                                         'response'],
-                                 dtype = [('bandname', '|S3'), 
-                                          ('detector', '<i4'), 
-                                          ('subsample', '<i4'), 
-                                          ('wavelength', '<f8'), 
-                                          ('response', '<f8')])
+                                 dtype=[('bandname', '|S3'),
+                                        ('detector', '<i4'),
+                                        ('subsample', '<i4'),
+                                        ('wavelength', '<f8'),
+                                        ('response', '<f8')])
         wavelength = data['wavelength'] * scale
         response = data['response']
         det = data['detector']
-        
+
         detectors = {}
         for idx in range(int(max(det))):
-            detectors["det-%d" % (idx+1)] = {}
-            detectors["det-%d" % (idx+1)]['wavelength'] = np.repeat(wavelength, np.equal(det,idx+1))
-            detectors["det-%d" % (idx+1)]['response'] = np.repeat(response, np.equal(det,idx+1))
+            detectors["det-%d" % (idx + 1)] = {}
+            detectors[
+                "det-%d" % (idx + 1)]['wavelength'] = np.repeat(wavelength, np.equal(det, idx + 1))
+            detectors[
+                "det-%d" % (idx + 1)]['response'] = np.repeat(response, np.equal(det, idx + 1))
 
         self.rsr = detectors
 
-        
+
 if __name__ == "__main__":
 
     import sys
@@ -193,7 +197,7 @@ if __name__ == "__main__":
 
     platform_id = "npp"
     viirs = ViirsRSR('M1', 'npp')
-    filename = os.path.join(viirs.output_dir, 
+    filename = os.path.join(viirs.output_dir,
                             "rsr_viirs_%s.h5" % platform_id)
 
     with h5py.File(filename, "w") as h5f:
@@ -214,7 +218,7 @@ if __name__ == "__main__":
             for det in det_names[1:]:
                 if not np.alltrue(wvl == viirs.rsr[det_names[0]]['wavelength']):
                     wvl_is_constant = False
-            
+
             if wvl_is_constant:
                 arr = viirs.rsr[det_names[0]]['wavelength']
                 dset = grp.create_dataset('wavelength', arr.shape, dtype='f')
@@ -225,12 +229,16 @@ if __name__ == "__main__":
             # Loop over each detector:
             for det in viirs.rsr:
                 det_grp = grp.create_group(det)
-                wvl = viirs.rsr[det]['wavelength'][~np.isnan(viirs.rsr[det]['wavelength'])]
-                rsp = viirs.rsr[det]['response'][~np.isnan(viirs.rsr[det]['wavelength'])]
-                det_grp.attrs['central_wavelength'] = get_central_wave(wvl, rsp)
+                wvl = viirs.rsr[det]['wavelength'][
+                    ~np.isnan(viirs.rsr[det]['wavelength'])]
+                rsp = viirs.rsr[det]['response'][
+                    ~np.isnan(viirs.rsr[det]['wavelength'])]
+                det_grp.attrs[
+                    'central_wavelength'] = get_central_wave(wvl, rsp)
                 if not wvl_is_constant:
                     arr = viirs.rsr[det]['wavelength']
-                    dset = det_grp.create_dataset('wavelength', arr.shape, dtype='f')
+                    dset = det_grp.create_dataset(
+                        'wavelength', arr.shape, dtype='f')
                     dset.attrs['unit'] = 'm'
                     dset.attrs['scale'] = 1e-06
                     dset[...] = arr

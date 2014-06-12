@@ -25,22 +25,24 @@
 
 import numpy as np
 
+
 def convert2wavenumber(rsr):
     """Take rsr data set with all channels and detectors for an instrument each
     with a set of wavelengths and normalised responses and convert to
     wavenumbers and responses"""
 
     retv = {}
-    for chname in rsr.keys(): # Go through bands/channels
+    for chname in rsr.keys():  # Go through bands/channels
         #print("Channel = " + str(chname))
         retv[chname] = {}
-        for det in rsr[chname].keys(): # Go through detectors
+        for det in rsr[chname].keys():  # Go through detectors
             #print("Detector = " + str(det))
             retv[chname][det] = {}
             for sat in rsr[chname][det].keys():
                 #print("sat = " + str(sat))
                 if sat == "wavelength":
-                    wnum = 1./(1e-4 * rsr[chname][det][sat]) # micro meters to cm
+                    # micro meters to cm
+                    wnum = 1. / (1e-4 * rsr[chname][det][sat])
                     retv[chname][det]['wavenumber'] = wnum[::-1]
                 else:
                     if type(rsr[chname][det][sat]) is dict:
@@ -51,10 +53,11 @@ def convert2wavenumber(rsr):
                     else:
                         resp = rsr[chname][det][sat]
                         retv[chname][det][sat] = resp[::-1]
-                    
+
     unit = 'cm-1'
     si_scale = 100.0
     return retv, {'unit': unit, 'si_scale': si_scale}
+
 
 def get_central_wave(wav, resp):
     """Calculate the central wavelength or the central wavenumber, depending on
@@ -62,16 +65,16 @@ def get_central_wave(wav, resp):
     """
 
     # info: {'unit': unit, 'si_scale': si_scale}
-    # # To get the wavelenght/wavenumber in SI units (m or m-1):
+    # To get the wavelenght/wavenumber in SI units (m or m-1):
     # wav = wav * info['si_scale']
 
     # res = np.trapz(resp*wav, wav) / np.trapz(resp, wav)
-    # # Check if it is a wavelength or a wavenumber and convert to microns or cm-1:
-    # # This should perhaps be user defined!?
+    # Check if it is a wavelength or a wavenumber and convert to microns or cm-1:
+    # This should perhaps be user defined!?
     # if info['unit'].find('-1') > 0:
-    #     # Wavenumber:
-    #     res *= 
-    return np.trapz(resp*wav, wav) / np.trapz(resp, wav)
+    # Wavenumber:
+    #     res *=
+    return np.trapz(resp * wav, wav) / np.trapz(resp, wav)
 
 
 def sort_data(x, y):

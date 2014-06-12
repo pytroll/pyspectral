@@ -40,18 +40,21 @@ except KeyError:
     raise
 
 if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
-    raise IOError(str(CONFIG_FILE) + " pointed to by the environment " + 
+    raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
 
-MODIS_BAND_NAMES = [ str(i) for i in range(1, 37) ]
-SATELLITE_NAME = {'terra': 'eos1', 'aqua':'eos2'}
-PLATFORM_NAME = {'terra': 'eos', 'aqua':'eos'}
+MODIS_BAND_NAMES = [str(i) for i in range(1, 37)]
+SATELLITE_NAME = {'terra': 'eos1', 'aqua': 'eos2'}
+PLATFORM_NAME = {'terra': 'eos', 'aqua': 'eos'}
 SATELLITE_NUMBER = {'terra': 1, 'aqua': 2}
-SHORTWAVE_BANDS = [ str(i) for i in range(1,20) + [26 ]]
+SHORTWAVE_BANDS = [str(i) for i in range(1, 20) + [26]]
+
 
 class ModisRSR(object):
+
     """Container for the Terra/Aqua RSR data"""
-    def __init__(self, bandname, satname, sort = True):
+
+    def __init__(self, bandname, satname, sort=True):
         """
         """
         self.satname = satname
@@ -71,14 +74,15 @@ class ModisRSR(object):
         try:
             conf.read(CONFIG_FILE)
         except ConfigParser.NoSectionError:
-            LOG.exception('Failed reading configuration file: ' + str(CONFIG_FILE))
+            LOG.exception(
+                'Failed reading configuration file: ' + str(CONFIG_FILE))
             raise
 
         options = {}
-        for option, value in conf.items(self.satname + '-modis', raw = True):
+        for option, value in conf.items(self.satname + '-modis', raw=True):
             options[option] = value
 
-        for option, value in conf.items('general', raw = True):
+        for option, value in conf.items('general', raw=True):
             options[option] = value
 
         self.output_dir = options.get('rsr_dir', './')
@@ -89,7 +93,7 @@ class ModisRSR(object):
             self.requested_band_filename = self.filenames[bandname]
             self._load()
         else:
-            raise IOError("Couldn't find an existing file for this band: " + 
+            raise IOError("Couldn't find an existing file for this band: " +
                           str(self.bandname))
 
     def _get_bandfilenames(self, **options):
@@ -110,7 +114,6 @@ class ModisRSR(object):
                     filename = os.path.join(path, "%.2d.amb.1pct.det" % (bnum))
 
             self.filenames[band] = filename
-
 
     def _load(self):
         """Load the MODIS RSR data for the band requested
@@ -135,7 +138,8 @@ class ModisRSR(object):
         else:
             for detector_name in self.rsr:
                 self.rsr[detector_name]['wavelength'], self.rsr[detector_name]['response'] = \
-                    sort_data(self.rsr[detector_name]['wavelength'], self.rsr[detector_name]['response'])
+                    sort_data(
+                        self.rsr[detector_name]['wavelength'], self.rsr[detector_name]['response'])
 
 
 def read_modis_response(filename, scale=1.0):
@@ -157,8 +161,8 @@ def read_modis_response(filename, scale=1.0):
         detector_name = 'det-%d' % int(dummy2)
         if detector_name not in detectors:
             detectors[detector_name] = {'wavelength': [], 'response': []}
-            
-        detectors[detector_name]['wavelength'].append(float(s1)*scale)
+
+        detectors[detector_name]['wavelength'].append(float(s1) * scale)
         detectors[detector_name]['response'].append(float(s2))
 
     for key in detectors:
@@ -173,7 +177,7 @@ def convert2hdf5(platform):
     import h5py
 
     modis = ModisRSR('20', platform)
-    mfile = os.path.join(modis.output_dir, 
+    mfile = os.path.join(modis.output_dir,
                          "rsr_modis_%s.h5" % SATELLITE_NAME.get(platform, platform))
 
     with h5py.File(mfile, "w") as h5f:
@@ -206,12 +210,16 @@ def convert2hdf5(platform):
             # Loop over each detector:
             for det in modis.rsr:
                 det_grp = grp.create_group(det)
-                wvl = modis.rsr[det]['wavelength'][~np.isnan(modis.rsr[det]['wavelength'])]
-                rsp = modis.rsr[det]['response'][~np.isnan(modis.rsr[det]['wavelength'])]
-                det_grp.attrs['central_wavelength'] = get_central_wave(wvl, rsp)
+                wvl = modis.rsr[det]['wavelength'][
+                    ~np.isnan(modis.rsr[det]['wavelength'])]
+                rsp = modis.rsr[det]['response'][
+                    ~np.isnan(modis.rsr[det]['wavelength'])]
+                det_grp.attrs[
+                    'central_wavelength'] = get_central_wave(wvl, rsp)
                 if not wvl_is_constant:
                     arr = modis.rsr[det]['wavelength']
-                    dset = det_grp.create_dataset('wavelength', arr.shape, dtype='f')
+                    dset = det_grp.create_dataset(
+                        'wavelength', arr.shape, dtype='f')
                     dset.attrs['unit'] = 'm'
                     dset.attrs['scale'] = 1e-06
                     dset[...] = arr
@@ -225,4 +233,3 @@ if __name__ == "__main__":
 
     for sat in ['terra', 'aqua']:
         convert2hdf5(sat)
-
