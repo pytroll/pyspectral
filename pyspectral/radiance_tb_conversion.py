@@ -210,10 +210,10 @@ class RadTbConverter(object):
         #
         # C1 = 2 * h * c**2 and C2 = hc/k
         #
-        from pyspectral.blackbody import (h_planck, k_boltzmann, c_speed)
+        from pyspectral.blackbody import (H_PLANCK, K_BOLTZMANN, C_SPEED)
 
-        c_1 = 2 * h_planck * c_speed ** 2
-        c_2 = h_planck * c_speed / k_boltzmann
+        c_1 = 2 * H_PLANCK * C_SPEED ** 2
+        c_2 = H_PLANCK * C_SPEED / K_BOLTZMANN
 
         vc_ = SEVIRI[bandname][self.satnumber][0] * 100.0  # To get SI units!
         alpha = SEVIRI[bandname][self.satnumber][1]
@@ -229,10 +229,10 @@ class RadTbConverter(object):
         #
         # C1 = 2 * h * c**2 and C2 = hc/k
         #
-        from pyspectral.blackbody import (h_planck, k_boltzmann, c_speed)
+        from pyspectral.blackbody import (H_PLANCK, K_BOLTZMANN, C_SPEED)
 
-        c_1 = 2 * h_planck * c_speed ** 2
-        c_2 = h_planck * c_speed / k_boltzmann
+        c_1 = 2 * H_PLANCK * C_SPEED ** 2
+        c_2 = H_PLANCK * C_SPEED / K_BOLTZMANN
 
         vc_ = SEVIRI[bandname][self.satnumber][0] * 100.0  # To get SI units!
         alpha = SEVIRI[bandname][self.satnumber][1]

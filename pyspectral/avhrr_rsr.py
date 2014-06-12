@@ -105,7 +105,6 @@ class AvhrrRSR(object):
     def _load(self, scale=1.0):
         """Load the AVHRR RSR data for the band requested
         """
-        import numpy as np
 
         data = np.genfromtxt(self.requested_band_filename,
                              unpack=True,
