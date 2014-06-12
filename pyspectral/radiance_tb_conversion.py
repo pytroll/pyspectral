@@ -130,7 +130,7 @@ class RadTbConverter(object):
     def get_rsr(self):
         """Get all spectral responses for the sensor"""
 
-        from utils import convert2wavenumber
+        from pyspectral.utils import convert2wavenumber
         from pyspectral.rsr_reader import RelativeSpectralResponse
 
         sensor = RelativeSpectralResponse(self.platform, self.satnumber, 
