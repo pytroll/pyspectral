@@ -23,7 +23,7 @@
 """Unit testing the Blackbody/Plack radiation derivation
 """
 
-from pyspectral.blackbody import blackbody
+from pyspectral.blackbody import blackbody, blackbody_wn
 
 import unittest
 import numpy as np
@@ -33,9 +33,11 @@ RAD_11MICRON_300KELVIN = 9573177.8811719529
 #RAD_11MICRON_301KELVIN = 9713997.9623772576
 RAD_11MICRON_301KELVIN = 9714688.2959563732
 
+
 class TestBlackbody(unittest.TestCase):
+
     """Unit testing the blackbody function"""
-           
+
     def setUp(self):
         """Set up"""
         return
@@ -58,6 +60,14 @@ class TestBlackbody(unittest.TestCase):
         b = blackbody((10. * 1E-6, 11.e-6), tb_therm)
         print b
 
+    def test_blackbody_wn(self):
+        """Calculate the blackbody radiation from wavelengths and temperatures"""
+
+        wavenumber = 90909.1  # 11 micron band
+        b = blackbody_wn((wavenumber, ), [300., 301])
+        self.assertEqual(b.shape[0], 2)
+        self.assertAlmostEqual(b[0], RAD_11MICRON_300KELVIN)
+        self.assertAlmostEqual(b[1], RAD_11MICRON_301KELVIN)
 
     def tearDown(self):
         """Clean up"""
@@ -70,5 +80,5 @@ def suite():
     loader = unittest.TestLoader()
     mysuite = unittest.TestSuite()
     mysuite.addTest(loader.loadTestsFromTestCase(TestBlackbody))
-    
+
     return mysuite

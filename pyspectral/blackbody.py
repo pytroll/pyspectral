@@ -62,7 +62,7 @@ def blackbody_wn(wavenumber, temp):
     if np.isscalar(wavenumber):
         wavnum = np.array([wavenumber, ], dtype='float64')
     else:
-        wavnum = np.array(wavnum, dtype='float64')
+        wavnum = np.array(wavenumber, dtype='float64')
 
     nom = 2 * H_PLANCK * C_SPEED * C_SPEED * wavnum ** 3
     arg1 = H_PLANCK * C_SPEED * wavnum / K_BOLTZMANN
