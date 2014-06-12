@@ -28,13 +28,15 @@ LOG = logging.getLogger(__name__)
 
 import numpy as np
 
-H_PLANCK = 6.62606957*1e-34 # SI-unit = [J*s]
-K_BOLTZMANN = 1.3806488*1e-23 # SI-unit = [J/K]
-C_SPEED = 2.99792458*1e8 # SI-unit = [m/s]
+H_PLANCK = 6.62606957 * 1e-34  # SI-unit = [J*s]
+K_BOLTZMANN = 1.3806488 * 1e-23  # SI-unit = [J/K]
+C_SPEED = 2.99792458 * 1e8  # SI-unit = [m/s]
 
 EPSILON = 0.000001
 
 # -------------------------------------------------------------------
+
+
 def blackbody_wn(wavenumber, temp):
     """The Planck radiation or Blackbody radiation as a function of wave number
     SI units!
@@ -62,12 +64,12 @@ def blackbody_wn(wavenumber, temp):
     else:
         wavnum = np.array(wavnum, dtype='float64')
 
-    nom = 2 * H_PLANCK * C_SPEED * C_SPEED * wavnum**3
+    nom = 2 * H_PLANCK * C_SPEED * C_SPEED * wavnum ** 3
     arg1 = H_PLANCK * C_SPEED * wavnum / K_BOLTZMANN
-    arg2 = np.where(np.greater(np.abs(temperature), EPSILON), 
+    arg2 = np.where(np.greater(np.abs(temperature), EPSILON),
                     np.array(1. / temperature), -9).reshape(-1, 1)
 
-    arg2 = np.ma.masked_array(arg2, mask = arg2==-9)
+    arg2 = np.ma.masked_array(arg2, mask=arg2 == -9)
     exp_arg = np.multiply(arg1.astype('float32'), arg2.astype('float32'))
     denom = np.exp(exp_arg) - 1
 
@@ -88,6 +90,8 @@ def blackbody_wn(wavenumber, temp):
                 return np.reshape(rad, (shape[0], shape[1], radshape[1]))
 
 # -------------------------------------------------------------------
+
+
 def blackbody(wavel, temp):
     """The Planck radiation or Blackbody radiation as a function of wavelength
     SI units.
@@ -108,7 +112,7 @@ def blackbody(wavel, temp):
         temperature = np.array(temp, dtype='float64')
 
     shape = temperature.shape
-    #print("temperature min and max = " + str(temperature.min()) + 
+    # print("temperature min and max = " + str(temperature.min()) +
     #      " " + str(temperature.max()))
     if np.isscalar(wavel):
         wavelength = np.array([wavel, ], dtype='float64')
@@ -116,20 +120,20 @@ def blackbody(wavel, temp):
         wavelength = np.array(wavel, dtype='float64')
 
     const = 2 * H_PLANCK * C_SPEED * C_SPEED
-    nom = const / wavelength**5
+    nom = const / wavelength ** 5
     arg1 = H_PLANCK * C_SPEED / (K_BOLTZMANN * wavelength)
-    arg2 = np.where(np.greater(np.abs(temperature), EPSILON), 
+    arg2 = np.where(np.greater(np.abs(temperature), EPSILON),
                     np.array(1. / temperature), -9).reshape(-1, 1)
-    arg2 = np.ma.masked_array(arg2, mask = arg2==-9)
+    arg2 = np.ma.masked_array(arg2, mask=arg2 == -9)
     #print("Max and min - arg1: " + str(arg1.max()) + '   ' + str(arg1.min()))
     #print("Max and min - arg2: " + str(arg2.max()) + '   ' + str(arg2.min()))
     exp_arg = np.multiply(arg1.astype('float32'), arg2.astype('float32'))
-    #print("Max and min before exp: " + str(exp_arg.max()) + 
+    # print("Max and min before exp: " + str(exp_arg.max()) +
     #      ' ' + str(exp_arg.min()))
     denom = np.exp(exp_arg) - 1
 
     rad = nom / denom
-    #print "rad.shape = ", rad.shape
+    # print "rad.shape = ", rad.shape
     radshape = rad.shape
     if wavelength.shape[0] == 1:
         if temperature.shape[0] == 1:
