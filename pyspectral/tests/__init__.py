@@ -45,6 +45,9 @@ def suite():
     if not TRAVIS:
         # Test sphinx documentation pages:
         mysuite.addTests(doctest.DocFileSuite('../../doc/usage.rst'))
+        mysuite.addTests(doctest.DocFileSuite('../../doc/rad_definitions.rst'))
+        mysuite.addTests(doctest.DocFileSuite('../../doc/seviri_example.rst'))
+        mysuite.addTests(doctest.DocFileSuite('../../doc/37_reflectance.rst'))
         # Test the documentation strings
         mysuite.addTests(doctest.DocTestSuite(solar))
         mysuite.addTests(doctest.DocTestSuite(near_infrared_reflectance))
@@ -54,7 +57,7 @@ def suite():
     mysuite.addTests(test_blackbody.suite())
     mysuite.addTests(test_solarflux.suite())
     mysuite.addTests(test_reflectance.suite())
-    #mysuite.addTests(test_utils.suite())
+    mysuite.addTests(test_utils.suite())
     
     return mysuite
 

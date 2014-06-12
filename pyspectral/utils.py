@@ -56,11 +56,22 @@ def convert2wavenumber(rsr):
     si_scale = 100.0
     return retv, {'unit': unit, 'si_scale': si_scale}
 
-def get_central_wave(wavl, resp):
+def get_central_wave(wav, resp):
     """Calculate the central wavelength or the central wavenumber, depending on
-    what is input"""
+    what is input
+    """
 
-    return np.trapz(resp*wavl, wavl) / np.trapz(resp, wavl)
+    # info: {'unit': unit, 'si_scale': si_scale}
+    # # To get the wavelenght/wavenumber in SI units (m or m-1):
+    # wav = wav * info['si_scale']
+
+    # res = np.trapz(resp*wav, wav) / np.trapz(resp, wav)
+    # # Check if it is a wavelength or a wavenumber and convert to microns or cm-1:
+    # # This should perhaps be user defined!?
+    # if info['unit'].find('-1') > 0:
+    #     # Wavenumber:
+    #     res *= 
+    return np.trapz(resp*wav, wav) / np.trapz(resp, wav)
 
 
 def sort_data(x, y):

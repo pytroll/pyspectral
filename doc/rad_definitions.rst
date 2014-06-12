@@ -63,22 +63,22 @@ And from this we see that in general :math:`\nu_c \neq 1/\lambda_c`.
 Taking SEVIRI as an example, and looking at the visible channel on Meteosat 8,
 we see that this is indeed true:
 
-  >>> from rsr_reader import RelativeSpectralResponse
-  >>> from utils import convert2wavenumber, get_central_wave
+  >>> from pyspectral.rsr_reader import RelativeSpectralResponse
+  >>> from pyspectral.utils import convert2wavenumber, get_central_wave
   >>> seviri = RelativeSpectralResponse('meteosat', '8', 'seviri')
   >>> print get_central_wave(seviri.rsr['VIS0.6']['det-1']['wavelength'], seviri.rsr['VIS0.6']['det-1']['response'])
-0.640215
-  >>> rsr, unit = convert2wavenumber(seviri.rsr)
-  >>> print unit
-cm-1
-wvc = get_central_wave(rsr['VIS0.6']['det-1']['wavenumber'], rsr['VIS0.6']['det-1']['response'])
+  0.640215
+  >>> rsr, info = convert2wavenumber(seviri.rsr)
+  >>> print info
+  {'si_scale': 100.0, 'unit': 'cm-1'}
+  >>> wvc = get_central_wave(rsr['VIS0.6']['det-1']['wavenumber'], rsr['VIS0.6']['det-1']['response'])
   >>> print wvc
-15682.6
+  15682.6
   >>> print 1./wvc*1e4
-0.637648392581
+  0.637648392581
 
 
-This was using the pysepctral unified hdf5 formatet spectral response data. If
+This was using the pyspectral unified hdf5 formatet spectral response data. If
 you want to use the original spectral response data from EUMETSAT the code may
 look like this:
  
@@ -131,8 +131,8 @@ First, the TOA solar irradiance in wavelength space:
 
   >>> from pyspectral.solar import (SolarIrradianceSpectrum, TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
   >>> solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, dlambda=0.0005) 
-  >>> print solar_irr.solar_constant()
-  1366.0907968389995
+  >>> print("%6.2f" % solar_irr.solar_constant())
+  1366.09
   >>> solar_irr.plot('/tmp/solar_irradiance.png')
 
   .. image:: _static/solar_irradiance.png
