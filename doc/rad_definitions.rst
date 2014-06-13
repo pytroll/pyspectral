@@ -12,7 +12,7 @@ Symbols and definitions used in Pyspectral
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
   +---------------------------------+----------------------------------------------------------------------------------------+
-  | :math:`\lambda`                 |  Wavelength (:math:`\mu m`)                                                            |
+  | :math:`\lambda`                 | Wavelength (:math:`\mu m`)                                                             |
   +---------------------------------+----------------------------------------------------------------------------------------+
   | :math:`\nu = \frac{1}{\lambda}` | Wavenumber (:math:`cm^{-1}`)                                                           |
   +---------------------------------+----------------------------------------------------------------------------------------+
@@ -26,11 +26,26 @@ Symbols and definitions used in Pyspectral
   +---------------------------------+----------------------------------------------------------------------------------------+
   | :math:`E_{\nu}`                 | Spectral irradiance at wavenumber :math:`\nu` (:math:`W/m^2 (cm^{-1})^{-1}`)           |
   +---------------------------------+----------------------------------------------------------------------------------------+
+  | :math:`B_{\lambda}`             | Blackbody radiation at wavelength :math:`\lambda` (:math:`W/m^2  \mu m^{-1}`)          |
+  +---------------------------------+----------------------------------------------------------------------------------------+
+  | :math:`B_{\nu}`                 | Blackbody radiation at wavenumber :math:`\nu` (:math:`W/m^2 (cm^{-1})^{-1}`)           |
+  +---------------------------------+----------------------------------------------------------------------------------------+
   | :math:`L_{\nu}`                 | Spectral radiance at wavenumber :math:`\nu` (:math:`W/m^2 sr^{-1} (cm^{-1})^{-1}`)     |
   +---------------------------------+----------------------------------------------------------------------------------------+
   | :math:`L_{\lambda}`             | Spectral radiance at wavelength :math:`\lambda` (:math:`W/m^2 sr^{-1} \mu m^{-1}`)     |
   +---------------------------------+----------------------------------------------------------------------------------------+
 
+
+Constants
+^^^^^^^^^
+
+  +---------------------------------+----------------------------------------------------------------------------------------+
+  | :math:`k_B`                     | Boltzmann constant (:math:`1.3806488 1e−23`)                                           |
+  +---------------------------------+----------------------------------------------------------------------------------------+
+  | :math:`h`                       | Planck constant (:math:`6.62606957 1e-34`)                                             |
+  +---------------------------------+----------------------------------------------------------------------------------------+
+  | :math:`c`                       | Speed of light in vacuum (:math:`2.99792458 1e8`)                                      |
+  +---------------------------------+----------------------------------------------------------------------------------------+
 
 
 Central wavelength and central wavenumber
@@ -149,7 +164,6 @@ the solar flux is in units of :math:`mW/m^2`:
   .. image:: _static/solar_irradiance_wnum.png
 
 
-
 In-band solar irradiance and flux
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -182,10 +196,21 @@ In python code it may look like this:
    72.7869051247
 
 
-
 Planck radiation
 ^^^^^^^^^^^^^^^^
 
+Planck's law describes the electromagnetic radiation emitted by a black body in
+thermal equilibrium at a definite temperature.
 
+Thus for wavelength :math:`\lambda` the Planck radiation or Blackbody
+radiation :math:`B({\lambda})` can be written as:
 
+.. math::
 
+   B_{\lambda}(T) = \frac{2hc^{2}}{{\lambda}^{5}} \frac{1} {e^{\frac{hc}{\lambda k_B(T)}} - 1}
+
+and expressed as a function of wavenumber :math:`\nu`:
+
+.. math::
+
+   B_{\nu}(T) = x

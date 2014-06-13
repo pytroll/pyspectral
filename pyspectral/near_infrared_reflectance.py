@@ -61,7 +61,7 @@ class Calculator(RadTbConverter):
         super(Calculator, self).__init__(platform, satnum, instrument,
                                          bandname, method=1, **options)
 
-        if solar_flux == None:
+        if solar_flux is None:
             self._get_solarflux()
         else:
             self.solar_flux = solar_flux

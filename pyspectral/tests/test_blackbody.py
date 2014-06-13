@@ -33,6 +33,10 @@ RAD_11MICRON_300KELVIN = 9573177.8811719529
 #RAD_11MICRON_301KELVIN = 9713997.9623772576
 RAD_11MICRON_301KELVIN = 9714688.2959563732
 
+# Radiances in wavenumber space (SI-units)
+WN_RAD_11MICRON_300KELVIN = 0.00115835441353
+WN_RAD_11MICRON_301KELVIN = 0.00117547716523
+
 
 class TestBlackbody(unittest.TestCase):
 
@@ -66,8 +70,8 @@ class TestBlackbody(unittest.TestCase):
         wavenumber = 90909.1  # 11 micron band
         b = blackbody_wn((wavenumber, ), [300., 301])
         self.assertEqual(b.shape[0], 2)
-        self.assertAlmostEqual(b[0], RAD_11MICRON_300KELVIN)
-        self.assertAlmostEqual(b[1], RAD_11MICRON_301KELVIN)
+        self.assertAlmostEqual(b[0], WN_RAD_11MICRON_300KELVIN)
+        self.assertAlmostEqual(b[1], WN_RAD_11MICRON_301KELVIN)
 
     def tearDown(self):
         """Clean up"""
