@@ -213,4 +213,4 @@ and expressed as a function of wavenumber :math:`\nu`:
 
 .. math::
 
-   B_{\nu}(T) = x
+   B_{\nu}(T) = \frac{2h{\nu}^3}{c^2} \frac{1}{e^{\frac{h c}{\lambda k_B T}} - 1}
