@@ -27,10 +27,11 @@ from pyspectral import (blackbody,
                         near_infrared_reflectance,
                         solar)
 
-from pyspectral.tests import (test_blackbody, 
-                              test_reflectance, 
+from pyspectral.tests import (test_blackbody,
+                              test_reflectance,
                               test_solarflux,
-                              test_utils)
+                              test_utils,
+                              test_rad_tb_conversions)
 import unittest
 import doctest
 
@@ -54,11 +55,12 @@ def suite():
         mysuite.addTests(doctest.DocTestSuite(blackbody))
 
     # Use the unittests also
-    mysuite.addTests(test_blackbody.suite())
-    mysuite.addTests(test_solarflux.suite())
-    mysuite.addTests(test_reflectance.suite())
-    mysuite.addTests(test_utils.suite())
-    
+    mysuite.addTests(test_rad_tb_conversions.suite())
+    # mysuite.addTests(test_blackbody.suite())
+    # mysuite.addTests(test_solarflux.suite())
+    # mysuite.addTests(test_reflectance.suite())
+    # mysuite.addTests(test_utils.suite())
+
     return mysuite
 
 if __name__ == '__main__':

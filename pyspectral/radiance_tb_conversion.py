@@ -186,7 +186,7 @@ class RadTbConverter(object):
                                       ' representation of ' +
                                       'rsr data not supported!')
 
-        return integrate.trapz(planck, wv_)
+        return integrate.trapz(planck, wv_) / np.trapz(resp, wv_)
 
     def make_tb2rad_lut(self, bandname, filepath):
         """Generate a Tb to radiance look-up table"""
@@ -215,13 +215,15 @@ class RadTbConverter(object):
         c_1 = 2 * H_PLANCK * C_SPEED ** 2
         c_2 = H_PLANCK * C_SPEED / K_BOLTZMANN
 
-        vc_ = SEVIRI[bandname][self.satnumber][0] * 100.0  # To get SI units!
+        vc_ = SEVIRI[bandname][self.satnumber][0]
+        # Multiply by 100 to get SI units!
+        vc_ *= 100.0
         alpha = SEVIRI[bandname][self.satnumber][1]
         beta = SEVIRI[bandname][self.satnumber][2]
 
         return c_1 * vc_ ** 3 / (np.exp(c_2 * vc_ / (alpha * tb_ + beta)) - 1)
 
-    def radiance2tb_simple(self, bandname, rad):
+    def radiance2tb_simple(self, rad, bandname):
         """Get the Tb from the radiance using the simple non-linear regression
         method. SI units of course!"""
         #
@@ -234,7 +236,9 @@ class RadTbConverter(object):
         c_1 = 2 * H_PLANCK * C_SPEED ** 2
         c_2 = H_PLANCK * C_SPEED / K_BOLTZMANN
 
-        vc_ = SEVIRI[bandname][self.satnumber][0] * 100.0  # To get SI units!
+        vc_ = SEVIRI[bandname][self.satnumber][0]
+        # Multiply by 100 to get SI units!
+        vc_ *= 100.0
         alpha = SEVIRI[bandname][self.satnumber][1]
         beta = SEVIRI[bandname][self.satnumber][2]
 

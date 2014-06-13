@@ -92,7 +92,6 @@ class Calculator(RadTbConverter):
         3.9 microns)"""
         solar_spectrum = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM,
                                                  dlambda=0.0005)
-        #self.solar_flux = solar_spectrum.inband_solarflux(self.rsr['IR3.9'])
         self.solar_flux = solar_spectrum.inband_solarflux(
             self.rsr[self.bandname])
 

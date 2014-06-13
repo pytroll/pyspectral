@@ -64,6 +64,8 @@ def blackbody_wn(wavenumber, temp):
     else:
         wavnum = np.array(wavenumber, dtype='float64')
 
+    print("mid wavenumber: " + str(wavnum[wavnum.shape[0] / 2]))
+
     nom = 2 * H_PLANCK * C_SPEED * C_SPEED * wavnum ** 3
     arg1 = H_PLANCK * C_SPEED * wavnum / K_BOLTZMANN
     arg2 = np.where(np.greater(np.abs(temperature), EPSILON),
@@ -88,8 +90,6 @@ def blackbody_wn(wavenumber, temp):
                 return np.reshape(rad, (shape[0], radshape[1]))
             else:
                 return np.reshape(rad, (shape[0], shape[1], radshape[1]))
-
-# -------------------------------------------------------------------
 
 
 def blackbody(wavel, temp):
@@ -119,17 +119,23 @@ def blackbody(wavel, temp):
     else:
         wavelength = np.array(wavel, dtype='float64')
 
-    const = 2 * H_PLANCK * C_SPEED * C_SPEED
+    print("mid wavelength: " + str(wavelength[wavelength.shape[0] / 2]))
+
+    const = 2 * H_PLANCK * C_SPEED ** 2
     nom = const / wavelength ** 5
+    LOG.debug("Nominator: " + str(nom))
     arg1 = H_PLANCK * C_SPEED / (K_BOLTZMANN * wavelength)
     arg2 = np.where(np.greater(np.abs(temperature), EPSILON),
                     np.array(1. / temperature), -9).reshape(-1, 1)
     arg2 = np.ma.masked_array(arg2, mask=arg2 == -9)
-    #print("Max and min - arg1: " + str(arg1.max()) + '   ' + str(arg1.min()))
-    #print("Max and min - arg2: " + str(arg2.max()) + '   ' + str(arg2.min()))
+    LOG.debug(
+        "Max and min - arg1: " + str(arg1.max()) + '   ' + str(arg1.min()))
+    LOG.debug(
+        "Max and min - arg2: " + str(arg2.max()) + '   ' + str(arg2.min()))
     exp_arg = np.multiply(arg1.astype('float32'), arg2.astype('float32'))
-    # print("Max and min before exp: " + str(exp_arg.max()) +
-    #      ' ' + str(exp_arg.min()))
+    LOG.debug("Max and min before exp: " + str(exp_arg.max()) +
+              ' ' + str(exp_arg.min()))
+
     denom = np.exp(exp_arg) - 1
 
     rad = nom / denom
