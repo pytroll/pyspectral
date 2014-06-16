@@ -189,7 +189,7 @@ def convert2hdf5(platform):
         for chname in MODIS_BAND_NAMES:
             modis = ModisRSR(chname, platform)
             grp = h5f.create_group(chname)
-            grp.attrs['number_of_detetors'] = len(modis.rsr.keys())
+            grp.attrs['number_of_detectors'] = len(modis.rsr.keys())
             # Loop over each detector to check if the sampling wavelengths are
             # identical:
             det_names = modis.rsr.keys()

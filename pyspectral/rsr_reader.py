@@ -97,9 +97,7 @@ class RelativeSpectralResponse(object):
             for bandname in self.band_names:
                 self.rsr[bandname] = {}
                 try:
-                    # Spelling error in files!
-                    # FIXME!
-                    num_of_det = h5f[bandname].attrs['number_of_detetors']
+                    num_of_det = h5f[bandname].attrs['number_of_detectors']
                 except KeyError:
                     LOG.debug("No detectors found - assume only one...")
                     num_of_det = 1
