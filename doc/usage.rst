@@ -10,22 +10,21 @@ pointing to the file. E.g.::
 
 A simple use case::
 
-  >>> from pyspectral.rsr_read import RelativeSpectralResponse
+  >>> from pyspectral.rsr_reader import RelativeSpectralResponse
   >>> from pyspectral.solar import (SolarIrradianceSpectrum, TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
-  >>> modis = RelativeSpectralResponse('eos', 2, 'modis')
-  >>> modis.read(channel='20', scale=0.001)
+  >>> modis = RelativeSpectralResponse('eos', '2', 'modis')
   >>> solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, dlambda=0.005)
-  >>> sflux = solar_irr.solar_flux_over_band(modis.rsr)
+  >>> sflux = solar_irr.inband_solarflux(modis.rsr['20'])
   >>> print("Solar flux over Band: ", sflux)
-  ('Solar flux over Band: ', 1.9674582420093827)
+  ('Solar flux over Band: ', 2.0029281634299041)
 
 And, here is how to derive the solar reflectance (removing the thermal part) of
 the Aqua MODIS 3.7 micron band::
 
-  >>> from pyspectral.nir_reflectance import Calculator
+  >>> from pyspectral.near_infrared_reflectance import Calculator
   >>> sunz = 80.
   >>> tb3 = 290.0
   >>> tb4 = 282.0
-  >>> refl37 = Calculator(modis.rsr, solar_flux=sflux)
+  >>> refl37 = Calculator('eos', '2', 'modis', '20', detector='det-1', solar_flux=sflux)
   >>> print refl37.reflectance_from_tbs(sunz, tb3, tb4)
-  0.258119312599
+  0.251249032676
