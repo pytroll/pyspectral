@@ -125,7 +125,8 @@ class RelativeSpectralResponse(object):
                     self.rsr[bandname][dname]['wavelength'] = wvl * 1e6
 
     def integral(self, bandname):
-        """Calculate the integral of the spectral response function.
+        """Calculate the integral of the spectral response function for each
+        detector.
         """
 
         intg = {}

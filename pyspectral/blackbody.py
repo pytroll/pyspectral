@@ -38,7 +38,7 @@ EPSILON = 0.000001
 
 
 def blackbody_wn(wavenumber, temp):
-    """The Planck radiation or Blackbody radiation as a function of wave number
+    """The Planck radiation or Blackbody radiation as a function of wavenumber
     SI units!
     blackbody_wn(wavnum, temperature)
     wavenumber = A wavenumber (scalar) or a sequence of wave numbers (m-1)
@@ -64,9 +64,9 @@ def blackbody_wn(wavenumber, temp):
     else:
         wavnum = np.array(wavenumber, dtype='float64')
 
-    print("mid wavenumber: " + str(wavnum[wavnum.shape[0] / 2]))
+    #print("mid wavenumber: " + str(wavnum[wavnum.shape[0] / 2]))
 
-    nom = 2 * H_PLANCK * C_SPEED * C_SPEED * wavnum ** 3
+    nom = 2 * H_PLANCK * (C_SPEED ** 2) * (wavnum ** 3)
     arg1 = H_PLANCK * C_SPEED * wavnum / K_BOLTZMANN
     arg2 = np.where(np.greater(np.abs(temperature), EPSILON),
                     np.array(1. / temperature), -9).reshape(-1, 1)
@@ -119,7 +119,7 @@ def blackbody(wavel, temp):
     else:
         wavelength = np.array(wavel, dtype='float64')
 
-    print("mid wavelength: " + str(wavelength[wavelength.shape[0] / 2]))
+    #print("mid wavelength: " + str(wavelength[wavelength.shape[0] / 2]))
 
     const = 2 * H_PLANCK * C_SPEED ** 2
     nom = const / wavelength ** 5

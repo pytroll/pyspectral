@@ -156,37 +156,39 @@ class TestRadTbConversions(unittest.TestCase):
 
         res = self.modis.tb2radiance(TEST_TBS, '20', lut=False)
         print res
-        self.assertTrue(np.allclose(TRUE_RADS, res))
+        self.assertTrue(np.allclose(TRUE_RADS, res['radiance']))
 
         res = self.modis.tb2radiance(237., '20', lut=False)
-        self.assertAlmostEqual(16570.592171157, res)
+        self.assertAlmostEqual(16570.592171157, res['radiance'])
 
         res = self.modis.tb2radiance(277., '20', lut=False)
-        self.assertAlmostEqual(167544.3823631, res)
+        self.assertAlmostEqual(167544.3823631, res['radiance'])
 
         res = self.modis.tb2radiance(1.1, '20', lut=False)
-        self.assertAlmostEqual(0.0, res)
+        self.assertAlmostEqual(0.0, res['radiance'])
 
         res = self.modis.tb2radiance(11.1, '20', lut=False)
-        self.assertAlmostEqual(0.0, res)
+        self.assertAlmostEqual(0.0, res['radiance'])
 
         res = self.modis.tb2radiance(100.1, '20', lut=False)
-        self.assertAlmostEqual(5.3940515573e-06, res)
+        self.assertAlmostEqual(5.3940515573e-06, res['radiance'])
 
         res = self.modis.tb2radiance(200.1, '20', lut=False)
-        self.assertAlmostEqual(865.09776189, res)
+        self.assertAlmostEqual(865.09776189, res['radiance'])
 
     def test_conversion_simple(self):
         """Test the tb2radiance_simple function to convert radiances to Tb's"""
 
-        rads = self.sev2.tb2radiance_simple(TEST_TBS, 'IR3.9')
+        retv = self.sev2.tb2radiance_simple(TEST_TBS, 'IR3.9')
+        rads = retv['radiance']
         # Units space = wavenumber (cm-1):
         tbs = self.sev2.radiance2tb_simple(rads, 'IR3.9')
         self.assertTrue(np.allclose(TEST_TBS, tbs))
 
         np.random.seed()
         tbs1 = 200.0 + np.random.random(50) * 150.0
-        rads = self.sev2.tb2radiance_simple(tbs1, 'IR3.9')
+        retv = self.sev2.tb2radiance_simple(tbs1, 'IR3.9')
+        rads = retv['radiance']
         tbs = self.sev2.radiance2tb_simple(rads, 'IR3.9')
         self.assertTrue(np.allclose(tbs1, tbs))
 

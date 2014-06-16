@@ -164,8 +164,8 @@ the solar flux is in units of :math:`mW/m^2`:
   .. image:: _static/solar_irradiance_wnum.png
 
 
-In-band solar irradiance and flux
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+In-band solar flux
+^^^^^^^^^^^^^^^^^^
 
 The solar flux (SI unit :math:`\frac{W}{m^2}`) over a spectral sensor band can
 be derived by convolving the top of atmosphere solar spectral irradiance and
@@ -178,11 +178,9 @@ the sensor relative spectral response. For band :math:`i`:
 where :math:`E(\lambda)` is the TOA spectral solar irradiance at a sun-earth
 distance of one astronomical unit (AU).
 
-Normalising with the equivalent band width gives the in-band solar irradiance:
+.. Normalising with the equivalent band width gives the in-band solar irradiance:
 
-.. math::
-
-    E_{\lambda_{i}} = \frac{\int_0^\infty \Phi_{i}(\lambda) E(\lambda) \mathrm{d}\lambda} {\int_0^\infty \Phi_{i}(\lambda) \mathrm{d}\lambda}
+..     E_{\lambda_{i}} = \frac{\int_0^\infty \Phi_{i}(\lambda) E(\lambda) \mathrm{d}\lambda} {\int_0^\infty \Phi_{i}(\lambda) \mathrm{d}\lambda}
 
 
 In python code it may look like this:
@@ -192,8 +190,6 @@ In python code it may look like this:
    >>> rsr = {'wavenumber': seviri.rsr['VIS0.8']['wavenumber'], 'response': seviri.rsr['VIS0.8']['met8']}
    >>> print solar_irr.inband_solarflux(rsr)
    63767.9240506
-   >>> print solar_irr.inband_solarirradiance(rsr)
-   72.7869051247
 
 
 Planck radiation
@@ -213,4 +209,4 @@ and expressed as a function of wavenumber :math:`\nu`:
 
 .. math::
 
-   B_{\nu}(T) = \frac{2h{\nu}^3}{c^2} \frac{1}{e^{\frac{h c}{\lambda k_B T}} - 1}
+   B_{\nu}(T) = 2hc^2{\nu}^5 \frac{1}{e^{\frac{h c \nu}{k_B T}} - 1}

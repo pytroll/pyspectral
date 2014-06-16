@@ -53,12 +53,12 @@ and then
     \rho_{3.7} = \frac{L_{3.7} - \int_0^\infty \Phi_{3.7}(\lambda) B_{\lambda} (T_{11}) \mathrm{d}\lambda } {\frac{1}{\pi} \mu_0 F_{3.7, 0} - \int_0^\infty \Phi_{3.7}(\lambda) B_{\lambda} (T_{11}) \mathrm{d}\lambda }
 
 
-Brightness temperature to radiance conversion
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Brightness temperature to spectral radiance 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If the satellite observation is given in terms of the brightness temperature,
-then the corresponding radiance can be derived by convolving the relative
-spectral response with the Planck function:
+then the corresponding spectral radiance can be derived by convolving the relative
+spectral response with the Planck function and diving by the equivalent band width:
 
 .. math::
 
@@ -69,6 +69,10 @@ where the equivalent band width :math:`\widetilde{\Delta \lambda}` is defined as
 .. math::
 
     \widetilde{\Delta \lambda} = \int_0^\infty \Phi_{3.7}(\lambda) \mathrm{d}\lambda
+
+This gives the spectral radiance given the brightness temperature and may be
+expressed in :math:`W/m^2 \mu m^{-1}`. In order to get the total radiance over
+the band one has to multiply with the equivalent band width.
 
 Inserting the Planck radiation:
 

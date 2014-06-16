@@ -186,14 +186,24 @@ class RadTbConverter(object):
                                       ' representation of ' +
                                       'rsr data not supported!')
 
-        return integrate.trapz(planck, wv_) / np.trapz(resp, wv_)
+        radiance = integrate.trapz(planck, wv_) / np.trapz(resp, wv_)
+        if self.wavespace == WAVE_NUMBER:
+            unit = 'W/m^2 sr^-1 (m^-1)^-1'
+            scale = 1.0
+        else:
+            unit = 'W/m^2 sr^-1 m^-1'
+            scale = 1.0
+
+        return {'radiance': radiance,
+                'unit': unit,
+                'scale': scale}
 
     def make_tb2rad_lut(self, bandname, filepath):
         """Generate a Tb to radiance look-up table"""
 
         tb_ = np.arange(TB_MIN, TB_MAX, self.tb_resolution)
-        rad = self.tb2radiance(tb_, bandname)
-
+        retv = self.tb2radiance(tb_, bandname)
+        rad = retv['radiance']
         np.savez(filepath, tb=tb_, radiance=rad.compressed())
 
     def read_tb2rad_lut(self, filepath):
@@ -221,11 +231,22 @@ class RadTbConverter(object):
         alpha = SEVIRI[bandname][self.satnumber][1]
         beta = SEVIRI[bandname][self.satnumber][2]
 
-        return c_1 * vc_ ** 3 / (np.exp(c_2 * vc_ / (alpha * tb_ + beta)) - 1)
+        radiance = c_1 * vc_ ** 3 / \
+            (np.exp(c_2 * vc_ / (alpha * tb_ + beta)) - 1)
+
+        unit = 'W/m^2 sr^-1 (m^-1)^-1'
+        scale = 1.0
+        #unit = 'mW/m^2 sr^-1 (cm^-1)^-1'
+        #scale = 10.0
+        return {'radiance': radiance,
+                'unit': unit,
+                'scale': scale}
 
     def radiance2tb_simple(self, rad, bandname):
         """Get the Tb from the radiance using the simple non-linear regression
-        method. SI units of course!"""
+        method. 
+        rad: Radiance in units = 'mW/m^2 sr^-1 (cm^-1)^-1'
+        """
         #
         # Tb = C2 * νc/{α * log[C1*νc**3 / L + 1]} - β/α
         #
@@ -242,4 +263,7 @@ class RadTbConverter(object):
         alpha = SEVIRI[bandname][self.satnumber][1]
         beta = SEVIRI[bandname][self.satnumber][2]
 
-        return c_2 * vc_ / (alpha * np.log(c_1 * vc_ ** 3 / rad + 1)) - beta / alpha
+        tb_ = c_2 * vc_ / \
+            (alpha * np.log(c_1 * vc_ ** 3 / rad + 1)) - beta / alpha
+
+        return tb_

@@ -85,7 +85,9 @@ class SolarIrradianceSpectrum(object):
                           'flux': 'W/m^2'}
 
     def convert2wavenumber(self):
-        """Convert from wavelengths to wavenumber. 
+        """
+        Convert from wavelengths to wavenumber. 
+
         Units:
           Wavelength: micro meters (1e-6 m)
           Wavenumber: cm-1
@@ -118,11 +120,11 @@ class SolarIrradianceSpectrum(object):
 
         return self._band_calculations(rsr, True, scale, **options)
 
-    def inband_solarirradiance(self, rsr, scale=1.0, **options):
-        """Derive the inband solar irradiance for a given instrument relative
-        spectral response valid for an earth-sun distance of one AU."""
+    # def inband_solarirradiance(self, rsr, scale=1.0, **options):
+    #     """Derive the inband solar irradiance for a given instrument relative
+    #     spectral response valid for an earth-sun distance of one AU."""
 
-        return self._band_calculations(rsr, False, scale, **options)
+    #     return self._band_calculations(rsr, False, scale, **options)
 
     def _band_calculations(self, rsr, flux, scale, **options):
         """Derive the inband solar flux or inband solar irradiance for a given
@@ -183,6 +185,7 @@ class SolarIrradianceSpectrum(object):
         if flux:
             return np.trapz(irr * resp_ipol, wvl)
         else:
+            # Divide by the equivalent band width:
             return np.trapz(irr * resp_ipol, wvl) / np.trapz(resp_ipol, wvl)
 
     def interpolate(self, **options):

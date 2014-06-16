@@ -75,6 +75,10 @@ class Calculator(RadTbConverter):
         else:
             self.detector = 'det-1'
 
+        resp = self.rsr[self.bandname][self.detector]['response']
+        wv_ = self.rsr[self.bandname][self.detector][self.wavespace]
+        self.rsr_integral = np.trapz(resp, wv_)
+
     def derive_rad39_corr(self, bt11, bt13, method='rosenfeld'):
         """Derive the 3.9 radiance correction factor to account for the
         attenuation of the emitted 3.9 radiance by CO2 absorption. Requires the
@@ -90,17 +94,20 @@ class Calculator(RadTbConverter):
     def _get_solarflux(self):
         """Derive the in-band solar flux from rsr over the Near IR band (3.7 or
         3.9 microns)"""
+        # print "Inside _get_solarflux...", self.wavespace
+
         solar_spectrum = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM,
-                                                 dlambda=0.0005)
+                                                 dlambda=0.0005,
+                                                 wavespace=self.wavespace)
+        # print self.rsr[self.bandname]
         self.solar_flux = solar_spectrum.inband_solarflux(
             self.rsr[self.bandname])
 
-    def reflectance_from_tbs(self, sunz, tb_nir, tb_therm,
-                             lookuptable=None):
+    def reflectance_from_tbs(self, sunz, tb_nir, tb_therm):
         """
-        The relfectance calculated is without units and should be between 0 and 1.
+        The relfectance calculated is without units and should be between 0 and
+        1.
         """
-        import os.path
 
         if np.isscalar(tb_nir):
             tb_nir = np.array([tb_nir, ])
@@ -112,25 +119,32 @@ class Calculator(RadTbConverter):
                              str(tb_therm.shape) + ' and ' + str(tb_nir.shape))
 
         if self.instrument == 'seviri':
-            ch11name = 'IR10.8'
             ch37name = 'IR3.9'
         elif self.instrument == 'modis':
-            ch11name = '31'
             ch37name = '20'
         else:
             raise NotImplementedError('Not yet support for this ' +
                                       'instrument ' + str(self.instrument))
 
         if not self.rsr:
-            # What should this really be?
-            # ch37name or ch11name!?
-            # Check doc!
-            # FIXME!
-            thermal_emiss_one = self.tb2radiance_simple(tb_therm, ch37name)
-            l_nir = self.tb2radiance_simple(tb_nir, ch37name)
+            raise NotImplementedError("Reflectance calculations without " +
+                                      "rsr not yet supported!")
+            # retv = self.tb2radiance_simple(tb_therm, ch37name)
+            # print("tb2radiance_simple conversion: " + str(retv))
+            # thermal_emiss_one = retv['radiance']
+            # retv = self.tb2radiance_simple(tb_nir, ch37name)
+            # print("tb2radiance_simple conversion: " + str(retv))
+            # l_nir = retv['radiance']
         else:
-            thermal_emiss_one = self.tb2radiance(tb_therm, ch37name)
-            l_nir = self.tb2radiance(tb_nir, ch37name)
+            # Assume rsr in in microns!!!
+            # FIXME!
+            scale = self.rsr_integral * 1e-6
+            retv = self.tb2radiance(tb_therm, ch37name)
+            #print("tb2radiance conversion: " + str(retv))
+            thermal_emiss_one = retv['radiance'] * scale
+            retv = self.tb2radiance(tb_nir, ch37name)
+            #print("tb2radiance conversion: " + str(retv))
+            l_nir = retv['radiance'] * scale
 
         LOG.info('thermal_emiss_one = ' + str(thermal_emiss_one))
         LOG.info('l_nir = ' + str(l_nir))

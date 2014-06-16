@@ -47,7 +47,9 @@ class TestBlackbody(unittest.TestCase):
         return
 
     def test_blackbody(self):
-        """Calculate the blackbody radiation from wavelengths and temperatures"""
+        """
+        Calculate the blackbody radiation from wavelengths and temperatures 
+        """
 
         b = blackbody((11. * 1E-6, ), [300., 301])
         self.assertEqual(b.shape[0], 2)
@@ -65,10 +67,13 @@ class TestBlackbody(unittest.TestCase):
         print b
 
     def test_blackbody_wn(self):
-        """Calculate the blackbody radiation from wavelengths and temperatures"""
+        """
+        Calculate the blackbody radiation from wavenumbers and temperatures
+        """
 
         wavenumber = 90909.1  # 11 micron band
         b = blackbody_wn((wavenumber, ), [300., 301])
+        print b
         self.assertEqual(b.shape[0], 2)
         self.assertAlmostEqual(b[0], WN_RAD_11MICRON_300KELVIN)
         self.assertAlmostEqual(b[1], WN_RAD_11MICRON_301KELVIN)
