@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013 Adam.Dybbroe
+# Copyright (c) 2013, 2014 Adam.Dybbroe
 
 # Author(s):
 
@@ -23,32 +23,44 @@
 """The tests package
 """
 
-from pyspectral import (solar, 
-                        nir_reflectance,
-                        blackbody)
-from pyspectral.tests import (test_blackbody, 
-                              test_reflectance, 
-                              test_solarflux)
+from pyspectral import (blackbody,
+                        near_infrared_reflectance,
+                        solar)
+
+from pyspectral.tests import (test_blackbody,
+                              test_reflectance,
+                              test_solarflux,
+                              test_utils,
+                              test_rad_tb_conversions)
 import unittest
 import doctest
+
+import os
+TRAVIS = os.environ.get("TRAVIS", False)
 
 
 def suite():
     """The global test suite.
     """
     mysuite = unittest.TestSuite()
-    # Test sphinx documentation pages:
-    #mysuite.addTests(doctest.DocFileSuite('../doc/usage.rst'))
-    # Test the documentation strings
-    mysuite.addTests(doctest.DocTestSuite(blackbody))
+    if not TRAVIS:
+        # Test sphinx documentation pages:
+        mysuite.addTests(doctest.DocFileSuite('../../doc/usage.rst'))
+        mysuite.addTests(doctest.DocFileSuite('../../doc/rad_definitions.rst'))
+        mysuite.addTests(doctest.DocFileSuite('../../doc/seviri_example.rst'))
+        mysuite.addTests(doctest.DocFileSuite('../../doc/37_reflectance.rst'))
+        # Test the documentation strings
+        mysuite.addTests(doctest.DocTestSuite(solar))
+        mysuite.addTests(doctest.DocTestSuite(near_infrared_reflectance))
+        mysuite.addTests(doctest.DocTestSuite(blackbody))
+
     # Use the unittests also
     mysuite.addTests(test_blackbody.suite())
-
-    mysuite.addTests(doctest.DocTestSuite(solar))
+    mysuite.addTests(test_rad_tb_conversions.suite())
     mysuite.addTests(test_solarflux.suite())
-    mysuite.addTests(doctest.DocTestSuite(nir_reflectance))
     mysuite.addTests(test_reflectance.suite())
-    
+    mysuite.addTests(test_utils.suite())
+
     return mysuite
 
 if __name__ == '__main__':

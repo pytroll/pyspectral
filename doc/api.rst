@@ -1,5 +1,5 @@
 The :mod:`pyspectral` API
-===================
+=========================
 
 Blackbody radiation
 -------------------
@@ -9,6 +9,12 @@ Blackbody radiation
    :undoc-members:
 
 
+Spectral responses
+------------------
+
+.. automodule:: pyspectral.rsr_reader
+   :members:
+   :undoc-members:
 
 Spectral responses - SEVIRI
 ---------------------------
@@ -37,8 +43,14 @@ Solar irradiance
 Near-Infrared reflectance
 -------------------------
 
-.. automodule:: pyspectral.nir_reflectance
+.. automodule:: pyspectral.near_infrared_reflectance
    :members:
    :undoc-members:
 
 
+Utils
+-----
+
+.. automodule:: pyspectral.utils
+   :members:
+   :undoc-members:
