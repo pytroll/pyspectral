@@ -30,15 +30,12 @@ LOG = logging.getLogger(__name__)
 import ConfigParser
 import os
 
-try:
-    CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
-except KeyError:
-    LOG.warning('Environment variable PSP_CONFIG_FILE not set!')
-    CONFIG_FILE = None
-
-if not CONFIG_FILE and not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
+CONFIG_FILE = os.environ.get('PSP_CONFIG_FILE', None)
+if CONFIG_FILE and (not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE)):
     raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
+elif not CONFIG_FILE:
+    LOG.warning('Environment variable PSP_CONFIG_FILE not set!')
 
 import numpy as np
 
