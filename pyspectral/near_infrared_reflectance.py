@@ -33,10 +33,10 @@ import os
 try:
     CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
 except KeyError:
-    LOG.exception('Environment variable PSP_CONFIG_FILE not set!')
-    raise
+    LOG.warning('Environment variable PSP_CONFIG_FILE not set!')
+    CONFIG_FILE = None
 
-if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
+if not CONFIG_FILE and not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
     raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
 
@@ -76,20 +76,20 @@ class Calculator(RadTbConverter):
         super(Calculator, self).__init__(platform, satnum, instrument,
                                          bandname, method=1, **options)
 
-        conf = ConfigParser.ConfigParser()
-        try:
-            conf.read(CONFIG_FILE)
-        except ConfigParser.NoSectionError:
-            LOG.exception(
-                'Failed reading configuration file: ' + str(CONFIG_FILE))
-            raise
+        if CONFIG_FILE:
+            conf = ConfigParser.ConfigParser()
+            try:
+                conf.read(CONFIG_FILE)
+            except ConfigParser.NoSectionError:
+                LOG.warning(
+                    'Failed reading configuration file: ' + str(CONFIG_FILE))
 
-        satellite = platform + satnum
-        options = {}
-        for option, value in conf.items(SATNAME.get(satellite, satellite) +
-                                        '-' + instrument,
-                                        raw=True):
-            options[option] = value
+            satellite = platform + satnum
+            options = {}
+            for option, value in conf.items(SATNAME.get(satellite, satellite) +
+                                            '-' + instrument,
+                                            raw=True):
+                options[option] = value
 
         if solar_flux is None:
             self._get_solarflux()
