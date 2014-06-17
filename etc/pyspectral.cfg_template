@@ -1,0 +1,31 @@
+[general]
+rsr_dir = /path/to/internal/rsr_data
+
+[seviri]
+path = /path/to/unzipped/seviri/data/MSG_SEVIRI_Spectral_Response_Characterisation.XLS
+
+[viirs]
+
+mband_visnir_path = /path/to/viirs/data/GT_F1_SC_RSR_Release1.0_Best_Mbands/
+mband_visnir_names = GT_F1_SC_RSR_Release1.0_Best_%(bandname)s_V2.71_ib_oob.txt
+
+mband_ir_path = /path/to/viirs/data/GT_F1_CFPA_RSR_Release1.0_Best/
+mband_ir_names = GT_F1_CFPA_RSR_Release1.0_Best_%(bandname)s_v3_ib_oob.txt
+
+iband_ir_path = /path/to/viirs/data/GT_F1_CFPA_RSR_Release1.0_Best/
+iband_ir_names = GT_F1_CFPA_RSR_Release1.0_Best_%(bandname)s_S0_v3_ib_oob.txt
+# We take the S0 subsample. It is anyhow in close agreement with the S1
+# subsample
+
+iband_visnir_path = /path/to/viirs/data/GT_F1_SC_RSR_Release1.0_Best_Ibands
+iband_visnir_names = GT_F1_SC_RSR_Release1.0_Best_%(bandname)s_V2.72_ib_oob.txt
+
+[noaa19-avhrr]
+
+path = /path/to/avhrr/data
+ch1 = NOAA_19_A308C001.txt
+ch2 = NOAA_19_A308C002.txt
+ch3a = NOAA_19_A308C03A.txt
+ch3b = NOAA_19_A308C03B.txt
+ch4 = NOAA_19_A308C004.txt
+ch5 = NOAA_19_A308C005.txt

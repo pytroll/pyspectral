@@ -22,10 +22,10 @@
 
 
 try:
-    with open("./README", "r") as fd:
+    with open('./README', 'r') as fd:
         long_description = fd.read()
 except IOError:
-    long_description = ""
+    long_description = ''
 
 
 from setuptools import setup
@@ -34,40 +34,39 @@ import imp
 version = imp.load_source('pyspectral.version', 'pyspectral/version.py')
 
 setup(name='pyspectral',
-      version="v0.1.0",
+      version='v0.1.0',
       description='Getting satellite sensor rsr functions and the solar spectrum',
       author='Adam Dybbroe',
       author_email='adam.dybbroe@smhi.se',
-      classifiers=["Development Status :: 4 - Beta",
-                   "Intended Audience :: Science/Research",
-                   "License :: OSI Approved :: GNU General Public License v3 " +
-                   "or later (GPLv3+)",
-                   "Operating System :: OS Independent",
-                   "Programming Language :: Python",
-                   "Topic :: Scientific/Engineering"],
-      url="https://github.com/adybbroe/pyspectral",
+      classifiers=['Development Status :: 4 - Beta',
+                   'Intended Audience :: Science/Research',
+                   'License :: OSI Approved :: GNU General Public License v3 '+
+                   'or later (GPLv3+)',
+                   'Operating System :: OS Independent',
+                   'Programming Language :: Python',
+                   'Topic :: Scientific/Engineering'],
+      url = 'https://github.com/adybbroe/pyspectral',
       #download_url="https://github.com/adybbroe/py....
-      long_description=long_description,
-      license='GPLv3',
+      long_description = long_description,
+      license = 'GPLv3',
 
       packages = ['pyspectral'],
 
       package_data = {
         # If any package contains *.txt files, include them:
-        '': ['*.txt', '*.det'],
-        'pyspectral': ['data/*.dat', 
+        '': ['*.txt','*.det'],
+        'pyspectral': ['data/*.dat',
                        'data/modis/terra/Reference_RSR_Dataset/*.det'],
         },
 
       # Project should use reStructuredText, so ensure that the docutils get
       # installed or upgraded on the target machine
-      install_requires=['docutils>=0.3', 
-                        'numpy', 'scipy'],
-      extras_require = {},
-      scripts = [],      
-      data_files=[('etc', ['etc/pyspectral.cfg'])],
-      test_suite="nose.collector",
-      tests_require=[],
-
+      install_requires = ['docutils>=0.3',
+                        'numpy>=1.5.1','scipy>=0.8.1'],
+      extras_require = {'xlrd': ['xlrd']},
+      scripts = [],
+      data_files = [('etc', ['etc/pyspectral.cfg_template'])],
+      test_suite = 'pyspectral.tests.suite',
+      tests_require = [],
       zip_safe = False
       )
