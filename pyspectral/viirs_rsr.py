@@ -209,7 +209,7 @@ if __name__ == "__main__":
         for chname in VIIRS_BAND_NAMES:
             viirs = ViirsRSR(chname)
             grp = h5f.create_group(chname)
-            grp.attrs['number_of_detetors'] = len(viirs.rsr.keys())
+            grp.attrs['number_of_detectors'] = len(viirs.rsr.keys())
             # Loop over each detector to check if the sampling wavelengths are
             # identical:
             det_names = viirs.rsr.keys()

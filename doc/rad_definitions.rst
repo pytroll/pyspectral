@@ -209,4 +209,4 @@ and expressed as a function of wavenumber :math:`\nu`:
 
 .. math::
 
-   B_{\nu}(T) = 2hc^2{\nu}^5 \frac{1}{e^{\frac{h c \nu}{k_B T}} - 1}
+   B_{\nu}(T) = 2hc^2{\nu}^3 \frac{1}{e^{\frac{h c \nu}{k_B T}} - 1}
