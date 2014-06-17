@@ -76,6 +76,21 @@ SEVIRI = {'IR3.9': {'8': [2567.330, 0.9956, 3.410],
                      },
           }
 
+BANDNAMES = {'VIS006': 'VIS0.6',
+             'VIS008': 'VIS0.8',
+             'IR_016': 'NIR1.6',
+             'IR_039': 'NIR3.9',
+             'WV_062': 'IR6.2',
+             'WV_073': 'IR7.3',
+             'IR_087': 'IR8.7',
+             'IR_087': 'IR8.7',
+             'IR_097': 'IR9.7',
+             'IR_108': 'IR10.8',
+             'IR_120': 'IR12.0',
+             'IR_134': 'IR13.4',
+             'HRV': 'HRV'
+             }
+
 
 class RadTbConverter(object):
 
@@ -100,7 +115,7 @@ class RadTbConverter(object):
         self.satnumber = satnum
         self.instrument = instrument
         self.rsr = None
-        self.bandname = bandname
+        self.bandname = BANDNAMES.get(bandname, bandname)
 
         if 'detector' in options:
             self.detector = options['detector']
@@ -156,11 +171,18 @@ class RadTbConverter(object):
             raise NotImplementedError('Platform ' + str(self.platform) +
                                       ' not yet supported...')
 
-    def tb2radiance(self, tb_, bandname, lut=False):
+    def tb2radiance(self, tb_, bandname, lut=None):
         """Get the radiance from the brightness temperature (Tb) given the
         band name. 
         """
         from scipy import integrate
+
+        if self.wavespace == WAVE_NUMBER:
+            unit = 'W/m^2 sr^-1 (m^-1)^-1'
+            scale = 1.0
+        else:
+            unit = 'W/m^2 sr^-1 m^-1'
+            scale = 1.0
 
         if not bandname and not np.any(lut):
             raise SyntaxError('Either a band name or a lut needs ' +
@@ -169,7 +191,11 @@ class RadTbConverter(object):
         if lut:
             ntb = (tb_ * self.tb_scale).astype('int16')
             start = int(lut['tb'][0] * self.tb_scale)
-            return lut['radiance'][ntb - start]
+            retv = {}
+            retv['radiance'] = lut['radiance'][ntb - start]
+            retv['unit'] = unit
+            retv['scale'] = scale
+            return retv
 
         if self.wavespace == WAVE_LENGTH:
             wv_ = (self.rsr[bandname][self.detector]['wavelength'] *
@@ -187,12 +213,6 @@ class RadTbConverter(object):
                                       'rsr data not supported!')
 
         radiance = integrate.trapz(planck, wv_) / np.trapz(resp, wv_)
-        if self.wavespace == WAVE_NUMBER:
-            unit = 'W/m^2 sr^-1 (m^-1)^-1'
-            scale = 1.0
-        else:
-            unit = 'W/m^2 sr^-1 m^-1'
-            scale = 1.0
 
         return {'radiance': radiance,
                 'unit': unit,

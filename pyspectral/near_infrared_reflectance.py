@@ -27,11 +27,23 @@ window channel (usually around 11-12 microns).
 import logging
 LOG = logging.getLogger(__name__)
 
+import ConfigParser
+import os
+
+try:
+    CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
+except KeyError:
+    LOG.exception('Environment variable PSP_CONFIG_FILE not set!')
+    raise
+
+if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
+    raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
+                  "variable PSP_CONFIG_FILE is not a file or does not exist!")
+
 import numpy as np
 
 from pyspectral.solar import (SolarIrradianceSpectrum,
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
-
 
 WAVE_LENGTH = 'wavelength'
 WAVE_NUMBER = 'wavenumber'
@@ -39,6 +51,9 @@ WAVE_NUMBER = 'wavenumber'
 EPSILON = 0.01
 TB_MIN = 150.
 TB_MAX = 360.
+
+SATNAME = {'eos1': 'terra',
+           'eos2': 'aqua'}
 
 from pyspectral.radiance_tb_conversion import RadTbConverter
 
@@ -61,6 +76,21 @@ class Calculator(RadTbConverter):
         super(Calculator, self).__init__(platform, satnum, instrument,
                                          bandname, method=1, **options)
 
+        conf = ConfigParser.ConfigParser()
+        try:
+            conf.read(CONFIG_FILE)
+        except ConfigParser.NoSectionError:
+            LOG.exception(
+                'Failed reading configuration file: ' + str(CONFIG_FILE))
+            raise
+
+        satellite = platform + satnum
+        options = {}
+        for option, value in conf.items(SATNAME.get(satellite, satellite) +
+                                        '-' + instrument,
+                                        raw=True):
+            options[option] = value
+
         if solar_flux is None:
             self._get_solarflux()
         else:
@@ -79,6 +109,21 @@ class Calculator(RadTbConverter):
         wv_ = self.rsr[self.bandname][self.detector][self.wavespace]
         self.rsr_integral = np.trapz(resp, wv_)
 
+        if 'tb2rad_lut_filename' in options:
+            self.lutfile = options['tb2rad_lut_filename']
+            LOG.info("lut filename: " + str(self.lutfile))
+            if not os.path.exists(self.lutfile):
+                self.lut = self.make_tb2rad_lut(bandname, self.lutfile)
+                LOG.info("LUT file created")
+            else:
+                self.lut = self.read_tb2rad_lut(self.lutfile)
+                LOG.info("File was there and has been read!")
+        else:
+            LOG.info("No lut filename available in config file. " +
+                     "No lut will be used")
+            self.lutfile = None
+            self.lut = None
+
     def derive_rad39_corr(self, bt11, bt13, method='rosenfeld'):
         """Derive the 3.9 radiance correction factor to account for the
         attenuation of the emitted 3.9 radiance by CO2 absorption. Requires the
@@ -94,25 +139,27 @@ class Calculator(RadTbConverter):
     def _get_solarflux(self):
         """Derive the in-band solar flux from rsr over the Near IR band (3.7 or
         3.9 microns)"""
-        # print "Inside _get_solarflux...", self.wavespace
-
         solar_spectrum = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM,
                                                  dlambda=0.0005,
                                                  wavespace=self.wavespace)
-        # print self.rsr[self.bandname]
         self.solar_flux = solar_spectrum.inband_solarflux(
             self.rsr[self.bandname])
 
-    def reflectance_from_tbs(self, sunz, tb_nir, tb_therm):
+    def reflectance_from_tbs(self, sunz, tb_near_ir, tb_thermal):
         """
         The relfectance calculated is without units and should be between 0 and
         1.
         """
 
-        if np.isscalar(tb_nir):
-            tb_nir = np.array([tb_nir, ])
-        if np.isscalar(tb_therm):
-            tb_therm = np.array([tb_therm, ])
+        if np.isscalar(tb_near_ir):
+            tb_nir = np.array([tb_near_ir, ])
+        else:
+            tb_nir = np.array(tb_near_ir)
+
+        if np.isscalar(tb_thermal):
+            tb_therm = np.array([tb_thermal, ])
+        else:
+            tb_therm = np.array(tb_thermal)
 
         if tb_therm.shape != tb_nir.shape:
             raise ValueError('Dimensions does not match!' +
@@ -139,15 +186,17 @@ class Calculator(RadTbConverter):
             # Assume rsr in in microns!!!
             # FIXME!
             scale = self.rsr_integral * 1e-6
-            retv = self.tb2radiance(tb_therm, ch37name)
+            retv = self.tb2radiance(tb_therm, ch37name, self.lut)
             #print("tb2radiance conversion: " + str(retv))
             thermal_emiss_one = retv['radiance'] * scale
-            retv = self.tb2radiance(tb_nir, ch37name)
+            retv = self.tb2radiance(tb_nir, ch37name, self.lut)
             #print("tb2radiance conversion: " + str(retv))
             l_nir = retv['radiance'] * scale
 
-        LOG.info('thermal_emiss_one = ' + str(thermal_emiss_one))
-        LOG.info('l_nir = ' + str(l_nir))
+        if thermal_emiss_one.ravel().shape[0] < 10:
+            LOG.info('thermal_emiss_one = ' + str(thermal_emiss_one))
+        if l_nir.ravel().shape[0] < 10:
+            LOG.info('l_nir = ' + str(l_nir))
 
         mu0 = np.cos(np.deg2rad(sunz))
         #mu0 = np.where(np.less(mu0, 0.1), 0.1, mu0)
@@ -168,4 +217,6 @@ class Calculator(RadTbConverter):
 
         retv = nomin / denom
         retv = np.ma.masked_array(retv, mask=mask)
+        # Do some further masking with sun-zenith etc:
+        # FIXME!
         return np.ma.masked_where(retv < 0, retv)

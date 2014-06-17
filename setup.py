@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013 Adam Dybbroe
+# Copyright (c) 2013, 2014 Adam Dybbroe
 
 # Author(s):
 
@@ -40,33 +40,34 @@ setup(name='pyspectral',
       author_email='adam.dybbroe@smhi.se',
       classifiers=['Development Status :: 4 - Beta',
                    'Intended Audience :: Science/Research',
-                   'License :: OSI Approved :: GNU General Public License v3 '+
+                   'License :: OSI Approved :: GNU General Public License v3 ' +
                    'or later (GPLv3+)',
                    'Operating System :: OS Independent',
                    'Programming Language :: Python',
                    'Topic :: Scientific/Engineering'],
-      url = 'https://github.com/adybbroe/pyspectral',
-      #download_url="https://github.com/adybbroe/py....
-      long_description = long_description,
-      license = 'GPLv3',
+      url='https://github.com/adybbroe/pyspectral',
+      # download_url="https://github.com/adybbroe/py....
+      long_description=long_description,
+      license='GPLv3',
 
-      packages = ['pyspectral'],
+      packages=['pyspectral'],
 
-      package_data = {
-        # If any package contains *.txt files, include them:
-        '': ['*.txt','*.det'],
-        'pyspectral': ['data/*.dat',
-                       'data/modis/terra/Reference_RSR_Dataset/*.det'],
-        },
+      package_data={
+          # If any package contains *.txt files, include them:
+          '': ['*.txt', '*.det'],
+          'pyspectral': ['data/*.dat',
+                         'data/modis/terra/Reference_RSR_Dataset/*.det'],
+      },
 
       # Project should use reStructuredText, so ensure that the docutils get
       # installed or upgraded on the target machine
-      install_requires = ['docutils>=0.3',
-                        'numpy>=1.5.1','scipy>=0.8.1'],
-      extras_require = {'xlrd': ['xlrd']},
-      scripts = [],
-      data_files = [('etc', ['etc/pyspectral.cfg_template'])],
-      test_suite = 'pyspectral.tests.suite',
-      tests_require = [],
-      zip_safe = False
+      install_requires=['docutils>=0.3',
+                        'numpy>=1.5.1', 'scipy>=0.8.1'],
+      extras_require={'xlrd': ['xlrd']},
+      scripts=[],
+      data_files=[('etc', ['etc/pyspectral.cfg_template']),
+                  ('share', ['pyspectral/data/e490_00a.dat'])],
+      test_suite='pyspectral.tests.suite',
+      tests_require=[],
+      zip_safe=False
       )
