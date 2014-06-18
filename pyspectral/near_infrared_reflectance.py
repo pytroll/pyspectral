@@ -54,8 +54,6 @@ SATNAME = {'eos1': 'terra',
 
 from pyspectral.radiance_tb_conversion import RadTbConverter
 
-from memory_profiler import profile
-
 
 class Calculator(RadTbConverter):
 
@@ -126,7 +124,6 @@ class Calculator(RadTbConverter):
             self.lutfile = None
             self.lut = None
 
-    @profile
     def derive_rad39_corr(self, bt11, bt13, method='rosenfeld'):
         """Derive the 3.9 radiance correction factor to account for the
         attenuation of the emitted 3.9 radiance by CO2 absorption. Requires the
@@ -148,7 +145,6 @@ class Calculator(RadTbConverter):
         self.solar_flux = solar_spectrum.inband_solarflux(
             self.rsr[self.bandname])
 
-    @profile
     def reflectance_from_tbs(self, sun_zenith, tb_near_ir, tb_thermal,
                              tb_ir_co2=None):
         """
