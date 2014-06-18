@@ -76,20 +76,7 @@ SEVIRI = {'IR3.9': {'8': [2567.330, 0.9956, 3.410],
                      },
           }
 
-BANDNAMES = {'VIS006': 'VIS0.6',
-             'VIS008': 'VIS0.8',
-             'IR_016': 'NIR1.6',
-             'IR_039': 'NIR3.9',
-             'WV_062': 'IR6.2',
-             'WV_073': 'IR7.3',
-             'IR_087': 'IR8.7',
-             'IR_087': 'IR8.7',
-             'IR_097': 'IR9.7',
-             'IR_108': 'IR10.8',
-             'IR_120': 'IR12.0',
-             'IR_134': 'IR13.4',
-             'HRV': 'HRV'
-             }
+from pyspectral.utils import BANDNAMES
 
 
 class RadTbConverter(object):

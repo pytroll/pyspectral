@@ -38,9 +38,9 @@ elif not CONFIG_FILE:
     LOG.warning('Environment variable PSP_CONFIG_FILE not set!')
 
 import numpy as np
-
 from pyspectral.solar import (SolarIrradianceSpectrum,
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
+from pyspectral.utils import BANDNAMES
 
 WAVE_LENGTH = 'wavelength'
 WAVE_NUMBER = 'wavenumber'
@@ -53,6 +53,8 @@ SATNAME = {'eos1': 'terra',
            'eos2': 'aqua'}
 
 from pyspectral.radiance_tb_conversion import RadTbConverter
+
+from memory_profiler import profile
 
 
 class Calculator(RadTbConverter):
@@ -72,6 +74,8 @@ class Calculator(RadTbConverter):
                  solar_flux=None, **options):
         super(Calculator, self).__init__(platform, satnum, instrument,
                                          bandname, method=1, **options)
+
+        self.bandname = BANDNAMES.get(bandname, bandname)
 
         if CONFIG_FILE:
             conf = ConfigParser.ConfigParser()
@@ -110,7 +114,8 @@ class Calculator(RadTbConverter):
             self.lutfile = options['tb2rad_lut_filename']
             LOG.info("lut filename: " + str(self.lutfile))
             if not os.path.exists(self.lutfile):
-                self.lut = self.make_tb2rad_lut(bandname, self.lutfile)
+                self.lut = self.make_tb2rad_lut(self.bandname,
+                                                self.lutfile)
                 LOG.info("LUT file created")
             else:
                 self.lut = self.read_tb2rad_lut(self.lutfile)
@@ -121,6 +126,7 @@ class Calculator(RadTbConverter):
             self.lutfile = None
             self.lut = None
 
+    @profile
     def derive_rad39_corr(self, bt11, bt13, method='rosenfeld'):
         """Derive the 3.9 radiance correction factor to account for the
         attenuation of the emitted 3.9 radiance by CO2 absorption. Requires the
@@ -142,10 +148,26 @@ class Calculator(RadTbConverter):
         self.solar_flux = solar_spectrum.inband_solarflux(
             self.rsr[self.bandname])
 
-    def reflectance_from_tbs(self, sunz, tb_near_ir, tb_thermal):
+    @profile
+    def reflectance_from_tbs(self, sun_zenith, tb_near_ir, tb_thermal,
+                             tb_ir_co2=None):
         """
         The relfectance calculated is without units and should be between 0 and
         1.
+        Inputs:
+
+          sun_zenith: Sun zenith angle for every pixel - in degrees
+
+          tb_near_ir: The 3.7 (or 3.9 or equivalent) IR Tb's at every pixel
+                      (Kelvin)
+
+          tb_thermal: The 10.8 (or 11 or 12 or equivalent) IR Tb's at every
+                      pixel (Kelvin)
+
+          tb_ir_co2: The 13.4 micron channel (or similar - co2 absorption band)
+                     brightness temperatures at every pixel. If None, no CO2
+                     absorption correction will be applied.
+
         """
 
         if np.isscalar(tb_near_ir):
@@ -161,6 +183,16 @@ class Calculator(RadTbConverter):
         if tb_therm.shape != tb_nir.shape:
             raise ValueError('Dimensions does not match!' +
                              str(tb_therm.shape) + ' and ' + str(tb_nir.shape))
+
+        if tb_ir_co2 is None:
+            co2corr = False
+            tbco2 = None
+        else:
+            co2corr = True
+            if np.isscalar(tb_ir_co2):
+                tbco2 = np.array([tb_ir_co2, ])
+            else:
+                tbco2 = np.array(tb_ir_co2)
 
         if self.instrument == 'seviri':
             ch37name = 'IR3.9'
@@ -195,14 +227,20 @@ class Calculator(RadTbConverter):
         if l_nir.ravel().shape[0] < 10:
             LOG.info('l_nir = ' + str(l_nir))
 
+        sunz = np.ma.masked_outside(sun_zenith, 0.0, 88.0)
+        sunzmask = sunz.mask
+        sunz = sunz.filled(88.)
+
         mu0 = np.cos(np.deg2rad(sunz))
         #mu0 = np.where(np.less(mu0, 0.1), 0.1, mu0)
         self._rad37 = l_nir
         self._rad37_t11 = thermal_emiss_one
         self._solar_radiance = 1. / np.pi * self.solar_flux * mu0
 
-        # CO2 correction to the 3.9 radiance:
-        # self._rad39_correction
+        # CO2 correction to the 3.9 radiance, only if tbs of a co2 band around
+        # 13.4 micron is provided:
+        if co2corr:
+            self.derive_rad39_corr(tb_therm, tbco2)
 
         mask = thermal_emiss_one > l_nir
 
@@ -212,8 +250,16 @@ class Calculator(RadTbConverter):
         denom = self._solar_radiance - \
             thermal_emiss_one * self._rad39_correction
 
-        retv = nomin / denom
-        retv = np.ma.masked_array(retv, mask=mask)
-        # Do some further masking with sun-zenith etc:
-        # FIXME!
-        return np.ma.masked_where(retv < 0, retv)
+        r39 = nomin / denom
+        r39 = np.ma.masked_array(r39, mask=mask)
+        #r39 = np.ma.masked_where(r39 < 0, r39)
+        # Do some further masking, also with sun-zenith:
+        r39 = np.ma.masked_outside(r39, 0.0, 10.0)  # * 100.  # Percent!
+        if np.ma.is_masked(tb_nir):
+            r39 = np.ma.masked_where(tb_nir.mask, r39).filled(0)
+        r39 = np.ma.masked_where(sunzmask, r39)
+
+        # Reflectances should be between 0 and 1, but values above 1 is
+        # perfectly possible and okay! (Multiply by 100 to get reflectances
+        # in percent)
+        return r39
