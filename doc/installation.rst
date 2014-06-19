@@ -25,8 +25,8 @@ various satellite operators instead and generate the internal hdf5 formatet
 files yourself. For SEVIRI on Meteosat download the data from eumetsat_ and
 unzip the Excel file.
 
-Download data install
-^^^^^^^^^^^^^^^^^^^^^
+Download data and install
+^^^^^^^^^^^^^^^^^^^^^^^^^
 So, first download the spectral responses and unpack the data if needed, and
 provide the path to the data in the configuration file *pyspectral.cfg*.
 
