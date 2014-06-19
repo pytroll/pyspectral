@@ -123,7 +123,6 @@ def blackbody(wavel, temp):
 
     const = 2 * H_PLANCK * C_SPEED ** 2
     nom = const / wavelength ** 5
-    LOG.debug("Nominator: " + str(nom))
     arg1 = H_PLANCK * C_SPEED / (K_BOLTZMANN * wavelength)
     arg2 = np.where(np.greater(np.abs(temperature), EPSILON),
                     np.array(1. / temperature), -9).reshape(-1, 1)

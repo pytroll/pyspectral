@@ -198,11 +198,12 @@ class TestRadTbConversions(unittest.TestCase):
         only"""
 
         # Units space = wavenumber (cm-1):
-        rads2 = self.sev2.tb2radiance_simple(TEST_TBS, 'IR3.9')
-        rads1 = self.sev1.tb2radiance(TEST_TBS, 'IR3.9')
+        retv2 = self.sev2.tb2radiance_simple(TEST_TBS, 'IR3.9')
+        retv1 = self.sev1.tb2radiance(TEST_TBS, 'IR3.9')
 
-        print rads1
-        print rads2
+        rads1 = retv1['radiance']
+        rads2 = retv2['radiance']
+        self.assertTrue(np.allclose(rads1, rads2))
 
     def tearDown(self):
         """Clean up"""

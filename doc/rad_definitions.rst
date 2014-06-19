@@ -185,11 +185,15 @@ distance of one astronomical unit (AU).
 
 In python code it may look like this:
 
+   >>> from pyspectral.rsr_reader import RelativeSpectralResponse
+   >>> from pyspectral.utils import convert2wavenumber, get_central_wave
+   >>> seviri = RelativeSpectralResponse('meteosat', '8', 'seviri')
+   >>> rsr, info = convert2wavenumber(seviri.rsr)
+   >>> from pyspectral.solar import (SolarIrradianceSpectrum, TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
+
    >>> solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, dlambda=0.0005, wavespace='wavenumber')
-   >>> seviri = Seviri(wavespace='wavenumber')
-   >>> rsr = {'wavenumber': seviri.rsr['VIS0.8']['wavenumber'], 'response': seviri.rsr['VIS0.8']['met8']}
-   >>> print solar_irr.inband_solarflux(rsr)
-   63767.9240506
+   >>> print solar_irr.inband_solarflux(rsr['VIS0.8'])
+   63767.9084047
 
 
 Planck radiation

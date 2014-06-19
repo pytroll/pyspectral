@@ -76,6 +76,8 @@ SEVIRI = {'IR3.9': {'8': [2567.330, 0.9956, 3.410],
                      },
           }
 
+from pyspectral.utils import BANDNAMES
+
 
 class RadTbConverter(object):
 
@@ -100,7 +102,7 @@ class RadTbConverter(object):
         self.satnumber = satnum
         self.instrument = instrument
         self.rsr = None
-        self.bandname = bandname
+        self.bandname = BANDNAMES.get(bandname, bandname)
 
         if 'detector' in options:
             self.detector = options['detector']
@@ -156,11 +158,18 @@ class RadTbConverter(object):
             raise NotImplementedError('Platform ' + str(self.platform) +
                                       ' not yet supported...')
 
-    def tb2radiance(self, tb_, bandname, lut=False):
+    def tb2radiance(self, tb_, bandname, lut=None):
         """Get the radiance from the brightness temperature (Tb) given the
         band name. 
         """
         from scipy import integrate
+
+        if self.wavespace == WAVE_NUMBER:
+            unit = 'W/m^2 sr^-1 (m^-1)^-1'
+            scale = 1.0
+        else:
+            unit = 'W/m^2 sr^-1 m^-1'
+            scale = 1.0
 
         if not bandname and not np.any(lut):
             raise SyntaxError('Either a band name or a lut needs ' +
@@ -169,7 +178,11 @@ class RadTbConverter(object):
         if lut:
             ntb = (tb_ * self.tb_scale).astype('int16')
             start = int(lut['tb'][0] * self.tb_scale)
-            return lut['radiance'][ntb - start]
+            retv = {}
+            retv['radiance'] = lut['radiance'][ntb - start]
+            retv['unit'] = unit
+            retv['scale'] = scale
+            return retv
 
         if self.wavespace == WAVE_LENGTH:
             wv_ = (self.rsr[bandname][self.detector]['wavelength'] *
@@ -187,12 +200,6 @@ class RadTbConverter(object):
                                       'rsr data not supported!')
 
         radiance = integrate.trapz(planck, wv_) / np.trapz(resp, wv_)
-        if self.wavespace == WAVE_NUMBER:
-            unit = 'W/m^2 sr^-1 (m^-1)^-1'
-            scale = 1.0
-        else:
-            unit = 'W/m^2 sr^-1 m^-1'
-            scale = 1.0
 
         return {'radiance': radiance,
                 'unit': unit,
