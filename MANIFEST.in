@@ -1,2 +1,2 @@
 include etc/*
-
+include pyspectral/data/e490_00a.dat
