@@ -1,2 +1,3 @@
+include etc/pyspectral.cfg_template
 include etc/pyspectral.cfg
 include pyspectral/data/e490_00a.dat
