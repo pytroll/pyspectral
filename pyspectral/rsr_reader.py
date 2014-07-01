@@ -30,7 +30,7 @@ LOG = logging.getLogger(__name__)
 import ConfigParser
 import os
 import numpy as np
-
+from glob import glob
 
 try:
     CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
@@ -81,7 +81,10 @@ class RelativeSpectralResponse(object):
 
         if not os.path.exists(self.filename):
             raise IOError('pyspectral RSR file does not exist! Filename = ' +
-                          str(self.filename))
+                          str(self.filename) +
+                          '\nFiles matching instrument and satellite ' +
+                          'number: ' +
+                          str(glob(os.path.join(rsr_dir, 'rsr_%s_%s*.h5' % (instrument, platform)))))
 
         self.load()
 
