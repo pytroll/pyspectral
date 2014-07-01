@@ -238,7 +238,7 @@ class Calculator(RadTbConverter):
         if co2corr:
             self.derive_rad39_corr(tb_therm, tbco2)
 
-        mask = thermal_emiss_one > l_nir
+        # mask = thermal_emiss_one > l_nir
 
         nomin = l_nir - thermal_emiss_one * self._rad39_correction
         LOG.debug("Shapes: " + str(mu0.shape) + "  " +
@@ -247,8 +247,8 @@ class Calculator(RadTbConverter):
             thermal_emiss_one * self._rad39_correction
 
         r39 = nomin / denom
-        #r39 = np.ma.masked_array(r39, mask=mask)
-        #r39 = np.ma.masked_where(r39 < 0, r39)
+        # r39 = np.ma.masked_array(r39, mask=mask)
+        # r39 = np.ma.masked_where(r39 < 0, r39)
         # Do some further masking, also with sun-zenith:
         # r39 = np.ma.masked_outside(r39, 0.0, 10.0)  # * 100.  # Percent!
         # if np.ma.is_masked(tb_nir):
