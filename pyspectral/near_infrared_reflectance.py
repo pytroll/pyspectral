@@ -247,12 +247,12 @@ class Calculator(RadTbConverter):
             thermal_emiss_one * self._rad39_correction
 
         r39 = nomin / denom
-        r39 = np.ma.masked_array(r39, mask=mask)
+        #r39 = np.ma.masked_array(r39, mask=mask)
         #r39 = np.ma.masked_where(r39 < 0, r39)
         # Do some further masking, also with sun-zenith:
-        r39 = np.ma.masked_outside(r39, 0.0, 10.0)  # * 100.  # Percent!
-        if np.ma.is_masked(tb_nir):
-            r39 = np.ma.masked_where(tb_nir.mask, r39).filled(0)
+        # r39 = np.ma.masked_outside(r39, 0.0, 10.0)  # * 100.  # Percent!
+        # if np.ma.is_masked(tb_nir):
+        #    r39 = np.ma.masked_where(tb_nir.mask, r39).filled(0)
         r39 = np.ma.masked_where(sunzmask, r39)
 
         # Reflectances should be between 0 and 1, but values above 1 is
