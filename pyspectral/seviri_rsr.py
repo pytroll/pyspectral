@@ -238,7 +238,7 @@ def generate_seviri_file(seviri, platform_id, sat_number):
     function file for one SEVIRI"""
 
     filename = os.path.join(sevObj.output_dir,
-                            "rsr_seviri_%s%d.h5" % (platform_id, sat_number))
+                            "rsr_seviri_%s%.2d.h5" % (platform_id, sat_number))
 
     sat_name = METEOSAT_SAT['%s%d' % (platform_id, sat_number)]
     with h5py.File(filename, "w") as h5f:

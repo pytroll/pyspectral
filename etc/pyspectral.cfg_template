@@ -8,7 +8,7 @@ path = /path/to/unzipped/seviri/data/MSG_SEVIRI_Spectral_Response_Characterisati
 path = /local_disk/laptop/Seviri/MSG_SEVIRI_Spectral_Response_Characterisation.XLS
 tb2rad_lut_filename = /tmp/tb2rad_lut_meteosat10_seviri_ir3.9.npz
 
-[meteosat9-seviri]
+[meteosat09-seviri]
 path = /local_disk/laptop/Seviri/MSG_SEVIRI_Spectral_Response_Characterisation.XLS
 tb2rad_lut_filename = /tmp/tb2rad_lut_meteosat9_seviri_ir3.9.npz
 
