@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014 Adam.Dybbroe
+# Copyright (c) 2014, 2015 Adam.Dybbroe
 
 # Author(s):
 
@@ -194,6 +194,8 @@ class Calculator(RadTbConverter):
             ch37name = 'IR3.9'
         elif self.instrument == 'modis':
             ch37name = '20'
+        elif self.instrument == 'ahi':
+            ch37name = 'ch7'
         else:
             raise NotImplementedError('Not yet support for this ' +
                                       'instrument ' + str(self.instrument))
@@ -237,6 +239,8 @@ class Calculator(RadTbConverter):
         # 13.4 micron is provided:
         if co2corr:
             self.derive_rad39_corr(tb_therm, tbco2)
+        else:
+            self._rad39_correction = 1.0
 
         # mask = thermal_emiss_one > l_nir
 

@@ -116,9 +116,13 @@ class AhiRSR(object):
                              names=['wavenumber',
                                     'response'])
         # Data seems to be wavenumbers (in some unit...)
-        wavelength = 1. / data['wavenumber'] * 1e-2
+        # Now, provide wavelengths in micro meters
+        wavelength = 1.e4 / data['wavenumber']
         response = data['response']
 
+        idx = np.argsort(wavelength)
+        wavelength = np.take(wavelength, idx)
+        response = np.take(response, idx)
         self.rsr = {}
         self.rsr['det-1'] = {'wavelength': wavelength,
                              'response': response}
