@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014 Adam.Dybbroe
+# Copyright (c) 2014, 2015 Adam.Dybbroe
 
 # Author(s):
 
@@ -136,7 +136,7 @@ def convert2hdf5(platform_id, sat_number):
         h5f.attrs['band_names'] = AVHRR_BAND_NAMES
 
         for chname in AVHRR_BAND_NAMES:
-            avhrr = AvhrrRSR(chname, 'noaa18')
+            avhrr = AvhrrRSR(chname, satellite_id)
             grp = h5f.create_group(chname)
             wvl = avhrr.rsr['wavelength'][~np.isnan(avhrr.rsr['wavelength'])]
             rsp = avhrr.rsr['response'][~np.isnan(avhrr.rsr['wavelength'])]
