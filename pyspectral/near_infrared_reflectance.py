@@ -69,9 +69,9 @@ class Calculator(RadTbConverter):
     """
 
     def __init__(self, platform, satnum, instrument, bandname,
-                 solar_flux=None, **options):
+                 solar_flux=None, **kwargs):
         super(Calculator, self).__init__(platform, satnum, instrument,
-                                         bandname, method=1, **options)
+                                         bandname, method=1, **kwargs)
 
         self.bandname = BANDNAMES.get(bandname, bandname)
 
@@ -99,8 +99,8 @@ class Calculator(RadTbConverter):
         self._solar_radiance = None
         self._rad39_correction = 1.0
 
-        if 'detector' in options:
-            self.detector = options['detector']
+        if 'detector' in kwargs:
+            self.detector = kwargs['detector']
         else:
             self.detector = 'det-1'
 
@@ -108,8 +108,11 @@ class Calculator(RadTbConverter):
         wv_ = self.rsr[self.bandname][self.detector][self.wavespace]
         self.rsr_integral = np.trapz(resp, wv_)
 
-        if 'tb2rad_lut_filename' in options:
-            self.lutfile = options['tb2rad_lut_filename']
+        if 'tb2rad_lut_filename' in kwargs:
+            self.lutfile = kwargs['tb2rad_lut_filename']
+            if not self.lutfile.endswith('.npz'):
+                self.lutfile = self.lutfile + '.npz'
+
             LOG.info("lut filename: " + str(self.lutfile))
             if not os.path.exists(self.lutfile):
                 self.lut = self.make_tb2rad_lut(self.bandname,

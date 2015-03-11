@@ -23,6 +23,27 @@
 """Test the AHI plugins
 """
 
+
+#: Default time format
+_DEFAULT_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+
+#: Default log format
+_DEFAULT_LOG_FORMAT = '[%(levelname)s: %(asctime)s : %(name)s] %(message)s'
+
+import sys
+import logging
+
+LOG = logging.getLogger(__name__)
+handler = logging.StreamHandler(sys.stderr)
+
+formatter = logging.Formatter(fmt=_DEFAULT_LOG_FORMAT,
+                              datefmt=_DEFAULT_TIME_FORMAT)
+handler.setFormatter(formatter)
+handler.setLevel(logging.DEBUG)
+LOG.setLevel(logging.DEBUG)
+LOG.addHandler(handler)
+
+
 from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.solar import (
     SolarIrradianceSpectrum, TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
@@ -30,7 +51,7 @@ ahi = RelativeSpectralResponse('himawari', '8', 'ahi')
 solar_irr = SolarIrradianceSpectrum(
     TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, dlambda=0.005)
 sflux = solar_irr.inband_solarflux(ahi.rsr['ch7'])
-print("Solar flux over Band: ", sflux)
+LOG.info("Solar flux over Band: " + str(sflux))
 
 from pyspectral.near_infrared_reflectance import Calculator
 sunz = [80., 80.5]
@@ -38,8 +59,9 @@ tb7 = [288.0, 290.0]
 tb14 = [282.0, 272.0]
 tb16 = [275.0, 269.0]
 refl38 = Calculator(
-    'himawari', '8', 'ahi', 'ch7', detector='det-1', solar_flux=sflux)
+    'himawari', '8', 'ahi', 'ch7', detector='det-1', solar_flux=sflux,
+    tb2rad_lut_filename='/tmp/ahi_tb2rad_lut.npz')
 x = refl38.reflectance_from_tbs(sunz, tb7, tb14)
-print("Reflectance: " + str(x))
+LOG.info("Reflectance: " + str(x))
 y = refl38.reflectance_from_tbs(sunz, tb7, tb14, tb16)
 print("Reflectance - co2 corrected: " + str(y))
