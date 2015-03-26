@@ -57,15 +57,15 @@ LOG.info("Solar flux over Band: " + str(sflux))
 from pyspectral.near_infrared_reflectance import Calculator
 
 # sunz = [80., 80.5]
-# tb7 = [288.0, 290.0]
+# tb7 = [288.0, 390.0]
 # tb14 = [282.0, 272.0]
 # tb16 = [275.0, 269.0]
 
 import numpy as np
-sunz = np.random.rand(2000, 1000) * 120.
-tb7 = np.random.rand(2000, 1000) * 40. + 260.0
-tb14 = np.random.rand(2000, 1000) * 30. + 260.0
-tb16 = np.random.rand(2000, 1000) * 30. + 250.0
+sunz = np.random.rand(5500, 550) * 120.
+tb7 = np.random.rand(5500, 550) * 120. + 260.0
+tb14 = np.random.rand(5500, 550) * 30. + 260.0
+tb16 = np.random.rand(5500, 550) * 30. + 250.0
 
 refl38 = Calculator(
     'himawari', '8', 'ahi', 'ch7', detector='det-1', solar_flux=sflux,

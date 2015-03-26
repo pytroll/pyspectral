@@ -179,7 +179,9 @@ class RadTbConverter(object):
             ntb = (tb_ * self.tb_scale).astype('int16')
             start = int(lut['tb'][0] * self.tb_scale)
             retv = {}
-            retv['radiance'] = lut['radiance'][ntb - start]
+            bounds = 0, lut['radiance'].shape[0] - 1
+            index = np.clip(ntb - start, bounds[0], bounds[1])
+            retv['radiance'] = lut['radiance'][index]
             retv['unit'] = unit
             retv['scale'] = scale
             return retv
