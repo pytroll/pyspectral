@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014 Adam.Dybbroe
+# Copyright (c) 2013, 2014, 2015 Adam.Dybbroe
 
 # Author(s):
 
@@ -118,7 +118,7 @@ class TestReflectance(unittest.TestCase):
         refl37 = ProductionClassWN(
             'eos', '2', 'modis', '20', wavespace='wavenumber')
         expected = 130.00391
-        self.assertAlmostEqual(refl37.rsr_integral, expected, 5)
+        self.assertAlmostEqual(refl37.rsr_integral, expected, 4)
 
     def test_reflectance(self):
         """Test the derivation of the reflective part of a 3.7 micron band"""
