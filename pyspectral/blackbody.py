@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014 Adam.Dybbroe
+# Copyright (c) 2013, 2014, 2015 Adam.Dybbroe
 
 # Author(s):
 
@@ -131,7 +131,14 @@ def blackbody(wavel, temp):
         "Max and min - arg1: " + str(arg1.max()) + '   ' + str(arg1.min()))
     LOG.debug(
         "Max and min - arg2: " + str(arg2.max()) + '   ' + str(arg2.min()))
-    exp_arg = np.multiply(arg1.astype('float32'), arg2.astype('float32'))
+    try:
+        exp_arg = np.multiply(arg1.astype('float32'), arg2.astype('float32'))
+    except MemoryError:
+        LOG.warning(("Dimensions used in numpy.multiply probably reached limit!\n" + 
+                     " Make sure the Radiance<->Tb table has been created and " + 
+                     "try run again"))
+        raise
+
     LOG.debug("Max and min before exp: " + str(exp_arg.max()) +
               ' ' + str(exp_arg.min()))
 

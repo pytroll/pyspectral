@@ -207,7 +207,7 @@ radiation :math:`B({\lambda})` can be written as:
 
 .. math::
 
-   B_{\lambda}(T) = \frac{2hc^{2}}{{\lambda}^{5}} \frac{1} {e^{\frac{hc}{\lambda k_B(T)}} - 1}
+   B_{\lambda}(T) = \frac{2hc^{2}}{{\lambda}^{5}} \frac{1} {e^{\frac{hc}{\lambda k_B T}} - 1}
 
 and expressed as a function of wavenumber :math:`\nu`:
 
