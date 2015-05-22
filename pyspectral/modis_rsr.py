@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014 Adam.Dybbroe
+# Copyright (c) 2014, 2015 Adam.Dybbroe
 
 # Author(s):
 
@@ -105,8 +105,10 @@ class ModisRSR(object):
             bnum = int(band)
             LOG.debug("Band= " + str(band))
             if self.satname == 'terra':
+                # filename = os.path.join(path,
+                #                         "rsr.%d.oobd.det" % (bnum))
                 filename = os.path.join(path,
-                                        "rsr.%d.oobd.det" % (bnum))
+                                        "rsr.%d.inb.final" % (bnum))
             else:
                 if bnum in [5, 6, 7] + range(20, 37):
                     filename = os.path.join(path, "%.2d.tv.1pct.det" % (bnum))
@@ -147,9 +149,8 @@ def read_modis_response(filename, scale=1.0):
     MODIS has several detectors (more than one) compared to e.g. AVHRR which
     has always only one.
     """
-    fd = open(filename, "r")
-    lines = fd.readlines()
-    fd.close()
+    with open(filename, "r") as fd:
+        lines = fd.readlines()
 
     # The IR channels seem to be in microns, whereas the short wave channels are
     # in nanometers! For VIS/NIR scale should be 0.001
