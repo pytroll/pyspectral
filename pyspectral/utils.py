@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014 Adam.Dybbroe
+# Copyright (c) 2014, 2015 Adam.Dybbroe
 
 # Author(s):
 
 #   Adam.Dybbroe <adam.dybbroe@smhi.se>
+#   Panu Lahtinen <panu.lahtinen@fmi.fi>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,8 +21,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Utility functions
-"""
+"""Utility functions"""
+
+import numpy as np
 
 BANDNAMES = {'VIS006': 'VIS0.6',
              'VIS008': 'VIS0.8',
@@ -35,26 +37,19 @@ BANDNAMES = {'VIS006': 'VIS0.6',
              'IR_120': 'IR12.0',
              'IR_134': 'IR13.4',
              'HRV': 'HRV'
-             }
-
-
-import numpy as np
-
+}
 
 def convert2wavenumber(rsr):
-    """Take rsr data set with all channels and detectors for an instrument each
-    with a set of wavelengths and normalised responses and convert to
-    wavenumbers and responses"""
-
+    """Take rsr data set with all channels and detectors for an instrument
+    each with a set of wavelengths and normalised responses and
+    convert to wavenumbers and responses
+    """
     retv = {}
     for chname in rsr.keys():  # Go through bands/channels
-        #print("Channel = " + str(chname))
         retv[chname] = {}
         for det in rsr[chname].keys():  # Go through detectors
-            #print("Detector = " + str(det))
             retv[chname][det] = {}
             for sat in rsr[chname][det].keys():
-                #print("sat = " + str(sat))
                 if sat == "wavelength":
                     # micro meters to cm
                     wnum = 1. / (1e-4 * rsr[chname][det][sat])
@@ -71,14 +66,14 @@ def convert2wavenumber(rsr):
 
     unit = 'cm-1'
     si_scale = 100.0
+
     return retv, {'unit': unit, 'si_scale': si_scale}
 
 
 def get_central_wave(wav, resp):
-    """Calculate the central wavelength or the central wavenumber, depending on
-    what is input
+    """Calculate the central wavelength or the central wavenumber,
+    depending on what is input
     """
-
     # info: {'unit': unit, 'si_scale': si_scale}
     # To get the wavelenght/wavenumber in SI units (m or m-1):
     # wav = wav * info['si_scale']
@@ -89,24 +84,26 @@ def get_central_wave(wav, resp):
     # if info['unit'].find('-1') > 0:
     # Wavenumber:
     #     res *=
+
     return np.trapz(resp * wav, wav) / np.trapz(resp, wav)
 
 
-def sort_data(x, y):
+def sort_data(x_vals, y_vals):
     """Sort the data so that x is monotonically increasing and contains
     no duplicates.
     """
     # Sort data
-    j = np.argsort(x)
-    x = x[j]
-    y = y[j]
+    idxs = np.argsort(x)
+    x_vals = x_vals[idxs]
+    y_vals = y_vals[idxs]
 
     # De-duplicate data
-    mask = np.r_[True, (np.diff(x) > 0)]
+    mask = np.r_[True, (np.diff(x_vals) > 0)]
     if not mask.all():
+        # what is this for?
         numof_duplicates = np.repeat(mask, np.equal(mask, False)).shape[0]
-
-    x = x[mask]
-    y = y[mask]
+        del numof_duplicates
+    x_vals = x_vals[mask]
+    y_vals = y_vals[mask]
 
     return x, y

@@ -23,7 +23,7 @@
 """Example code to derive the in-band solar flux
 """
 import logging
-
+import sys
 from pyspectral.rsr_read import RelativeSpectralResponse
 from pyspectral.solar import (SolarIrradianceSpectrum, 
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
@@ -34,11 +34,9 @@ _DEFAULT_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 _DEFAULT_LOG_FORMAT = '[%(levelname)s: %(asctime)s : %(name)s] %(message)s'
 
 # ---------------------------------------------------------------------------
-if __name__ == '__main__':
 
-    from logging import handlers
-    import sys
-
+def main():
+    """Main"""
     handler = logging.StreamHandler(sys.stderr)
     handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter(fmt=_DEFAULT_LOG_FORMAT,
@@ -47,10 +45,7 @@ if __name__ == '__main__':
     logging.getLogger('').addHandler(handler)
     logging.getLogger('').setLevel(logging.DEBUG)
 
-    LOG = logging.getLogger('example')
-
-
-    modis = RelativeSpectralResponse('eos', 2, 'modis')
+    modis = RelativeSpectralResponse('EOS-Aqua', 'modis')
     modis.read(channel='20', scale=0.001)
 
     solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, 
@@ -65,13 +60,13 @@ if __name__ == '__main__':
     #refl37 = Calculator(modis.rsr, solar_flux=sflux)
     refl37 = Calculator(modis.rsr)
 
-    SUNZ = 80.
-    TB3 = 290
-    TB4 = 282
-    REFL = refl37.reflectance_from_tbs(SUNZ, TB3, TB4)
-    print REFL
+    sunz = 80.
+    tb3 = 290
+    tb4 = 282
+    refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
+    print refl
 
-    refl37.make_tb2rad_lut('./modis_aqua_band20_tb2rad_lut.npz')
+    refl37.make_tb2rad_lut('./modis_EOS-Aqua_band20_tb2rad_lut.npz')
 
     # import matplotlib.pyplot as plt
 
@@ -82,3 +77,9 @@ if __name__ == '__main__':
     # plt.legend(('Original data', 'Interpolation'),
     #            'lower left', shadow=True, fancybox=True)
     # plt.savefig('./rsr_spline_test.png')
+
+if __name__ == '__main__':
+
+    LOG = logging.getLogger('example')
+
+    main()

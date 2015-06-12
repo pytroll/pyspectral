@@ -75,12 +75,12 @@ the spectral response function expressed in wavelength space, as:
 
 And from this we see that in general :math:`\nu_c \neq 1/\lambda_c`. 
 
-Taking SEVIRI as an example, and looking at the visible channel on Meteosat 8,
+Taking SEVIRI as an example, and looking at the visible channel on Meteosat-8,
 we see that this is indeed true:
 
   >>> from pyspectral.rsr_reader import RelativeSpectralResponse
   >>> from pyspectral.utils import convert2wavenumber, get_central_wave
-  >>> seviri = RelativeSpectralResponse('meteosat', '8', 'seviri')
+  >>> seviri = RelativeSpectralResponse('Meteosat-8', 'seviri')
   >>> print get_central_wave(seviri.rsr['VIS0.6']['det-1']['wavelength'], seviri.rsr['VIS0.6']['det-1']['response'])
   0.640215
   >>> rsr, info = convert2wavenumber(seviri.rsr)
@@ -93,18 +93,18 @@ we see that this is indeed true:
   0.637648392581
 
 
-This was using the pyspectral unified hdf5 formatet spectral response data. If
+This was using the pyspectral unified HDF5 formated spectral response data. If
 you want to use the original spectral response data from EUMETSAT the code may
 look like this:
  
   >>> from pyspectral.seviri_rsr import Seviri
   >>> seviri = Seviri()
-  >>> print seviri.central_wavelength['VIS0.6']['met8']
+  >>> print seviri.central_wavelength['VIS0.6']['Meteosat-8']
   0.640215597159
   >>> seviri = Seviri(wavespace='wavenumber')
-  >>> print seviri.central_wavenumber['VIS0.6']['met8']
+  >>> print seviri.central_wavenumber['VIS0.6']['Meteosat-8']
   15682.623379
-  >>> print 1./seviri.central_wavenumber['VIS0.6']['met8']*1e4
+  >>> print 1./seviri.central_wavenumber['VIS0.6']['Meteosat-8']*1e4
   0.637648418783
 
 
@@ -187,7 +187,7 @@ In python code it may look like this:
 
    >>> from pyspectral.rsr_reader import RelativeSpectralResponse
    >>> from pyspectral.utils import convert2wavenumber, get_central_wave
-   >>> seviri = RelativeSpectralResponse('meteosat', '8', 'seviri')
+   >>> seviri = RelativeSpectralResponse('Meteosat-8', 'seviri')
    >>> rsr, info = convert2wavenumber(seviri.rsr)
    >>> from pyspectral.solar import (SolarIrradianceSpectrum, TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
 

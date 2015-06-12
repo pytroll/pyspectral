@@ -4,11 +4,11 @@ rsr_dir = /path/to/internal/rsr_data
 [seviri]
 path = /path/to/unzipped/seviri/data/MSG_SEVIRI_Spectral_Response_Characterisation.XLS
 
-[meteosat10-seviri]
+[Meteosat-10-seviri]
 path = /local_disk/laptop/Seviri/MSG_SEVIRI_Spectral_Response_Characterisation.XLS
 tb2rad_lut_filename = /tmp/tb2rad_lut_meteosat10_seviri_ir3.9.npz
 
-[meteosat09-seviri]
+[Meteosat-9-seviri]
 path = /local_disk/laptop/Seviri/MSG_SEVIRI_Spectral_Response_Characterisation.XLS
 tb2rad_lut_filename = /tmp/tb2rad_lut_meteosat9_seviri_ir3.9.npz
 
@@ -29,7 +29,7 @@ iband_ir_names = GT_F1_CFPA_RSR_Release1.0_Best_%(bandname)s_S0_v3_ib_oob.txt
 iband_visnir_path = /path/to/viirs/data/GT_F1_SC_RSR_Release1.0_Best_Ibands
 iband_visnir_names = GT_F1_SC_RSR_Release1.0_Best_%(bandname)s_V2.72_ib_oob.txt
 
-[noaa19-avhrr]
+[NOAA-19-avhrr]
 
 path = /path/to/avhrr/data
 ch1 = NOAA_19_A308C001.txt

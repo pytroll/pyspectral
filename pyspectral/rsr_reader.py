@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014 Adam.Dybbroe
+# Copyright (c) 2014, 2015 Adam.Dybbroe
 
 # Author(s):
 
 #   Adam.Dybbroe <adam.dybbroe@smhi.se>
+#   Panu Lahtinen <panu.lahtinen@fmi.fi>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,17 +21,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-Reading the spectral responses in the internal pyspectral hdf5 format
-"""
-
-import logging
-LOG = logging.getLogger(__name__)
+"""Reading the spectral responses in the internal pyspectral hdf5 format"""
 
 import ConfigParser
 import os
 import numpy as np
 from glob import glob
+
+import logging
+LOG = logging.getLogger(__name__)
 
 try:
     CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
@@ -42,16 +41,14 @@ if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
     raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
 
-
 class RelativeSpectralResponse(object):
 
     """Container for the relative spectral response functions for various
     satellite imagers
     """
 
-    def __init__(self, platform, satnum, instrument):
-        self.platform = platform
-        self.satnum = satnum
+    def __init__(self, platform_name, instrument):
+        self.platform_name = platform_name
         self.instrument = instrument
         self.filename = None
         self.rsr = {}
@@ -64,7 +61,7 @@ class RelativeSpectralResponse(object):
         try:
             conf.read(CONFIG_FILE)
         except ConfigParser.NoSectionError:
-            LOG.exception('Failed reading configuration file: ' +
+            LOG.exception('Failed reading configuration file: %s',
                           str(CONFIG_FILE))
             raise
 
@@ -74,24 +71,23 @@ class RelativeSpectralResponse(object):
 
         rsr_dir = options['rsr_dir']
 
-        self.filename = os.path.join(rsr_dir, 'rsr_%s_%s%s.h5' % (instrument,
-                                                                  platform,
-                                                                  satnum))
-        LOG.debug('Filename: ' + str(self.filename))
+        self.filename = os.path.join(rsr_dir, 'rsr_%s_%s.h5' % (instrument,
+                                                                platform_name))
+        LOG.debug('Filename: %s', str(self.filename))
 
         if not os.path.exists(self.filename):
             raise IOError('pyspectral RSR file does not exist! Filename = ' +
                           str(self.filename) +
                           '\nFiles matching instrument and satellite ' +
                           'number: ' +
-                          str(glob(os.path.join(rsr_dir, 'rsr_%s_%s*.h5' % (instrument, platform)))))
+                          str(glob(os.path.join(rsr_dir, 'rsr_%s_%s*.h5' % \
+                                                (instrument, platform_name)))))
 
         self.load()
 
     def load(self):
         """Read the internally formatet hdf5 relative spectral response data
         """
-
         import h5py
 
         with h5py.File(self.filename, 'r') as h5f:
@@ -117,7 +113,8 @@ class RelativeSpectralResponse(object):
 
                     try:
                         wvl = (h5f[bandname][dname]['wavelength'][:] *
-                               h5f[bandname][dname]['wavelength'].attrs['scale'])
+                               h5f[bandname][dname][
+                                   'wavelength'].attrs['scale'])
                     except KeyError:
                         wvl = (h5f[bandname]['wavelength'][:] *
                                h5f[bandname]['wavelength'].attrs['scale'])
@@ -137,8 +134,10 @@ class RelativeSpectralResponse(object):
             intg[det] = np.trapz(resp, wvl)
         return intg
 
+def main():
+    """Main"""
+    modis = RelativeSpectralResponse('EOS-Terra', 'modis')
 
 if __name__ == "__main__":
-    # test
+    main()
 
-    modis = RelativeSpectralResponse('eos', '2', 'modis')

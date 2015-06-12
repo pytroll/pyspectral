@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014 Adam.Dybbroe
+# Copyright (c) 2014, 2015 Adam.Dybbroe
 
 # Author(s):
 
 #   Adam.Dybbroe <adam.dybbroe@smhi.se>
+#   Panu Lahtinen <panu.lahtinen@fmi.fi>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,18 +21,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Read the NOAA/Metop AVHRR relative spectral response functions. Data from
-NOAA STAR.
+"""Read the NOAA/Metop AVHRR relative spectral response functions.
+Data from NOAA STAR.
 """
-
-import logging
-LOG = logging.getLogger(__name__)
 
 import ConfigParser
 import os
 import numpy as np
 
 from pyspectral.utils import get_central_wave
+
+import logging
+LOG = logging.getLogger(__name__)
 
 try:
     CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
@@ -44,7 +45,6 @@ if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
 
 AVHRR_BAND_NAMES = ['ch1', 'ch2', 'ch3a', 'ch3b', 'ch4', 'ch5']
-
 
 class AvhrrRSR(object):
 
@@ -65,8 +65,8 @@ class AvhrrRSR(object):
         try:
             conf.read(CONFIG_FILE)
         except ConfigParser.NoSectionError:
-            LOG.exception(
-                'Failed reading configuration file: ' + str(CONFIG_FILE))
+            LOG.exception('Failed reading configuration file: %s',
+                          str(CONFIG_FILE))
             raise
 
         options = {}
@@ -79,7 +79,7 @@ class AvhrrRSR(object):
         self.output_dir = options.get('rsr_dir', './')
 
         self._get_bandfilenames(**options)
-        LOG.debug("Filenames: " + str(self.filenames))
+        LOG.debug("Filenames: %s", str(self.filenames))
         if os.path.exists(self.filenames[bandname]):
             self.requested_band_filename = self.filenames[bandname]
             self._load()
@@ -92,20 +92,17 @@ class AvhrrRSR(object):
 
     def _get_bandfilenames(self, **options):
         """Get the AVHRR rsr filenames"""
-
         path = options["path"]
         for band in AVHRR_BAND_NAMES:
-            LOG.debug("Band= " + str(band))
+            LOG.debug("Band = %s", str(band))
             self.filenames[band] = os.path.join(path, options[band])
             LOG.debug(self.filenames[band])
             if not os.path.exists(self.filenames[band]):
-                LOG.warning("Couldn't find an existing file for this band: " +
+                LOG.warning("Couldn't find an existing file for this band: %s",
                             str(self.filenames[band]))
 
     def _load(self, scale=1.0):
-        """Load the AVHRR RSR data for the band requested
-        """
-
+        """Load the AVHRR RSR data for the band requested"""
         data = np.genfromtxt(self.requested_band_filename,
                              unpack=True,
                              names=['wavelength',
@@ -118,21 +115,17 @@ class AvhrrRSR(object):
         self.rsr = {'wavelength': wavelength, 'response': response}
 
 
-def convert2hdf5(platform_id, sat_number):
+def convert2hdf5(platform_name):
     """Retrieve original RSR data and convert to internal hdf5 format"""
-
     import h5py
 
-    satellite_id = platform_id + str(sat_number)
-
-    avhrr = AvhrrRSR('ch1', satellite_id)
+    avhrr = AvhrrRSR('ch1', platform_name)
     filename = os.path.join(avhrr.output_dir,
-                            "rsr_avhrr_%s%d.h5" % (platform_id, sat_number))
+                            "rsr_avhrr_%s.h5" % platform_name)
 
     with h5py.File(filename, "w") as h5f:
         h5f.attrs['description'] = 'Relative Spectral Responses for AVHRR'
-        h5f.attrs['platform'] = platform_id
-        h5f.attrs['sat_number'] = sat_number
+        h5f.attrs['platform_name'] = platform_name
         h5f.attrs['band_names'] = AVHRR_BAND_NAMES
 
         for chname in AVHRR_BAND_NAMES:
@@ -150,7 +143,9 @@ def convert2hdf5(platform_id, sat_number):
             dset = grp.create_dataset('response', arr.shape, dtype='f')
             dset[...] = arr
 
-if __name__ == "__main__":
+def main():
+    for platform_name in ["NOAA-18", "NOAA-19"]:
+        convert2hdf5(platform_name)
 
-    for noaa_number in [18, 19]:
-        convert2hdf5('noaa', noaa_number)
+if __name__ == "__main__":
+    main()
