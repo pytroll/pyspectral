@@ -53,6 +53,7 @@ _DEFAULT_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 #: Default log format
 _DEFAULT_LOG_FORMAT = '[%(levelname)s: %(asctime)s : %(name)s] %(message)s'
 
+
 class ViirsRSR(object):
 
     """Container for the (S-NPP) VIIRS RSR data"""
@@ -171,6 +172,7 @@ class ViirsRSR(object):
                 np.repeat(response, np.equal(det, idx + 1))
 
         self.rsr = detectors
+
 
 def main():
     """Main"""

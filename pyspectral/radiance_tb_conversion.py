@@ -152,7 +152,7 @@ class RadTbConverter(object):
         if self.platform_name.startswith("Meteosat"):
             return self.platform_name
         else:
-            raise NotImplementedError('Platform %s not yet supported...' % \
+            raise NotImplementedError('Platform %s not yet supported...' %
                                       str(self.platform_name))
 
     def tb2radiance(self, tb_, bandname, lut=None):
@@ -193,7 +193,7 @@ class RadTbConverter(object):
             planck = blackbody_wn(wv_, tb_) * resp
         else:
             raise NotImplementedError('%s representation of '
-                                      'rsr data not supported!' % \
+                                      'rsr data not supported!' %
                                       str(self.wavespace))
 
         radiance = integrate.trapz(planck, wv_) / np.trapz(resp, wv_)
@@ -204,7 +204,6 @@ class RadTbConverter(object):
 
     def make_tb2rad_lut(self, bandname, filepath):
         """Generate a Tb to radiance look-up table"""
-
         tb_ = np.arange(TB_MIN, TB_MAX, self.tb_resolution)
         retv = self.tb2radiance(tb_, bandname)
         rad = retv['radiance']

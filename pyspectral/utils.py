@@ -37,7 +37,7 @@ BANDNAMES = {'VIS006': 'VIS0.6',
              'IR_120': 'IR12.0',
              'IR_134': 'IR13.4',
              'HRV': 'HRV'
-}
+         }
 
 def convert2wavenumber(rsr):
     """Take rsr data set with all channels and detectors for an instrument
@@ -93,7 +93,7 @@ def sort_data(x_vals, y_vals):
     no duplicates.
     """
     # Sort data
-    idxs = np.argsort(x)
+    idxs = np.argsort(x_vals)
     x_vals = x_vals[idxs]
     y_vals = y_vals[idxs]
 
@@ -106,4 +106,4 @@ def sort_data(x_vals, y_vals):
     x_vals = x_vals[mask]
     y_vals = y_vals[mask]
 
-    return x, y
+    return x_vals, y_vals

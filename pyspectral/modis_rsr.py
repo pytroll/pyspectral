@@ -46,12 +46,13 @@ if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
 MODIS_BAND_NAMES = [str(i) for i in range(1, 37)]
 SHORTWAVE_BANDS = [str(i) for i in range(1, 20) + [26]]
 
+
 class ModisRSR(object):
 
     """Container for the Terra/Aqua RSR data"""
 
     def __init__(self, bandname, platform_name, sort=True):
-        """
+        """Init Modis RSR
         """
         self.platform_name = platform_name
         self.bandname = bandname
@@ -124,18 +125,18 @@ class ModisRSR(object):
 
     def sort(self):
         """Sort the data so that x is monotonically increasing and contains
-        no duplicates."""
+        no duplicates.
+        """
         if 'wavelength' in self.rsr:
             # Only one detector apparently:
             self.rsr['wavelength'], self.rsr['response'] = \
                 sort_data(self.rsr['wavelength'], self.rsr['response'])
         else:
             for detector_name in self.rsr:
-                self.rsr[detector_name]['wavelength'],
-                self.rsr[detector_name]['response'] = \
-                    sort_data(
-                        self.rsr[detector_name]['wavelength'],
-                        self.rsr[detector_name]['response'])
+                (self.rsr[detector_name]['wavelength'],
+                 self.rsr[detector_name]['response']) = \
+                    sort_data(self.rsr[detector_name]['wavelength'],
+                              self.rsr[detector_name]['response'])
 
 
 def read_modis_response(filename, scale=1.0):
@@ -143,8 +144,8 @@ def read_modis_response(filename, scale=1.0):
     MODIS has several detectors (more than one) compared to e.g. AVHRR which
     has always only one.
     """
-    with open(filename, "r") as fd:
-        lines = fd.readlines()
+    with open(filename, "r") as fid:
+        lines = fid.readlines()
 
     # The IR channels seem to be in microns, whereas the short wave channels are
     # in nanometers! For VIS/NIR scale should be 0.001
@@ -173,8 +174,7 @@ def convert2hdf5(platform_name):
 
     modis = ModisRSR('20', platform_name)
     mfile = os.path.join(modis.output_dir,
-                         "rsr_modis_%s.h5" % SATELLITE_NAME.get(platform_name,
-                                                                platform_name))
+                         "rsr_modis_%s.h5" % platform_name)
 
     with h5py.File(mfile, "w") as h5f:
         h5f.attrs['description'] = 'Relative Spectral Responses for MODIS'

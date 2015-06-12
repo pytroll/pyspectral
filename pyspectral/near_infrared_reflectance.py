@@ -38,7 +38,7 @@ import logging
 LOG = logging.getLogger(__name__)
 
 CONFIG_FILE = os.environ.get('PSP_CONFIG_FILE', None)
-if CONFIG_FILE and (not os.path.exists(CONFIG_FILE) or \
+if CONFIG_FILE and (not os.path.exists(CONFIG_FILE) or
                     not os.path.isfile(CONFIG_FILE)):
     raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
@@ -51,6 +51,7 @@ WAVE_NUMBER = 'wavenumber'
 EPSILON = 0.01
 TB_MIN = 150.
 TB_MAX = 360.
+
 
 class Calculator(RadTbConverter):
 
@@ -176,7 +177,7 @@ class Calculator(RadTbConverter):
             tb_therm = np.array(tb_thermal)
 
         if tb_therm.shape != tb_nir.shape:
-            raise ValueError('Dimensions do not match! %s and %s' % \
+            raise ValueError('Dimensions do not match! %s and %s' %
                              (str(tb_therm.shape), str(tb_nir.shape)))
 
         if tb_ir_co2 is None:

@@ -20,13 +20,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Testing the radiance to brightness temperature conversion
-"""
+"""Testing the radiance to brightness temperature conversion"""
 
 from pyspectral.radiance_tb_conversion import RadTbConverter
 import unittest
 import numpy as np
-
 
 TEST_TBS = np.array([200., 270., 300., 302., 350.], dtype='float32')
 
@@ -124,6 +122,7 @@ SEV_RSR['IR3.9']['det-1']['response'] = RESP
 
 
 class ProductionClass(RadTbConverter):
+
     """Production class"""
 
     def get_rsr(self):
@@ -134,6 +133,7 @@ class ProductionClass(RadTbConverter):
 
 
 class SeviriClass(RadTbConverter):
+
     """Class for Seviri"""
 
     def get_rsr(self):
@@ -142,7 +142,9 @@ class SeviriClass(RadTbConverter):
         self._wave_unit = 'cm-1'
         self._wave_si_scale = 100.
 
+
 class TestRadTbConversions(unittest.TestCase):
+
     """Testing the conversions between radiances and brightness temperatures"""
 
     def setUp(self):
@@ -207,6 +209,7 @@ class TestRadTbConversions(unittest.TestCase):
     def tearDown(self):
         """Clean up"""
         pass
+
 
 def suite():
     """The suite for test_reflectance."""

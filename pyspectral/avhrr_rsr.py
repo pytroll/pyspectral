@@ -46,13 +46,12 @@ if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
 
 AVHRR_BAND_NAMES = ['ch1', 'ch2', 'ch3a', 'ch3b', 'ch4', 'ch5']
 
+
 class AvhrrRSR(object):
 
     """Container for the NOAA/Metop AVHRR RSR data"""
 
     def __init__(self, bandname, satname):
-        """
-        """
         self.satname = satname
         self.bandname = bandname
         self.filenames = {}
@@ -143,7 +142,9 @@ def convert2hdf5(platform_name):
             dset = grp.create_dataset('response', arr.shape, dtype='f')
             dset[...] = arr
 
+
 def main():
+    """Main"""
     for platform_name in ["NOAA-18", "NOAA-19"]:
         convert2hdf5(platform_name)
 

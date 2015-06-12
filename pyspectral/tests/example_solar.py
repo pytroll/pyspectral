@@ -35,6 +35,7 @@ _DEFAULT_LOG_FORMAT = '[%(levelname)s: %(asctime)s : %(name)s] %(message)s'
 
 # ---------------------------------------------------------------------------
 
+
 def main():
     """Main"""
     handler = logging.StreamHandler(sys.stderr)

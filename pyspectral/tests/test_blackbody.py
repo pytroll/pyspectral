@@ -65,7 +65,8 @@ class TestBlackbody(unittest.TestCase):
         print black
 
     def test_blackbody_wn(self):
-        """Calculate the blackbody radiation from wavenumbers and temperatures
+        """Calculate the blackbody radiation from wavenumbers and
+        temperatures
         """
         wavenumber = 90909.1  # 11 micron band
         black = blackbody_wn((wavenumber, ), [300., 301])
@@ -77,6 +78,7 @@ class TestBlackbody(unittest.TestCase):
     def tearDown(self):
         """Clean up"""
         return
+
 
 def suite():
     """The suite for test_blackbody."""

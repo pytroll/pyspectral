@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 # -*- coding: utf-8 -*-
 
 # Copyright (c) 2013, 2014, 2015 Adam.Dybbroe
@@ -233,10 +234,12 @@ def generate_seviri_file(seviri, platform_name):
     """Generate the pyspectral internal common format relative response
     function file for one SEVIRI
     """
-    filename = os.path.join(sevObj.output_dir,
+    import h5py
+
+    filename = os.path.join(seviri.output_dir,
                             "rsr_seviri_%s%.2d.h5" % platform_name)
 
-    sat_name = METEOSAT_SAT['%s%d' % platform_name]
+    sat_name = platform_name
     with h5py.File(filename, "w") as h5f:
 
         h5f.attrs['description'] = 'Relative Spectral Responses for SEVIRI'
@@ -270,7 +273,6 @@ def main():
     """Main"""
     sevObj = Seviri()
 
-    import h5py
     for satnum in [8, 9, 10, 11]:
         generate_seviri_file(sevObj, 'Meteosat-%d' % satnum)
         print "Meteosat-%d done..." % satnum

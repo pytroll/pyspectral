@@ -73,6 +73,7 @@ TEST_RSR_WN['20']['det-1']['response'] = RESP
 
 
 class ProductionClass(Calculator):
+
     """ProductionClass"""
 
     def get_rsr(self):
@@ -80,7 +81,9 @@ class ProductionClass(Calculator):
         self._wave_unit = '1e-6 m'
         self._wave_si_scale = 1e-6
 
+
 class ProductionClassWN(Calculator):
+
     """Wrapper for wavenumber calculations..."""
 
     def __init__(self, platform_name, instrument, bandname,
@@ -127,7 +130,7 @@ class TestReflectance(unittest.TestCase):
         tb3 = 290.
         tb4 = 282.
         refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
-        self.assertAlmostEqual(refl, 0.25124494860154067) #0.251245010648)
+        self.assertAlmostEqual(refl, 0.25124494860154067) # 0.251245010648)
 
         sunz = 80.
         tb3 = 295.
@@ -145,9 +148,9 @@ class TestReflectance(unittest.TestCase):
         """Clean up"""
         pass
 
+
 def suite():
-    """The suite for test_reflectance.
-    """
+    """The suite for test_reflectance."""
     loader = unittest.TestLoader()
     mysuite = unittest.TestSuite()
     mysuite.addTest(loader.loadTestsFromTestCase(TestReflectance))

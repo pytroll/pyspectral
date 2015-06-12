@@ -41,6 +41,7 @@ if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
     raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
 
+
 class RelativeSpectralResponse(object):
 
     """Container for the relative spectral response functions for various
@@ -80,14 +81,13 @@ class RelativeSpectralResponse(object):
                           str(self.filename) +
                           '\nFiles matching instrument and satellite ' +
                           'number: ' +
-                          str(glob(os.path.join(rsr_dir, 'rsr_%s_%s*.h5' % \
+                          str(glob(os.path.join(rsr_dir, 'rsr_%s_%s*.h5' %
                                                 (instrument, platform_name)))))
 
         self.load()
 
     def load(self):
-        """Read the internally formatet hdf5 relative spectral response data
-        """
+        """Read the internally formatet hdf5 relative spectral response data"""
         import h5py
 
         with h5py.File(self.filename, 'r') as h5f:
@@ -126,7 +126,6 @@ class RelativeSpectralResponse(object):
         """Calculate the integral of the spectral response function for each
         detector.
         """
-
         intg = {}
         for det in self.rsr[bandname].keys():
             wvl = self.rsr[bandname][det]['wavelength']
@@ -134,9 +133,11 @@ class RelativeSpectralResponse(object):
             intg[det] = np.trapz(resp, wvl)
         return intg
 
+
 def main():
     """Main"""
     modis = RelativeSpectralResponse('EOS-Terra', 'modis')
+    del(modis)
 
 if __name__ == "__main__":
     main()

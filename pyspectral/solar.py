@@ -39,7 +39,9 @@ LOG = logging.getLogger(__name__)
 TOTAL_IRRADIANCE_SPECTRUM_2000ASTM = resource_filename(__name__,
                                                        'data/e490_00a.dat')
 
+
 class SolarIrradianceSpectrum(object):
+
     """Total Top of Atmosphere (TOA) Solar Irradiance Spectrum
     Wavelength is in units of microns (10^-6 m).
     The spectral Irradiance in the file TOTAL_IRRADIANCE_SPECTRUM_2000ASTM is
