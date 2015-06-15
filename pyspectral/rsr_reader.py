@@ -69,19 +69,25 @@ class RelativeSpectralResponse(object):
         options = {}
         for option, value in conf.items('general', raw=True):
             options[option] = value
+        for option, value in conf.items(platform_name + '-' + instrument,
+                                        raw=True):
+            options[option] = value
 
         rsr_dir = options['rsr_dir']
+        if "path" in options.keys():
+            self.filename = options["path"]
+        else:
+            self.filename = os.path.join(rsr_dir, 'rsr_%s_%s.h5' % \
+                                         (instrument, platform_name))
 
-        self.filename = os.path.join(rsr_dir, 'rsr_%s_%s.h5' % (instrument,
-                                                                platform_name))
         LOG.debug('Filename: %s', str(self.filename))
 
         if not os.path.exists(self.filename):
             raise IOError('pyspectral RSR file does not exist! Filename = ' +
                           str(self.filename) +
-                          '\nFiles matching instrument and satellite ' +
-                          'number: ' +
-                          str(glob(os.path.join(rsr_dir, 'rsr_%s_%s*.h5' %
+                          '\nFiles matching instrument and satellite platform' +
+                          ': ' +
+                          str(glob(os.path.join(rsr_dir, '*%s*%s*.h5' %
                                                 (instrument, platform_name)))))
 
         self.load()
