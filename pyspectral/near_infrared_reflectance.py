@@ -194,7 +194,7 @@ class Calculator(RadTbConverter):
             ch37name = 'IR3.9'
         elif self.instrument == 'modis':
             ch37name = '20'
-        elif self.instrument == "avhrr":
+        elif self.instrument in ["avhrr", "avhrr3", "avhrr/3"]:
             ch37name = 'ch3b'
         else:
             raise NotImplementedError('Not yet support for this '
