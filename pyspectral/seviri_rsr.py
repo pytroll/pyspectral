@@ -44,6 +44,7 @@ if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
     raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
 
+
 class Seviri(object):
 
     """Class for Seviri RSR"""
@@ -153,8 +154,8 @@ class Seviri(object):
                                                    '85': met8_85}
                 self.rsr[ch_name]['Meteosat-9'] = {'95': met9_95,
                                                    '85': met9_85}
-                self.rsr[ch_name]['Meteostat-10'] = {'95': met10_95,
-                                                     '85': met10_85}
+                self.rsr[ch_name]['Meteosat-10'] = {'95': met10_95,
+                                                    '85': met10_85}
                 self.rsr[ch_name]['Meteosat-11'] = {'95': met11_95,
                                                     '85': met11_85}
             else:
@@ -269,6 +270,7 @@ def generate_seviri_file(seviri, platform_name):
 
     return
 
+
 def main():
     """Main"""
     sevObj = Seviri()
@@ -279,4 +281,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

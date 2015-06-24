@@ -130,7 +130,7 @@ class TestReflectance(unittest.TestCase):
         tb3 = 290.
         tb4 = 282.
         refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
-        self.assertAlmostEqual(refl, 0.25124494860154067) # 0.251245010648)
+        self.assertAlmostEqual(refl, 0.251245010648, 6)
 
         sunz = 80.
         tb3 = 295.
