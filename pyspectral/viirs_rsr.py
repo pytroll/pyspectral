@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014 Adam.Dybbroe
+# Copyright (c) 2013, 2014, 2015 Adam.Dybbroe
 
 # Author(s):
 
 #   Adam.Dybbroe <adam.dybbroe@smhi.se>
+#   Panu Lahtinen <panu.lahtinen@fmi.fi>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,14 +21,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Interface to VIIRS relative spectral responses
-"""
-
-import logging
-LOG = logging.getLogger(__name__)
+"""Interface to VIIRS relative spectral responses"""
 
 import ConfigParser
 import os
+import numpy as np
+from pyspectral.utils import get_central_wave
+
+import logging
+LOG = logging.getLogger(__name__)
 
 try:
     CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
@@ -38,9 +40,6 @@ except KeyError:
 if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
     raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
-
-import numpy as np
-from pyspectral.utils import get_central_wave
 
 VIIRS_BAND_NAMES = ['M1', 'M2', 'M3', 'M4', 'M5',
                     'M6', 'M7', 'M8', 'M9', 'M10',
@@ -59,10 +58,9 @@ class ViirsRSR(object):
 
     """Container for the (S-NPP) VIIRS RSR data"""
 
-    def __init__(self, bandname, satname='npp'):
-        """
-        """
-        self.satname = satname
+    def __init__(self, bandname, platform_name='Suomi-NPP'):
+        """Init"""
+        self.platform_name = platform_name
         self.bandname = bandname
         self.filename = None
         self.rsr = None
@@ -71,7 +69,7 @@ class ViirsRSR(object):
         try:
             conf.read(CONFIG_FILE)
         except ConfigParser.NoSectionError:
-            LOG.exception('Failed reading configuration file: ' +
+            LOG.exception('Failed reading configuration file: %s',
                           str(CONFIG_FILE))
             raise
 
@@ -85,12 +83,11 @@ class ViirsRSR(object):
         self.output_dir = options.get('rsr_dir', './')
 
         self._get_bandfile(**options)
-        LOG.debug("Filename: " + str(self.filename))
+        LOG.debug("Filename: %s", str(self.filename))
         self._load()
 
     def _get_bandfile(self, **options):
         """Get the VIIRS rsr filename"""
-
         band_file = None
 
         # Need to understand why there are A&B files for band M16. FIXME!
@@ -113,8 +110,8 @@ class ViirsRSR(object):
                   options["dnb_name"] % values
                   ]
 
-        LOG.debug("paths = " + str(paths))
-        LOG.debug("fnames = " + str(fnames))
+        LOG.debug("paths = %s", str(paths))
+        LOG.debug("fnames = %s", str(fnames))
 
         for path, fname in zip(paths, fnames):
             band_file = os.path.join(path, fname)
@@ -127,10 +124,7 @@ class ViirsRSR(object):
                           str(self.bandname))
 
     def _load(self, scale=0.001):
-        """Load the VIIRS RSR data for the band requested
-        """
-        import numpy as np
-
+        """Load the VIIRS RSR data for the band requested"""
         try:
             data = np.genfromtxt(self.filename,
                                  unpack=True, skip_header=1,
@@ -172,18 +166,19 @@ class ViirsRSR(object):
         detectors = {}
         for idx in range(int(max(det))):
             detectors["det-%d" % (idx + 1)] = {}
-            detectors[
-                "det-%d" % (idx + 1)]['wavelength'] = np.repeat(wavelength, np.equal(det, idx + 1))
-            detectors[
-                "det-%d" % (idx + 1)]['response'] = np.repeat(response, np.equal(det, idx + 1))
+            detectors["det-%d" % (idx + 1)]['wavelength'] = \
+                np.repeat(wavelength, np.equal(det, idx + 1))
+            detectors["det-%d" % (idx + 1)]['response'] = \
+                np.repeat(response, np.equal(det, idx + 1))
 
         self.rsr = detectors
 
 
-if __name__ == "__main__":
-
+def main():
+    """Main"""
     import sys
-    LOG = logging.getLogger('viirs_rsr')
+    import h5py
+
     handler = logging.StreamHandler(sys.stderr)
 
     formatter = logging.Formatter(fmt=_DEFAULT_LOG_FORMAT,
@@ -193,17 +188,14 @@ if __name__ == "__main__":
     LOG.setLevel(logging.DEBUG)
     LOG.addHandler(handler)
 
-    import h5py
-
-    platform_id = "npp"
-    viirs = ViirsRSR('M1', 'npp')
+    platform_name = "Suomi-NPP"
+    viirs = ViirsRSR('M1', 'Suomi-NPP')
     filename = os.path.join(viirs.output_dir,
-                            "rsr_viirs_%s.h5" % platform_id)
+                            "rsr_viirs_%s.h5" % platform_name)
 
     with h5py.File(filename, "w") as h5f:
         h5f.attrs['description'] = 'Relative Spectral Responses for VIIRS'
-        h5f.attrs['platform'] = platform_id
-        h5f.attrs['sat_number'] = np.nan
+        h5f.attrs['platform_name'] = platform_name
         h5f.attrs['band_names'] = VIIRS_BAND_NAMES
 
         for chname in VIIRS_BAND_NAMES:
@@ -246,3 +238,7 @@ if __name__ == "__main__":
                 arr = viirs.rsr[det]['response']
                 dset = det_grp.create_dataset('response', arr.shape, dtype='f')
                 dset[...] = arr
+
+if __name__ == "__main__":
+    LOG = logging.getLogger('viirs_rsr')
+    main()

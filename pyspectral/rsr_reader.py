@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014 Adam.Dybbroe
+# Copyright (c) 2014, 2015 Adam.Dybbroe
 
 # Author(s):
 
 #   Adam.Dybbroe <adam.dybbroe@smhi.se>
+#   Panu Lahtinen <panu.lahtinen@fmi.fi>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,17 +21,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-Reading the spectral responses in the internal pyspectral hdf5 format
-"""
-
-import logging
-LOG = logging.getLogger(__name__)
+"""Reading the spectral responses in the internal pyspectral hdf5 format"""
 
 import ConfigParser
 import os
 import numpy as np
 from glob import glob
+
+import logging
+LOG = logging.getLogger(__name__)
 
 try:
     CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
@@ -49,9 +48,8 @@ class RelativeSpectralResponse(object):
     satellite imagers
     """
 
-    def __init__(self, platform, satnum, instrument):
-        self.platform = platform
-        self.satnum = satnum
+    def __init__(self, platform_name, instrument):
+        self.platform_name = platform_name
         self.instrument = instrument
         self.filename = None
         self.rsr = {}
@@ -64,34 +62,38 @@ class RelativeSpectralResponse(object):
         try:
             conf.read(CONFIG_FILE)
         except ConfigParser.NoSectionError:
-            LOG.exception('Failed reading configuration file: ' +
+            LOG.exception('Failed reading configuration file: %s',
                           str(CONFIG_FILE))
             raise
 
         options = {}
         for option, value in conf.items('general', raw=True):
             options[option] = value
+        for option, value in conf.items(platform_name + '-' + instrument,
+                                        raw=True):
+            options[option] = value
 
         rsr_dir = options['rsr_dir']
+        if "path" in options.keys():
+            self.filename = options["path"]
+        else:
+            self.filename = os.path.join(rsr_dir, 'rsr_%s_%s.h5' % \
+                                         (instrument, platform_name))
 
-        self.filename = os.path.join(rsr_dir, 'rsr_%s_%s%s.h5' % (instrument,
-                                                                  platform,
-                                                                  satnum))
-        LOG.debug('Filename: ' + str(self.filename))
+        LOG.debug('Filename: %s', str(self.filename))
 
         if not os.path.exists(self.filename):
             raise IOError('pyspectral RSR file does not exist! Filename = ' +
                           str(self.filename) +
-                          '\nFiles matching instrument and satellite ' +
-                          'number: ' +
-                          str(glob(os.path.join(rsr_dir, 'rsr_%s_%s*.h5' % (instrument, platform)))))
+                          '\nFiles matching instrument and satellite platform' +
+                          ': ' +
+                          str(glob(os.path.join(rsr_dir, '*%s*%s*.h5' %
+                                                (instrument, platform_name)))))
 
         self.load()
 
     def load(self):
-        """Read the internally formatet hdf5 relative spectral response data
-        """
-
+        """Read the internally formatet hdf5 relative spectral response data"""
         import h5py
 
         with h5py.File(self.filename, 'r') as h5f:
@@ -117,7 +119,8 @@ class RelativeSpectralResponse(object):
 
                     try:
                         wvl = (h5f[bandname][dname]['wavelength'][:] *
-                               h5f[bandname][dname]['wavelength'].attrs['scale'])
+                               h5f[bandname][dname][
+                                   'wavelength'].attrs['scale'])
                     except KeyError:
                         wvl = (h5f[bandname]['wavelength'][:] *
                                h5f[bandname]['wavelength'].attrs['scale'])
@@ -129,7 +132,6 @@ class RelativeSpectralResponse(object):
         """Calculate the integral of the spectral response function for each
         detector.
         """
-
         intg = {}
         for det in self.rsr[bandname].keys():
             wvl = self.rsr[bandname][det]['wavelength']
@@ -138,7 +140,11 @@ class RelativeSpectralResponse(object):
         return intg
 
 
-if __name__ == "__main__":
-    # test
+def main():
+    """Main"""
+    modis = RelativeSpectralResponse('EOS-Terra', 'modis')
+    del(modis)
 
-    modis = RelativeSpectralResponse('eos', '2', 'modis')
+if __name__ == "__main__":
+    main()
+
