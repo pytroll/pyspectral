@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014 Adam.Dybbroe
+# Copyright (c) 2013, 2014, 2015 Adam.Dybbroe
 
 # Author(s):
 
-#   Adam.Dybbroe <a000680@c14526.ad.smhi.se>
+#   Adam.Dybbroe <adam.dybbroe@smhi.se>
+#   Panu Lahtinen <panu.lahtinen@fmi.fi>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,13 +21,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Planck radiation equation
-"""
+"""Planck radiation equation"""
+
+import numpy as np
 
 import logging
 LOG = logging.getLogger(__name__)
-
-import numpy as np
 
 H_PLANCK = 6.62606957 * 1e-34  # SI-unit = [J*s]
 K_BOLTZMANN = 1.3806488 * 1e-23  # SI-unit = [J/K]
@@ -52,7 +52,6 @@ def blackbody_wn(wavenumber, temp):
             Converting from SI units to mW/m^2 sr^-1 (cm^-1)^-1:
             1.0 W/m^2 sr^-1 (m^-1)^-1 = 0.1 mW/m^2 sr^-1 (cm^-1)^-1
     """
-
     LOG.debug("Using wave numbers when calculating the Blackbody temp...")
     if np.isscalar(temp):
         temperature = np.array([temp, ], dtype='float64')
@@ -103,7 +102,6 @@ def blackbody(wavel, temp):
     Output: The spectral radiance per meter (not micron!)
             Unit = W/m^2 sr^-1 m^-1
     """
-
     LOG.debug("Using wavelengths when calculating the Blackbody temp...")
 
     if np.isscalar(temp):
@@ -127,13 +125,19 @@ def blackbody(wavel, temp):
     arg2 = np.where(np.greater(np.abs(temperature), EPSILON),
                     np.array(1. / temperature), -9).reshape(-1, 1)
     arg2 = np.ma.masked_array(arg2, mask=arg2 == -9)
-    LOG.debug(
-        "Max and min - arg1: " + str(arg1.max()) + '   ' + str(arg1.min()))
-    LOG.debug(
-        "Max and min - arg2: " + str(arg2.max()) + '   ' + str(arg2.min()))
-    exp_arg = np.multiply(arg1.astype('float32'), arg2.astype('float32'))
-    LOG.debug("Max and min before exp: " + str(exp_arg.max()) +
-              ' ' + str(exp_arg.min()))
+    LOG.debug("Max and min - arg1: %s  %s", str(arg1.max()), str(arg1.min()))
+    LOG.debug("Max and min - arg2: %s  %s", str(arg2.max()), str(arg2.min()))
+    try:
+        exp_arg = np.multiply(arg1.astype('float32'), arg2.astype('float32'))
+    except MemoryError:
+        LOG.warning(("Dimensions used in numpy.multiply probably reached "
+                     "limit!\n"
+                     "Make sure the Radiance<->Tb table has been created "
+                     "and try running again"))
+        raise
+
+    LOG.debug("Max and min before exp: %s  %s", str(exp_arg.max()),
+              str(exp_arg.min()))
 
     denom = np.exp(exp_arg) - 1
 

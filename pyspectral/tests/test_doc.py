@@ -20,12 +20,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Test the documentation.
-"""
+"""Test the documentation."""
 
 import doctest
 
 def test():
+    """Test"""
     #result = doctest.testfile("../doc/usage.rst")
     #assert result[0] == 0
     #result = doctest.testfile("../doc/seviri_example.rst")

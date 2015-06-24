@@ -1,40 +1,46 @@
 [general]
 rsr_dir = /path/to/internal/rsr_data
 
-[seviri]
-path = /path/to/unzipped/seviri/data/MSG_SEVIRI_Spectral_Response_Characterisation.XLS
+[Meteosat-9-seviri]
+path = /path/to/rsr/data/rsr_seviri_Meteosat-9.h5
+tb2rad_lut_filename = /path/to/rsr/data/rsr_seviri_Meteosat-9.npz
 
-[meteosat10-seviri]
-path = /local_disk/laptop/Seviri/MSG_SEVIRI_Spectral_Response_Characterisation.XLS
-tb2rad_lut_filename = /tmp/tb2rad_lut_meteosat10_seviri_ir3.9.npz
+[Meteosat-10-seviri]
+path = /path/to/rsr/data/rsr_seviri_Meteosat-10.h5
+tb2rad_lut_filename = /path/to/rsr/data/rsr_seviri_Meteosat-10.npz
 
-[meteosat9-seviri]
-path = /local_disk/laptop/Seviri/MSG_SEVIRI_Spectral_Response_Characterisation.XLS
-tb2rad_lut_filename = /tmp/tb2rad_lut_meteosat9_seviri_ir3.9.npz
+[Meteosat-11-seviri]
+path = /path/to/rsr/data/rsr_seviri_Meteosat-11.h5
+tb2rad_lut_filename = /path/to/rsr/data/rsr_seviri_Meteosat-11.npz
 
+[Himawari-8-ahi]
+path = /path/to/rsr/data/rsr_ahi_Himawari-8.h5
+tb2rad_lut_filename = /path/to/rsr/data/rsr_ahi_Himawari-8.npz
 
-[viirs]
+[Suomi-NPP-viirs]
+path = /path/to/rsr/data/rsr_viirs_Suomi-NPP.h5
+tb2rad_lut_filename = /path/to/rsr/data/rsr_viirs_Suomi-NPP.npz
 
-mband_visnir_path = /path/to/viirs/data/GT_F1_SC_RSR_Release1.0_Best_Mbands/
-mband_visnir_names = GT_F1_SC_RSR_Release1.0_Best_%(bandname)s_V2.71_ib_oob.txt
+[NOAA-18-avhrr/3]
+path = /path/to/avhrr/data/rsr_avhrr3_NOAA-18.h5
+tb2rad_lut_filename = /path/to/avhrr/data/rsr_avhrr3_NOAA-18.npz
 
-mband_ir_path = /path/to/viirs/data/GT_F1_CFPA_RSR_Release1.0_Best/
-mband_ir_names = GT_F1_CFPA_RSR_Release1.0_Best_%(bandname)s_v3_ib_oob.txt
+[NOAA-19-avhrr/3]
+path = /path/to/avhrr/data/rsr_avhrr3_NOAA-19.h5
+tb2rad_lut_filename = /path/to/avhrr/data/rsr_avhrr3_NOAA-19.npz
 
-iband_ir_path = /path/to/viirs/data/GT_F1_CFPA_RSR_Release1.0_Best/
-iband_ir_names = GT_F1_CFPA_RSR_Release1.0_Best_%(bandname)s_S0_v3_ib_oob.txt
-# We take the S0 subsample. It is anyhow in close agreement with the S1
-# subsample
+[Metop-B-avhrr/3]
+path = /path/to/avhrr/data/rsr_avhrr3_Metop-B.h5
+tb2rad_lut_filename = /path/to/avhrr/data/rsr_avhrr3_Metop-B.npz
 
-iband_visnir_path = /path/to/viirs/data/GT_F1_SC_RSR_Release1.0_Best_Ibands
-iband_visnir_names = GT_F1_SC_RSR_Release1.0_Best_%(bandname)s_V2.72_ib_oob.txt
+[Metop-A-avhrr/3]
+path = /path/to/avhrr/data/rsr_avhrr3_Metop-A.h5
+tb2rad_lut_filename = /path/to/avhrr/data/rsr_avhrr3_Metop-A.npz
 
-[noaa19-avhrr]
+[EOS-Terra-modis]
+path = /path/to/avhrr/data/rsr_modis_EOS-Terra.h5
+tb2rad_lut_filename = /path/to/avhrr/data/rsr_modis_EOS-Terra.npz
 
-path = /path/to/avhrr/data
-ch1 = NOAA_19_A308C001.txt
-ch2 = NOAA_19_A308C002.txt
-ch3a = NOAA_19_A308C03A.txt
-ch3b = NOAA_19_A308C03B.txt
-ch4 = NOAA_19_A308C004.txt
-ch5 = NOAA_19_A308C005.txt
+[EOS-Aqua-modis]
+path = /path/to/avhrr/data/rsr_modis_EOS-Aqua.h5
+tb2rad_lut_filename = /path/to/avhrr/data/rsr_modis_EOS-Aqua.npz

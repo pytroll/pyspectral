@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014 Adam.Dybbroe
+# Copyright (c) 2014, 2015 Adam.Dybbroe
 
 # Author(s):
 
 #   Adam.Dybbroe <a000680@c14526.ad.smhi.se>
+#   Panu Lahtinen <panu.lahtinen@fmi.fi>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,11 +21,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Read the Terra/Aqua MODIS relative spectral response functions.
-"""
-
-import logging
-LOG = logging.getLogger(__name__)
+"""Read the Terra/Aqua MODIS relative spectral response functions."""
 
 import ConfigParser
 import os
@@ -32,6 +29,9 @@ import numpy as np
 
 from pyspectral.utils import sort_data
 from pyspectral.utils import get_central_wave
+
+import logging
+LOG = logging.getLogger(__name__)
 
 try:
     CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
@@ -44,9 +44,6 @@ if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
 
 MODIS_BAND_NAMES = [str(i) for i in range(1, 37)]
-SATELLITE_NAME = {'terra': 'eos1', 'aqua': 'eos2'}
-PLATFORM_NAME = {'terra': 'eos', 'aqua': 'eos'}
-SATELLITE_NUMBER = {'terra': 1, 'aqua': 2}
 SHORTWAVE_BANDS = [str(i) for i in range(1, 20) + [26]]
 
 
@@ -54,10 +51,10 @@ class ModisRSR(object):
 
     """Container for the Terra/Aqua RSR data"""
 
-    def __init__(self, bandname, satname, sort=True):
+    def __init__(self, bandname, platform_name, sort=True):
+        """Init Modis RSR
         """
-        """
-        self.satname = satname
+        self.platform_name = platform_name
         self.bandname = bandname
         self.filenames = {}
         self.requested_band_filename = None
@@ -74,12 +71,13 @@ class ModisRSR(object):
         try:
             conf.read(CONFIG_FILE)
         except ConfigParser.NoSectionError:
-            LOG.exception(
-                'Failed reading configuration file: ' + str(CONFIG_FILE))
+            LOG.exception('Failed reading configuration file: %s',
+                          str(CONFIG_FILE))
             raise
 
         options = {}
-        for option, value in conf.items(self.satname + '-modis', raw=True):
+        for option, value in conf.items(self.platform_name + '-modis',
+                                        raw=True):
             options[option] = value
 
         for option, value in conf.items('general', raw=True):
@@ -88,7 +86,7 @@ class ModisRSR(object):
         self.output_dir = options.get('rsr_dir', './')
 
         self._get_bandfilenames(**options)
-        LOG.debug("Filenames: " + str(self.filenames))
+        LOG.debug("Filenames: %s", str(self.filenames))
         if os.path.exists(self.filenames[bandname]):
             self.requested_band_filename = self.filenames[bandname]
             self._load()
@@ -98,15 +96,14 @@ class ModisRSR(object):
 
     def _get_bandfilenames(self, **options):
         """Get the MODIS rsr filenames"""
-
         path = options["path"]
 
         for band in MODIS_BAND_NAMES:
             bnum = int(band)
-            LOG.debug("Band= " + str(band))
-            if self.satname == 'terra':
+            LOG.debug("Band = %s", str(band))
+            if self.platform_name == 'EOS-Terra':
                 filename = os.path.join(path,
-                                        "rsr.%d.oobd.det" % (bnum))
+                                        "rsr.%d.inb.final" % (bnum))
             else:
                 if bnum in [5, 6, 7] + range(20, 37):
                     filename = os.path.join(path, "%.2d.tv.1pct.det" % (bnum))
@@ -116,10 +113,8 @@ class ModisRSR(object):
             self.filenames[band] = filename
 
     def _load(self):
-        """Load the MODIS RSR data for the band requested
-        """
-
-        if self.is_sw or self.satname == 'aqua':
+        """Load the MODIS RSR data for the band requested"""
+        if self.is_sw or self.platform_name == 'EOS-Aqua':
             scale = 0.001
         else:
             scale = 1.0
@@ -130,16 +125,18 @@ class ModisRSR(object):
 
     def sort(self):
         """Sort the data so that x is monotonically increasing and contains
-        no duplicates."""
+        no duplicates.
+        """
         if 'wavelength' in self.rsr:
             # Only one detector apparently:
             self.rsr['wavelength'], self.rsr['response'] = \
                 sort_data(self.rsr['wavelength'], self.rsr['response'])
         else:
             for detector_name in self.rsr:
-                self.rsr[detector_name]['wavelength'], self.rsr[detector_name]['response'] = \
-                    sort_data(
-                        self.rsr[detector_name]['wavelength'], self.rsr[detector_name]['response'])
+                (self.rsr[detector_name]['wavelength'],
+                 self.rsr[detector_name]['response']) = \
+                    sort_data(self.rsr[detector_name]['wavelength'],
+                              self.rsr[detector_name]['response'])
 
 
 def read_modis_response(filename, scale=1.0):
@@ -147,9 +144,8 @@ def read_modis_response(filename, scale=1.0):
     MODIS has several detectors (more than one) compared to e.g. AVHRR which
     has always only one.
     """
-    fd = open(filename, "r")
-    lines = fd.readlines()
-    fd.close()
+    with open(filename, "r") as fid:
+        lines = fid.readlines()
 
     # The IR channels seem to be in microns, whereas the short wave channels are
     # in nanometers! For VIS/NIR scale should be 0.001
@@ -157,13 +153,13 @@ def read_modis_response(filename, scale=1.0):
     for line in lines:
         if line.find("#") == 0:
             continue
-        dummy1, dummy2, s1, s2 = line.split()
-        detector_name = 'det-%d' % int(dummy2)
+        _, det_num, s_1, s_2 = line.split()
+        detector_name = 'det-%d' % int(det_num)
         if detector_name not in detectors:
             detectors[detector_name] = {'wavelength': [], 'response': []}
 
-        detectors[detector_name]['wavelength'].append(float(s1) * scale)
-        detectors[detector_name]['response'].append(float(s2))
+        detectors[detector_name]['wavelength'].append(float(s_1) * scale)
+        detectors[detector_name]['response'].append(float(s_2))
 
     for key in detectors:
         detectors[key]['wavelength'] = np.array(detectors[key]['wavelength'])
@@ -172,22 +168,21 @@ def read_modis_response(filename, scale=1.0):
     return detectors
 
 
-def convert2hdf5(platform):
+def convert2hdf5(platform_name):
     """Retrieve original RSR data and convert to internal hdf5 format"""
     import h5py
 
-    modis = ModisRSR('20', platform)
+    modis = ModisRSR('20', platform_name)
     mfile = os.path.join(modis.output_dir,
-                         "rsr_modis_%s.h5" % SATELLITE_NAME.get(platform, platform))
+                         "rsr_modis_%s.h5" % platform_name)
 
     with h5py.File(mfile, "w") as h5f:
         h5f.attrs['description'] = 'Relative Spectral Responses for MODIS'
-        h5f.attrs['platform'] = PLATFORM_NAME.get(platform, platform)
-        h5f.attrs['sat_number'] = SATELLITE_NUMBER.get(platform, 'unknown')
+        h5f.attrs['platform_name'] = platform_name
         h5f.attrs['band_names'] = MODIS_BAND_NAMES
 
         for chname in MODIS_BAND_NAMES:
-            modis = ModisRSR(chname, platform)
+            modis = ModisRSR(chname, platform_name)
             grp = h5f.create_group(chname)
             grp.attrs['number_of_detectors'] = len(modis.rsr.keys())
             # Loop over each detector to check if the sampling wavelengths are
@@ -229,7 +224,10 @@ def convert2hdf5(platform):
                 dset[...] = arr
 
 
-if __name__ == "__main__":
-
-    for sat in ['terra', 'aqua']:
+def main():
+    """Main"""
+    for sat in ['EOS-Terra', 'EOS-Aqua']:
         convert2hdf5(sat)
+
+if __name__ == "__main__":
+    main()

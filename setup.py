@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014 Adam Dybbroe
+# Copyright (c) 2013, 2014, 2015 Adam Dybbroe
 
 # Author(s):
 
@@ -68,6 +68,6 @@ setup(name='pyspectral',
       data_files=[('etc', ['etc/pyspectral.cfg_template']),
                   ('share', ['pyspectral/data/e490_00a.dat'])],
       test_suite='pyspectral.tests.suite',
-      tests_require=[],
+      tests_require=['xlrd'],
       zip_safe=False
       )
