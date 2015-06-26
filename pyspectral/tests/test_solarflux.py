@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014 Adam.Dybbroe
+# Copyright (c) 2013, 2014, 2015 Adam.Dybbroe
 
 # Author(s):
 
@@ -22,7 +22,7 @@
 
 """Unit testing the solar_flux calculations"""
 
-from pyspectral.solar import (SolarIrradianceSpectrum, 
+from pyspectral.solar import (SolarIrradianceSpectrum,
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
 
 import os
@@ -49,6 +49,7 @@ TEST_RSR['det-1']['response'] = np.array([
     1., 0.92676, 0.67429, 0.44715, 0.27762, 0.14852,
     0.07141, 0.04151, 0.02925, 0.02085, 0.01414, 0.01], dtype='double')
 
+
 class TestSolarflux(unittest.TestCase):
 
     """Unit testing the solar flux calculations"""
@@ -60,9 +61,9 @@ class TestSolarflux(unittest.TestCase):
         return
 
     def test_read(self):
-        """Test that solar irradiance spctrum"""        
+        """Test that solar irradiance spctrum"""
         self.solar_irr = \
-            SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, 
+            SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM,
                                     dlambda=0.005)
         self.assertTrue(os.path.exists(self.solar_irr.filename))
 
@@ -72,8 +73,9 @@ class TestSolarflux(unittest.TestCase):
     def test_solar_flux(self):
         """Calculate the solar-flux"""
         self.solar_irr = \
-            SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, 
+            SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM,
                                     dlambda=0.005)
+
         # rsr function (se above) is given in micronsm therefore the scale
         # factor is 1.0 and not 1e+6 (default)!
         sflux = self.solar_irr.inband_solarflux(self.rsr, scale=1.0)

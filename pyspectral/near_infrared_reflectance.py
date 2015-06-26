@@ -67,10 +67,10 @@ class Calculator(RadTbConverter):
     """
 
     def __init__(self, platform_name, instrument, bandname,
-                 solar_flux=None, **options):
+                 solar_flux=None, **kwargs):
         """Init"""
         super(Calculator, self).__init__(platform_name, instrument,
-                                         bandname, method=1, **options)
+                                         bandname, method=1, **kwargs)
 
         self.bandname = BANDNAMES.get(bandname, bandname)
 
@@ -96,8 +96,8 @@ class Calculator(RadTbConverter):
         self._solar_radiance = None
         self._rad39_correction = 1.0
 
-        if 'detector' in options:
-            self.detector = options['detector']
+        if 'detector' in kwargs:
+            self.detector = kwargs['detector']
         else:
             self.detector = 'det-1'
 
@@ -105,9 +105,12 @@ class Calculator(RadTbConverter):
         wv_ = self.rsr[self.bandname][self.detector][self.wavespace]
         self.rsr_integral = np.trapz(resp, wv_)
 
-        if 'tb2rad_lut_filename' in options:
-            self.lutfile = options['tb2rad_lut_filename']
-            LOG.info("lut filename: %s", str(self.lutfile))
+        if 'tb2rad_lut_filename' in kwargs:
+            self.lutfile = kwargs['tb2rad_lut_filename']
+            if not self.lutfile.endswith('.npz'):
+                self.lutfile = self.lutfile + '.npz'
+
+            LOG.info("lut filename: " + str(self.lutfile))
             if not os.path.exists(self.lutfile):
                 self.make_tb2rad_lut(self.bandname,
                                      self.lutfile)
@@ -197,6 +200,8 @@ class Calculator(RadTbConverter):
             ch37name = '20'
         elif self.instrument in ["avhrr", "avhrr3", "avhrr/3"]:
             ch37name = 'ch3b'
+        elif self.instrument == 'ahi':
+            ch37name = 'ch7'
         else:
             raise NotImplementedError('Not yet support for this '
                                       'instrument %s' % str(self.instrument))
@@ -215,10 +220,10 @@ class Calculator(RadTbConverter):
             # FIXME!
             scale = self.rsr_integral * 1e-6
             retv = self.tb2radiance(tb_therm, ch37name, self.lut)
-            #print("tb2radiance conversion: " + str(retv))
+            # print("tb2radiance conversion: " + str(retv))
             thermal_emiss_one = retv['radiance'] * scale
             retv = self.tb2radiance(tb_nir, ch37name, self.lut)
-            #print("tb2radiance conversion: " + str(retv))
+            # print("tb2radiance conversion: " + str(retv))
             l_nir = retv['radiance'] * scale
 
         if thermal_emiss_one.ravel().shape[0] < 10:
@@ -231,7 +236,7 @@ class Calculator(RadTbConverter):
         sunz = sunz.filled(88.)
 
         mu0 = np.cos(np.deg2rad(sunz))
-        #mu0 = np.where(np.less(mu0, 0.1), 0.1, mu0)
+        # mu0 = np.where(np.less(mu0, 0.1), 0.1, mu0)
         self._rad37 = l_nir
         self._rad37_t11 = thermal_emiss_one
         self._solar_radiance = 1. / np.pi * self.solar_flux * mu0
@@ -240,6 +245,8 @@ class Calculator(RadTbConverter):
         # 13.4 micron is provided:
         if co2corr:
             self.derive_rad39_corr(tb_therm, tbco2)
+        else:
+            self._rad39_correction = 1.0
 
         # mask = thermal_emiss_one > l_nir
 
