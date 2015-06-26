@@ -138,9 +138,14 @@ def blackbody(wavel, temp):
 
     LOG.debug("Max and min before exp: %s  %s", str(exp_arg.max()),
               str(exp_arg.min()))
+    if exp_arg.min() < 0:
+        LOG.warning("Something is fishy: \n" +
+                    "\tDenominator might be zero or negative in radiance derivation:")
+        dubious = np.where(exp_arg < 0)[0]
+        LOG.warning(
+            "Number of items having dubious values: " + str(dubious.shape[0]))
 
     denom = np.exp(exp_arg) - 1
-
     rad = nom / denom
     # print "rad.shape = ", rad.shape
     radshape = rad.shape

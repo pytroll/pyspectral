@@ -109,8 +109,9 @@ class Calculator(RadTbConverter):
             self.lutfile = options['tb2rad_lut_filename']
             LOG.info("lut filename: %s", str(self.lutfile))
             if not os.path.exists(self.lutfile):
-                self.lut = self.make_tb2rad_lut(self.bandname,
-                                                self.lutfile)
+                self.make_tb2rad_lut(self.bandname,
+                                     self.lutfile)
+                self.lut = self.read_tb2rad_lut(self.lutfile)
                 LOG.info("LUT file created")
             else:
                 self.lut = self.read_tb2rad_lut(self.lutfile)
