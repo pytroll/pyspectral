@@ -74,6 +74,7 @@ class Calculator(RadTbConverter):
 
         self.bandname = BANDNAMES.get(bandname, bandname)
 
+        options = {}
         if CONFIG_FILE:
             conf = ConfigParser.ConfigParser()
             try:
@@ -82,7 +83,6 @@ class Calculator(RadTbConverter):
                 LOG.warning('Failed reading configuration file: %s',
                             str(CONFIG_FILE))
 
-            options = {}
             for option, value in conf.items(platform_name + '-' + instrument,
                                             raw=True):
                 options[option] = value
