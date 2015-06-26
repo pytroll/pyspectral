@@ -48,7 +48,7 @@ LOG.addHandler(handler)
 from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.solar import (
     SolarIrradianceSpectrum, TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
-ahi = RelativeSpectralResponse('himawari', '8', 'ahi')
+ahi = RelativeSpectralResponse('Himawari-8', 'ahi')
 solar_irr = SolarIrradianceSpectrum(
     TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, dlambda=0.005)
 sflux = solar_irr.inband_solarflux(ahi.rsr['ch7'])
@@ -68,7 +68,7 @@ tb14 = np.random.rand(5500, 550) * 30. + 260.0
 tb16 = np.random.rand(5500, 550) * 30. + 250.0
 
 refl38 = Calculator(
-    'himawari', '8', 'ahi', 'ch7', detector='det-1', solar_flux=sflux,
+    'Himawari-8', 'ahi', 'ch7', detector='det-1', solar_flux=sflux,
     tb2rad_lut_filename='/tmp/tb2rad_lut_himawari_ahi_ir3.9.npz')
 x = refl38.reflectance_from_tbs(sunz, tb7, tb14)
 LOG.info("Reflectance: " + str(x[0, 0]))

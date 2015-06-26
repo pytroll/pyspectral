@@ -105,8 +105,8 @@ class Calculator(RadTbConverter):
         wv_ = self.rsr[self.bandname][self.detector][self.wavespace]
         self.rsr_integral = np.trapz(resp, wv_)
 
-        if 'tb2rad_lut_filename' in kwargs:
-            self.lutfile = kwargs['tb2rad_lut_filename']
+        if 'tb2rad_lut_filename' in options:
+            self.lutfile = options['tb2rad_lut_filename']
             if not self.lutfile.endswith('.npz'):
                 self.lutfile = self.lutfile + '.npz'
 

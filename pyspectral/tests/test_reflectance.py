@@ -118,7 +118,7 @@ class TestReflectance(unittest.TestCase):
         self.assertAlmostEqual(refl37.rsr_integral, expected)
 
         refl37 = ProductionClassWN(
-            'eos', '2', 'modis', '20', wavespace='wavenumber')
+            'EOS-Aqua', 'modis', '20', wavespace='wavenumber')
         expected = 130.00391
         self.assertAlmostEqual(refl37.rsr_integral, expected, 4)
 
