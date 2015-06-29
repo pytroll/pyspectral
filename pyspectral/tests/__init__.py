@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014 Adam.Dybbroe
+# Copyright (c) 2013, 2014, 2015 Adam.Dybbroe
 
 # Author(s):
 
@@ -20,8 +20,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""The tests package
-"""
+"""The tests package"""
 
 from pyspectral import (blackbody,
                         near_infrared_reflectance,
@@ -49,7 +48,7 @@ def suite():
         mysuite.addTests(doctest.DocFileSuite('../../doc/rad_definitions.rst'))
         mysuite.addTests(doctest.DocFileSuite('../../doc/seviri_example.rst'))
         mysuite.addTests(doctest.DocFileSuite('../../doc/37_reflectance.rst'))
-        # Test the documentation strings
+        # # Test the documentation strings
         mysuite.addTests(doctest.DocTestSuite(solar))
         mysuite.addTests(doctest.DocTestSuite(near_infrared_reflectance))
         mysuite.addTests(doctest.DocTestSuite(blackbody))

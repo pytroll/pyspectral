@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014 Adam.Dybbroe
+# Copyright (c) 2014, 2015 Adam.Dybbroe
 
 # Author(s):
 
-#   Adam.Dybbroe <a000680@c14526.ad.smhi.se>
+#   Adam.Dybbroe <adam.dybbroe@smhi.se>
+#   Panu Lahtinen <panu.lahtinen@fmi.fi>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,23 +25,25 @@
 thermal range (usually the 3.7-3.9 micron band) using a thermal atmospheric
 window channel (usually around 11-12 microns).
 """
-import logging
-LOG = logging.getLogger(__name__)
 
 import ConfigParser
 import os
-
-CONFIG_FILE = os.environ.get('PSP_CONFIG_FILE', None)
-if CONFIG_FILE and (not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE)):
-    raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
-                  "variable PSP_CONFIG_FILE is not a file or does not exist!")
-elif not CONFIG_FILE:
-    LOG.warning('Environment variable PSP_CONFIG_FILE not set!')
-
 import numpy as np
 from pyspectral.solar import (SolarIrradianceSpectrum,
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
 from pyspectral.utils import BANDNAMES
+from pyspectral.radiance_tb_conversion import RadTbConverter
+
+import logging
+LOG = logging.getLogger(__name__)
+
+CONFIG_FILE = os.environ.get('PSP_CONFIG_FILE', None)
+if CONFIG_FILE and (not os.path.exists(CONFIG_FILE) or
+                    not os.path.isfile(CONFIG_FILE)):
+    raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
+                  "variable PSP_CONFIG_FILE is not a file or does not exist!")
+elif not CONFIG_FILE:
+    LOG.warning('Environment variable PSP_CONFIG_FILE not set!')
 
 WAVE_LENGTH = 'wavelength'
 WAVE_NUMBER = 'wavenumber'
@@ -48,11 +51,6 @@ WAVE_NUMBER = 'wavenumber'
 EPSILON = 0.01
 TB_MIN = 150.
 TB_MAX = 360.
-
-SATNAME = {'eos1': 'terra',
-           'eos2': 'aqua'}
-
-from pyspectral.radiance_tb_conversion import RadTbConverter
 
 
 class Calculator(RadTbConverter):
@@ -68,25 +66,24 @@ class Calculator(RadTbConverter):
     The relfectance calculated is without units and should be between 0 and 1.
     """
 
-    def __init__(self, platform, satnum, instrument, bandname,
-                 solar_flux=None, **options):
-        super(Calculator, self).__init__(platform, satnum, instrument,
-                                         bandname, method=1, **options)
+    def __init__(self, platform_name, instrument, bandname,
+                 solar_flux=None, **kwargs):
+        """Init"""
+        super(Calculator, self).__init__(platform_name, instrument,
+                                         bandname, method=1, **kwargs)
 
         self.bandname = BANDNAMES.get(bandname, bandname)
 
+        options = {}
         if CONFIG_FILE:
             conf = ConfigParser.ConfigParser()
             try:
                 conf.read(CONFIG_FILE)
             except ConfigParser.NoSectionError:
-                LOG.warning(
-                    'Failed reading configuration file: ' + str(CONFIG_FILE))
+                LOG.warning('Failed reading configuration file: %s',
+                            str(CONFIG_FILE))
 
-            satellite = platform + satnum
-            options = {}
-            for option, value in conf.items(SATNAME.get(satellite, satellite) +
-                                            '-' + instrument,
+            for option, value in conf.items(platform_name + '-' + instrument,
                                             raw=True):
                 options[option] = value
 
@@ -99,8 +96,8 @@ class Calculator(RadTbConverter):
         self._solar_radiance = None
         self._rad39_correction = 1.0
 
-        if 'detector' in options:
-            self.detector = options['detector']
+        if 'detector' in kwargs:
+            self.detector = kwargs['detector']
         else:
             self.detector = 'det-1'
 
@@ -110,46 +107,54 @@ class Calculator(RadTbConverter):
 
         if 'tb2rad_lut_filename' in options:
             self.lutfile = options['tb2rad_lut_filename']
+            if not self.lutfile.endswith('.npz'):
+                self.lutfile = self.lutfile + '.npz'
+
             LOG.info("lut filename: " + str(self.lutfile))
             if not os.path.exists(self.lutfile):
-                self.lut = self.make_tb2rad_lut(self.bandname,
-                                                self.lutfile)
+                self.make_tb2rad_lut(self.bandname,
+                                     self.lutfile)
+                self.lut = self.read_tb2rad_lut(self.lutfile)
                 LOG.info("LUT file created")
             else:
                 self.lut = self.read_tb2rad_lut(self.lutfile)
                 LOG.info("File was there and has been read!")
         else:
-            LOG.info("No lut filename available in config file. " +
+            LOG.info("No lut filename available in config file. "
                      "No lut will be used")
             self.lutfile = None
             self.lut = None
 
     def derive_rad39_corr(self, bt11, bt13, method='rosenfeld'):
         """Derive the 3.9 radiance correction factor to account for the
-        attenuation of the emitted 3.9 radiance by CO2 absorption. Requires the
-        11 micron window band and the 13.4 CO2 absorption band, as
-        e.g. available on SEVIRI. Currently only supports the Rosenfeld method"""
+        attenuation of the emitted 3.9 radiance by CO2
+        absorption. Requires the 11 micron window band and the 13.4
+        CO2 absorption band, as e.g. available on SEVIRI. Currently
+        only supports the Rosenfeld method
+        """
         if method != 'rosenfeld':
-            raise AttributeError("Only CO2 correction for SEVIRI using " +
+            raise AttributeError("Only CO2 correction for SEVIRI using "
                                  "the Rosenfeld equation is supported!")
 
         LOG.debug("Derive the 3.9 micron radiance CO2 correction coefficent")
         self._rad39_correction = (bt11 - 0.25 * (bt11 - bt13)) ** 4 / bt11 ** 4
 
     def _get_solarflux(self):
-        """Derive the in-band solar flux from rsr over the Near IR band (3.7 or
-        3.9 microns)"""
-        solar_spectrum = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM,
-                                                 dlambda=0.0005,
-                                                 wavespace=self.wavespace)
-        self.solar_flux = solar_spectrum.inband_solarflux(
-            self.rsr[self.bandname])
+        """Derive the in-band solar flux from rsr over the Near IR band (3.7
+        or 3.9 microns)
+        """
+        solar_spectrum = \
+            SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM,
+                                    dlambda=0.0005,
+                                    wavespace=self.wavespace)
+        self.solar_flux = \
+            solar_spectrum.inband_solarflux(self.rsr[self.bandname])
 
     def reflectance_from_tbs(self, sun_zenith, tb_near_ir, tb_thermal,
                              tb_ir_co2=None):
-        """
-        The relfectance calculated is without units and should be between 0 and
-        1.
+        """The relfectance calculated is without units and should be between 0
+        and 1.
+
         Inputs:
 
           sun_zenith: Sun zenith angle for every pixel - in degrees
@@ -165,7 +170,6 @@ class Calculator(RadTbConverter):
                      absorption correction will be applied.
 
         """
-
         if np.isscalar(tb_near_ir):
             tb_nir = np.array([tb_near_ir, ])
         else:
@@ -177,8 +181,8 @@ class Calculator(RadTbConverter):
             tb_therm = np.array(tb_thermal)
 
         if tb_therm.shape != tb_nir.shape:
-            raise ValueError('Dimensions does not match!' +
-                             str(tb_therm.shape) + ' and ' + str(tb_nir.shape))
+            raise ValueError('Dimensions do not match! %s and %s' %
+                             (str(tb_therm.shape), str(tb_nir.shape)))
 
         if tb_ir_co2 is None:
             co2corr = False
@@ -194,12 +198,16 @@ class Calculator(RadTbConverter):
             ch37name = 'IR3.9'
         elif self.instrument == 'modis':
             ch37name = '20'
+        elif self.instrument in ["avhrr", "avhrr3", "avhrr/3"]:
+            ch37name = 'ch3b'
+        elif self.instrument == 'ahi':
+            ch37name = 'ch7'
         else:
-            raise NotImplementedError('Not yet support for this ' +
-                                      'instrument ' + str(self.instrument))
+            raise NotImplementedError('Not yet support for this '
+                                      'instrument %s' % str(self.instrument))
 
         if not self.rsr:
-            raise NotImplementedError("Reflectance calculations without " +
+            raise NotImplementedError("Reflectance calculations without "
                                       "rsr not yet supported!")
             # retv = self.tb2radiance_simple(tb_therm, ch37name)
             # print("tb2radiance_simple conversion: " + str(retv))
@@ -212,23 +220,23 @@ class Calculator(RadTbConverter):
             # FIXME!
             scale = self.rsr_integral * 1e-6
             retv = self.tb2radiance(tb_therm, ch37name, self.lut)
-            #print("tb2radiance conversion: " + str(retv))
+            # print("tb2radiance conversion: " + str(retv))
             thermal_emiss_one = retv['radiance'] * scale
             retv = self.tb2radiance(tb_nir, ch37name, self.lut)
-            #print("tb2radiance conversion: " + str(retv))
+            # print("tb2radiance conversion: " + str(retv))
             l_nir = retv['radiance'] * scale
 
         if thermal_emiss_one.ravel().shape[0] < 10:
-            LOG.info('thermal_emiss_one = ' + str(thermal_emiss_one))
+            LOG.info('thermal_emiss_one = %s', str(thermal_emiss_one))
         if l_nir.ravel().shape[0] < 10:
-            LOG.info('l_nir = ' + str(l_nir))
+            LOG.info('l_nir = %s', str(l_nir))
 
         sunz = np.ma.masked_outside(sun_zenith, 0.0, 88.0)
         sunzmask = sunz.mask
         sunz = sunz.filled(88.)
 
         mu0 = np.cos(np.deg2rad(sunz))
-        #mu0 = np.where(np.less(mu0, 0.1), 0.1, mu0)
+        # mu0 = np.where(np.less(mu0, 0.1), 0.1, mu0)
         self._rad37 = l_nir
         self._rad37_t11 = thermal_emiss_one
         self._solar_radiance = 1. / np.pi * self.solar_flux * mu0
@@ -237,22 +245,24 @@ class Calculator(RadTbConverter):
         # 13.4 micron is provided:
         if co2corr:
             self.derive_rad39_corr(tb_therm, tbco2)
+        else:
+            self._rad39_correction = 1.0
 
-        mask = thermal_emiss_one > l_nir
+        # mask = thermal_emiss_one > l_nir
 
         nomin = l_nir - thermal_emiss_one * self._rad39_correction
-        LOG.debug("Shapes: " + str(mu0.shape) + "  " +
+        LOG.debug("Shapes: %s  %s", str(mu0.shape),
                   str(thermal_emiss_one.shape))
         denom = self._solar_radiance - \
             thermal_emiss_one * self._rad39_correction
 
         r39 = nomin / denom
-        r39 = np.ma.masked_array(r39, mask=mask)
-        #r39 = np.ma.masked_where(r39 < 0, r39)
+        # r39 = np.ma.masked_array(r39, mask=mask)
+        # r39 = np.ma.masked_where(r39 < 0, r39)
         # Do some further masking, also with sun-zenith:
-        r39 = np.ma.masked_outside(r39, 0.0, 10.0)  # * 100.  # Percent!
-        if np.ma.is_masked(tb_nir):
-            r39 = np.ma.masked_where(tb_nir.mask, r39).filled(0)
+        # r39 = np.ma.masked_outside(r39, 0.0, 10.0)  # * 100.  # Percent!
+        # if np.ma.is_masked(tb_nir):
+        #    r39 = np.ma.masked_where(tb_nir.mask, r39).filled(0)
         r39 = np.ma.masked_where(sunzmask, r39)
 
         # Reflectances should be between 0 and 1, but values above 1 is
