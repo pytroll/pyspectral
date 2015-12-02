@@ -120,11 +120,11 @@ class SolarIrradianceSpectrum(object):
         """
         return self._band_calculations(rsr, True, scale, **options)
 
-    # def inband_solarirradiance(self, rsr, scale=1.0, **options):
-    #     """Derive the inband solar irradiance for a given instrument relative
-    #     spectral response valid for an earth-sun distance of one AU."""
+    def inband_solarirradiance(self, rsr, scale=1.0, **options):
+        """Derive the inband solar irradiance for a given instrument relative
+        spectral response valid for an earth-sun distance of one AU."""
 
-    #     return self._band_calculations(rsr, False, scale, **options)
+        return self._band_calculations(rsr, False, scale, **options)
 
     def _band_calculations(self, rsr, flux, scale, **options):
         """Derive the inband solar flux or inband solar irradiance for a given
