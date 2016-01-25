@@ -152,18 +152,24 @@ class Calculator(RadTbConverter):
         self.solar_flux = \
             solar_spectrum.inband_solarflux(self.rsr[self.bandname])
 
-    def emissive_part_3x(self):
+    def emissive_part_3x(self, tb=True):
         """Get the emissive part of the 3.x band"""
-
         try:
             # Emissive part:
-            self._e3x = self._rad3x_t11 * (1 - self._r3x)
+            # self._e3x = self._rad3x_t11 * (1 -
+            self._e3x = self._rad3x * (1 -
+                                       np.ma.masked_outside(self._r3x, 0, 1,
+                                                            copy=False))
         except TypeError:
             LOG.warning(
                 "Couldn't derive the emissive part \n" +
                 "Please derive the relfectance prior to requesting the emissive part")
 
-        return self._e3x
+        if tb:
+            # FIXME! Get the correct central wavelength
+            return self.radiance2tb(self._e3x, 3.9e-6)
+        else:
+            return self._e3x
 
     def reflectance_from_tbs(self, sun_zenith, tb_near_ir, tb_thermal,
                              tb_ir_co2=None):

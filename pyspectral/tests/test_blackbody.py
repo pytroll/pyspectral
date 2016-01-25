@@ -22,8 +22,9 @@
 
 """Unit testing the Blackbody/Plack radiation derivation"""
 
-from pyspectral.blackbody import (
-    blackbody, blackbody_wn, blackbody_wn_rad2temp)
+from pyspectral.blackbody import (blackbody, blackbody_wn,
+                                  blackbody_wn_rad2temp,
+                                  blackbody_rad2temp)
 
 import unittest
 import numpy as np
@@ -59,20 +60,25 @@ class TestBlackbody(unittest.TestCase):
         """Calculate the blackbody radiation from wavelengths and
         temperatures
         """
-        black = blackbody((11. * 1E-6, ), [300., 301])
+        wavel = 11. * 1E-6
+        black = blackbody((wavel, ), [300., 301])
         self.assertEqual(black.shape[0], 2)
         self.assertAlmostEqual(black[0], RAD_11MICRON_300KELVIN)
         self.assertAlmostEqual(black[1], RAD_11MICRON_301KELVIN)
+
+        temp1 = blackbody_rad2temp(wavel, black[0])
+        self.assertAlmostEqual(temp1, 300.0, 4)
+        temp2 = blackbody_rad2temp(wavel, black[1])
+        self.assertAlmostEqual(temp2, 301.0, 4)
 
         black = blackbody(13. * 1E-6, 200.)
         self.assertTrue(np.isscalar(black))
 
         tb_therm = np.array([[300., 301], [299, 298], [279, 286]])
         black = blackbody((10. * 1E-6, 11.e-6), tb_therm)
-        print black
+
         tb_therm = np.array([[300., 301], [0., 298], [279, 286]])
         black = blackbody((10. * 1E-6, 11.e-6), tb_therm)
-        print black
 
     def test_blackbody_wn(self):
         """Calculate the blackbody radiation from wavenumbers and

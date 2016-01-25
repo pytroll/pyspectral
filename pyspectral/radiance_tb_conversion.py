@@ -271,3 +271,14 @@ class RadTbConverter(object):
             (alpha * np.log(c_1 * vc_ ** 3 / rad + 1)) - beta / alpha
 
         return tb_
+
+    def radiance2tb(self, rad, wavelength, **kwargs):
+        """Get the Tb from the radiance using the Planck function, and optionally the
+        relative spectral response function
+        rad:
+            Radiance in SI units
+        """
+
+        from pyspectral.blackbody import blackbody_rad2temp as rad2temp
+
+        return rad2temp(wavelength, rad)
