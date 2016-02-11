@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014, 2015 Adam.Dybbroe
+# Copyright (c) 2014, 2015, 2016 Adam.Dybbroe
 
 # Author(s):
 
@@ -41,6 +41,9 @@ if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
     raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
 
+WAVL = 'wavelength'
+WAVN = 'wavenumber'
+
 
 class RelativeSpectralResponse(object):
 
@@ -57,6 +60,7 @@ class RelativeSpectralResponse(object):
         self.band_names = None
         self.unit = '1e-6 m'
         self.si_scale = 1e-6  # How to scale the wavelengths to become SI unit
+        self._wavespace = WAVL
 
         conf = ConfigParser.ConfigParser()
         try:
@@ -132,6 +136,25 @@ class RelativeSpectralResponse(object):
             resp = self.rsr[bandname][det]['response']
             intg[det] = np.trapz(resp, wvl)
         return intg
+
+    def convert(self):
+        """Convert spectral response functions from wavelength to wavenumber"""
+
+        from pyspectral.utils import convert2wavenumber
+        if self._wavespace == WAVL:
+            rsr, info = convert2wavenumber(self.rsr)
+            for band in rsr.keys():
+                for det in rsr[band].keys():
+                    self.rsr[band][det]['wavenumber'] = rsr[
+                        band][det]['wavenumber']
+                    self.rsr[band][det]['response'] = rsr[
+                        band][det]['response']
+                    self.unit = info['unit']
+                    self.si_scale = info['si_scale']
+            self._wavespace = WAVN
+        else:
+            raise NotImplementedError("Conversion from wavenumber to " +
+                                      "wavelength not supported yet")
 
 
 def main():
