@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014, 2015 Adam.Dybbroe
+# Copyright (c) 2014, 2015, 2016 Adam.Dybbroe
 
 # Author(s):
 
@@ -223,6 +223,8 @@ class Calculator(RadTbConverter):
             ch3xname = 'ch3b'
         elif self.instrument == 'ahi':
             ch3xname = 'ch7'
+        elif self.instrument == 'viirs':
+            ch3xname = 'M12'
         else:
             raise NotImplementedError('Not yet support for this '
                                       'instrument %s' % str(self.instrument))
