@@ -44,6 +44,8 @@ if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
 WAVL = 'wavelength'
 WAVN = 'wavenumber'
 
+from pyspectral.utils import INSTRUMENTS
+
 
 class RelativeSpectralResponse(object):
 
@@ -73,6 +75,15 @@ class RelativeSpectralResponse(object):
         options = {}
         for option, value in conf.items('general', raw=True):
             options[option] = value
+
+        # Try fix instrument naming
+        instr = INSTRUMENTS.get(platform_name, instrument)
+        if instr != instrument:
+            instrument = instr
+            LOG.warning("Inconsistent instrument/satellite input - " +
+                        "instrument set to %s", instrument)
+
+        instrument = instrument.replace('/', '')
 
         rsr_dir = options['rsr_dir']
         self.filename = os.path.join(rsr_dir, 'rsr_%s_%s.h5' %

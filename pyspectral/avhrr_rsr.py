@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014, 2015 Adam.Dybbroe
+# Copyright (c) 2014, 2015, 2016 Adam.Dybbroe
 
 # Author(s):
 
@@ -30,6 +30,7 @@ import os
 import numpy as np
 
 from pyspectral.utils import get_central_wave
+from pyspectral.utils import INSTRUMENTS
 
 import logging
 LOG = logging.getLogger(__name__)
@@ -54,6 +55,7 @@ class AvhrrRSR(object):
     def __init__(self, bandname, satname):
         self.satname = satname
         self.bandname = bandname
+        self.instrument = INSTRUMENTS.get(satname, 'avhrr')
         self.filenames = {}
         self.requested_band_filename = None
         for band in AVHRR_BAND_NAMES:
@@ -69,7 +71,9 @@ class AvhrrRSR(object):
             raise
 
         options = {}
-        for option, value in conf.items(self.satname + '-avhrr', raw=True):
+        for option, value in conf.items(self.satname + '-' +
+                                        self.instrument,
+                                        raw=True):
             options[option] = value
 
         for option, value in conf.items('general', raw=True):
@@ -120,7 +124,8 @@ def convert2hdf5(platform_name):
 
     avhrr = AvhrrRSR('ch1', platform_name)
     filename = os.path.join(avhrr.output_dir,
-                            "rsr_avhrr_%s.h5" % platform_name)
+                            "rsr_%s_%s.h5" % (avhrr.instrument.replace('/', ''),
+                                              platform_name))
 
     with h5py.File(filename, "w") as h5f:
         h5f.attrs['description'] = 'Relative Spectral Responses for AVHRR'
@@ -128,7 +133,7 @@ def convert2hdf5(platform_name):
         h5f.attrs['band_names'] = AVHRR_BAND_NAMES
 
         for chname in AVHRR_BAND_NAMES:
-            avhrr = AvhrrRSR(chname, satellite_id)
+            avhrr = AvhrrRSR(chname, platform_name)
             grp = h5f.create_group(chname)
             wvl = avhrr.rsr['wavelength'][~np.isnan(avhrr.rsr['wavelength'])]
             rsp = avhrr.rsr['response'][~np.isnan(avhrr.rsr['wavelength'])]
