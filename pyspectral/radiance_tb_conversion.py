@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014, 2015 Adam.Dybbroe
+# Copyright (c) 2014, 2015, 2016 Adam.Dybbroe
 
 # Author(s):
 
@@ -179,6 +179,8 @@ class RadTbConverter(object):
             bounds = 0, lut['radiance'].shape[0] - 1
             index = np.clip(ntb - start, bounds[0], bounds[1])
             retv['radiance'] = lut['radiance'][index]
+            if retv['radiance'].ravel().shape[0] == 1:
+                retv['radiance'] = retv['radiance'][0]
             retv['unit'] = unit
             retv['scale'] = scale
             return retv
@@ -199,7 +201,6 @@ class RadTbConverter(object):
                                       str(self.wavespace))
 
         radiance = integrate.trapz(planck, wv_) / np.trapz(resp, wv_)
-
         return {'radiance': radiance,
                 'unit': unit,
                 'scale': scale}
