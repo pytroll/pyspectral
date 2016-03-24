@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014, 2015 Adam.Dybbroe
+# Copyright (c) 2013, 2014, 2015, 2016 Adam.Dybbroe
 
 # Author(s):
 
@@ -41,14 +41,13 @@ def blackbody_rad2temp(wavelength, radiance):
 
     """
 
+    mask = False
     if np.isscalar(radiance):
         rad = np.array([radiance, ], dtype='float64')
     else:
         rad = np.array(radiance, dtype='float64')
         if np.ma.is_masked(radiance):
             mask = radiance.mask
-        else:
-            mask = False
 
     rad = np.ma.masked_array(rad, mask=mask)
     rad = np.ma.masked_less_equal(rad, 0)
