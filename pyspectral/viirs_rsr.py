@@ -206,13 +206,17 @@ def main():
             # identical:
             det_names = viirs.rsr.keys()
             wvl = viirs.rsr[det_names[0]]['wavelength']
+            wvl, idx = np.unique(wvl, return_index=True)
             wvl_is_constant = True
             for det in det_names[1:]:
-                if not np.alltrue(wvl == viirs.rsr[det_names[0]]['wavelength']):
+                det_wvl = np.unique(viirs.rsr[det]['wavelength'])
+                if not np.alltrue(wvl == det_wvl):
+                    LOG.warning(
+                        "Wavelngth arrays are not the same among detectors!")
                     wvl_is_constant = False
 
             if wvl_is_constant:
-                arr = viirs.rsr[det_names[0]]['wavelength']
+                arr = wvl
                 dset = grp.create_dataset('wavelength', arr.shape, dtype='f')
                 dset.attrs['unit'] = 'm'
                 dset.attrs['scale'] = 1e-06
@@ -225,19 +229,21 @@ def main():
                     ~np.isnan(viirs.rsr[det]['wavelength'])]
                 rsp = viirs.rsr[det]['response'][
                     ~np.isnan(viirs.rsr[det]['wavelength'])]
+                wvl, idx = np.unique(wvl, return_index=True)
+                rsp = np.take(rsp, idx)
+                LOG.debug("wvl.shape: %s", str(wvl.shape))
                 det_grp.attrs[
                     'central_wavelength'] = get_central_wave(wvl, rsp)
                 if not wvl_is_constant:
-                    arr = viirs.rsr[det]['wavelength']
+                    arr = wvl
                     dset = det_grp.create_dataset(
                         'wavelength', arr.shape, dtype='f')
                     dset.attrs['unit'] = 'm'
                     dset.attrs['scale'] = 1e-06
                     dset[...] = arr
 
-                arr = viirs.rsr[det]['response']
-                dset = det_grp.create_dataset('response', arr.shape, dtype='f')
-                dset[...] = arr
+                dset = det_grp.create_dataset('response', rsp.shape, dtype='f')
+                dset[...] = rsp
 
 if __name__ == "__main__":
     LOG = logging.getLogger('viirs_rsr')

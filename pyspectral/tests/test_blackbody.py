@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014 Adam.Dybbroe
+# Copyright (c) 2013, 2014, 2015 Adam.Dybbroe
 
 # Author(s):
 
@@ -22,7 +22,9 @@
 
 """Unit testing the Blackbody/Plack radiation derivation"""
 
-from pyspectral.blackbody import blackbody, blackbody_wn
+from pyspectral.blackbody import (blackbody, blackbody_wn,
+                                  blackbody_wn_rad2temp,
+                                  blackbody_rad2temp)
 
 import unittest
 import numpy as np
@@ -35,6 +37,15 @@ RAD_11MICRON_301KELVIN = 9714688.2959563732
 # Radiances in wavenumber space (SI-units)
 WN_RAD_11MICRON_300KELVIN = 0.00115835441353
 WN_RAD_11MICRON_301KELVIN = 0.00117547716523
+
+__unittest = True
+
+
+def assertNumpyArraysEqual(self, other):
+    if self.shape != other.shape:
+        raise AssertionError("Shapes don't match")
+    if not np.allclose(self, other):
+        raise AssertionError("Elements don't match!")
 
 
 class TestBlackbody(unittest.TestCase):
@@ -49,20 +60,25 @@ class TestBlackbody(unittest.TestCase):
         """Calculate the blackbody radiation from wavelengths and
         temperatures
         """
-        black = blackbody((11. * 1E-6, ), [300., 301])
+        wavel = 11. * 1E-6
+        black = blackbody((wavel, ), [300., 301])
         self.assertEqual(black.shape[0], 2)
         self.assertAlmostEqual(black[0], RAD_11MICRON_300KELVIN)
         self.assertAlmostEqual(black[1], RAD_11MICRON_301KELVIN)
+
+        temp1 = blackbody_rad2temp(wavel, black[0])
+        self.assertAlmostEqual(temp1, 300.0, 4)
+        temp2 = blackbody_rad2temp(wavel, black[1])
+        self.assertAlmostEqual(temp2, 301.0, 4)
 
         black = blackbody(13. * 1E-6, 200.)
         self.assertTrue(np.isscalar(black))
 
         tb_therm = np.array([[300., 301], [299, 298], [279, 286]])
         black = blackbody((10. * 1E-6, 11.e-6), tb_therm)
-        print black
+
         tb_therm = np.array([[300., 301], [0., 298], [279, 286]])
         black = blackbody((10. * 1E-6, 11.e-6), tb_therm)
-        print black
 
     def test_blackbody_wn(self):
         """Calculate the blackbody radiation from wavenumbers and
@@ -74,6 +90,27 @@ class TestBlackbody(unittest.TestCase):
         self.assertEqual(black.shape[0], 2)
         self.assertAlmostEqual(black[0], WN_RAD_11MICRON_300KELVIN)
         self.assertAlmostEqual(black[1], WN_RAD_11MICRON_301KELVIN)
+
+        temp1 = blackbody_wn_rad2temp(wavenumber, black[0])
+        self.assertAlmostEqual(temp1, 300.0, 4)
+        temp2 = blackbody_wn_rad2temp(wavenumber, black[1])
+        self.assertAlmostEqual(temp2, 301.0, 4)
+
+        t__ = blackbody_wn_rad2temp(wavenumber, [0.001, 0.0009])
+        expected = [290.3276916, 283.76115441]
+        self.assertAlmostEqual(t__[0], expected[0])
+        self.assertAlmostEqual(t__[1], expected[1])
+
+        radiances = np.array([0.001, 0.0009, 0.0012, 0.0018]).reshape(2, 2)
+        t__ = blackbody_wn_rad2temp(wavenumber, radiances)
+        expected = np.array([290.3276916, 283.76115441,
+                             302.4181330, 333.1414164]).reshape(2, 2)
+        self.assertAlmostEqual(t__[1, 1], expected[1, 1], 5)
+        self.assertAlmostEqual(t__[0, 0], expected[0, 0], 5)
+        self.assertAlmostEqual(t__[0, 1], expected[0, 1], 5)
+        self.assertAlmostEqual(t__[1, 0], expected[1, 0], 5)
+
+        assertNumpyArraysEqual(t__, expected)
 
     def tearDown(self):
         """Clean up"""

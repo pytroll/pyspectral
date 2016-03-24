@@ -214,3 +214,78 @@ and expressed as a function of wavenumber :math:`\nu`:
 .. math::
 
    B_{\nu}(T) = 2hc^2{\nu}^3 \frac{1}{e^{\frac{h c \nu}{k_B T}} - 1}
+
+In python it may look like this:
+
+   >>> from pyspectral.blackbody import blackbody_wn
+   >>> wavenumber = 90909.1
+   >>> rad = blackbody_wn((wavenumber, ), [300., 301])
+   >>> print rad
+   [0.001158354413530655 0.0011754771652280277]
+
+Which are the spectral radiances in SI units at wavenumber around :math:`909 cm^{-1}` at
+temperatures 300 and 301 Kelvin. In units of :math:`mW/m^2 (cm^{-1})^{-1}\ sr^{-1}` this becomes:
+
+   >>> print rad*1e+5
+   [115.83544135306549 117.54771652280277]
+
+And using wavelength representation:
+
+   >>> from pyspectral.blackbody import blackbody
+   >>> wvl = 1./wavenumber
+   >>> rad = blackbody(wvl, [300., 301])
+   >>> print rad
+   [9573178.885963218 9714689.258871676]
+
+Which are the spectral radiances in SI units around :math:`11 \mu m` at
+temperatures 300 and 301 Kelvin. In units of :math:`mW/m^2\ m^{-1} sr^{-1}` this becomes:
+
+   >>> print rad*1e-6
+   [9.573178885963218 9.714689258871676]
+
+
+The inverse Planck function
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Inverting the Planck function allows to derive the brightness temperature given
+the spectral radiance. Expressed in wavenumber space this becomes:
+
+.. math::
+
+   T_B = T(B_{\nu}) = \frac{hc\nu}{k_B} log^{-1}\{\frac{2hc^2{\nu}^3}{B_{\nu}} + 1\}
+
+With the spectral radiance given as a function of wavelength the equation looks like this:
+
+.. math::
+
+   T_B = T(B_{\lambda}) = \frac{hc}{\lambda k_B} log^{-1}\{\frac{2hc^2}{B_{\lambda} {\lambda}^5} + 1\}
+
+
+In python it may look like this:
+
+   >>> from pyspectral.blackbody import blackbody_wn_rad2temp
+   >>> wavenumber = 90909.1
+   >>> temp = blackbody_wn_rad2temp(wavenumber, [0.001158354, 0.001175477])
+   >>> print temp
+   [ 299.99998562  301.00000518]
+
+
+Provided the input is a central wavenumber or wavelength as defined above, this
+gives the brightness temperature calculation under the assumption of a linear
+planck function as a function of wavelength or wavenumber over the spectral
+band width and provided a constant relative spectral response. To get a more
+precise derivation of the brightness temperature given a measured radiance one
+needs to convolve the inverse Planck function with the relative spectral
+response function for the band in question:
+
+.. math::
+
+   T_B = \frac{\int_0^\infty \Phi_{i}(\lambda) T(B_{\lambda}) \mathrm{d}\lambda}
+   {\int_0^\infty \Phi_{i}(\lambda) \mathrm{d}\lambda}
+
+or
+
+.. math::
+
+   T_B = T(B_{\nu}) = \frac{\int_0^\infty \Phi_{i}(\nu) T(B_{\nu}) \mathrm{d}\nu}
+   {\int_0^\infty \Phi_{i}(\nu) \mathrm{d}\nu}

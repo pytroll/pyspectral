@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014, 2015 Adam.Dybbroe
+# Copyright (c) 2014, 2015, 2016 Adam.Dybbroe
 
 # Author(s):
 
@@ -37,7 +37,18 @@ BANDNAMES = {'VIS006': 'VIS0.6',
              'IR_120': 'IR12.0',
              'IR_134': 'IR13.4',
              'HRV': 'HRV'
-         }
+             }
+
+INSTRUMENTS = {'NOAA-19': 'avhrr/3',
+               'NOAA-18': 'avhrr/3',
+               'NOAA-17': 'avhrr/3',
+               'NOAA-16': 'avhrr/3',
+               'NOAA-15': 'avhrr/3',
+               'Metop-A': 'avhrr/3',
+               'Metop-B': 'avhrr/3',
+               'Metop-C': 'avhrr/3'
+               }
+
 
 def convert2wavenumber(rsr):
     """Take rsr data set with all channels and detectors for an instrument

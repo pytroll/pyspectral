@@ -25,7 +25,7 @@ For the :math:`3.7\mu m` channel the outgoing radiance is due to solar
 reflection and thermal emission. Thus in order to determine a :math:`3.7\mu m`
 channel reflectance, it is necessary to subtract the thermal part from the
 satellite signal. To do this, the temperature of the observed object is
-needed. The usual candidate at hand is the 11 brightness temperature
+needed. The usual candidate at hand is the :math:`11 \mu m` brightness temperature
 (e.g. VIIRS I5 or M12), since most objects behave approximately as blackbodies
 in this spectral interval.
 
@@ -51,6 +51,18 @@ and then
 .. math::
 
     \rho_{3.7} = \frac{L_{3.7} - \int_0^\infty \Phi_{3.7}(\lambda) B_{\lambda} (T_{11}) \mathrm{d}\lambda } {\frac{1}{\pi} \mu_0 F_{3.7, 0} - \int_0^\infty \Phi_{3.7}(\lambda) B_{\lambda} (T_{11}) \mathrm{d}\lambda }
+
+
+Derive the emissive part of the 3.7 micron band
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Now that we have the reflective part of the :math:`3.x` signal, it is easy to derive
+the emissive part, under the same assumptions of completely opaque (zero
+transmissivity) objects. 
+
+.. math::
+
+   L_{3.7, thermal} = (1 - \rho_{3.7}) \int_0^\infty \Phi_{3.7}(\lambda) B_{\lambda} (T_{11}) \mathrm{d}\lambda
 
 
 Brightness temperature to spectral radiance 
