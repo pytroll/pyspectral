@@ -21,5 +21,5 @@ deploy:
     secure: FznD38SHxuj1RoFXUqLstF//O3+pypF84hCOHO8A3Poa+ygh7X4a+9aimCeiuY9d+5tbE0ZlyG7LMcCOFA3JCvH7lUChmQbbn3pcFvJdJzzYQgxYNfvCL9YtjRF/n648bVdpN265hm07rmOe7DHbysw4q8hMlxtUH87MYctRg90=
   on:
     tags: true
-    repo: adybbroe/pyspectral
+    repo: pytroll/pyspectral
     branch: master
