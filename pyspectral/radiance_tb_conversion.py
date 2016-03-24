@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014, 2015 Adam.Dybbroe
+# Copyright (c) 2014, 2015, 2016 Adam.Dybbroe
 
 # Author(s):
 
@@ -179,6 +179,8 @@ class RadTbConverter(object):
             bounds = 0, lut['radiance'].shape[0] - 1
             index = np.clip(ntb - start, bounds[0], bounds[1])
             retv['radiance'] = lut['radiance'][index]
+            if retv['radiance'].ravel().shape[0] == 1:
+                retv['radiance'] = retv['radiance'][0]
             retv['unit'] = unit
             retv['scale'] = scale
             return retv
@@ -199,7 +201,6 @@ class RadTbConverter(object):
                                       str(self.wavespace))
 
         radiance = integrate.trapz(planck, wv_) / np.trapz(resp, wv_)
-
         return {'radiance': radiance,
                 'unit': unit,
                 'scale': scale}
@@ -271,3 +272,14 @@ class RadTbConverter(object):
             (alpha * np.log(c_1 * vc_ ** 3 / rad + 1)) - beta / alpha
 
         return tb_
+
+    def radiance2tb(self, rad, wavelength, **kwargs):
+        """Get the Tb from the radiance using the Planck function, and optionally the
+        relative spectral response function
+        rad:
+            Radiance in SI units
+        """
+
+        from pyspectral.blackbody import blackbody_rad2temp as rad2temp
+
+        return rad2temp(wavelength, rad)

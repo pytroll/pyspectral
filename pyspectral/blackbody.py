@@ -22,7 +22,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Planck radiation equation"""
-
 import numpy as np
 
 import logging
@@ -34,7 +33,86 @@ C_SPEED = 2.99792458 * 1e8  # SI-unit = [m/s]
 
 EPSILON = 0.000001
 
-# -------------------------------------------------------------------
+
+def blackbody_rad2temp(wavelength, radiance):
+    """Derive brightness temperatures from radiance using the Planck
+    function. Wavelength space. Assumes SI units as input and returns
+    temperature in Kelvin
+
+    """
+
+    if np.isscalar(radiance):
+        rad = np.array([radiance, ], dtype='float64')
+    else:
+        rad = np.array(radiance, dtype='float64')
+        if np.ma.is_masked(radiance):
+            mask = radiance.mask
+        else:
+            mask = False
+
+    rad = np.ma.masked_array(rad, mask=mask)
+    rad = np.ma.masked_less_equal(rad, 0)
+
+    if np.isscalar(wavelength):
+        wvl = np.array([wavelength, ], dtype='float64')
+    else:
+        wvl = np.array(wavelength, dtype='float64')
+
+    const1 = H_PLANCK * C_SPEED / K_BOLTZMANN
+    const2 = 2 * H_PLANCK * C_SPEED**2
+    res = const1 / (wvl * np.log(np.divide(const2, rad * wvl**5) + 1.0))
+
+    shape = rad.shape
+    resshape = res.shape
+
+    if wvl.shape[0] == 1:
+        if rad.shape[0] == 1:
+            return res[0]
+        else:
+            return res[::].reshape(shape)
+    else:
+        if rad.shape[0] == 1:
+            return res[0, :]
+        else:
+            if len(shape) == 1:
+                return np.reshape(res, (shape[0], resshape[1]))
+            else:
+                return np.reshape(res, (shape[0], shape[1], resshape[1]))
+
+
+def blackbody_wn_rad2temp(wavenumber, radiance):
+    """Derive brightness temperatures from radiance using the Planck 
+    function. Wavenumber space"""
+
+    if np.isscalar(radiance):
+        rad = np.array([radiance, ], dtype='float64')
+    else:
+        rad = np.array(radiance, dtype='float64')
+    if np.isscalar(wavenumber):
+        wavnum = np.array([wavenumber, ], dtype='float64')
+    else:
+        wavnum = np.array(wavenumber, dtype='float64')
+
+    const1 = H_PLANCK * C_SPEED / K_BOLTZMANN
+    const2 = 2 * H_PLANCK * C_SPEED**2
+    res = const1 * wavnum / np.log(np.divide(const2 * wavnum**3, rad) + 1.0)
+
+    shape = rad.shape
+    resshape = res.shape
+
+    if wavnum.shape[0] == 1:
+        if rad.shape[0] == 1:
+            return res[0]
+        else:
+            return res[::].reshape(shape)
+    else:
+        if rad.shape[0] == 1:
+            return res[0, :]
+        else:
+            if len(shape) == 1:
+                return np.reshape(res, (shape[0], resshape[1]))
+            else:
+                return np.reshape(res, (shape[0], shape[1], resshape[1]))
 
 
 def blackbody_wn(wavenumber, temp):
