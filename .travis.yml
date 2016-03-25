@@ -18,7 +18,7 @@ deploy:
   provider: pypi
   user: adybbroe
   password:
-    secure: FznD38SHxuj1RoFXUqLstF//O3+pypF84hCOHO8A3Poa+ygh7X4a+9aimCeiuY9d+5tbE0ZlyG7LMcCOFA3JCvH7lUChmQbbn3pcFvJdJzzYQgxYNfvCL9YtjRF/n648bVdpN265hm07rmOe7DHbysw4q8hMlxtUH87MYctRg90=
+    secure: StUm2r4gETqQxfiW3MsYiWTSfx0nYQ43ZjJ33+SRPkr5toEhfnEqA4fIvRKo96oLGI8nR0QZtJM+mRPhHV2rWXsy4Hlar8+LFCXuEjPDayJZ7rsuJHuaUMNlxIom/A/9FrnNyn05Mxw+1RRH0sh0/YJKUjYmM/lcuT+99jj2wL4=
   on:
     tags: true
     repo: pytroll/pyspectral
