@@ -22,4 +22,6 @@ deploy:
   on:
     tags: true
     repo: pytroll/pyspectral
-    branch: master
+sudo: false
+notifications:
+  slack: pytroll:96mNSYSI1dBjGyzVXkBT6qFt
