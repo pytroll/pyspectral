@@ -1,10 +1,9 @@
 pyspectral
 ==========
 
-[![Build Status](https://travis-ci.org/adybbroe/pyspectral.png?branch=develop)](https://travis-ci.org/adybbroe/pyspectral)
+[![Build Status](https://travis-ci.org/pytroll/pyspectral.png?branch=pre-master)](https://travis-ci.org/pytroll/pyspectral)
 [![Coverage Status](https://coveralls.io/repos/adybbroe/pyspectral/badge.png?branch=develop)](https://coveralls.io/r/adybbroe/pyspectral?branch=develop)
-[![Code Health](https://landscape.io/github/adybbroe/pyspectral/develop/landscape.png)]
-(https://landscape.io/github/adybbroe/pyspectral/develop)
+[![Code Health](https://landscape.io/github/pytroll/pyspectral/pre-master/landscape.png)](https://landscape.io/github/pytroll/pyspectral/pre-master)
 [![Downloads](https://pypip.in/d/pyspectral/badge.png)](https://crate.io/package/pyspectral)
 [![Version](https://pypip.in/v/pyspectral/badge.png)](https://crate.io/package/pyspectral)
 [![Research software impact](http://depsy.org/api/package/pypi/pyspectral/badge.svg)](http://depsy.org/package/python/pyspectral)
