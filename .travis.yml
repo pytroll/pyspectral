@@ -11,7 +11,7 @@ install:
 #script:  python setup.py test
 script: coverage run --source=pyspectral setup.py test
 virtualenv:
-  system_site_packages: true
+  system_site_packages: false
 before_install:
   - sudo apt-get install -qq python-numpy python-scipy
 after_success: coveralls
