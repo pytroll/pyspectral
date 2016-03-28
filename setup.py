@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014, 2015 Adam Dybbroe
+# Copyright (c) 2013, 2014, 2015, 2016 Adam Dybbroe
 
 # Author(s):
 
@@ -34,7 +34,7 @@ import imp
 version = imp.load_source('pyspectral.version', 'pyspectral/version.py')
 
 setup(name='pyspectral',
-      version='v0.1.0',
+      version='0.2.4',
       description='Getting satellite sensor rsr functions and the solar spectrum',
       author='Adam Dybbroe',
       author_email='adam.dybbroe@smhi.se',

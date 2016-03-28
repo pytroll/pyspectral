@@ -18,8 +18,10 @@ deploy:
   provider: pypi
   user: adybbroe
   password:
-    secure: FznD38SHxuj1RoFXUqLstF//O3+pypF84hCOHO8A3Poa+ygh7X4a+9aimCeiuY9d+5tbE0ZlyG7LMcCOFA3JCvH7lUChmQbbn3pcFvJdJzzYQgxYNfvCL9YtjRF/n648bVdpN265hm07rmOe7DHbysw4q8hMlxtUH87MYctRg90=
+    secure: A/DAh5K6A1UzARPWsiNL+qiyLfHd1dS2fhmZlE0SNcS0zN1CalyY2s7znVKTE15fSF0oV/jah/jy1PQIMBFFbAhpc6nmnDx3DxJ3d9RWxGE2hLWKn9tYUHQ07k7oiRFrwQe2bEJlaLBQfBOZ/DIe4Umc3osC65UINX03oOHsPFI=
   on:
     tags: true
-    repo: adybbroe/pyspectral
-    branch: master
+    repo: pytroll/pyspectral
+    condition: $TRAVIS_PYTHON_VERSION = "2.7"
+notifications:
+  slack: pytroll:96mNSYSI1dBjGyzVXkBT6qFt
