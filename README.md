@@ -6,7 +6,6 @@ pyspectral
 [![Code Health](https://landscape.io/github/adybbroe/pyspectral/develop/landscape.png)]
 (https://landscape.io/github/adybbroe/pyspectral/develop)
 [![PyPI version](https://badge.fury.io/py/pyspectral.svg)](https://badge.fury.io/py/pyspectral)
-[![Version](https://pypip.in/v/pyspectral/badge.png)](https://crate.io/package/pyspectral)
 [![Research software impact](http://depsy.org/api/package/pypi/pyspectral/badge.svg)](http://depsy.org/package/python/pyspectral)
 
 
