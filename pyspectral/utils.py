@@ -81,10 +81,14 @@ def convert2wavenumber(rsr):
     return retv, {'unit': unit, 'si_scale': si_scale}
 
 
-def get_central_wave(wav, resp):
-    """Calculate the central wavelength or the central wavenumber,
-    depending on what is input
+def get_central_wave(wav, resp, weight=1.0):
+    """Calculate the central wavelength or the central wavenumber, depending on
+    which parameters is input.  On default the weighting funcion is
+    f(lambda)=1.0, but it is possible to add a custom weight, e.g. f(lambda) =
+    1./lambda**4 for Rayleigh scattering calculations
+
     """
+
     # info: {'unit': unit, 'si_scale': si_scale}
     # To get the wavelenght/wavenumber in SI units (m or m-1):
     # wav = wav * info['si_scale']
@@ -96,7 +100,7 @@ def get_central_wave(wav, resp):
     # Wavenumber:
     #     res *=
 
-    return np.trapz(resp * wav, wav) / np.trapz(resp, wav)
+    return np.trapz(resp * wav * weight, wav) / np.trapz(resp * weight, wav)
 
 
 def sort_data(x_vals, y_vals):
