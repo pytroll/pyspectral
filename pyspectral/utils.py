@@ -122,3 +122,43 @@ def sort_data(x_vals, y_vals):
     y_vals = y_vals[mask]
 
     return x_vals, y_vals
+
+
+def get_rayleigh_reflectance(parms, sunz, satz):
+    """Get the Rayleigh reflectance applying the polynomial fit parameters
+
+    P(x,y) = c_{00} + c_{10}x + ...+ c_{n0}x^n +
+             c_{01}y + ...+ c_{0n}y^n +
+             c_{11}xy + c_{12}xy^2 + ... +
+             c_{1(n-1)}xy^{n-1}+ ... + c_{(n-1)1}x^{n-1}y
+
+    x = relative azimuth difference angle
+    y = secant of the satellite zenith angle
+    """
+
+    sec = 1. / np.cos(np.deg2rad(satz))
+    sunsec = 1. / np.cos(np.deg2rad(sunz))
+
+    res = (parms[0] +
+           parms[1] * sunsec +
+           parms[2] * sunsec ** 2 +
+           parms[3] * sunsec ** 3 +
+           parms[4] * sunsec ** 4 +
+           parms[5] * sunsec ** 5 +
+           parms[6] * sec +
+           parms[7] * sec ** 2 +
+           parms[8] * sec ** 3 +
+           parms[9] * sec ** 4 +
+           parms[10] * sec ** 5 +
+           parms[11] * sunsec * sec +
+           parms[12] * sunsec * sec ** 2 +
+           parms[13] * sunsec * sec ** 3 +
+           parms[14] * sunsec * sec ** 4 +
+           parms[15] * sunsec ** 2 * sec +
+           parms[16] * sunsec ** 2 * sec ** 2 +
+           parms[17] * sunsec ** 2 * sec ** 3 +
+           parms[18] * sunsec ** 3 * sec +
+           parms[19] * sunsec ** 3 * sec ** 2 +
+           parms[20] * sunsec ** 4 * sec)
+
+    return res

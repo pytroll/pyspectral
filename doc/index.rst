@@ -41,6 +41,7 @@ SEVIRI `day solar`_ or the `day microphysical`_ RGB composites according to the
    usage
    seviri_example
    37_reflectance
+   rayleigh_correction
    rad_definitions
    api
 
