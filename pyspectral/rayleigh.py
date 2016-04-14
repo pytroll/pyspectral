@@ -5,7 +5,7 @@
 
 # Author(s):
 
-#   Adam.Dybbroe <a000680@c20671.ad.smhi.se>
+#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
+"""Rayleigh correction of shortwave imager bands in the wavelength range 400 to
+800 nm
+
 """
 
 import ConfigParser
@@ -38,7 +40,6 @@ except KeyError:
 if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
     raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
-
 
 import numpy as np
 import h5py
@@ -74,6 +75,8 @@ class Rayleigh(object):
         if atm_type not in ATMOSPHERES.keys():
             LOG.error("Atmosphere type %s not supported", atm_type)
 
+        LOG.info("Atmosphere chosen: %s", atm_type)
+
         conf = ConfigParser.ConfigParser()
         try:
             conf.read(CONFIG_FILE)
@@ -96,9 +99,9 @@ class Rayleigh(object):
         self.sensor = sensor.replace('/', '')
 
         rayleigh_dir = options['rayleigh_dir']
-        self.coeff_filename = os.path.join(rayleigh_dir,
-                                           'poly_fit_parameters_const_azidiff_extended.h5')
-
+        ext = atm_type.replace(' ', '_')
+        lutname = "rayleigh_lut_const_azidiff_%s.h5" % ext
+        self.coeff_filename = os.path.join(rayleigh_dir, lutname)
         LOG.debug('Filename: %s', str(self.coeff_filename))
 
         if (not os.path.exists(self.coeff_filename) or
