@@ -37,11 +37,15 @@ class Mock(object):
             mockType = type(name, (), {})
             mockType.__module__ = __name__
             return mockType
+        elif name == "inf":
+            return 0
         else:
             return Mock()
 
 
-MOCK_MODULES = ['numpy', 'scipy', 'xlrd', ]
+MOCK_MODULES = ['numpy', 'numpy.core', 'numpy.core.multiarray',
+                'numpy.distutils.core', 'scipy', 'xlrd', ]
+
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = Mock()
 
