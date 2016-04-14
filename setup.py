@@ -68,6 +68,6 @@ setup(name='pyspectral',
       data_files=[('etc', ['etc/pyspectral.cfg_template']),
                   ('share', ['pyspectral/data/e490_00a.dat'])],
       test_suite='pyspectral.tests.suite',
-      tests_require=['xlrd'],
+      tests_require=['mock', 'xlrd'],
       zip_safe=False
       )

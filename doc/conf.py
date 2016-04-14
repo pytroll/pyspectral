@@ -22,6 +22,7 @@ sys.path.insert(0, os.path.abspath('../pyspectral'))
 
 
 class Mock(object):
+    __all__ = []
 
     def __init__(self, *args, **kwargs):
         pass
@@ -43,8 +44,8 @@ class Mock(object):
             return Mock()
 
 
-MOCK_MODULES = ['numpy', 'numpy.core', 'numpy.core.multiarray',
-                'numpy.distutils.core',
+MOCK_MODULES = ['numpy', 'numpy.core',
+                'numpy.distutils.core', 'numpy.core.multiarray',
                 'scipy', 'scipy.integrate', 'scipy.interpolate',
                 'scipy.interpolate.InterpolatedUnivariateSpline',
                 'xlrd']
