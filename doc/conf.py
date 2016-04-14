@@ -44,7 +44,10 @@ class Mock(object):
 
 
 MOCK_MODULES = ['numpy', 'numpy.core', 'numpy.core.multiarray',
-                'numpy.distutils.core', 'scipy', 'xlrd', ]
+                'numpy.distutils.core',
+                'scipy', 'scipy.integrate', 'scipy.interpolate',
+                'scipy.interpolate.InterpolatedUnivariateSpline',
+                'xlrd']
 
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = Mock()
