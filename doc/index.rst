@@ -29,8 +29,8 @@ SEVIRI `day solar`_ or the `day microphysical`_ RGB composites according to the
 .. _`EUMETSAT`: http://www.eumetsat.int/
 .. _`day solar`: _static/msg_daysolar_rgb_20131129_1100_overlay_small.png
 .. _`day microphysical`: _static/msg_day_microphysics_summer_rgb_20131129_1100_overlay_small.png
-.. _github: http://github.com/adybbroe/pyspectral
-.. _mpop: http://www.github.com/mraspaud/mpop
+.. _github: http://github.com/pytroll/pyspectral
+.. _mpop: http://www.github.com/pytroll/mpop
 .. _MSG Interpretation Guide: http://oiswww.eumetsat.org/WEBOPS/msg_interpretation/index.php 
 
 

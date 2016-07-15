@@ -30,6 +30,7 @@ Download data and install
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 So, first download the spectral responses and unpack the data if needed, and
 provide the path to the data in the configuration file *pyspectral.cfg*.
+A template *pyspectral.cfg_template* is located in *pyspectral/etc*.
 
 Here is an example using the *pyspectral* internal hdf5 format::
 
