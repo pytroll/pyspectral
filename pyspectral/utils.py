@@ -122,3 +122,40 @@ def sort_data(x_vals, y_vals):
     y_vals = y_vals[mask]
 
     return x_vals, y_vals
+
+
+def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06):
+    """Retrieve original RSR data and convert to internal hdf5 format.  
+
+    *scale* is the number which has to be multiplied to the wavelength data in
+    order to get it in the SI unit meter
+
+    """
+    import h5py
+    import os.path
+
+    instr = ClassIn(bandnames[0], platform_name)
+    filename = os.path.join(instr.output_dir,
+                            "rsr_%s_%s.h5" % (instr.instrument,
+                                              platform_name))
+
+    with h5py.File(filename, "w") as h5f:
+        h5f.attrs['description'] = ('Relative Spectral Responses for ' +
+                                    instr.instrument.upper())
+        h5f.attrs['platform_name'] = platform_name
+        h5f.attrs['band_names'] = bandnames
+
+        for chname in bandnames:
+            aatsr = ClassIn(chname, platform_name)
+            grp = h5f.create_group(chname)
+            wvl = aatsr.rsr['wavelength'][~np.isnan(aatsr.rsr['wavelength'])]
+            rsp = aatsr.rsr['response'][~np.isnan(aatsr.rsr['wavelength'])]
+            grp.attrs['central_wavelength'] = get_central_wave(wvl, rsp)
+            arr = aatsr.rsr['wavelength']
+            dset = grp.create_dataset('wavelength', arr.shape, dtype='f')
+            dset.attrs['unit'] = 'm'
+            dset.attrs['scale'] = scale
+            dset[...] = arr
+            arr = aatsr.rsr['response']
+            dset = grp.create_dataset('response', arr.shape, dtype='f')
+            dset[...] = arr
