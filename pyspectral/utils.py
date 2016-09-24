@@ -44,6 +44,14 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'NOAA-17': 'avhrr/3',
                'NOAA-16': 'avhrr/3',
                'NOAA-15': 'avhrr/3',
+               'NOAA-14': 'avhrr/2',
+               'NOAA-12': 'avhrr/2',
+               'NOAA-11': 'avhrr/2',
+               'NOAA-9': 'avhrr/2',
+               'NOAA-7': 'avhrr/2',
+               'NOAA-10': 'avhrr/1',
+               'NOAA-8': 'avhrr/1',
+               'NOAA-6': 'avhrr/1',
                'Metop-A': 'avhrr/3',
                'Metop-B': 'avhrr/3',
                'Metop-C': 'avhrr/3'
@@ -135,8 +143,9 @@ def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06):
     import os.path
 
     instr = ClassIn(bandnames[0], platform_name)
+    instr_name = instr.instrument.replace('/', '')
     filename = os.path.join(instr.output_dir,
-                            "rsr_%s_%s.h5" % (instr.instrument,
+                            "rsr_%s_%s.h5" % (instr_name,
                                               platform_name))
 
     with h5py.File(filename, "w") as h5f:

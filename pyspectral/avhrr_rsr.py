@@ -25,84 +25,47 @@
 Data from NOAA STAR.
 """
 
-import ConfigParser
-import os
+import os.path
 import numpy as np
 
-from pyspectral.utils import get_central_wave
 from pyspectral.utils import INSTRUMENTS
+from pyspectral.utils import convert2hdf5 as tohdf5
 
 import logging
 LOG = logging.getLogger(__name__)
 
-try:
-    CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
-except KeyError:
-    LOG.exception('Environment variable PSP_CONFIG_FILE not set!')
-    raise
-
-if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
-    raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
-                  "variable PSP_CONFIG_FILE is not a file or does not exist!")
-
-AVHRR_BAND_NAMES = ['ch1', 'ch2', 'ch3a', 'ch3b', 'ch4', 'ch5']
+AVHRR_BAND_NAMES = {'avhrr/3': ['ch1', 'ch2', 'ch3a', 'ch3b', 'ch4', 'ch5'],
+                    'avhrr/2': ['ch1', 'ch2', 'ch3', 'ch4', 'ch5']}
 
 
-class AvhrrRSR(object):
+from pyspectral.raw_reader import InstrumentRSR
+
+
+class AvhrrRSR(InstrumentRSR):
 
     """Container for the NOAA/Metop AVHRR RSR data"""
 
-    def __init__(self, bandname, satname):
-        self.satname = satname
-        self.bandname = bandname
-        self.instrument = INSTRUMENTS.get(satname, 'avhrr')
-        self.filenames = {}
-        self.requested_band_filename = None
-        for band in AVHRR_BAND_NAMES:
-            self.filenames[band] = None
-        self.rsr = None
+    def __init__(self, bandname, platform_name):
 
-        conf = ConfigParser.ConfigParser()
-        try:
-            conf.read(CONFIG_FILE)
-        except ConfigParser.NoSectionError:
-            LOG.exception('Failed reading configuration file: %s',
-                          str(CONFIG_FILE))
-            raise
+        super(AvhrrRSR, self).__init__(
+            bandname, platform_name,
+            AVHRR_BAND_NAMES[INSTRUMENTS[platform_name]])
 
-        options = {}
-        for option, value in conf.items(self.satname + '-' +
-                                        self.instrument,
-                                        raw=True):
-            options[option] = value
+        self.instrument = INSTRUMENTS.get(platform_name, 'avhrr/3')
 
-        for option, value in conf.items('general', raw=True):
-            options[option] = value
+        self._get_options_from_config()
+        self._get_bandfilenames()
 
-        self.output_dir = options.get('rsr_dir', './')
-
-        self._get_bandfilenames(**options)
         LOG.debug("Filenames: %s", str(self.filenames))
         if os.path.exists(self.filenames[bandname]):
             self.requested_band_filename = self.filenames[bandname]
             self._load()
         else:
-            raise IOError("Couldn't find an existing file for this band: " +
-                          str(self.bandname))
+            LOG.warning("Couldn't find an existing file for this band: %s",
+                        str(self.bandname))
 
         # To be compatible with VIIRS....
         self.filename = self.requested_band_filename
-
-    def _get_bandfilenames(self, **options):
-        """Get the AVHRR rsr filenames"""
-        path = options["path"]
-        for band in AVHRR_BAND_NAMES:
-            LOG.debug("Band = %s", str(band))
-            self.filenames[band] = os.path.join(path, options[band])
-            LOG.debug(self.filenames[band])
-            if not os.path.exists(self.filenames[band]):
-                LOG.warning("Couldn't find an existing file for this band: %s",
-                            str(self.filenames[band]))
 
     def _load(self, scale=1.0):
         """Load the AVHRR RSR data for the band requested"""
@@ -118,40 +81,11 @@ class AvhrrRSR(object):
         self.rsr = {'wavelength': wavelength, 'response': response}
 
 
-def convert2hdf5(platform_name):
-    """Retrieve original RSR data and convert to internal hdf5 format"""
-    import h5py
-
-    avhrr = AvhrrRSR('ch1', platform_name)
-    filename = os.path.join(avhrr.output_dir,
-                            "rsr_%s_%s.h5" % (avhrr.instrument.replace('/', ''),
-                                              platform_name))
-
-    with h5py.File(filename, "w") as h5f:
-        h5f.attrs['description'] = 'Relative Spectral Responses for AVHRR'
-        h5f.attrs['platform_name'] = platform_name
-        h5f.attrs['band_names'] = AVHRR_BAND_NAMES
-
-        for chname in AVHRR_BAND_NAMES:
-            avhrr = AvhrrRSR(chname, platform_name)
-            grp = h5f.create_group(chname)
-            wvl = avhrr.rsr['wavelength'][~np.isnan(avhrr.rsr['wavelength'])]
-            rsp = avhrr.rsr['response'][~np.isnan(avhrr.rsr['wavelength'])]
-            grp.attrs['central_wavelength'] = get_central_wave(wvl, rsp)
-            arr = avhrr.rsr['wavelength']
-            dset = grp.create_dataset('wavelength', arr.shape, dtype='f')
-            dset.attrs['unit'] = 'm'
-            dset.attrs['scale'] = 1e-06
-            dset[...] = arr
-            arr = avhrr.rsr['response']
-            dset = grp.create_dataset('response', arr.shape, dtype='f')
-            dset[...] = arr
-
-
 def main():
     """Main"""
-    for platform_name in ["NOAA-18", "NOAA-19"]:
-        convert2hdf5(platform_name)
+    for platform_name in ["NOAA-17", "NOAA-16", "NOAA-14", "NOAA-12"]:
+        tohdf5(AvhrrRSR, platform_name, AVHRR_BAND_NAMES[
+               INSTRUMENTS[platform_name]])
 
 if __name__ == "__main__":
     main()
