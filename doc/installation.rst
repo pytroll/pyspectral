@@ -16,10 +16,11 @@ All these instrument relative spectral response data are stored in different
 formats with varying levels of detailed information available. So, in order to
 make life easier for the pyspectral user we have defined one common internal
 hdf5 format. That way it is also easy to add support for new
-instruments. Currently the relative spectral reponses for S-NPP VIIRS, NOAA-18
-and 19 AVHRR, Terra/Aqua MODIS and Meteosat 8-11 SEVIRI are available. The data
-can be retrieved from the `pyspectral rsr`_ repository. (The md5sum of this
-gzipped tar file is 3009340ec043bc718a23a68efe91cc05).
+instruments. Currently the relative spectral reponses for Suomi-NPP VIIRS, most
+of the NOAA and Metop AVHRRs, Terra/Aqua MODIS and Meteosat 8-11 SEVIRI are
+available. The data can be retrieved from the `pyspectral rsr`_
+repository. (The md5sum of this gzipped tar file is
+a45b35037aabe8022391071fa547b105).
 
 It is still possible to download the original spectral responses from the
 various satellite operators instead and generate the internal hdf5 formatet
