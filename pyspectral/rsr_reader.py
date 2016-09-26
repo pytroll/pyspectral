@@ -137,6 +137,15 @@ class RelativeSpectralResponse(object):
                     # The wavelength is given in micro meters!
                     self.rsr[bandname][dname]['wavelength'] = wvl * 1e6
 
+                    try:
+                        central_wvl = h5f[bandname][
+                            dname].attrs['central_wavelength']
+                    except KeyError:
+                        central_wvl = h5f[bandname].attrs['central_wavelength']
+
+                    self.rsr[bandname][dname][
+                        'central_wavelength'] = central_wvl
+
     def integral(self, bandname):
         """Calculate the integral of the spectral response function for each
         detector.
