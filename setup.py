@@ -34,7 +34,7 @@ import imp
 version = imp.load_source('pyspectral.version', 'pyspectral/version.py')
 
 setup(name='pyspectral',
-      version='0.2.4',
+      version='0.2.5',
       description='Getting satellite sensor rsr functions and the solar spectrum',
       author='Adam Dybbroe',
       author_email='adam.dybbroe@smhi.se',
