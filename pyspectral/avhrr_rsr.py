@@ -35,7 +35,8 @@ import logging
 LOG = logging.getLogger(__name__)
 
 AVHRR_BAND_NAMES = {'avhrr/3': ['ch1', 'ch2', 'ch3a', 'ch3b', 'ch4', 'ch5'],
-                    'avhrr/2': ['ch1', 'ch2', 'ch3', 'ch4', 'ch5']}
+                    'avhrr/2': ['ch1', 'ch2', 'ch3', 'ch4', 'ch5'],
+                    'avhrr/1': ['ch1', 'ch2', 'ch3', 'ch4']}
 
 
 from pyspectral.raw_reader import InstrumentRSR
@@ -59,7 +60,11 @@ class AvhrrRSR(InstrumentRSR):
         LOG.debug("Filenames: %s", str(self.filenames))
         if os.path.exists(self.filenames[bandname]):
             self.requested_band_filename = self.filenames[bandname]
-            self._load()
+            if self.instrument == 'avhrr/1':
+                self._load(scale=0.001)
+            else:
+                self._load()
+
         else:
             LOG.warning("Couldn't find an existing file for this band: %s",
                         str(self.bandname))
@@ -83,7 +88,9 @@ class AvhrrRSR(InstrumentRSR):
 
 def main():
     """Main"""
-    for platform_name in ["NOAA-17", "NOAA-16", "NOAA-14", "NOAA-12"]:
+    # for platform_name in ["NOAA-17", "NOAA-16", "NOAA-14", "NOAA-12"]:
+    # for platform_name in ["NOAA-11", "NOAA-9", "NOAA-7"]:
+    for platform_name in ["NOAA-10", "NOAA-8", "NOAA-6", "TIROS-N"]:
         tohdf5(AvhrrRSR, platform_name, AVHRR_BAND_NAMES[
                INSTRUMENTS[platform_name]])
 

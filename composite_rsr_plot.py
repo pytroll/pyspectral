@@ -39,8 +39,11 @@ if __name__ == "__main__":
     SAT_INSTR = [('NOAA-19', 'avhrr/3'), ('Metop-B', 'avhrr/3'),
                  ('NOAA-18', 'avhrr/3'), ('Metop-A', 'avhrr/3'),
                  ('NOAA-17', 'avhrr/3'), ('NOAA-16', 'avhrr/3'),
-                 ('NOAA-14', 'avhrr/2'),
-                 ('NOAA-12', 'avhrr/2'),
+                 ('NOAA-14', 'avhrr/2'), ('NOAA-12', 'avhrr/2'),
+                 ('NOAA-11', 'avhrr/2'), ('NOAA-9', 'avhrr/2'),
+                 ('NOAA-7', 'avhrr/2'), ('NOAA-10', 'avhrr/1'),
+                 ('NOAA-8', 'avhrr/1'), ('NOAA-6', 'avhrr/1'),
+                 ('TIROS-N', 'avhrr/1'),
                  ]
 
     import argparse

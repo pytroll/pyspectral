@@ -52,6 +52,7 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'NOAA-10': 'avhrr/1',
                'NOAA-8': 'avhrr/1',
                'NOAA-6': 'avhrr/1',
+               'TIROS-N': 'avhrr/1',
                'Metop-A': 'avhrr/3',
                'Metop-B': 'avhrr/3',
                'Metop-C': 'avhrr/3'
