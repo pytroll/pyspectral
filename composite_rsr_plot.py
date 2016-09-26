@@ -5,7 +5,7 @@
 
 # Author(s):
 
-#   Adam.Dybbroe <a000680@c20671.ad.smhi.se>
+#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,13 +32,14 @@ import numpy as np
 
 if __name__ == "__main__":
 
-    SAT_INSTR = [('NOAA-18', 'avhrr/3'), ('Metop-B', 'avhrr/3'),
-                 ('Suomi-NPP', 'viirs'),
-                 ('Envisat', 'aatsr'), ('Sentinel-3A', 'slstr')]
+    # SAT_INSTR = [('NOAA-18', 'avhrr/3'), ('Metop-B', 'avhrr/3'),
+    #              ('Suomi-NPP', 'viirs'),
+    #              ('Envisat', 'aatsr'), ('Sentinel-3A', 'slstr')]
 
     SAT_INSTR = [('NOAA-19', 'avhrr/3'), ('Metop-B', 'avhrr/3'),
                  ('NOAA-18', 'avhrr/3'), ('Metop-A', 'avhrr/3'),
                  ('NOAA-17', 'avhrr/3'), ('NOAA-16', 'avhrr/3'),
+                 ('NOAA-15', 'avhrr/3'),
                  ('NOAA-14', 'avhrr/2'), ('NOAA-12', 'avhrr/2'),
                  ('NOAA-11', 'avhrr/2'), ('NOAA-9', 'avhrr/2'),
                  ('NOAA-7', 'avhrr/2'), ('NOAA-10', 'avhrr/1'),
@@ -95,6 +96,6 @@ if __name__ == "__main__":
         wmax = wvlmax
 
     plt.xlim((wmin, wmax))
-
+    plt.title('Relative Spectral Responses')
     plt.legend(loc='lower right')
     plt.savefig('rsr_band_%.4d.png' % int(100 * req_wvl))
