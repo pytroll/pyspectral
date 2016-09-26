@@ -58,7 +58,7 @@ class AvhrrRSR(InstrumentRSR):
         self._get_bandfilenames()
 
         LOG.debug("Filenames: %s", str(self.filenames))
-        if os.path.exists(self.filenames[bandname]):
+        if self.filenames[bandname] and os.path.exists(self.filenames[bandname]):
             self.requested_band_filename = self.filenames[bandname]
             if self.instrument == 'avhrr/1':
                 self._load(scale=0.001)
@@ -88,9 +88,10 @@ class AvhrrRSR(InstrumentRSR):
 
 def main():
     """Main"""
-    # for platform_name in ["NOAA-17", "NOAA-16", "NOAA-14", "NOAA-12"]:
-    # for platform_name in ["NOAA-11", "NOAA-9", "NOAA-7"]:
-    for platform_name in ["NOAA-10", "NOAA-8", "NOAA-6", "TIROS-N"]:
+    for platform_name in ["NOAA-17", "NOAA-16", "NOAA-14", "NOAA-12",
+                          "NOAA-11", "NOAA-9", "NOAA-7",
+                          "NOAA-10", "NOAA-8", "NOAA-6", "TIROS-N",
+                          "NOAA-15"]:
         tohdf5(AvhrrRSR, platform_name, AVHRR_BAND_NAMES[
                INSTRUMENTS[platform_name]])
 
