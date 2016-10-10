@@ -51,8 +51,20 @@ ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
                'midlatitude summer': 6, 'midlatitude winter': 7,
                'tropical': 8, 'us-standard': 9}
 
+HTTP_RAYLEIGH_ONLY_LUTS = "https://dl.dropboxusercontent.com/u/37482654/rayleigh_only/rayleigh_luts_rayleigh_only.tgz"
+HTTP_RURAL_AEOROSOLS_LUTS = ""
+
 from pyspectral.utils import (INSTRUMENTS,
                               get_rayleigh_reflectance)
+
+from os.path import expanduser
+HOME = expanduser("~")
+LOCAL_DEST = os.path.join(HOME, ".local/share/pyspectral")
+try:
+    os.makedirs(LOCAL_DEST)
+except OSError:
+    if not os.path.isdir(LOCAL_DEST):
+        raise
 
 
 class Rayleigh(object):
@@ -98,17 +110,24 @@ class Rayleigh(object):
 
         self.sensor = sensor.replace('/', '')
 
-        rayleigh_dir = options['rayleigh_dir']
+        rayleigh_dir = LOCAL_DEST
+        #rayleigh_dir = options['rayleigh_dir']
         ext = atm_type.replace(' ', '_')
         lutname = "rayleigh_lut_const_azidiff_%s.h5" % ext
         self.coeff_filename = os.path.join(rayleigh_dir, lutname)
-        LOG.debug('Filename: %s', str(self.coeff_filename))
+
+        if not os.path.exists(self.coeff_filename):
+            LOG.warning("No lut file %s on disk", self.coeff_filename)
+            LOG.info("Will download from internet...")
+            download_luts()
 
         if (not os.path.exists(self.coeff_filename) or
                 not os.path.isfile(self.coeff_filename)):
             raise IOError('pyspectral file for Rayleigh scattering correction ' +
                           'does not exist! Filename = ' +
                           str(self.coeff_filename))
+
+        LOG.debug('LUT filename: %s', str(self.coeff_filename))
 
     def get_effective_wavelength(self, bandname):
         """Get the effective wavelength with Rayleigh scattering in mind"""
@@ -129,7 +148,8 @@ class Rayleigh(object):
 
         return tab, wvl, azidiff
 
-    def get_reflectance(self, sun_zenith, sat_zenith, azidiff, bandname):
+    def get_reflectance(self, sun_zenith, sat_zenith, azidiff, bandname,
+                        blueband=None):
         """Get the refelctance from the three sun-sat angles"""
 
         # Get wavelength in nm for band:
@@ -151,4 +171,28 @@ class Rayleigh(object):
         # Bilinear interpolation
         res = ((res2 - res1) * wvl + res1 * wvl2 - res2 * wvl1) / (wvl2 - wvl1)
 
-        return res
+        if blueband == None:
+            return res * 100
+
+        return np.where(np.less(blueband, 20.), res,
+                        (1 - (blueband - 20) / 80) * res) * 100
+
+
+def download_luts():
+    """Download the luts from internet"""
+
+    #
+    import tarfile
+    import requests
+    from tqdm import tqdm
+
+    response = requests.get(HTTP_RAYLEIGH_ONLY_LUTS)
+    filename = os.path.join(LOCAL_DEST, "rayleigh_luts_rayleigh_only.tgz")
+    with open(filename, "wb") as handle:
+        for data in tqdm(response.iter_content()):
+            handle.write(data)
+
+    tar = tarfile.open(filename)
+    tar.extractall(LOCAL_DEST)
+    tar.close()
+    os.remove(filename)
