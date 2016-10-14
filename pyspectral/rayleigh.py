@@ -39,7 +39,8 @@ BUILTIN_CONFIG_FILE = os.path.join(PACKAGE_CONFIG_PATH, 'pyspectral.cfg')
 
 CONFIG_FILE = os.environ.get('PSP_CONFIG_FILE')
 
-if CONFIG_FILE and not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
+if CONFIG_FILE is not None and (not os.path.exists(CONFIG_FILE) or
+                                not os.path.isfile(CONFIG_FILE)):
     raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
 
@@ -93,7 +94,7 @@ class Rayleigh(object):
 
         conf = ConfigParser.ConfigParser()
         conf.read(BUILTIN_CONFIG_FILE)
-        if CONFIG_FILE:
+        if CONFIG_FILE is not None:
             try:
                 conf.read(CONFIG_FILE)
             except ConfigParser.NoSectionError:
