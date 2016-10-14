@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014, 2015 Adam.Dybbroe
+# Copyright (c) 2013, 2014, 2015, 2016 Adam.Dybbroe
 
 # Author(s):
 
@@ -23,23 +23,13 @@
 
 """Interface to VIIRS relative spectral responses"""
 
-import ConfigParser
 import os
 import numpy as np
 from pyspectral.utils import get_central_wave
 
 import logging
 LOG = logging.getLogger(__name__)
-
-try:
-    CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
-except KeyError:
-    LOG.exception('Environment variable PSP_CONFIG_FILE not set!')
-    raise
-
-if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
-    raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
-                  "variable PSP_CONFIG_FILE is not a file or does not exist!")
+from pyspectral import get_config
 
 VIIRS_BAND_NAMES = ['M1', 'M2', 'M3', 'M4', 'M5',
                     'M6', 'M7', 'M8', 'M9', 'M10',
@@ -65,13 +55,7 @@ class ViirsRSR(object):
         self.filename = None
         self.rsr = None
 
-        conf = ConfigParser.ConfigParser()
-        try:
-            conf.read(CONFIG_FILE)
-        except ConfigParser.NoSectionError:
-            LOG.exception('Failed reading configuration file: %s',
-                          str(CONFIG_FILE))
-            raise
+        conf = get_config()
 
         options = {}
         for option, value in conf.items('viirs', raw=True):

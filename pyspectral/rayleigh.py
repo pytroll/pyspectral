@@ -25,30 +25,20 @@
 
 """
 
-import ConfigParser
 import os
 
 import logging
 LOG = logging.getLogger(__name__)
 
-BASE_PATH = os.path.sep.join(os.path.dirname(
-    os.path.realpath(__file__)).split(os.path.sep)[:-1])
-# FIXME: Use package_resources?
-PACKAGE_CONFIG_PATH = os.path.join(BASE_PATH, 'etc')
-BUILTIN_CONFIG_FILE = os.path.join(PACKAGE_CONFIG_PATH, 'pyspectral.cfg')
-
-CONFIG_FILE = os.environ.get('PSP_CONFIG_FILE')
-
-if CONFIG_FILE is not None and (not os.path.exists(CONFIG_FILE) or
-                                not os.path.isfile(CONFIG_FILE)):
-    raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
-                  "variable PSP_CONFIG_FILE is not a file or does not exist!")
 
 import numpy as np
 import h5py
 
 from pyspectral.utils import get_central_wave
 from pyspectral.rsr_reader import RelativeSpectralResponse
+from pyspectral import get_config
+
+from pyspectral import (BUILTIN_CONFIG_FILE, CONFIG_FILE)
 
 ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
                'midlatitude summer': 6, 'midlatitude winter': 7,
@@ -92,14 +82,7 @@ class Rayleigh(object):
 
         LOG.info("Atmosphere chosen: %s", atm_type)
 
-        conf = ConfigParser.ConfigParser()
-        conf.read(BUILTIN_CONFIG_FILE)
-        if CONFIG_FILE is not None:
-            try:
-                conf.read(CONFIG_FILE)
-            except ConfigParser.NoSectionError:
-                LOG.info('Failed reading configuration file: %s',
-                         str(CONFIG_FILE))
+        conf = get_config()
 
         options = {}
         for option, value in conf.items('general', raw=True):

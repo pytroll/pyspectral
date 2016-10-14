@@ -25,7 +25,7 @@
 Data from NOAA STAR.
 """
 
-import ConfigParser
+
 import os
 import numpy as np
 
@@ -34,16 +34,8 @@ from pyspectral.utils import INSTRUMENTS
 
 import logging
 LOG = logging.getLogger(__name__)
+from pyspectral import get_config
 
-try:
-    CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
-except KeyError:
-    LOG.exception('Environment variable PSP_CONFIG_FILE not set!')
-    raise
-
-if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
-    raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
-                  "variable PSP_CONFIG_FILE is not a file or does not exist!")
 
 AVHRR_BAND_NAMES = ['ch1', 'ch2', 'ch3a', 'ch3b', 'ch4', 'ch5']
 
@@ -62,14 +54,7 @@ class AvhrrRSR(object):
             self.filenames[band] = None
         self.rsr = None
 
-        conf = ConfigParser.ConfigParser()
-        try:
-            conf.read(CONFIG_FILE)
-        except ConfigParser.NoSectionError:
-            LOG.exception('Failed reading configuration file: %s',
-                          str(CONFIG_FILE))
-            raise
-
+        conf = get_config()
         options = {}
         for option, value in conf.items(self.satname + '-' +
                                         self.instrument,
