@@ -26,6 +26,7 @@
 import os
 import numpy as np
 from glob import glob
+from os.path import expanduser
 
 import logging
 LOG = logging.getLogger(__name__)
@@ -71,8 +72,8 @@ class RelativeSpectralResponse(object):
         instrument = instrument.replace('/', '')
 
         rsr_dir = options['rsr_dir']
-        self.filename = os.path.join(rsr_dir, 'rsr_%s_%s.h5' %
-                                     (instrument, platform_name))
+        self.filename = expanduser(os.path.join(rsr_dir, 'rsr_%s_%s.h5' %
+                                                (instrument, platform_name)))
 
         LOG.debug('Filename: %s', str(self.filename))
 
