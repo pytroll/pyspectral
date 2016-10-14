@@ -163,6 +163,7 @@ class Rayleigh(object):
             21, shape[0], shape[1])
         c2_ = coeff[idx + 1, np.round(azidiff).astype('i').ravel(), :].transpose().reshape(
             21, shape[0], shape[1])
+        sun_zenith = np.clip(sun_zenith, 0, 88.)
         res1 = get_rayleigh_reflectance(c1_, sun_zenith, sat_zenith)
         res2 = get_rayleigh_reflectance(c2_, sun_zenith, sat_zenith)
 
