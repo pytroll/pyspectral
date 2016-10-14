@@ -31,13 +31,15 @@ import os
 import logging
 LOG = logging.getLogger(__name__)
 
-try:
-    CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
-except KeyError:
-    LOG.exception('Environment variable PSP_CONFIG_FILE not set!')
-    raise
+BASE_PATH = os.path.sep.join(os.path.dirname(
+    os.path.realpath(__file__)).split(os.path.sep)[:-1])
+# FIXME: Use package_resources?
+PACKAGE_CONFIG_PATH = os.path.join(BASE_PATH, 'etc')
+BUILTIN_CONFIG_FILE = os.path.join(PACKAGE_CONFIG_PATH, 'pyspectral.cfg')
 
-if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
+CONFIG_FILE = os.environ.get('PSP_CONFIG_FILE')
+
+if CONFIG_FILE and not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
     raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
 
@@ -52,7 +54,7 @@ ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
                'tropical': 8, 'us-standard': 9}
 
 HTTP_RAYLEIGH_ONLY_LUTS = "https://dl.dropboxusercontent.com/u/37482654/rayleigh_only/rayleigh_luts_rayleigh_only.tgz"
-HTTP_RURAL_AEOROSOLS_LUTS = ""
+HTTP_RURAL_AEOROSOLS_LUTS = "https://dl.dropboxusercontent.com/u/37482654/rural_aerosol/rayleigh_luts_rural_aerosol.tgz"
 
 from pyspectral.utils import (INSTRUMENTS,
                               get_rayleigh_reflectance)
@@ -90,12 +92,13 @@ class Rayleigh(object):
         LOG.info("Atmosphere chosen: %s", atm_type)
 
         conf = ConfigParser.ConfigParser()
-        try:
-            conf.read(CONFIG_FILE)
-        except ConfigParser.NoSectionError:
-            LOG.exception('Failed reading configuration file: %s',
-                          str(CONFIG_FILE))
-            raise
+        conf.read(BUILTIN_CONFIG_FILE)
+        if CONFIG_FILE:
+            try:
+                conf.read(CONFIG_FILE)
+            except ConfigParser.NoSectionError:
+                LOG.info('Failed reading configuration file: %s',
+                         str(CONFIG_FILE))
 
         options = {}
         for option, value in conf.items('general', raw=True):
@@ -109,6 +112,16 @@ class Rayleigh(object):
                         "sensor set to %s", sensor)
 
         self.sensor = sensor.replace('/', '')
+
+        # Conversion from standard band names to pyspectral band naming.
+        # Preferably take from config! FIXME!
+        self.sensor_bandnames = {'B01': 'ch1',
+                                 'B02': 'ch2',
+                                 'B03': 'ch3',
+                                 'M03': 'M3',
+                                 'M04': 'M4',
+                                 'M05': 'M5',
+                                 }
 
         rayleigh_dir = LOCAL_DEST
         #rayleigh_dir = options['rayleigh_dir']
@@ -132,6 +145,7 @@ class Rayleigh(object):
     def get_effective_wavelength(self, bandname):
         """Get the effective wavelength with Rayleigh scattering in mind"""
 
+        bandname = self.sensor_bandnames.get(bandname, bandname)
         rsr = RelativeSpectralResponse(self.platform_name, self.sensor)
         wvl, resp = rsr.rsr[bandname][
             'det-1']['wavelength'], rsr.rsr[bandname]['det-1']['response']
@@ -187,6 +201,7 @@ def download_luts():
     from tqdm import tqdm
 
     response = requests.get(HTTP_RAYLEIGH_ONLY_LUTS)
+    response = requests.get(HTTP_RURAL_AEROSOLS_LUTS)
     filename = os.path.join(LOCAL_DEST, "rayleigh_luts_rayleigh_only.tgz")
     with open(filename, "wb") as handle:
         for data in tqdm(response.iter_content()):
