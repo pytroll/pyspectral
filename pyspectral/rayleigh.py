@@ -168,12 +168,13 @@ class Rayleigh(object):
 
         # Bilinear interpolation
         res = ((res2 - res1) * wvl + res1 * wvl2 - res2 * wvl1) / (wvl2 - wvl1)
+        res *= 100
 
-        if blueband == None:
-            return res * 100
+        if blueband is not None:
+            res = np.where(np.less(blueband, 20.), res,
+                           (1 - (blueband - 20) / 80) * res)
 
-        return np.where(np.less(blueband, 20.), res,
-                        (1 - (blueband - 20) / 80) * res) * 100
+        return np.clip(res, 0, 100)
 
 
 def download_luts():
