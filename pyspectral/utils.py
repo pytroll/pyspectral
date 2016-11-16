@@ -24,6 +24,7 @@
 """Utility functions"""
 
 import numpy as np
+import os
 
 BANDNAMES = {'VIS006': 'VIS0.6',
              'VIS008': 'VIS0.8',
@@ -57,6 +58,18 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'Metop-B': 'avhrr/3',
                'Metop-C': 'avhrr/3'
                }
+
+
+HTTP_PYSPECTRAL_RSR = "https://dl.dropboxusercontent.com/u/37482654/pyspectral_rsr_data.tgz"
+
+from os.path import expanduser
+HOME = expanduser("~")
+LOCAL_DEST = os.path.join(HOME, ".local/share/pyspectral")
+try:
+    os.makedirs(LOCAL_DEST)
+except OSError:
+    if not os.path.isdir(LOCAL_DEST):
+        raise
 
 
 def convert2wavenumber(rsr):
@@ -209,3 +222,26 @@ def get_rayleigh_reflectance(parms, sunz, satz):
            parms[20] * sunsec ** 4 * sec)
 
     return res
+
+
+def download_rsr():
+    """Download the pre-compiled hdf5 formatet relative spectral response functions
+    from the internet
+
+    """
+
+    #
+    import tarfile
+    import requests
+    from tqdm import tqdm
+
+    response = requests.get(HTTP_PYSPECTRAL_RSR)
+    filename = os.path.join(LOCAL_DEST, "pyspectral_rsr_data.tgz")
+    with open(filename, "wb") as handle:
+        for data in tqdm(response.iter_content()):
+            handle.write(data)
+
+    tar = tarfile.open(filename)
+    tar.extractall(LOCAL_DEST)
+    tar.close()
+    os.remove(filename)

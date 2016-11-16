@@ -36,7 +36,7 @@ from pyspectral import get_config
 WAVL = 'wavelength'
 WAVN = 'wavenumber'
 
-from pyspectral.utils import INSTRUMENTS
+from pyspectral.utils import (INSTRUMENTS, download_rsr)
 
 
 class RelativeSpectralResponse(object):
@@ -76,6 +76,12 @@ class RelativeSpectralResponse(object):
                                                 (instrument, platform_name)))
 
         LOG.debug('Filename: %s', str(self.filename))
+
+        if not os.path.exists(self.filename) or not os.path.isfile(self.filename):
+            # Try download from the internet!
+            LOG.warning("No rsr file %s on disk", self.filename)
+            LOG.info("Will download from internet...")
+            download_rsr()
 
         if not os.path.exists(self.filename) or not os.path.isfile(self.filename):
             raise IOError('pyspectral RSR file does not exist! Filename = ' +
