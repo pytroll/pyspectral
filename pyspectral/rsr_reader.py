@@ -23,23 +23,15 @@
 
 """Reading the spectral responses in the internal pyspectral hdf5 format"""
 
-import ConfigParser
 import os
 import numpy as np
 from glob import glob
+from os.path import expanduser
 
 import logging
 LOG = logging.getLogger(__name__)
 
-try:
-    CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
-except KeyError:
-    LOG.exception('Environment variable PSP_CONFIG_FILE not set!')
-    raise
-
-if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
-    raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
-                  "variable PSP_CONFIG_FILE is not a file or does not exist!")
+from pyspectral import get_config
 
 WAVL = 'wavelength'
 WAVN = 'wavenumber'
@@ -64,13 +56,7 @@ class RelativeSpectralResponse(object):
         self.si_scale = 1e-6  # How to scale the wavelengths to become SI unit
         self._wavespace = WAVL
 
-        conf = ConfigParser.ConfigParser()
-        try:
-            conf.read(CONFIG_FILE)
-        except ConfigParser.NoSectionError:
-            LOG.exception('Failed reading configuration file: %s',
-                          str(CONFIG_FILE))
-            raise
+        conf = get_config()
 
         options = {}
         for option, value in conf.items('general', raw=True):
@@ -86,8 +72,8 @@ class RelativeSpectralResponse(object):
         instrument = instrument.replace('/', '')
 
         rsr_dir = options['rsr_dir']
-        self.filename = os.path.join(rsr_dir, 'rsr_%s_%s.h5' %
-                                     (instrument, platform_name))
+        self.filename = expanduser(os.path.join(rsr_dir, 'rsr_%s_%s.h5' %
+                                                (instrument, platform_name)))
 
         LOG.debug('Filename: %s', str(self.filename))
 

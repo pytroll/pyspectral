@@ -25,14 +25,14 @@
 Data from NOAA STAR.
 """
 
-import os.path
+import os
 import numpy as np
-
 from pyspectral.utils import INSTRUMENTS
 from pyspectral.utils import convert2hdf5 as tohdf5
 
 import logging
 LOG = logging.getLogger(__name__)
+from pyspectral import get_config
 
 AVHRR_BAND_NAMES = {'avhrr/3': ['ch1', 'ch2', 'ch3a', 'ch3b', 'ch4', 'ch5'],
                     'avhrr/2': ['ch1', 'ch2', 'ch3', 'ch4', 'ch5'],

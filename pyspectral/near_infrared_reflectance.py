@@ -26,24 +26,17 @@ thermal range (usually the 3.7-3.9 micron band) using a thermal atmospheric
 window channel (usually around 11-12 microns).
 """
 
-import ConfigParser
 import os
 import numpy as np
 from pyspectral.solar import (SolarIrradianceSpectrum,
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
 from pyspectral.utils import BANDNAMES
 from pyspectral.radiance_tb_conversion import RadTbConverter
+from pyspectral import get_config
 
 import logging
 LOG = logging.getLogger(__name__)
 
-CONFIG_FILE = os.environ.get('PSP_CONFIG_FILE', None)
-if CONFIG_FILE and (not os.path.exists(CONFIG_FILE) or
-                    not os.path.isfile(CONFIG_FILE)):
-    raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
-                  "variable PSP_CONFIG_FILE is not a file or does not exist!")
-elif not CONFIG_FILE:
-    LOG.warning('Environment variable PSP_CONFIG_FILE not set!')
 
 WAVE_LENGTH = 'wavelength'
 WAVE_NUMBER = 'wavenumber'
@@ -75,17 +68,10 @@ class Calculator(RadTbConverter):
         self.bandname = BANDNAMES.get(bandname, bandname)
 
         options = {}
-        if CONFIG_FILE:
-            conf = ConfigParser.ConfigParser()
-            try:
-                conf.read(CONFIG_FILE)
-            except ConfigParser.NoSectionError:
-                LOG.warning('Failed reading configuration file: %s',
-                            str(CONFIG_FILE))
-
-            for option, value in conf.items(platform_name + '-' + instrument,
-                                            raw=True):
-                options[option] = value
+        conf = get_config()
+        for option, value in conf.items(platform_name + '-' + instrument,
+                                        raw=True):
+            options[option] = value
 
         if solar_flux is None:
             self._get_solarflux()

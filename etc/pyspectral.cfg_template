@@ -5,6 +5,7 @@
 # If you have these hdf5 files available you will not need to read the original
 # rsr data specified in the path's below, and you can leave "path" empty.
 rsr_dir = /path/to/internal/rsr_data
+rayleigh_dir = /path/to/internal/rayleigh_scattering_tables
 
 [Meteosat-9-seviri]
 path = /path/to/original/seviri/rsr/data/MSG_SEVIRI_Spectral_Response_Characterisation.XLS
