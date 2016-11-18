@@ -185,8 +185,8 @@ def get_bandname_from_wavelength(wavelength, rsr):
 
     epsilon = 0.1
 
-    channel_list = [channel for channel in rsr if abs(
-        rsr[channel]['det-1']['central_wavelength'] - wavelength) < epsilon]
+    channel_list = [channel for channel in rsr.rsr if abs(
+        rsr.rsr[channel]['det-1']['central_wavelength'] - wavelength) < epsilon]
     return BANDNAMES.get(channel_list[0], channel_list[0])
 
 
