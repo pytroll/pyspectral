@@ -25,21 +25,20 @@
 
 """
 
-import os
-
 import logging
+import os
+from os.path import expanduser
+
+import h5py
+import numpy as np
+
+from pyspectral import BUILTIN_CONFIG_FILE, CONFIG_FILE, get_config
+from pyspectral.rsr_reader import RelativeSpectralResponse
+from pyspectral.utils import (BANDNAMES, INSTRUMENTS, get_central_wave,
+                              get_rayleigh_reflectance)
+
 LOG = logging.getLogger(__name__)
 
-
-import numpy as np
-import h5py
-
-from pyspectral.utils import get_central_wave
-from pyspectral.rsr_reader import RelativeSpectralResponse
-from pyspectral import get_config
-
-from pyspectral import (BUILTIN_CONFIG_FILE, CONFIG_FILE)
-from pyspectral.utils import BANDNAMES
 
 ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
                'midlatitude summer': 6, 'midlatitude winter': 7,
@@ -48,10 +47,7 @@ ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
 HTTP_RAYLEIGH_ONLY_LUTS = "https://dl.dropboxusercontent.com/u/37482654/rayleigh_only/rayleigh_luts_rayleigh_only.tgz"
 HTTP_RURAL_AEOROSOLS_LUTS = "https://dl.dropboxusercontent.com/u/37482654/rural_aerosol/rayleigh_luts_rural_aerosol.tgz"
 
-from pyspectral.utils import (INSTRUMENTS,
-                              get_rayleigh_reflectance)
 
-from os.path import expanduser
 HOME = expanduser("~")
 LOCAL_DEST = os.path.join(HOME, ".local/share/pyspectral")
 try:
