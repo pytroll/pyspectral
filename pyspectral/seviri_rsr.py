@@ -35,6 +35,9 @@ LOG = logging.getLogger(__name__)
 
 from pyspectral import get_config
 
+import pkg_resources
+DATA_PATH = pkg_resources.resource_filename('pyspectral', 'data/')
+
 
 class Seviri(object):
 
@@ -56,6 +59,8 @@ class Seviri(object):
             options[option] = value
 
         self.seviri_path = options.get('path')
+        if not os.path.exists(self.seviri_path):
+            self.seviri_path = os.path.join(DATA_PATH, options.get('filename'))
 
         for option, value in conf.items('general', raw=True):
             options[option] = value

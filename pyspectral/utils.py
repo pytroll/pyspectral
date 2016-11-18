@@ -87,7 +87,8 @@ def convert2wavenumber(rsr):
                     # micro meters to cm
                     wnum = 1. / (1e-4 * rsr[chname][det][sat])
                     retv[chname][det]['wavenumber'] = wnum[::-1]
-                else:
+                elif sat == "response":
+                    # Flip the response array:
                     if type(rsr[chname][det][sat]) is dict:
                         retv[chname][det][sat] = {}
                         for name in rsr[chname][det][sat].keys():

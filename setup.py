@@ -52,10 +52,12 @@ setup(name='pyspectral',
 
       packages=['pyspectral'],
 
+      include_package_data=True,
       package_data={
           # If any package contains *.txt files, include them:
           '': ['*.txt', '*.det'],
           'pyspectral': ['data/*.dat',
+                         'data/*.XLS',
                          'data/modis/terra/Reference_RSR_Dataset/*.det'],
       },
 
@@ -68,7 +70,8 @@ setup(name='pyspectral',
       extras_require={'xlrd': ['xlrd'], 'matplotlib': ['matplotlib']},
       scripts=[],
       data_files=[('etc', ['etc/pyspectral.cfg']),
-                  ('share', ['pyspectral/data/e490_00a.dat'])],
+                  ('share', ['pyspectral/data/e490_00a.dat',
+                             'pyspectral/data/MSG_SEVIRI_Spectral_Response_Characterisation.XLS'])],
       test_suite='pyspectral.tests.suite',
       tests_require=['mock', 'xlrd'],
       zip_safe=False
