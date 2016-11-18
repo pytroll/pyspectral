@@ -59,13 +59,25 @@ class Calculator(RadTbConverter):
     The relfectance calculated is without units and should be between 0 and 1.
     """
 
-    def __init__(self, platform_name, instrument, bandname,
+    def __init__(self, platform_name, instrument, band,
                  solar_flux=None, **kwargs):
         """Init"""
         super(Calculator, self).__init__(platform_name, instrument,
-                                         bandname, method=1, **kwargs)
+                                         band, method=1, **kwargs)
 
-        self.bandname = BANDNAMES.get(bandname, bandname)
+        self.bandname = None
+        self.bandwavelength = None
+
+        if isinstance(band, str):
+            self.bandname = BANDNAMES.get(band, band)
+        elif isinstance(band, (int, long, float)):
+            self.bandwavelength = band
+
+        if self.bandname is None:
+            epsilon = 0.1
+            channel_list = [channel for channel in self.rsr if abs(
+                self.rsr[channel]['det-1']['central_wavelength'] - self.bandwavelength) < epsilon]
+            self.bandname = BANDNAMES.get(channel_list[0], channel_list[0])
 
         options = {}
         conf = get_config()
@@ -97,6 +109,12 @@ class Calculator(RadTbConverter):
             self.lutfile = options['tb2rad_lut_filename']
             if not self.lutfile.endswith('.npz'):
                 self.lutfile = self.lutfile + '.npz'
+
+            if not os.path.exists(os.path.dirname(self.lutfile)):
+                LOG.warning(
+                    "Directory %s does not exist! Check config file" % os.path.dirname(self.lutfile))
+                self.lutfile = os.path.join(
+                    '/tmp', os.path.basename(self.lutfile))
 
             LOG.info("lut filename: " + str(self.lutfile))
             if not os.path.exists(self.lutfile):

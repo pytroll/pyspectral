@@ -39,6 +39,7 @@ from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral import get_config
 
 from pyspectral import (BUILTIN_CONFIG_FILE, CONFIG_FILE)
+from pyspectral.utils import BANDNAMES
 
 ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
                'midlatitude summer': 6, 'midlatitude winter': 7,
@@ -129,8 +130,13 @@ class Rayleigh(object):
     def get_effective_wavelength(self, bandname):
         """Get the effective wavelength with Rayleigh scattering in mind"""
 
-        bandname = self.sensor_bandnames.get(bandname, bandname)
         rsr = RelativeSpectralResponse(self.platform_name, self.sensor)
+
+        if isinstance(bandname, str):
+            bandname = self.sensor_bandnames.get(bandname, bandname)
+        elif isinstance(bandname, (float, int, long)):
+            bandname = get_bandname_from_wavelength(bandname, rsr)
+
         wvl, resp = rsr.rsr[bandname][
             'det-1']['wavelength'], rsr.rsr[bandname]['det-1']['response']
 
@@ -148,7 +154,7 @@ class Rayleigh(object):
 
     def get_reflectance(self, sun_zenith, sat_zenith, azidiff, bandname,
                         blueband=None):
-        """Get the refelctance from the three sun-sat angles"""
+        """Get the reflectance from the thre sun-sat angles"""
 
         # Get wavelength in nm for band:
         wvl = self.get_effective_wavelength(bandname) * 1000.0
@@ -176,6 +182,16 @@ class Rayleigh(object):
                            (1 - (blueband - 20) / 80) * res)
 
         return np.clip(res, 0, 100)
+
+
+def get_bandname_from_wavelength(wavelength, rsr):
+    """Get the bandname from h5 rsr provided the approximate wavelength"""
+
+    epsilon = 0.1
+
+    channel_list = [channel for channel in rsr if abs(
+        rsr[channel]['det-1']['central_wavelength'] - wavelength) < epsilon]
+    return BANDNAMES.get(channel_list[0], channel_list[0])
 
 
 def download_luts():

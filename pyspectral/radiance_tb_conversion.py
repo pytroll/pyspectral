@@ -91,7 +91,7 @@ class RadTbConverter(object):
       2: non-linear approximation using tabulated coefficients 
     """
 
-    def __init__(self, platform_name, instrument, bandname, method=1,
+    def __init__(self, platform_name, instrument, band, method=1,
                  **options):
         """E.g.:
         platform_name = 'Meteosat-9'
@@ -100,7 +100,13 @@ class RadTbConverter(object):
         self.platform_name = platform_name
         self.instrument = instrument
         self.rsr = None
-        self.bandname = BANDNAMES.get(bandname, bandname)
+        self.bandname = None
+        self.bandwavelength = None
+
+        if isinstance(band, str):
+            self.bandname = BANDNAMES.get(band, band)
+        elif isinstance(band, (int, long, float)):
+            self.bandwavelength = band
 
         if 'detector' in options:
             self.detector = options['detector']
@@ -126,6 +132,12 @@ class RadTbConverter(object):
 
         if method == 1:
             self.get_rsr()
+
+        if self.bandname is None:
+            epsilon = 0.1
+            channel_list = [channel for channel in self.rsr if abs(
+                self.rsr[channel]['det-1']['central_wavelength'] - self.bandwavelength) < epsilon]
+            self.bandname = BANDNAMES.get(channel_list[0], channel_list[0])
 
     def get_rsr(self):
         """Get all spectral responses for the sensor"""
