@@ -150,8 +150,7 @@ class Rayleigh(object):
 
     def get_reflectance(self, sun_zenith, sat_zenith, azidiff, bandname,
                         blueband=None):
-        """Get the reflectance from the thre sun-sat angles"""
-
+        """Get the reflectance from the thre sun-sat angles."""
         # Get wavelength in nm for band:
         wvl = self.get_effective_wavelength(bandname) * 1000.0
         coeff, wvl_coord, azid_coord = self.get_poly_coeff()
@@ -181,8 +180,7 @@ class Rayleigh(object):
 
 
 def get_bandname_from_wavelength(wavelength, rsr):
-    """Get the bandname from h5 rsr provided the approximate wavelength"""
-
+    """Get the bandname from h5 rsr provided the approximate wavelength."""
     epsilon = 0.1
 
     channel_list = [channel for channel in rsr.rsr if abs(
@@ -191,8 +189,7 @@ def get_bandname_from_wavelength(wavelength, rsr):
 
 
 def download_luts():
-    """Download the luts from internet"""
-
+    """Download the luts from internet."""
     #
     import tarfile
     import requests
