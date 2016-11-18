@@ -45,7 +45,7 @@ ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
                'tropical': 8, 'us-standard': 9}
 
 HTTP_RAYLEIGH_ONLY_LUTS = "https://dl.dropboxusercontent.com/u/37482654/rayleigh_only/rayleigh_luts_rayleigh_only.tgz"
-HTTP_RURAL_AEOROSOLS_LUTS = "https://dl.dropboxusercontent.com/u/37482654/rural_aerosol/rayleigh_luts_rural_aerosol.tgz"
+HTTP_RURAL_AEROSOLS_LUTS = "https://dl.dropboxusercontent.com/u/37482654/rural_aerosol/rayleigh_luts_rural_aerosol.tgz"
 
 
 HOME = expanduser("~")
