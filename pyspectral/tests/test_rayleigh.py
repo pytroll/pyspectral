@@ -23,7 +23,6 @@
 """Unittest for the rayleigh correction utilities
 """
 
-import datetime
 import unittest
 import sys
 import numpy as np
@@ -31,7 +30,7 @@ import pyspectral.rsr_reader
 from pyspectral import rayleigh
 from pyspectral.rayleigh import BandFrequencyOutOfRange
 
-from mock import patch, MagicMock
+from mock import patch
 
 # Mock some modules, so we don't need them for tests.
 

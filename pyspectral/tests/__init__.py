@@ -55,12 +55,12 @@ def suite():
         mysuite.addTests(doctest.DocTestSuite(blackbody))
 
     # Use the unittests also
-    mysuite.addTests(test_rayleigh.suite())
     mysuite.addTests(test_blackbody.suite())
     mysuite.addTests(test_rad_tb_conversions.suite())
     mysuite.addTests(test_solarflux.suite())
     mysuite.addTests(test_reflectance.suite())
     mysuite.addTests(test_utils.suite())
+    mysuite.addTests(test_rayleigh.suite())
 
     return mysuite
 
