@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014, 2015 Adam.Dybbroe
+# Copyright (c) 2013, 2014, 2015, 2016 Adam.Dybbroe
 
 # Author(s):
 
@@ -26,7 +26,8 @@ from pyspectral import (blackbody,
                         near_infrared_reflectance,
                         solar)
 
-from pyspectral.tests import (test_blackbody,
+from pyspectral.tests import (test_rayleigh,
+                              test_blackbody,
                               test_reflectance,
                               test_solarflux,
                               test_utils,
@@ -54,6 +55,7 @@ def suite():
         mysuite.addTests(doctest.DocTestSuite(blackbody))
 
     # Use the unittests also
+    mysuite.addTests(test_rayleigh.suite())
     mysuite.addTests(test_blackbody.suite())
     mysuite.addTests(test_rad_tb_conversions.suite())
     mysuite.addTests(test_solarflux.suite())

@@ -6,6 +6,7 @@
 # Author(s):
 
 #   Adam.Dybbroe <adam.dybbroe@smhi.se>
+#   Martin Raspaud <martin.raspaud@smhi.se>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -55,6 +56,10 @@ try:
 except OSError:
     if not os.path.isdir(LOCAL_DEST):
         raise
+
+
+class BandFrequencyOutOfRange(Exception):
+    pass
 
 
 class Rayleigh(object):
@@ -131,6 +136,9 @@ class Rayleigh(object):
         if isinstance(bandname, str):
             bandname = self.sensor_bandnames.get(bandname, bandname)
         elif isinstance(bandname, (float, int, long)):
+            if bandname < 0.4 or bandname > 0.8:
+                raise BandFrequencyOutOfRange(
+                    'Requested band frequency should be between 0.4 and 0.8 microns!')
             bandname = get_bandname_from_wavelength(bandname, rsr)
 
         wvl, resp = rsr.rsr[bandname][
@@ -182,10 +190,19 @@ class Rayleigh(object):
 def get_bandname_from_wavelength(wavelength, rsr):
     """Get the bandname from h5 rsr provided the approximate wavelength."""
     epsilon = 0.1
+    # channel_list = [channel for channel in rsr.rsr if abs(
+    # rsr.rsr[channel]['det-1']['central_wavelength'] - wavelength) < epsilon]
 
-    channel_list = [channel for channel in rsr.rsr if abs(
-        rsr.rsr[channel]['det-1']['central_wavelength'] - wavelength) < epsilon]
-    return BANDNAMES.get(channel_list[0], channel_list[0])
+    chdist_min = 2.0
+    chfound = None
+    for channel in rsr.rsr:
+        chdist = abs(
+            rsr.rsr[channel]['det-1']['central_wavelength'] - wavelength)
+        if chdist < chdist_min and chdist < epsilon:
+            chdist_min = chdist
+            chfound = channel
+
+    return BANDNAMES.get(chfound, chfound)
 
 
 def download_luts():
