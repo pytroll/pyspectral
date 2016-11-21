@@ -22,6 +22,7 @@ sys.path.insert(0, os.path.abspath('../pyspectral'))
 
 
 class Mock(object):
+    __all__ = []
 
     def __init__(self, *args, **kwargs):
         pass
@@ -37,13 +38,26 @@ class Mock(object):
             mockType = type(name, (), {})
             mockType.__module__ = __name__
             return mockType
+        elif name == "inf":
+            return 0
         else:
             return Mock()
 
 
-MOCK_MODULES = ['numpy', 'scipy', 'xlrd', ]
+MOCK_MODULES = ['numpy', 'numpy.core',
+                'numpy.distutils.core', 'numpy.core.multiarray',
+                'scipy', 'scipy.integrate', 'scipy.interpolate',
+                'scipy.interpolate.InterpolatedUnivariateSpline',
+                'xlrd']
+
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = Mock()
+
+# If extensions (or modules to document with autodoc) are in another directory,
+# add these directories to sys.path here. If the directory is relative to the
+# documentation root, use os.path.abspath to make it absolute, like shown here.
+#sys.path.insert(0, '/opt/lib/python2.5/site-packages')
+sys.path.insert(0, os.path.abspath('../pyspectral'))
 
 
 # -- General configuration -----------------------------------------------

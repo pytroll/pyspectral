@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2015 Adam.Dybbroe
+# Copyright (c) 2013, 2015, 2016 Adam.Dybbroe
 
 # Author(s):
 
-#   Adam.Dybbroe <a000680@c14526.ad.smhi.se>
+#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 #   Panu Lahtinen <panu.lahtinen@fmi.fi>
 
 # This program is free software: you can redistribute it and/or modify
@@ -25,5 +25,36 @@
 
 from pyspectral.version import __version__
 import logging
+import os
 
 LOG = logging.getLogger(__name__)
+
+BASE_PATH = os.path.sep.join(os.path.dirname(
+    os.path.realpath(__file__)).split(os.path.sep)[:-1])
+# FIXME: Use package_resources?
+PACKAGE_CONFIG_PATH = os.path.join(BASE_PATH, 'etc')
+BUILTIN_CONFIG_FILE = os.path.join(PACKAGE_CONFIG_PATH, 'pyspectral.cfg')
+
+CONFIG_FILE = os.environ.get('PSP_CONFIG_FILE')
+
+if CONFIG_FILE is not None and (not os.path.exists(CONFIG_FILE) or
+                                not os.path.isfile(CONFIG_FILE)):
+    raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
+                  "variable PSP_CONFIG_FILE is not a file or does not exist!")
+
+
+def get_config():
+    """Get config from file"""
+
+    import ConfigParser
+
+    conf = ConfigParser.ConfigParser()
+    conf.read(BUILTIN_CONFIG_FILE)
+    if CONFIG_FILE is not None:
+        try:
+            conf.read(CONFIG_FILE)
+        except ConfigParser.NoSectionError:
+            LOG.info('Failed reading configuration file: %s',
+                     str(CONFIG_FILE))
+
+    return conf

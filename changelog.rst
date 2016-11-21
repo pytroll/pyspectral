@@ -1,6 +1,115 @@
 Changelog
 =========
 
+v0.3.0 (2016-11-21)
+-------------------
+
+- Update changelog. [Adam.Dybbroe]
+
+- Bump version: 0.2.7 → 0.3.0. [Adam.Dybbroe]
+
+- Merge branch 'pre-master' into release-v0.3.0. [Adam.Dybbroe]
+
+- Makes it possible to do rayleigh correction without access to the
+  spectral responses. [Adam.Dybbroe]
+
+- Add back all unittests for rayleigh correction. [Adam.Dybbroe]
+
+- Travis needs the package libhdf5-serial-dev. [Adam.Dybbroe]
+
+- H5py is required. [Adam.Dybbroe]
+
+- Try getting Travis to be happy. [Adam.Dybbroe]
+
+- Remove some imports from test-code. [Adam.Dybbroe]
+
+- Add more unittesting of the rayleigh correction code. [Adam.Dybbroe]
+
+- Take away rayleigh unittests for the moment. [Adam.Dybbroe]
+
+- Add unit tests for rayleigh correction utilities. [Adam.Dybbroe]
+
+- Added original MSG rsr data file. [Adam.Dybbroe]
+
+- Add requirements file - Travis seems to need it. [Adam.Dybbroe]
+
+- Make pyling happier. [Martin Raspaud]
+
+- Fix typo in constant name (rural aerosols url) [Martin Raspaud]
+
+- Bugfix get_bandname_from_wavelength. [Martin Raspaud]
+
+- Reorganize imports in rayleigh.py. [Martin Raspaud]
+
+- Allow nominal wavelength as input. [Adam.Dybbroe]
+
+- Fix doc tests. [Adam.Dybbroe]
+
+- Download rsr files automagically. [Adam.Dybbroe]
+
+- License is GPLv3. [Adam.Dybbroe]
+
+- Merge branch 'rayleigh' into pre-master. [Adam.Dybbroe]
+
+  Conflicts:
+  	pyspectral/avhrr_rsr.py
+  	pyspectral/utils.py
+  	setup.py
+
+
+- Don't go further than 88 deg sunz when doin rayleigh corr.
+  [Adam.Dybbroe]
+
+- Clip rayleigh correction to keep it between 0 and 100. [Adam.Dybbroe]
+
+- Use expanduser to the get the full path correctly. [Adam.Dybbroe]
+
+- One function to get configuration. [Adam.Dybbroe]
+
+- Bugfix. [Adam.Dybbroe]
+
+- Introduce default config file. [Adam.Dybbroe]
+
+- Rayleigh correction depends on reflectance + Download LUTS
+  automagically. [Adam.Dybbroe]
+
+- Remove requirements file. Requirements are specified in setup.py.
+  [Adam.Dybbroe]
+
+- Remove scipy from req-file. [Adam.Dybbroe]
+
+  RTD doesn't like it!
+
+- Testing putting back scipy in req-file. [Adam.Dybbroe]
+
+- Move req file for RTD. [Adam.Dybbroe]
+
+- Remove scipy from requirement file... [Adam.Dybbroe]
+
+  scipy cannot be in requirements.txt if RTD should work
+
+- Consistent requirements on scipy version. [Adam.Dybbroe]
+
+- Put back scipy in requirements file and make a RTD req file.
+  [Adam.Dybbroe]
+
+- Putting back scipy requirement. [Adam.Dybbroe]
+
+- Remove scipy from requirements file. [Adam.Dybbroe]
+
+- Remove scipy as a requirement in setup file to see of readthecos like
+  it better. [Adam.Dybbroe]
+
+- Try fixing mockup in docs, so readthedocs is satisfied. [Adam.Dybbroe]
+
+- Try mockup more scipy stuff to let readthedocs compile. [Adam.Dybbroe]
+
+- Activate option to use various atmospheres. [Adam.Dybbroe]
+
+- Try fix readthedocs problems. [Adam.Dybbroe]
+
+- Add Rayleigh correction functionality. [Adam.Dybbroe]
+
 v0.2.7 (2016-11-01)
 -------------------
 

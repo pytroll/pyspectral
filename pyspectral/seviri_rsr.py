@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014, 2015 Adam.Dybbroe
+# Copyright (c) 2013, 2014, 2015, 2016 Adam.Dybbroe
 
 # Author(s):
 
@@ -26,7 +26,6 @@
 satellites
 """
 
-import ConfigParser
 import os
 from xlrd import open_workbook
 import numpy as np
@@ -34,15 +33,10 @@ import numpy as np
 import logging
 LOG = logging.getLogger(__name__)
 
-try:
-    CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
-except KeyError:
-    LOG.exception('Environment variable PSP_CONFIG_FILE not set!')
-    raise
+from pyspectral import get_config
 
-if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
-    raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
-                  "variable PSP_CONFIG_FILE is not a file or does not exist!")
+import pkg_resources
+DATA_PATH = pkg_resources.resource_filename('pyspectral', 'data/')
 
 
 class Seviri(object):
@@ -58,19 +52,15 @@ class Seviri(object):
         default. Can be 'wavenumber' in which case the unit is in cm-1.
 
         """
-        conf = ConfigParser.ConfigParser()
-        try:
-            conf.read(CONFIG_FILE)
-        except ConfigParser.NoSectionError:
-            LOG.exception('Failed reading configuration file: %s',
-                          str(CONFIG_FILE))
-            raise
+        conf = get_config()
 
         options = {}
         for option, value in conf.items('seviri', raw=True):
             options[option] = value
 
         self.seviri_path = options.get('path')
+        if not os.path.exists(self.seviri_path):
+            self.seviri_path = os.path.join(DATA_PATH, options.get('filename'))
 
         for option, value in conf.items('general', raw=True):
             options[option] = value

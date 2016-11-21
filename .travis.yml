@@ -6,6 +6,9 @@ install:
   - pip install -r requirements.txt
   - pip install .
   - pip install coveralls
+addons:
+  apt_packages:
+    - libhdf5-serial-dev
 # command to run tests, e.g. python setup.py test
 #script:  python setup.py test
 script: coverage run --source=pyspectral setup.py test

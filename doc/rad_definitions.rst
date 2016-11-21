@@ -82,7 +82,7 @@ we see that this is indeed true:
   >>> from pyspectral.utils import convert2wavenumber, get_central_wave
   >>> seviri = RelativeSpectralResponse('Meteosat-8', 'seviri')
   >>> print get_central_wave(seviri.rsr['VIS0.6']['det-1']['wavelength'], seviri.rsr['VIS0.6']['det-1']['response'])
-  0.640215
+  0.640216
   >>> rsr, info = convert2wavenumber(seviri.rsr)
   >>> print info
   {'si_scale': 100.0, 'unit': 'cm-1'}
@@ -90,8 +90,7 @@ we see that this is indeed true:
   >>> print wvc
   15682.6
   >>> print 1./wvc*1e4
-  0.637648392581
-
+  0.637648471994
 
 This was using the pyspectral unified HDF5 formated spectral response data. If
 you want to use the original spectral response data from EUMETSAT the code may
@@ -193,7 +192,7 @@ In python code it may look like this:
 
    >>> solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, dlambda=0.0005, wavespace='wavenumber')
    >>> print solar_irr.inband_solarflux(rsr['VIS0.8'])
-   63767.9084047
+   63767.9084048
 
 
 Planck radiation
