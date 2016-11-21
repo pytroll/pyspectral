@@ -26,6 +26,7 @@
 import datetime
 import unittest
 import sys
+import numpy as np
 import pyspectral.rsr_reader
 from pyspectral import rayleigh
 from pyspectral.rayleigh import BandFrequencyOutOfRange
@@ -50,11 +51,23 @@ class rsrTestData(object):
                0.63914891611559055, 0.85668832355426627, 1.6100814361999056,
                2.2568056299864101, 3.8853663735353847, 6.2428987228916233,
                6.9411756334211789]
+        ch3_wvl = np.array([0.55518544, 0.56779468, 0.58099002, 0.59481323, 0.60931027,
+                            0.62453163, 0.64053291, 0.65737575, 0.67512828, 0.69386619,
+                            0.71367401])
+        ch3_resp = np.array([2.61000005e-05, 1.07899999e-04, 3.26119992e-03,
+                             2.90650606e-01, 9.02460396e-01, 9.60878074e-01,
+                             9.97266889e-01, 9.94823873e-01, 7.18220174e-01,
+                             8.31819978e-03, 9.34999989e-05])
+
         idx = 0
         for chname in channel_names:
             self.rsr[chname] = {'det-1': {}}
             self.rsr[chname]['det-1']['central_wavelength'] = wvl[idx]
             idx = idx + 1
+
+        chname = 'ch3'
+        self.rsr[chname]['det-1']['wavelength'] = ch3_wvl
+        self.rsr[chname]['det-1']['response'] = ch3_resp
 
 
 class TestRayleigh(unittest.TestCase):
@@ -82,18 +95,20 @@ class TestRayleigh(unittest.TestCase):
         x = rayleigh.get_bandname_from_wavelength(1.0, self.rsr)
         self.assertEqual(x, None)
 
-    # def test_get_effective_wavelength(self):
+    def test_get_effective_wavelength(self):
 
-    #     with patch('pyspectral.rsr_reader.RelativeSpectralResponse') as mymock:
-    #         instance = mymock.return_value
-    #         instance.rsr = rsrTestData().rsr
+        # mymock:
+        with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
+            instance = mymock.return_value
+            instance.rsr = rsrTestData().rsr
 
-    #         import pdb
-    #         pdb.set_trace()
+            this = rayleigh.Rayleigh('Himawari-8', 'ahi')
+            with self.assertRaises(BandFrequencyOutOfRange):
+                this.get_effective_wavelength(0.9)
 
-    #         this = rayleigh.Rayleigh('Himawari-8', 'ahi')
-    #         with self.assertRaises(BandFrequencyOutOfRange):
-    #             this.get_effective_wavelength(0.9)
+            # Only ch3 (~0.63) testdata implemented yet...
+            x = this.get_effective_wavelength(0.7)
+            self.assertAlmostEqual(x, 0.6356167)
 
     def tearDown(self):
         """Clean up"""

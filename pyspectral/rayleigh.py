@@ -141,6 +141,9 @@ class Rayleigh(object):
                     'Requested band frequency should be between 0.4 and 0.8 microns!')
             bandname = get_bandname_from_wavelength(bandname, rsr)
 
+        #import pdb
+        # pdb.set_trace()
+
         wvl, resp = rsr.rsr[bandname][
             'det-1']['wavelength'], rsr.rsr[bandname]['det-1']['response']
 
