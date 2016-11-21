@@ -52,22 +52,28 @@ setup(name='pyspectral',
 
       packages=['pyspectral'],
 
+      include_package_data=True,
       package_data={
           # If any package contains *.txt files, include them:
           '': ['*.txt', '*.det'],
           'pyspectral': ['data/*.dat',
+                         'data/*.XLS',
                          'data/modis/terra/Reference_RSR_Dataset/*.det'],
       },
 
       # Project should use reStructuredText, so ensure that the docutils get
       # installed or upgraded on the target machine
       install_requires=['docutils>=0.3',
-                        'numpy>=1.5.1', 'scipy>=0.8.1'],
+                        'numpy>=1.5.1', 'scipy>=0.8.1',
+                        'h5py>=2.5',
+                        'requests', 'tqdm'],
+      #                  'requests>=2.7.0', 'tqdm>=4.8.4'],
       extras_require={'xlrd': ['xlrd'], 'matplotlib': ['matplotlib']},
       scripts=[],
-      data_files=[('etc', ['etc/pyspectral.cfg_template']),
-                  ('share', ['pyspectral/data/e490_00a.dat'])],
+      data_files=[('etc', ['etc/pyspectral.cfg']),
+                  ('share', ['pyspectral/data/e490_00a.dat',
+                             'pyspectral/data/MSG_SEVIRI_Spectral_Response_Characterisation.XLS'])],
       test_suite='pyspectral.tests.suite',
-      tests_require=['xlrd'],
+      tests_require=['mock', 'xlrd'],
       zip_safe=False
       )

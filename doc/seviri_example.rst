@@ -40,8 +40,7 @@ using pyspectral_:
   >>> europe = get_area_def("EuropeCanary")
   >>> tslot = datetime(2015, 4, 20, 10, 0)
   >>> glbd = GeostationaryFactory.create_scene("Meteosat-10", "", "seviri", tslot)
-  >>> glbd.load(['VIS006', 'VIS008', 'IR_016', 'IR_039', 'IR_108', 'IR_134'], 
-                area_extent=europe.area_extent)
+  >>> glbd.load(['VIS006', 'VIS008', 'IR_016', 'IR_039', 'IR_108', 'IR_134'], area_extent=europe.area_extent)
   >>> area = "germ"
   >>> lcd = glbd.project(area)
   >>> img = lcd.image.snow()
@@ -72,9 +71,7 @@ So, now the data are loaded and remapped on the *germ* area, just as before,
 and we can start getting the 3.9 micron reflectance and the sun zenith angles,
 and then generate the RGB image:
 
-  >>> r39 = lcd[3.9].get_reflectance(lcd[10.8].data,
-                                     sun_zenith=None,
-                                     tb13_4=lcd[13.4].data)
+  >>> r39 = lcd[3.9].get_reflectance(lcd[10.8].data, sun_zenith=None, tb13_4=lcd[13.4].data)
   >>> lonlats = lcd[3.9].area.get_lonlats()
   >>> sunz = sza(tslot, lonlats[0], lonlats[1])
   >>> sunz = np.ma.masked_outside(sunz, 0.0, 88.0)
@@ -83,9 +80,7 @@ and then generate the RGB image:
   >>> costheta = np.cos(np.deg2rad(sunz))
   >>> red = np.ma.masked_where(sunzmask, lcd[0.8].data / costheta)
   >>> green = np.ma.masked_where(sunzmask, lcd[1.6].data / costheta)
-  >>>img = GeoImage((red, green, r39 * 100), area,
-                    tslot, crange=((0, 100), (0, 70), (0, 30)),
-                    fill_value=(0, 0, 0), mode="RGB")
+  >>> img = GeoImage((red, green, r39 * 100), area, tslot, crange=((0, 100), (0, 70), (0, 30)), fill_value=(0, 0, 0), mode="RGB")
   >>> img.enhance(gamma=1.7)
   >>> img.show()
 
