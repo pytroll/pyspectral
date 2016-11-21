@@ -26,11 +26,11 @@
 import unittest
 import sys
 import numpy as np
-#import pyspectral.rsr_reader
+import pyspectral.rsr_reader
 from pyspectral import rayleigh
 from pyspectral.rayleigh import BandFrequencyOutOfRange
 
-#from mock import patch
+from mock import patch
 
 # Mock some modules, so we don't need them for tests.
 
@@ -94,20 +94,20 @@ class TestRayleigh(unittest.TestCase):
         x = rayleigh.get_bandname_from_wavelength(1.0, self.rsr)
         self.assertEqual(x, None)
 
-    # def test_get_effective_wavelength(self):
+    def test_get_effective_wavelength(self):
 
-    #     # mymock:
-    #     with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
-    #         instance = mymock.return_value
-    #         instance.rsr = rsrTestData().rsr
+        # mymock:
+        with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
+            instance = mymock.return_value
+            instance.rsr = rsrTestData().rsr
 
-    #         this = rayleigh.Rayleigh('Himawari-8', 'ahi')
-    #         with self.assertRaises(BandFrequencyOutOfRange):
-    #             this.get_effective_wavelength(0.9)
+            this = rayleigh.Rayleigh('Himawari-8', 'ahi')
+            with self.assertRaises(BandFrequencyOutOfRange):
+                this.get_effective_wavelength(0.9)
 
-    #         # Only ch3 (~0.63) testdata implemented yet...
-    #         x = this.get_effective_wavelength(0.7)
-    #         self.assertAlmostEqual(x, 0.6356167)
+            # Only ch3 (~0.63) testdata implemented yet...
+            x = this.get_effective_wavelength(0.7)
+            self.assertAlmostEqual(x, 0.6356167)
 
     def tearDown(self):
         """Clean up"""
