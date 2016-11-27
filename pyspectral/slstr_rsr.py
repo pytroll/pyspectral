@@ -44,7 +44,7 @@ from pyspectral.raw_reader import InstrumentRSR
 
 class SlstrRSR(InstrumentRSR):
 
-    """Class for Envisat SLSTR RSR"""
+    """Class for Sentinel-3 SLSTR RSR"""
 
     def __init__(self, bandname, platform_name):
         """
