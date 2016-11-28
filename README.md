@@ -19,5 +19,3 @@ true color imagery for rayleigh scattering (and background aerosol absorption).
 
 Adam Dybbroe
 November 2016, Norrkoping, Sweden
-
-

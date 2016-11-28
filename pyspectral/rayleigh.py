@@ -161,6 +161,13 @@ class Rayleigh(object):
         wvl = self.get_effective_wavelength(bandname) * 1000.0
         coeff, wvl_coord, azid_coord = self.get_poly_coeff()
 
+        if wvl > wvl_coord.max() or wvl < wvl_coord.min():
+            LOG.warning(
+                "Effective wavelength for band %s outside 400-800 nm range!", str(bandname))
+            LOG.info(
+                "Set the rayleigh/aerosol reflectance contribution to zero!")
+            return np.zeros(sun_zenith.shape)
+
         idx = np.sqrt((wvl_coord - wvl)**2).argsort()[0]
         wvl1 = wvl_coord[idx]
         wvl2 = wvl_coord[idx + 1]
