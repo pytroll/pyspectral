@@ -32,12 +32,34 @@ As the Rayleigh scattering is proportional to :math:`\frac{1}{{\lambda}^4}` the
 effective wavelength is derived by convolving the spectral response with
 :math:`\frac{1}{{\lambda}^4}`. 
 
-To get the Rayleigh scattering contribution for the VIIRS M2 band which should
-be subtracted from the data the interface looks like this:
+To get the Rayleigh scattering contribution for an arbitrary band, first the
+solar zenith, satellite zenith and the sun-satellite azimuth difference angles
+should be loaded.
+
+For the VIIRS M2 band the interface looks like this:
 
   >>> from pyspectral.rayleigh import Rayleigh
   >>> viirs = Rayleigh('Suomi-NPP', 'viirs')
-  >>> refl_cor_m2 = viirs.get_reflectance(sunz, satz, ssadiff, 'M2') * 100.0
+  >>> refl_cor_m2 = viirs.get_reflectance(sunz, satz, ssadiff, 'M2')
+
+This rayleigh contribution should then of course be subtracted from the
+data. Optionally the blueband can be provided as the fifth argument, which will
+provide a more gentle scaling in cases of high reflectances (above 20%):
+
+  >>> refl_cor_m2 = viirs.get_reflectance(sunz, satz, ssadiff, 'M2', blueband)
+
+In case you do not know the name of the band (defined in the pyspectral rsr files) you can provide the approximate band frequency in micro meters:
+
+  >>> refl_cor_m2 = viirs.get_reflectance(sunz, satz, ssadiff, 0.45, blueband)
+
+At the moment we have done simulations for a set of standard atmospheres in two
+different configuration, one only considering rayleigh scattering, and one also
+accounting for aerosols. On default we use the simulations without aerosol
+absorption, but it is possible to specify if you want the other setup, e.g.:
+
+  >>> from pyspectral.rayleigh import Rayleigh
+  >>> viirs = Rayleigh('Suomi-NPP', 'viirs', atmosphere='midlatitude summer', rural_aerosol=True)
+  >>> refl_cor_m2 = viirs.get_reflectance(sunz, satz, ssadiff, 0.45, blueband)
 
 
 A few words on the Rayleigh scattering simulations

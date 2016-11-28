@@ -28,34 +28,20 @@
 
 import logging
 import os
-from os.path import expanduser
-
 import h5py
 import numpy as np
 
-from pyspectral import BUILTIN_CONFIG_FILE, CONFIG_FILE, get_config
+from pyspectral import get_config
 from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.utils import (BANDNAMES, INSTRUMENTS, get_central_wave,
-                              get_rayleigh_reflectance)
+                              get_rayleigh_reflectance, download_luts,
+                              RAYLEIGH_LUT_DIRS)
 
 LOG = logging.getLogger(__name__)
-
 
 ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
                'midlatitude summer': 6, 'midlatitude winter': 7,
                'tropical': 8, 'us-standard': 9}
-
-HTTP_RAYLEIGH_ONLY_LUTS = "https://dl.dropboxusercontent.com/u/37482654/rayleigh_only/rayleigh_luts_rayleigh_only.tgz"
-HTTP_RURAL_AEROSOLS_LUTS = "https://dl.dropboxusercontent.com/u/37482654/rural_aerosol/rayleigh_luts_rural_aerosol.tgz"
-
-
-HOME = expanduser("~")
-LOCAL_DEST = os.path.join(HOME, ".local/share/pyspectral")
-try:
-    os.makedirs(LOCAL_DEST)
-except OSError:
-    if not os.path.isdir(LOCAL_DEST):
-        raise
 
 
 class BandFrequencyOutOfRange(Exception):
@@ -78,6 +64,11 @@ class Rayleigh(object):
             atm_type = kwargs['atmosphere']
         else:
             atm_type = 'subarctic summer'
+
+        if 'rural_aerosol' in kwargs and kwargs['rural_aerosol']:
+            rayleigh_dir = RAYLEIGH_LUT_DIRS['rural_aerosol']
+        else:
+            rayleigh_dir = RAYLEIGH_LUT_DIRS['rayleigh_only']
 
         if atm_type not in ATMOSPHERES.keys():
             LOG.error("Atmosphere type %s not supported", atm_type)
@@ -109,8 +100,6 @@ class Rayleigh(object):
                                  'M05': 'M5',
                                  }
 
-        rayleigh_dir = LOCAL_DEST
-        #rayleigh_dir = options['rayleigh_dir']
         ext = atm_type.replace(' ', '_')
         lutname = "rayleigh_lut_const_azidiff_%s.h5" % ext
         self.coeff_filename = os.path.join(rayleigh_dir, lutname)
@@ -212,23 +201,3 @@ def get_bandname_from_wavelength(wavelength, rsr):
             chfound = channel
 
     return BANDNAMES.get(chfound, chfound)
-
-
-def download_luts():
-    """Download the luts from internet."""
-    #
-    import tarfile
-    import requests
-    from tqdm import tqdm
-
-    response = requests.get(HTTP_RAYLEIGH_ONLY_LUTS)
-    response = requests.get(HTTP_RURAL_AEROSOLS_LUTS)
-    filename = os.path.join(LOCAL_DEST, "rayleigh_luts_rayleigh_only.tgz")
-    with open(filename, "wb") as handle:
-        for data in tqdm(response.iter_content()):
-            handle.write(data)
-
-    tar = tarfile.open(filename)
-    tar.extractall(LOCAL_DEST)
-    tar.close()
-    os.remove(filename)

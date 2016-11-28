@@ -10,13 +10,14 @@ pyspectral
 
 Given a passive sensor on a meteorological satellite the purpose of pyspectral
 is to provide you with the relative spectral response (rsr) function(s) and
-offer you some basic operations like convolution with the solar spectrum
-to derive the in band solar flux for instance. The focus is first of all
-imaging sensors like AVHRR, VIIRS, MODIS, and SEVIRI. But if needed other
-sensors can be added.
+offer you some basic operations like convolution with the solar spectrum to
+derive the in band solar flux for instance. The focus are imaging sensors like
+AVHRR, VIIRS, MODIS, and SEVIRI. But more sensors are included and if other
+sensors are needed they can easily be added. Pyspectral also allows correcting
+true color imagery for rayleigh scattering (and background aerosol absorption).
 
 
 Adam Dybbroe
-June 2014, Norrkoping, Sweden
+November 2016, Norrkoping, Sweden
 
 
