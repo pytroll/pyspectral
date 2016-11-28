@@ -25,6 +25,8 @@
 
 import numpy as np
 import os
+from pyspectral import get_config
+from os.path import expanduser
 
 BANDNAMES = {'VIS006': 'VIS0.6',
              'VIS008': 'VIS0.8',
@@ -61,15 +63,36 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
 
 
 HTTP_PYSPECTRAL_RSR = "https://dl.dropboxusercontent.com/u/37482654/pyspectral_rsr_data.tgz"
+HTTP_RAYLEIGH_ONLY_LUTS = "https://dl.dropboxusercontent.com/u/37482654/rayleigh_only/rayleigh_luts_rayleigh_only.tgz"
+HTTP_RURAL_AEROSOL_LUTS = "https://dl.dropboxusercontent.com/u/37482654/rural_aerosol/rayleigh_luts_rural_aerosol.tgz"
 
-from os.path import expanduser
-HOME = expanduser("~")
-LOCAL_DEST = os.path.join(HOME, ".local/share/pyspectral")
+
+OPTIONS = {}
+CONF = get_config()
+for option, value in CONF.items('general', raw=True):
+    OPTIONS[option] = value
+
+LOCAL_RSR_DIR = expanduser(OPTIONS['rsr_dir'])
 try:
-    os.makedirs(LOCAL_DEST)
+    os.makedirs(LOCAL_RSR_DIR)
 except OSError:
-    if not os.path.isdir(LOCAL_DEST):
+    if not os.path.isdir(LOCAL_RSR_DIR):
         raise
+
+LOCAL_RAYLEIGH_DIR = expanduser(OPTIONS['rayleigh_dir'])
+
+HTTPS = [HTTP_RAYLEIGH_ONLY_LUTS, HTTP_RURAL_AEROSOL_LUTS]
+RAYLEIGH_SUB_NAMES = ['rayleigh_only', 'rural_aerosol']
+RAYLEIGH_LUT_DIRS = {}
+for http_addr, sub_dir_name in zip(HTTPS, RAYLEIGH_SUB_NAMES):
+    dirname = os.path.join(LOCAL_RAYLEIGH_DIR, sub_dir_name)
+    try:
+        os.makedirs(dirname)
+    except OSError:
+        if not os.path.isdir(dirname):
+            raise
+
+    RAYLEIGH_LUT_DIRS[sub_dir_name] = dirname
 
 
 def convert2wavenumber(rsr):
@@ -237,12 +260,34 @@ def download_rsr():
     from tqdm import tqdm
 
     response = requests.get(HTTP_PYSPECTRAL_RSR)
-    filename = os.path.join(LOCAL_DEST, "pyspectral_rsr_data.tgz")
+    filename = os.path.join(LOCAL_RSR_DIR, "pyspectral_rsr_data.tgz")
     with open(filename, "wb") as handle:
         for data in tqdm(response.iter_content()):
             handle.write(data)
 
     tar = tarfile.open(filename)
-    tar.extractall(LOCAL_DEST)
+    tar.extractall(LOCAL_RSR_DIR)
     tar.close()
     os.remove(filename)
+
+
+def download_luts():
+    """Download the luts from internet."""
+    #
+    import tarfile
+    import requests
+    from tqdm import tqdm
+
+    for http, subname in zip(HTTPS, RAYLEIGH_SUB_NAMES):
+        response = requests.get(http)
+
+        subdirname = RAYLEIGH_LUT_DIRS[subname]
+        filename = os.path.join(subdirname, "rayleigh_luts_%s.tgz" % subname)
+        with open(filename, "wb") as handle:
+            for data in tqdm(response.iter_content()):
+                handle.write(data)
+
+        tar = tarfile.open(filename)
+        tar.extractall(subdirname)
+        tar.close()
+        os.remove(filename)
