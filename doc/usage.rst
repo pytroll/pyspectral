@@ -1,12 +1,6 @@
 Usage
 -----
 
-Copy the template file *pyspectral.cfg_template* to *pyspectral.cfg* and place
-it in a directory as you please. Set the environment variable PSP_CONFIG_FILE
-pointing to the file. E.g.::
- 
-  $> PSP_CONFIG_FILE=/home/a000680/pyspectral.cfg; export PSP_CONFIG_FILE
-
 A simple use case::
 
   >>> from pyspectral.rsr_reader import RelativeSpectralResponse
@@ -27,3 +21,17 @@ the Aqua MODIS 3.7 micron band::
   >>> refl37 = Calculator('EOS-Aqua', 'modis', '20', detector='det-1', solar_flux=2.0029281634299041)
   >>> print refl37.reflectance_from_tbs(sunz, tb3, tb4)
   0.251249064103
+
+
+And, here is how to derive the rayleigh (with additional optional aerosol absorption) contribution in a short wave band::
+
+  >>> from pyspectral import rayleigh
+  >>> rcor = rayleigh.Rayleigh('GOES-16', 'abi')
+  >>> import numpy as np
+  >>> sunz = np.array([[50., 60.], [51., 61.]])
+  >>> satz = np.array([[40., 50.], [41., 51.]])
+  >>> azidiff = np.array([[160, 160], [160, 160]])
+  >>> blueband =  np.array([[0.1, 0.15], [0.11, 0.16]])
+  >>> print rcor.get_reflectance(sunz, satz, azidiff, 'ch2', blueband)
+  [[ 3.44474971  5.14612533]
+   [ 3.56880351  5.39811687]]

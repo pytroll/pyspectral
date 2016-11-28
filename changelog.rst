@@ -1,6 +1,37 @@
 Changelog
 =========
 
+v0.3.1 (2016-11-28)
+-------------------
+
+- Update changelog. [Adam.Dybbroe]
+
+- Bump version: 0.3.0 → 0.3.1. [Adam.Dybbroe]
+
+- Merge branch 'pre-master' into release-v0.3.1. [Adam.Dybbroe]
+
+- Add simple plot script. [Adam.Dybbroe]
+
+- Add raw GOES-R abi rsr-reader and simple plot script. [Adam.Dybbroe]
+
+- Merge branch 'pre-master' into release-v0.3.1. [Adam.Dybbroe]
+
+- Add description of Rayleigh correction capability. [Adam.Dybbroe]
+
+- Update documentation with the built-in default configuration.
+  [Adam.Dybbroe]
+
+- Fix default configuration using expanduser. [Adam.Dybbroe]
+
+- Add pandas to extra requirement. [Adam.Dybbroe]
+
+- Add more instruments to the default cfg file. Remove deprecated
+  template file. [Adam.Dybbroe]
+
+- Merge branch 'release-v0.3.0' into pre-master. [Adam.Dybbroe]
+
+- Merge branch 'release-v0.3.0' [Adam.Dybbroe]
+
 v0.3.0 (2016-11-21)
 -------------------
 
