@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014, 2015, 2016 Adam Dybbroe
+# Copyright (c) 2013, 2014, 2015, 2016, 2017 Adam Dybbroe
 
 # Author(s):
 
@@ -30,6 +30,7 @@ except IOError:
 
 from setuptools import setup
 import imp
+import os.path
 
 version = imp.load_source('pyspectral.version', 'pyspectral/version.py')
 
@@ -56,9 +57,11 @@ setup(name='pyspectral',
       package_data={
           # If any package contains *.txt files, include them:
           '': ['*.txt', '*.det'],
-          'pyspectral': ['data/*.dat',
-                         'data/*.XLS',
+          'pyspectral': [os.path.join('etc', 'pyspectral.cfg'),
+                         os.path.join('data', '*.dat'),
+                         os.path.join('data', '*.XLS'),
                          'data/modis/terra/Reference_RSR_Dataset/*.det'],
+
       },
 
       # Project should use reStructuredText, so ensure that the docutils get
@@ -72,8 +75,7 @@ setup(name='pyspectral',
                       'matplotlib': ['matplotlib'],
                       'pandas': ['pandas']},
       scripts=['plot_rsr.py'],
-      data_files=[('etc', ['etc/pyspectral.cfg']),
-                  ('share', ['pyspectral/data/e490_00a.dat',
+      data_files=[('share', ['pyspectral/data/e490_00a.dat',
                              'pyspectral/data/MSG_SEVIRI_Spectral_Response_Characterisation.XLS'])],
       test_suite='pyspectral.tests.suite',
       tests_require=['mock', 'xlrd'],
