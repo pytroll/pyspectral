@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014, 2015, 2016 Adam.Dybbroe
+# Copyright (c) 2013, 2014, 2015, 2016, 2017 Adam.Dybbroe
 
 # Author(s):
 

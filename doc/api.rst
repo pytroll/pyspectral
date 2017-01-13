@@ -16,18 +16,29 @@ Spectral responses
    :members:
    :undoc-members:
 
-Spectral responses - SEVIRI
----------------------------
+.. automodule:: pyspectral.raw_reader
+   :members:
+   :undoc-members:
+
+SEVIRI
+^^^^^^
 
 .. automodule:: pyspectral.seviri_rsr
    :members:
    :undoc-members:
 
 
-Spectral responses - VIIRS
---------------------------
+VIIRS
+^^^^^
 
 .. automodule:: pyspectral.viirs_rsr
+   :members:
+   :undoc-members:
+
+AVHRR
+^^^^^
+
+.. automodule:: pyspectral.avhrr_rsr
    :members:
    :undoc-members:
 
@@ -44,6 +55,13 @@ Near-Infrared reflectance
 -------------------------
 
 .. automodule:: pyspectral.near_infrared_reflectance
+   :members:
+   :undoc-members:
+
+Rayleigh scattering
+-------------------
+
+.. automodule:: pyspectral.rayleigh
    :members:
    :undoc-members:
 
