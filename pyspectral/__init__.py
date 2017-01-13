@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2015, 2016 Adam.Dybbroe
+# Copyright (c) 2013, 2015, 2016, 2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -29,11 +29,9 @@ import os
 
 LOG = logging.getLogger(__name__)
 
-BASE_PATH = os.path.sep.join(os.path.dirname(
-    os.path.realpath(__file__)).split(os.path.sep)[:-1])
-# FIXME: Use package_resources?
-PACKAGE_CONFIG_PATH = os.path.join(BASE_PATH, 'etc')
-BUILTIN_CONFIG_FILE = os.path.join(PACKAGE_CONFIG_PATH, 'pyspectral.cfg')
+import pkg_resources
+BUILTIN_CONFIG_FILE = pkg_resources.resource_filename(__name__,
+                                                      os.path.join('etc', 'pyspectral.cfg'))
 
 CONFIG_FILE = os.environ.get('PSP_CONFIG_FILE')
 
