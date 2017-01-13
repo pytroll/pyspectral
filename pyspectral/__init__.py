@@ -30,8 +30,8 @@ import os
 LOG = logging.getLogger(__name__)
 
 import pkg_resources
-BUILTIN_CONFIG_FILE = pkg_resources.resource_string(__name__,
-                                                    os.path.join('etc', 'pyspectral.cfg'))
+BUILTIN_CONFIG_FILE = pkg_resources.resource_filename(__name__,
+                                                      os.path.join('etc', 'pyspectral.cfg'))
 
 CONFIG_FILE = os.environ.get('PSP_CONFIG_FILE')
 
