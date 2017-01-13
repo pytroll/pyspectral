@@ -1,6 +1,27 @@
 Changelog
 =========
 
+v0.3.3 (2017-01-13)
+-------------------
+
+Fix
+~~~
+
+- Bugfix: include pyspectral/etc instead of etc. [Adam.Dybbroe]
+
+Other
+~~~~~
+
+- Update changelog. [Adam.Dybbroe]
+
+- Bump version: 0.3.2 → 0.3.3. [Adam.Dybbroe]
+
+- Merge branch 'pre-master' into release-v0.3.3. [Adam.Dybbroe]
+
+- Merge branch 'release-v0.3.2' into pre-master. [Adam.Dybbroe]
+
+- Merge branch 'release-v0.3.2' [Adam.Dybbroe]
+
 v0.3.2 (2017-01-13)
 -------------------
 
