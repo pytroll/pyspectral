@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014, 2015, 2016 Adam.Dybbroe
+# Copyright (c) 2014, 2015, 2016, 2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -41,7 +41,7 @@ LOG = logging.getLogger(__name__)
 WAVE_LENGTH = 'wavelength'
 WAVE_NUMBER = 'wavenumber'
 
-EPSILON = 0.01
+EPSILON = 0.005
 TB_MIN = 150.
 TB_MAX = 360.
 
@@ -53,7 +53,7 @@ class Calculator(RadTbConverter):
     Given the relative spectral response of the NIR band, the solar zenith
     angle, and the brightness temperatures of the NIR and the Thermal bands,
     derive the solar reflectance for the NIR band removing the thermal
-    (terrestrial) part.  The in-band solar flux over the NIR band is
+    (terrestrial) part. The in-band solar flux over the NIR band is
     optional. If not provided, it will be calculated here!
 
     The relfectance calculated is without units and should be between 0 and 1.
@@ -272,16 +272,25 @@ class Calculator(RadTbConverter):
         # 13.4 micron is provided:
         if co2corr:
             self.derive_rad39_corr(tb_therm, tbco2)
+            LOG.info("CO2 correction applied...")
         else:
             self._rad3x_correction = 1.0
 
-        # mask = thermal_emiss_one > l_nir
+        mask = (self._solar_radiance - self._rad3x_t11 *
+                self._rad3x_correction) < EPSILON
+        newmask = np.logical_or(sunzmask, mask)
 
         nomin = l_nir - self._rad3x_t11 * self._rad3x_correction
         LOG.debug("Shapes: %s  %s", str(mu0.shape),
                   str(self._rad3x_t11.shape))
         denom = self._solar_radiance - \
             self._rad3x_t11 * self._rad3x_correction
+
+        # # Write data to file for analysis
+        # np.savez('pyspecdata',
+        #          sunz=sun_zenith, L=l_nir,
+        #          S=self._rad3x_t11 * self._rad3x_correction,
+        #          f=self._solar_radiance)
 
         r3x = nomin / denom
         # r3x = np.ma.masked_array(r3x, mask=mask)
@@ -290,7 +299,8 @@ class Calculator(RadTbConverter):
         # r3x = np.ma.masked_outside(r3x, 0.0, 10.0)  # * 100.  # Percent!
         # if np.ma.is_masked(tb_nir):
         #    r3x = np.ma.masked_where(tb_nir.mask, r3x).filled(0)
-        self._r3x = np.ma.masked_where(sunzmask, r3x)
+
+        self._r3x = np.ma.masked_where(newmask, r3x)
 
         # Reflectances should be between 0 and 1, but values above 1 is
         # perfectly possible and okay! (Multiply by 100 to get reflectances
