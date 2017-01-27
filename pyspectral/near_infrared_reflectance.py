@@ -160,10 +160,13 @@ class Calculator(RadTbConverter):
         """Get the emissive part of the 3.x band"""
         try:
             # Emissive part:
+            # self._e3x = self._rad3x * (1 -
             # self._e3x = self._rad3x_t11 * (1 -
-            self._e3x = self._rad3x * (1 -
-                                       np.ma.masked_outside(self._r3x, 0, 1,
-                                                            copy=False))
+            #                               np.ma.masked_outside(self._r3x, 0, 1,
+            #                                                    copy=False))
+            self._e3x = self._rad3x_t11 * (1 - self._r3x)
+            self._e3x *= self._rad3x_correction
+
         except TypeError:
             LOG.warning(
                 "Couldn't derive the emissive part \n" +
