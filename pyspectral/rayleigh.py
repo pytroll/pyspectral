@@ -173,8 +173,6 @@ class Rayleigh(object):
         wvl1 = wvl_coord[idx]
         wvl2 = wvl_coord[idx + 1]
 
-        shape = sun_zenith.shape
-
         d__ = (wvl2 - wvl) / (wvl2 - wvl1)
 
         wvl_coeff = coeff[idx, :, :] * d__ + coeff[idx + 1, :, :] * (1 - d__)
