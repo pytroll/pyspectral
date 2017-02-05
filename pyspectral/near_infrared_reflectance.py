@@ -160,10 +160,6 @@ class Calculator(RadTbConverter):
         """Get the emissive part of the 3.x band"""
         try:
             # Emissive part:
-            # self._e3x = self._rad3x * (1 -
-            # self._e3x = self._rad3x_t11 * (1 -
-            #                               np.ma.masked_outside(self._r3x, 0, 1,
-            #                                                    copy=False))
             self._e3x = self._rad3x_t11 * (1 - self._r3x)
             self._e3x *= self._rad3x_correction
 
@@ -249,11 +245,11 @@ class Calculator(RadTbConverter):
             # Assume rsr in in microns!!!
             # FIXME!
             scale = self.rsr_integral * 1e-6
+
             retv = self.tb2radiance(tb_therm, ch3xname, self.lut)
-            # print("tb2radiance conversion: " + str(retv))
             thermal_emiss_one = retv['radiance'] * scale
+
             retv = self.tb2radiance(tb_nir, ch3xname, self.lut)
-            # print("tb2radiance conversion: " + str(retv))
             l_nir = retv['radiance'] * scale
 
         if thermal_emiss_one.ravel().shape[0] < 10:
