@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014, 2015, 2016 Adam.Dybbroe
+# Copyright (c) 2014, 2015, 2016, 2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -218,22 +218,36 @@ def get_rayleigh_reflectance(parms, azidiff, sunz, satz):
              c_{11}xy + c_{12}xy^2 + ... +
              c_{1(n-1)}xy^{n-1}+ ... + c_{(n-1)1}x^{n-1}y
 
-    x = relative azimuth difference angle
+    x = relative azimuth difference angle:
+        Azimuth difference   0: Instrument is looking into Sun
+        Azimuth difference 180: Instrument and Sun are looking in the same
+        direction
     y = secant of the satellite zenith angle
+
+    NB! The azimuth difference provided here is defined as described in the
+    documentation, and differs by 180 degrees to the angle x required in the
+    polynomial fit.
+
     """
 
     sec = 1. / np.cos(np.deg2rad(satz))
     sunsec = 1. / np.cos(np.deg2rad(sunz))
 
     coeffs = [[parms[:, 0], parms[:, 1], parms[:, 2], parms[:, 3], parms[:, 4], parms[:, 5]],
-              [parms[:, 6], parms[:, 11], parms[:, 15], parms[:, 18], parms[:, 20]],
+              [parms[:, 6], parms[:, 11], parms[:, 15],
+                  parms[:, 18], parms[:, 20]],
               [parms[:, 7], parms[:, 12], parms[:, 16], parms[:, 19]],
               [parms[:, 8], parms[:, 13], parms[:, 17]],
               [parms[:, 9], parms[:, 14]],
               [parms[:, 10]]
               ]
 
-    indices = np.rint(azidiff).astype('i')
+    # The RTM simulations are based on a definition of the sun-satellite azimuth
+    # difference according to the following:
+    # Azimuth difference 0: Instrument is looking into Sun
+    # Azimuth difference 180: Instrument and Sun are looking in the same
+    # direction
+    indices = np.rint(180. - azidiff).astype('i')
 
     res = 0
 
