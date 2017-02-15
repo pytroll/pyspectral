@@ -23,10 +23,12 @@
 
 """Utility functions"""
 
-import numpy as np
 import os
-from pyspectral import get_config
 from os.path import expanduser
+
+import numpy as np
+
+from pyspectral import get_config
 
 BANDNAMES = {'VIS006': 'VIS0.6',
              'VIS008': 'VIS0.8',
@@ -171,7 +173,7 @@ def sort_data(x_vals, y_vals):
 
 
 def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06):
-    """Retrieve original RSR data and convert to internal hdf5 format.  
+    """Retrieve original RSR data and convert to internal hdf5 format.
 
     *scale* is the number which has to be multiplied to the wavelength data in
     order to get it in the SI unit meter
@@ -208,7 +210,7 @@ def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06):
             dset[...] = arr
 
 
-def get_rayleigh_reflectance(parms, sunz, satz):
+def get_rayleigh_reflectance(parms, azidiff, sunz, satz):
     """Get the Rayleigh reflectance applying the polynomial fit parameters
 
     P(x,y) = c_{00} + c_{10}x + ...+ c_{n0}x^n +
@@ -223,27 +225,26 @@ def get_rayleigh_reflectance(parms, sunz, satz):
     sec = 1. / np.cos(np.deg2rad(satz))
     sunsec = 1. / np.cos(np.deg2rad(sunz))
 
-    res = (parms[0] +
-           parms[1] * sunsec +
-           parms[2] * sunsec ** 2 +
-           parms[3] * sunsec ** 3 +
-           parms[4] * sunsec ** 4 +
-           parms[5] * sunsec ** 5 +
-           parms[6] * sec +
-           parms[7] * sec ** 2 +
-           parms[8] * sec ** 3 +
-           parms[9] * sec ** 4 +
-           parms[10] * sec ** 5 +
-           parms[11] * sunsec * sec +
-           parms[12] * sunsec * sec ** 2 +
-           parms[13] * sunsec * sec ** 3 +
-           parms[14] * sunsec * sec ** 4 +
-           parms[15] * sunsec ** 2 * sec +
-           parms[16] * sunsec ** 2 * sec ** 2 +
-           parms[17] * sunsec ** 2 * sec ** 3 +
-           parms[18] * sunsec ** 3 * sec +
-           parms[19] * sunsec ** 3 * sec ** 2 +
-           parms[20] * sunsec ** 4 * sec)
+    coeffs = [[parms[:, 0], parms[:, 1], parms[:, 2], parms[:, 3], parms[:, 4], parms[:, 5]],
+              [parms[:, 6], parms[:, 11], parms[:, 15], parms[:, 18], parms[:, 20]],
+              [parms[:, 7], parms[:, 12], parms[:, 16], parms[:, 19]],
+              [parms[:, 8], parms[:, 13], parms[:, 17]],
+              [parms[:, 9], parms[:, 14]],
+              [parms[:, 10]]
+              ]
+
+    indices = np.rint(azidiff).astype('i')
+
+    res = 0
+
+    for line, cols in enumerate(coeffs):
+        for col, coeff in enumerate(cols):
+            factor = coeff[indices]
+            for i in range(line):
+                factor *= sec
+            for i in range(col):
+                factor *= sunsec
+            res += factor
 
     return res
 

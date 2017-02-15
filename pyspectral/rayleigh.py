@@ -28,14 +28,15 @@
 
 import logging
 import os
+
 import h5py
 import numpy as np
 
 from pyspectral import get_config
 from pyspectral.rsr_reader import RelativeSpectralResponse
-from pyspectral.utils import (BANDNAMES, INSTRUMENTS, get_central_wave,
-                              get_rayleigh_reflectance, download_luts,
-                              RAYLEIGH_LUT_DIRS)
+from pyspectral.utils import (BANDNAMES, INSTRUMENTS, RAYLEIGH_LUT_DIRS,
+                              download_luts, get_central_wave,
+                              get_rayleigh_reflectance)
 
 LOG = logging.getLogger(__name__)
 
@@ -172,17 +173,13 @@ class Rayleigh(object):
         wvl1 = wvl_coord[idx]
         wvl2 = wvl_coord[idx + 1]
 
-        shape = sun_zenith.shape
-        c1_ = coeff[idx, np.round(azidiff).astype('i').ravel(), :].transpose().reshape(
-            21, shape[0], shape[1])
-        c2_ = coeff[idx + 1, np.round(azidiff).astype('i').ravel(), :].transpose().reshape(
-            21, shape[0], shape[1])
-        sun_zenith = np.clip(sun_zenith, 0, 88.)
-        res1 = get_rayleigh_reflectance(c1_, sun_zenith, sat_zenith)
-        res2 = get_rayleigh_reflectance(c2_, sun_zenith, sat_zenith)
+        d__ = (wvl2 - wvl) / (wvl2 - wvl1)
 
-        # Bilinear interpolation
-        res = ((res2 - res1) * wvl + res1 * wvl2 - res2 * wvl1) / (wvl2 - wvl1)
+        wvl_coeff = coeff[idx, :, :] * d__ + coeff[idx + 1, :, :] * (1 - d__)
+
+        sun_zenith = np.clip(sun_zenith, 0, 88.)
+        res = get_rayleigh_reflectance(wvl_coeff, azidiff,
+                                       sun_zenith, sat_zenith)
         res *= 100
 
         if blueband is not None:
