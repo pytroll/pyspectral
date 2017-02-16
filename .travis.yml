@@ -27,4 +27,4 @@ deploy:
     repo: pytroll/pyspectral
     condition: $TRAVIS_PYTHON_VERSION = "2.7"
 notifications:
-  slack: pytroll:96mNSYSI1dBjGyzVXkBT6qFt
+  slack: pytroll:LR63XVq1cT8kVc3fnXKIZmYr

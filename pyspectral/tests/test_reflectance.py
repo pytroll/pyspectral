@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014, 2015 Adam.Dybbroe
+# Copyright (c) 2013, 2014, 2015, 2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -29,6 +29,7 @@ import numpy as np
 
 TEST_RSR = {'20': {}}
 TEST_RSR['20']['det-1'] = {}
+TEST_RSR['20']['det-1']['central_wavelength'] = 3.780281935
 TEST_RSR['20']['det-1']['wavelength'] = np.array([
     3.6123999, 3.6163599, 3.6264927, 3.6363862, 3.646468,
     3.6564937, 3.6664478, 3.6765388, 3.6865413, 3.6964585,
@@ -68,6 +69,7 @@ RESP = np.array([0.01, 0.01414, 0.02085, 0.02925, 0.04151,
                  0.0849, 0.05028, 0.03226, 0.01987, 0.0118,
                  0.01], dtype='float32')
 
+TEST_RSR_WN['20']['det-1']['central_wavelength'] = 3.780281935
 TEST_RSR_WN['20']['det-1']['wavenumber'] = WVN
 TEST_RSR_WN['20']['det-1']['response'] = RESP
 
