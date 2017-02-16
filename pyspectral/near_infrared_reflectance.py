@@ -30,7 +30,7 @@ import os
 import numpy as np
 from pyspectral.solar import (SolarIrradianceSpectrum,
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
-from pyspectral.utils import BANDNAMES
+from pyspectral.utils import BANDNAMES, get_bandname_from_wavelength
 from pyspectral.radiance_tb_conversion import RadTbConverter
 from pyspectral import get_config
 
@@ -65,19 +65,15 @@ class Calculator(RadTbConverter):
         super(Calculator, self).__init__(platform_name, instrument,
                                          band, method=1, **kwargs)
 
+        from numbers import Number
         self.bandname = None
         self.bandwavelength = None
 
         if isinstance(band, str):
             self.bandname = BANDNAMES.get(band, band)
-        elif isinstance(band, (int, long, float)):
+        elif isinstance(band, Number):
             self.bandwavelength = band
-
-        if self.bandname is None:
-            epsilon = 0.1
-            channel_list = [channel for channel in self.rsr if abs(
-                self.rsr[channel]['det-1']['central_wavelength'] - self.bandwavelength) < epsilon]
-            self.bandname = BANDNAMES.get(channel_list[0], channel_list[0])
+            self.bandname = get_bandname_from_wavelength(band, self.rsr)
 
         options = {}
         conf = get_config()

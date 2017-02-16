@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016 Adam.Dybbroe
+# Copyright (c) 2016, 2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -34,9 +34,10 @@ import numpy as np
 
 from pyspectral import get_config
 from pyspectral.rsr_reader import RelativeSpectralResponse
-from pyspectral.utils import (BANDNAMES, INSTRUMENTS, RAYLEIGH_LUT_DIRS,
+from pyspectral.utils import (INSTRUMENTS, RAYLEIGH_LUT_DIRS,
                               download_luts, get_central_wave,
-                              get_rayleigh_reflectance)
+                              get_rayleigh_reflectance,
+                              get_bandname_from_wavelength)
 
 LOG = logging.getLogger(__name__)
 
@@ -138,7 +139,7 @@ class Rayleigh(object):
             if bandname < 0.4 or bandname > 0.8:
                 raise BandFrequencyOutOfRange(
                     'Requested band frequency should be between 0.4 and 0.8 microns!')
-            bandname = get_bandname_from_wavelength(bandname, rsr)
+            bandname = get_bandname_from_wavelength(bandname, rsr.rsr)
 
         wvl, resp = rsr.rsr[bandname][
             'det-1']['wavelength'], rsr.rsr[bandname]['det-1']['response']
@@ -187,21 +188,3 @@ class Rayleigh(object):
                            (1 - (blueband - 20) / 80) * res)
 
         return np.clip(res, 0, 100)
-
-
-def get_bandname_from_wavelength(wavelength, rsr):
-    """Get the bandname from h5 rsr provided the approximate wavelength."""
-    epsilon = 0.1
-    # channel_list = [channel for channel in rsr.rsr if abs(
-    # rsr.rsr[channel]['det-1']['central_wavelength'] - wavelength) < epsilon]
-
-    chdist_min = 2.0
-    chfound = None
-    for channel in rsr.rsr:
-        chdist = abs(
-            rsr.rsr[channel]['det-1']['central_wavelength'] - wavelength)
-        if chdist < chdist_min and chdist < epsilon:
-            chdist_min = chdist
-            chfound = channel
-
-    return BANDNAMES.get(chfound, chfound)

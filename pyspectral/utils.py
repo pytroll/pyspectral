@@ -151,6 +151,24 @@ def get_central_wave(wav, resp, weight=1.0):
     return np.trapz(resp * wav * weight, wav) / np.trapz(resp * weight, wav)
 
 
+def get_bandname_from_wavelength(wavelength, rsr):
+    """Get the bandname from h5 rsr provided the approximate wavelength."""
+    epsilon = 0.1
+    # channel_list = [channel for channel in rsr.rsr if abs(
+    # rsr.rsr[channel]['det-1']['central_wavelength'] - wavelength) < epsilon]
+
+    chdist_min = 2.0
+    chfound = None
+    for channel in rsr:
+        chdist = abs(
+            rsr[channel]['det-1']['central_wavelength'] - wavelength)
+        if chdist < chdist_min and chdist < epsilon:
+            chdist_min = chdist
+            chfound = channel
+
+    return BANDNAMES.get(chfound, chfound)
+
+
 def sort_data(x_vals, y_vals):
     """Sort the data so that x is monotonically increasing and contains
     no duplicates.

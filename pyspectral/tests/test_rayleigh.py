@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016 Adam.Dybbroe
+# Copyright (c) 2016, 2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -78,21 +78,6 @@ class TestRayleigh(unittest.TestCase):
         """Setup the test.
         """
         self.rsr = rsrTestData()
-
-    def test_get_bandname_from_wavelength(self):
-
-        x = rayleigh.get_bandname_from_wavelength(0.4, self.rsr)
-        self.assertEqual(x, 'ch1')
-        x = rayleigh.get_bandname_from_wavelength(0.5, self.rsr)
-        self.assertEqual(x, 'ch2')
-        x = rayleigh.get_bandname_from_wavelength(0.6, self.rsr)
-        self.assertEqual(x, 'ch3')
-        x = rayleigh.get_bandname_from_wavelength(0.7, self.rsr)
-        self.assertEqual(x, 'ch3')
-        x = rayleigh.get_bandname_from_wavelength(0.8, self.rsr)
-        self.assertEqual(x, 'ch4')
-        x = rayleigh.get_bandname_from_wavelength(1.0, self.rsr)
-        self.assertEqual(x, None)
 
     def test_get_effective_wavelength(self):
 
