@@ -71,9 +71,14 @@ class Calculator(RadTbConverter):
 
         if isinstance(band, str):
             self.bandname = BANDNAMES.get(band, band)
+            self.bandwavelength = self.rsr[self.bandname][
+                'det-1']['central_wavelength']
         elif isinstance(band, Number):
             self.bandwavelength = band
             self.bandname = get_bandname_from_wavelength(band, self.rsr)
+            if self.bandwavelength > 3.95 or self.bandwavelength < 3.5:
+                raise NotImplementedError('NIR reflectance is not supported outside ' +
+                                          'the 3.5-3.95 micron interval')
 
         options = {}
         conf = get_config()
@@ -112,20 +117,23 @@ class Calculator(RadTbConverter):
                 self.lutfile = os.path.join(
                     '/tmp', os.path.basename(self.lutfile))
 
-            LOG.info("lut filename: " + str(self.lutfile))
-            if not os.path.exists(self.lutfile):
-                self.make_tb2rad_lut(self.bandname,
-                                     self.lutfile)
-                self.lut = self.read_tb2rad_lut(self.lutfile)
-                LOG.info("LUT file created")
-            else:
-                self.lut = self.read_tb2rad_lut(self.lutfile)
-                LOG.info("File was there and has been read!")
         else:
             LOG.info("No lut filename available in config file. "
-                     "No lut will be used")
-            self.lutfile = None
-            self.lut = None
+                     "Will generate filename automatically")
+            lutname = 'tb2rad_lut_%s_%s_ir%2.1f' % (self.platform_name.lower(),
+                                                    self.instrument.lower(),
+                                                    self.bandwavelength)
+            self.lutfile = os.path.join('/tmp', lutname + '.npz')
+
+        LOG.info("lut filename: " + str(self.lutfile))
+        if not os.path.exists(self.lutfile):
+            self.make_tb2rad_lut(self.bandname,
+                                 self.lutfile)
+            self.lut = self.read_tb2rad_lut(self.lutfile)
+            LOG.info("LUT file created")
+        else:
+            self.lut = self.read_tb2rad_lut(self.lutfile)
+            LOG.info("File was there and has been read!")
 
     def derive_rad39_corr(self, bt11, bt13, method='rosenfeld'):
         """Derive the 3.9 radiance correction factor to account for the
@@ -214,38 +222,18 @@ class Calculator(RadTbConverter):
             else:
                 tbco2 = np.array(tb_ir_co2)
 
-        if self.instrument == 'seviri':
-            ch3xname = 'IR3.9'
-        elif self.instrument == 'modis':
-            ch3xname = '20'
-        elif self.instrument in ["avhrr", "avhrr3", "avhrr/3"]:
-            ch3xname = 'ch3b'
-        elif self.instrument == 'ahi':
-            ch3xname = 'ch7'
-        elif self.instrument == 'viirs':
-            ch3xname = 'M12'
-        else:
-            raise NotImplementedError('Not yet support for this '
-                                      'instrument %s' % str(self.instrument))
-
         if not self.rsr:
             raise NotImplementedError("Reflectance calculations without "
                                       "rsr not yet supported!")
-            # retv = self.tb2radiance_simple(tb_therm, ch3xname)
-            # print("tb2radiance_simple conversion: " + str(retv))
-            # thermal_emiss_one = retv['radiance']
-            # retv = self.tb2radiance_simple(tb_nir, ch3xname)
-            # print("tb2radiance_simple conversion: " + str(retv))
-            # l_nir = retv['radiance']
         else:
             # Assume rsr in in microns!!!
             # FIXME!
             scale = self.rsr_integral * 1e-6
 
-            retv = self.tb2radiance(tb_therm, ch3xname, self.lut)
+            retv = self.tb2radiance(tb_therm, self.bandname, self.lut)
             thermal_emiss_one = retv['radiance'] * scale
 
-            retv = self.tb2radiance(tb_nir, ch3xname, self.lut)
+            retv = self.tb2radiance(tb_nir, self.bandname, self.lut)
             l_nir = retv['radiance'] * scale
 
         if thermal_emiss_one.ravel().shape[0] < 10:
