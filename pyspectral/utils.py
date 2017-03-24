@@ -151,9 +151,8 @@ def get_central_wave(wav, resp, weight=1.0):
     return np.trapz(resp * wav * weight, wav) / np.trapz(resp * weight, wav)
 
 
-def get_bandname_from_wavelength(wavelength, rsr):
+def get_bandname_from_wavelength(wavelength, rsr, epsilon=0.1):
     """Get the bandname from h5 rsr provided the approximate wavelength."""
-    epsilon = 0.1
     # channel_list = [channel for channel in rsr.rsr if abs(
     # rsr.rsr[channel]['det-1']['central_wavelength'] - wavelength) < epsilon]
 
