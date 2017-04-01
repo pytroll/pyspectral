@@ -20,12 +20,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 
 try:
     with open('./README', 'r') as fd:
         long_description = fd.read()
 except IOError:
     long_description = ''
+
+requires = ['docutils>=0.3', 'numpy>=1.5.1', 'scipy>=0.8.1',
+            'h5py>=2.5', 'requests', 'tqdm', 'six']
+
+# if sys.version < '2.7':
+#    requires.append('ordereddict')
+#test_requires = ['behave']
+
+if sys.version < '3.0':
+    test_requires.append('mock')
 
 
 from setuptools import setup
@@ -66,11 +77,7 @@ setup(name='pyspectral',
 
       # Project should use reStructuredText, so ensure that the docutils get
       # installed or upgraded on the target machine
-      install_requires=['docutils>=0.3',
-                        'numpy>=1.5.1', 'scipy>=0.8.1',
-                        'h5py>=2.5',
-                        'requests', 'tqdm'],
-      #                  'requests>=2.7.0', 'tqdm>=4.8.4'],
+      install_requires=requires,
       extras_require={'xlrd': ['xlrd'],
                       'matplotlib': ['matplotlib'],
                       'pandas': ['pandas']},

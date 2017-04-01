@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014, 2015, 2016 Adam.Dybbroe
+# Copyright (c) 2013, 2014, 2015, 2016, 2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -86,7 +86,6 @@ class TestBlackbody(unittest.TestCase):
         """
         wavenumber = 90909.1  # 11 micron band
         black = blackbody_wn((wavenumber, ), [300., 301])
-        print black
         self.assertEqual(black.shape[0], 2)
         self.assertAlmostEqual(black[0], WN_RAD_11MICRON_300KELVIN)
         self.assertAlmostEqual(black[1], WN_RAD_11MICRON_301KELVIN)
