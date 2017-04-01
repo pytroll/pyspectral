@@ -31,13 +31,9 @@ except IOError:
 requires = ['docutils>=0.3', 'numpy>=1.5.1', 'scipy>=0.8.1',
             'h5py>=2.5', 'requests', 'tqdm', 'six']
 
-# if sys.version < '2.7':
-#    requires.append('ordereddict')
-#test_requires = ['behave']
-
+test_requires = ['xlrd']
 if sys.version < '3.0':
     test_requires.append('mock')
-
 
 from setuptools import setup
 import imp
@@ -85,6 +81,6 @@ setup(name='pyspectral',
       data_files=[('share', ['pyspectral/data/e490_00a.dat',
                              'pyspectral/data/MSG_SEVIRI_Spectral_Response_Characterisation.XLS'])],
       test_suite='pyspectral.tests.suite',
-      tests_require=['mock', 'xlrd'],
+      tests_require=test_requires,
       zip_safe=False
       )

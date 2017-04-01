@@ -46,8 +46,6 @@ if CONFIG_FILE is not None and (not os.path.exists(CONFIG_FILE) or
 def get_config():
     """Get config from file"""
 
-    import configparser
-
     conf = configparser.ConfigParser()
     conf.read(BUILTIN_CONFIG_FILE)
     if CONFIG_FILE is not None:
