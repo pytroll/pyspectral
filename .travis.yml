@@ -5,6 +5,11 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
+os:
+- linux
+matrix:
+  allow_failures:
+    - os: osx
 # command to install dependencies, e.g. 
 install: 
   - pip install -r requirements.txt
@@ -29,6 +34,5 @@ deploy:
   on:
     tags: true
     repo: pytroll/pyspectral
-    condition: $TRAVIS_PYTHON_VERSION = "2.7"
 notifications:
   slack: pytroll:LR63XVq1cT8kVc3fnXKIZmYr
