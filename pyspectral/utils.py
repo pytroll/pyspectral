@@ -197,7 +197,6 @@ def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06):
 
     """
     import h5py
-    import os.path
 
     instr = ClassIn(bandnames[0], platform_name)
     instr_name = instr.instrument.replace('/', '')
@@ -212,17 +211,17 @@ def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06):
         h5f.attrs['band_names'] = bandnames
 
         for chname in bandnames:
-            aatsr = ClassIn(chname, platform_name)
+            sensor = ClassIn(chname, platform_name)
             grp = h5f.create_group(chname)
-            wvl = aatsr.rsr['wavelength'][~np.isnan(aatsr.rsr['wavelength'])]
-            rsp = aatsr.rsr['response'][~np.isnan(aatsr.rsr['wavelength'])]
+            wvl = sensor.rsr['wavelength'][~np.isnan(sensor.rsr['wavelength'])]
+            rsp = sensor.rsr['response'][~np.isnan(sensor.rsr['wavelength'])]
             grp.attrs['central_wavelength'] = get_central_wave(wvl, rsp)
-            arr = aatsr.rsr['wavelength']
+            arr = sensor.rsr['wavelength']
             dset = grp.create_dataset('wavelength', arr.shape, dtype='f')
             dset.attrs['unit'] = 'm'
             dset.attrs['scale'] = scale
             dset[...] = arr
-            arr = aatsr.rsr['response']
+            arr = sensor.rsr['response']
             dset = grp.create_dataset('response', arr.shape, dtype='f')
             dset[...] = arr
 

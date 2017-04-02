@@ -20,18 +20,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Test the raw satellite instrument rsr readers
-"""
+"""Test the raw satellite instrument rsr readers."""
 
 import sys
+import mock
+from pyspectral.aatsr_reader import AatsrRSR
+
 if sys.version_info < (2, 7):
     import unittest2 as unittest
 else:
     import unittest
 
-import mock
-import pyspectral
-from pyspectral.aatsr_reader import AatsrRSR
+AATSR_PATH = '/home/a000680/data/SpectralResponses/aatsr/consolidatedsrfs.xls'
+RSR_DIR = '/home/a000680/data/pyspectral'
 
 
 class TestAatsrRsrReader(unittest.TestCase):
@@ -43,17 +44,17 @@ class TestAatsrRsrReader(unittest.TestCase):
     @mock.patch('pyspectral.get_config')
     def setUp(self, get_config, _load, open_workbook):
         """Setup the natve MSG file handler for testing."""
-
         open_workbook.return_code = None
         get_config.return_code = {}
         _load.return_code = None
 
         self.rsr_reader = AatsrRSR('ir12', 'Envisat')
-        self.rsr_reader.aatsr_path = '/home/a000680/data/SpectralResponses/aatsr/consolidatedsrfs.xls'
-        self.rsr_dir = '/home/a000680/data/pyspectral'
+        self.rsr_reader.aatsr_path = AATSR_PATH
+        self.rsr_dir = RSR_DIR
         self._open_wb = open_workbook.return_code
 
     def test_load(self):
+        """Test the loading of the rsr data"""
         pass
 
     def tearDown(self):
@@ -61,8 +62,7 @@ class TestAatsrRsrReader(unittest.TestCase):
 
 
 def suite():
-    """The test suite for test_scene.
-    """
+    """The test suite for test_scene."""
     loader = unittest.TestLoader()
     mysuite = unittest.TestSuite()
     mysuite.addTest(loader.loadTestsFromTestCase(TestAatsrRsrReader))
