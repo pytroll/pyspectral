@@ -1,10 +1,7 @@
 language: python
 python:
-  - "2.7"
-  - "3.3"
-  - "3.4"
+  - "2.7_with_system_site_packages"
   - "3.5"
-  - "3.6"
 os:
 - linux
 matrix:
@@ -21,8 +18,8 @@ addons:
 # command to run tests, e.g. python setup.py test
 #script:  python setup.py test
 script: coverage run --source=pyspectral setup.py test
-virtualenv:
-  system_site_packages: true
+#virtualenv:
+#  system_site_packages: true
 before_install:
   - sudo apt-get install -qq python-numpy python-scipy
 after_success: coveralls
