@@ -24,9 +24,7 @@
 """
 
 import unittest
-import sys
 import numpy as np
-import pyspectral.rsr_reader
 from pyspectral import rayleigh
 from pyspectral.rayleigh import BandFrequencyOutOfRange
 
@@ -37,9 +35,13 @@ from mock import patch
 #sys.modules['pyresample'] = MagicMock()
 
 
-class rsrTestData(object):
+class RelativeSpectralResponseTestData(object):
+
+    """RSR test data"""
 
     def __init__(self):
+        """Making a testdata set of relative spectral responses"""
+
         self.rsr = {}
         channel_names = ['ch12', 'ch13', 'ch10', 'ch11', 'ch16', 'ch14',
                          'ch15', 'ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6',
@@ -71,20 +73,20 @@ class rsrTestData(object):
 
 class TestRayleigh(unittest.TestCase):
 
-    """Class for testing pyspectral.rayleigh
-    """
+    """Class for testing pyspectral.rayleigh"""
 
     def setUp(self):
-        """Setup the test.
-        """
-        self.rsr = rsrTestData()
+        """Setup the test"""
+
+        self.rsr = RelativeSpectralResponseTestData()
 
     def test_get_effective_wavelength(self):
+        """Test getting the effective wavelength"""
 
         # mymock:
         with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
             instance = mymock.return_value
-            instance.rsr = rsrTestData().rsr
+            instance.rsr = RelativeSpectralResponseTestData().rsr
 
             this = rayleigh.Rayleigh('Himawari-8', 'ahi')
             with self.assertRaises(BandFrequencyOutOfRange):
