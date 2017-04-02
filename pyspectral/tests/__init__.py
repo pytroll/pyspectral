@@ -31,7 +31,8 @@ from pyspectral.tests import (test_rayleigh,
                               test_reflectance,
                               test_solarflux,
                               test_utils,
-                              test_rad_tb_conversions)
+                              test_rad_tb_conversions,
+                              test_raw_readers)
 import sys
 if sys.version_info < (2, 7):
     import unittest2 as unittest
@@ -65,7 +66,7 @@ def suite():
     mysuite.addTests(test_reflectance.suite())
     mysuite.addTests(test_utils.suite())
     mysuite.addTests(test_rayleigh.suite())
-
+    mysuite.addTests(test_raw_readers.suite())
     return mysuite
 
 if __name__ == '__main__':

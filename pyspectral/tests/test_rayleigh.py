@@ -23,7 +23,12 @@
 """Unittest for the rayleigh correction utilities
 """
 
-import unittest
+import sys
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
+
 import numpy as np
 from pyspectral import rayleigh
 from pyspectral.rayleigh import BandFrequencyOutOfRange
@@ -93,10 +98,10 @@ class TestRayleigh(unittest.TestCase):
                 this.get_effective_wavelength(0.9)
 
             # Only ch3 (~0.63) testdata implemented yet...
-            x = this.get_effective_wavelength(0.7)
-            self.assertAlmostEqual(x, 0.6356167)
-            x = this.get_effective_wavelength(0.6)
-            self.assertAlmostEqual(x, 0.6356167)
+            ewl = this.get_effective_wavelength(0.7)
+            self.assertAlmostEqual(ewl, 0.6356167)
+            ewl = this.get_effective_wavelength(0.6)
+            self.assertAlmostEqual(ewl, 0.6356167)
 
         # mymock:
         with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
@@ -104,12 +109,12 @@ class TestRayleigh(unittest.TestCase):
                 'Fake that there is no spectral response file...')
 
             this = rayleigh.Rayleigh('Himawari-8', 'ahi')
-            x = this.get_effective_wavelength(0.7)
-            self.assertEqual(x, 0.7)
-            x = this.get_effective_wavelength(0.9)
-            self.assertEqual(x, 0.9)
-            x = this.get_effective_wavelength(0.455)
-            self.assertEqual(x, 0.455)
+            ewl = this.get_effective_wavelength(0.7)
+            self.assertEqual(ewl, 0.7)
+            ewl = this.get_effective_wavelength(0.9)
+            self.assertEqual(ewl, 0.9)
+            ewl = this.get_effective_wavelength(0.455)
+            self.assertEqual(ewl, 0.455)
 
     def tearDown(self):
         """Clean up"""
