@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016 Adam.Dybbroe
+# Copyright (c) 2016, 2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -23,10 +23,13 @@
 """Unittest for the rayleigh correction utilities
 """
 
-import unittest
 import sys
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
+
 import numpy as np
-import pyspectral.rsr_reader
 from pyspectral import rayleigh
 from pyspectral.rayleigh import BandFrequencyOutOfRange
 
@@ -37,9 +40,13 @@ from mock import patch
 #sys.modules['pyresample'] = MagicMock()
 
 
-class rsrTestData(object):
+class RelativeSpectralResponseTestData(object):
+
+    """RSR test data"""
 
     def __init__(self):
+        """Making a testdata set of relative spectral responses"""
+
         self.rsr = {}
         channel_names = ['ch12', 'ch13', 'ch10', 'ch11', 'ch16', 'ch14',
                          'ch15', 'ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6',
@@ -71,45 +78,30 @@ class rsrTestData(object):
 
 class TestRayleigh(unittest.TestCase):
 
-    """Class for testing pyspectral.rayleigh
-    """
+    """Class for testing pyspectral.rayleigh"""
 
     def setUp(self):
-        """Setup the test.
-        """
-        self.rsr = rsrTestData()
+        """Setup the test"""
 
-    def test_get_bandname_from_wavelength(self):
-
-        x = rayleigh.get_bandname_from_wavelength(0.4, self.rsr)
-        self.assertEqual(x, 'ch1')
-        x = rayleigh.get_bandname_from_wavelength(0.5, self.rsr)
-        self.assertEqual(x, 'ch2')
-        x = rayleigh.get_bandname_from_wavelength(0.6, self.rsr)
-        self.assertEqual(x, 'ch3')
-        x = rayleigh.get_bandname_from_wavelength(0.7, self.rsr)
-        self.assertEqual(x, 'ch3')
-        x = rayleigh.get_bandname_from_wavelength(0.8, self.rsr)
-        self.assertEqual(x, 'ch4')
-        x = rayleigh.get_bandname_from_wavelength(1.0, self.rsr)
-        self.assertEqual(x, None)
+        self.rsr = RelativeSpectralResponseTestData()
 
     def test_get_effective_wavelength(self):
+        """Test getting the effective wavelength"""
 
         # mymock:
         with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
             instance = mymock.return_value
-            instance.rsr = rsrTestData().rsr
+            instance.rsr = RelativeSpectralResponseTestData().rsr
 
             this = rayleigh.Rayleigh('Himawari-8', 'ahi')
             with self.assertRaises(BandFrequencyOutOfRange):
                 this.get_effective_wavelength(0.9)
 
             # Only ch3 (~0.63) testdata implemented yet...
-            x = this.get_effective_wavelength(0.7)
-            self.assertAlmostEqual(x, 0.6356167)
-            x = this.get_effective_wavelength(0.6)
-            self.assertAlmostEqual(x, 0.6356167)
+            ewl = this.get_effective_wavelength(0.7)
+            self.assertAlmostEqual(ewl, 0.6356167)
+            ewl = this.get_effective_wavelength(0.6)
+            self.assertAlmostEqual(ewl, 0.6356167)
 
         # mymock:
         with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
@@ -117,12 +109,12 @@ class TestRayleigh(unittest.TestCase):
                 'Fake that there is no spectral response file...')
 
             this = rayleigh.Rayleigh('Himawari-8', 'ahi')
-            x = this.get_effective_wavelength(0.7)
-            self.assertEqual(x, 0.7)
-            x = this.get_effective_wavelength(0.9)
-            self.assertEqual(x, 0.9)
-            x = this.get_effective_wavelength(0.455)
-            self.assertEqual(x, 0.455)
+            ewl = this.get_effective_wavelength(0.7)
+            self.assertEqual(ewl, 0.7)
+            ewl = this.get_effective_wavelength(0.9)
+            self.assertEqual(ewl, 0.9)
+            ewl = this.get_effective_wavelength(0.455)
+            self.assertEqual(ewl, 0.455)
 
     def tearDown(self):
         """Clean up"""

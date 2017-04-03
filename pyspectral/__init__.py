@@ -29,6 +29,8 @@ import os
 
 LOG = logging.getLogger(__name__)
 
+from six.moves import configparser
+
 import pkg_resources
 BUILTIN_CONFIG_FILE = pkg_resources.resource_filename(__name__,
                                                       os.path.join('etc', 'pyspectral.cfg'))
@@ -44,14 +46,12 @@ if CONFIG_FILE is not None and (not os.path.exists(CONFIG_FILE) or
 def get_config():
     """Get config from file"""
 
-    import ConfigParser
-
-    conf = ConfigParser.ConfigParser()
+    conf = configparser.ConfigParser()
     conf.read(BUILTIN_CONFIG_FILE)
     if CONFIG_FILE is not None:
         try:
             conf.read(CONFIG_FILE)
-        except ConfigParser.NoSectionError:
+        except configparser.NoSectionError:
             LOG.info('Failed reading configuration file: %s',
                      str(CONFIG_FILE))
 

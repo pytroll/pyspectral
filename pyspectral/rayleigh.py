@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016 Adam.Dybbroe
+# Copyright (c) 2016, 2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -28,14 +28,17 @@
 
 import logging
 import os
+from six import integer_types
+
 import h5py
 import numpy as np
 
 from pyspectral import get_config
 from pyspectral.rsr_reader import RelativeSpectralResponse
-from pyspectral.utils import (BANDNAMES, INSTRUMENTS, get_central_wave,
-                              get_rayleigh_reflectance, download_luts,
-                              RAYLEIGH_LUT_DIRS)
+from pyspectral.utils import (INSTRUMENTS, RAYLEIGH_LUT_DIRS,
+                              download_luts, get_central_wave,
+                              get_rayleigh_reflectance,
+                              get_bandname_from_wavelength)
 
 LOG = logging.getLogger(__name__)
 
@@ -125,7 +128,8 @@ class Rayleigh(object):
         except IOError:
             LOG.exception(
                 "No spectral responses for this platform and sensor: %s %s", self.platform_name, self.sensor)
-            if isinstance(bandname, (float, int, long)):
+            if (isinstance(bandname, float) or
+                    isinstance(bandname, integer_types)):
                 LOG.warning(
                     "Effective wavelength is set to the requested band wavelength = %f", bandname)
                 return bandname
@@ -133,11 +137,12 @@ class Rayleigh(object):
 
         if isinstance(bandname, str):
             bandname = self.sensor_bandnames.get(bandname, bandname)
-        elif isinstance(bandname, (float, int, long)):
+        elif (isinstance(bandname, float) or
+              isinstance(bandname, integer_types)):
             if bandname < 0.4 or bandname > 0.8:
                 raise BandFrequencyOutOfRange(
                     'Requested band frequency should be between 0.4 and 0.8 microns!')
-            bandname = get_bandname_from_wavelength(bandname, rsr)
+            bandname = get_bandname_from_wavelength(bandname, rsr.rsr)
 
         wvl, resp = rsr.rsr[bandname][
             'det-1']['wavelength'], rsr.rsr[bandname]['det-1']['response']
@@ -172,17 +177,13 @@ class Rayleigh(object):
         wvl1 = wvl_coord[idx]
         wvl2 = wvl_coord[idx + 1]
 
-        shape = sun_zenith.shape
-        c1_ = coeff[idx, np.round(azidiff).astype('i').ravel(), :].transpose().reshape(
-            21, shape[0], shape[1])
-        c2_ = coeff[idx + 1, np.round(azidiff).astype('i').ravel(), :].transpose().reshape(
-            21, shape[0], shape[1])
-        sun_zenith = np.clip(sun_zenith, 0, 88.)
-        res1 = get_rayleigh_reflectance(c1_, sun_zenith, sat_zenith)
-        res2 = get_rayleigh_reflectance(c2_, sun_zenith, sat_zenith)
+        d__ = (wvl2 - wvl) / (wvl2 - wvl1)
 
-        # Bilinear interpolation
-        res = ((res2 - res1) * wvl + res1 * wvl2 - res2 * wvl1) / (wvl2 - wvl1)
+        wvl_coeff = coeff[idx, :, :] * d__ + coeff[idx + 1, :, :] * (1 - d__)
+
+        sun_zenith = np.clip(sun_zenith, 0, 88.)
+        res = get_rayleigh_reflectance(wvl_coeff, azidiff,
+                                       sun_zenith, sat_zenith)
         res *= 100
 
         if blueband is not None:
@@ -190,21 +191,3 @@ class Rayleigh(object):
                            (1 - (blueband - 20) / 80) * res)
 
         return np.clip(res, 0, 100)
-
-
-def get_bandname_from_wavelength(wavelength, rsr):
-    """Get the bandname from h5 rsr provided the approximate wavelength."""
-    epsilon = 0.1
-    # channel_list = [channel for channel in rsr.rsr if abs(
-    # rsr.rsr[channel]['det-1']['central_wavelength'] - wavelength) < epsilon]
-
-    chdist_min = 2.0
-    chfound = None
-    for channel in rsr.rsr:
-        chdist = abs(
-            rsr.rsr[channel]['det-1']['central_wavelength'] - wavelength)
-        if chdist < chdist_min and chdist < epsilon:
-            chdist_min = chdist
-            chfound = channel
-
-    return BANDNAMES.get(chfound, chfound)

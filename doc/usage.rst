@@ -8,8 +8,8 @@ A simple use case::
   >>> modis = RelativeSpectralResponse('EOS-Aqua', 'modis')
   >>> solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, dlambda=0.005)
   >>> sflux = solar_irr.inband_solarflux(modis.rsr['20'])
-  >>> print("Solar flux over Band: ", sflux)
-  ('Solar flux over Band: ', 2.0029281634299037)
+  >>> print("Solar flux over Band: ", round(sflux, 6))
+  ('Solar flux over Band: ', 2.002928)
 
 And, here is how to derive the solar reflectance (removing the thermal part) of
 the Aqua MODIS 3.7 micron band::
@@ -19,8 +19,8 @@ the Aqua MODIS 3.7 micron band::
   >>> tb3 = 290.0
   >>> tb4 = 282.0
   >>> refl37 = Calculator('EOS-Aqua', 'modis', '20', detector='det-1', solar_flux=2.0029281634299041)
-  >>> print refl37.reflectance_from_tbs(sunz, tb3, tb4)
-  0.251249064103
+  >>> print round(refl37.reflectance_from_tbs(sunz, tb3, tb4), 6)
+  0.251249
 
 
 And, here is how to derive the rayleigh (with additional optional aerosol absorption) contribution in a short wave band::
@@ -33,5 +33,5 @@ And, here is how to derive the rayleigh (with additional optional aerosol absorp
   >>> azidiff = np.array([[160, 160], [160, 160]])
   >>> blueband =  np.array([[0.1, 0.15], [0.11, 0.16]])
   >>> print rcor.get_reflectance(sunz, satz, azidiff, 'ch2', blueband)
-  [[ 3.44474971  5.14612533]
-   [ 3.56880351  5.39811687]]
+  [[ 2.13819557  3.27372626]
+   [ 2.20019015  3.47498879]]

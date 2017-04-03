@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014, 2015, 2016 Adam.Dybbroe
+# Copyright (c) 2014, 2015, 2016, 2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -30,7 +30,7 @@ import os
 import numpy as np
 from pyspectral.solar import (SolarIrradianceSpectrum,
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
-from pyspectral.utils import BANDNAMES
+from pyspectral.utils import BANDNAMES, get_bandname_from_wavelength
 from pyspectral.radiance_tb_conversion import RadTbConverter
 from pyspectral import get_config
 
@@ -41,7 +41,7 @@ LOG = logging.getLogger(__name__)
 WAVE_LENGTH = 'wavelength'
 WAVE_NUMBER = 'wavenumber'
 
-EPSILON = 0.01
+EPSILON = 0.005
 TB_MIN = 150.
 TB_MAX = 360.
 
@@ -53,7 +53,7 @@ class Calculator(RadTbConverter):
     Given the relative spectral response of the NIR band, the solar zenith
     angle, and the brightness temperatures of the NIR and the Thermal bands,
     derive the solar reflectance for the NIR band removing the thermal
-    (terrestrial) part.  The in-band solar flux over the NIR band is
+    (terrestrial) part. The in-band solar flux over the NIR band is
     optional. If not provided, it will be calculated here!
 
     The relfectance calculated is without units and should be between 0 and 1.
@@ -65,19 +65,20 @@ class Calculator(RadTbConverter):
         super(Calculator, self).__init__(platform_name, instrument,
                                          band, method=1, **kwargs)
 
+        from numbers import Number
         self.bandname = None
         self.bandwavelength = None
 
         if isinstance(band, str):
             self.bandname = BANDNAMES.get(band, band)
-        elif isinstance(band, (int, long, float)):
+            self.bandwavelength = self.rsr[self.bandname][
+                'det-1']['central_wavelength']
+        elif isinstance(band, Number):
             self.bandwavelength = band
-
-        if self.bandname is None:
-            epsilon = 0.1
-            channel_list = [channel for channel in self.rsr if abs(
-                self.rsr[channel]['det-1']['central_wavelength'] - self.bandwavelength) < epsilon]
-            self.bandname = BANDNAMES.get(channel_list[0], channel_list[0])
+            self.bandname = get_bandname_from_wavelength(band, self.rsr)
+            if self.bandwavelength > 3.95 or self.bandwavelength < 3.5:
+                raise NotImplementedError('NIR reflectance is not supported outside ' +
+                                          'the 3.5-3.95 micron interval')
 
         options = {}
         conf = get_config()
@@ -116,20 +117,23 @@ class Calculator(RadTbConverter):
                 self.lutfile = os.path.join(
                     '/tmp', os.path.basename(self.lutfile))
 
-            LOG.info("lut filename: " + str(self.lutfile))
-            if not os.path.exists(self.lutfile):
-                self.make_tb2rad_lut(self.bandname,
-                                     self.lutfile)
-                self.lut = self.read_tb2rad_lut(self.lutfile)
-                LOG.info("LUT file created")
-            else:
-                self.lut = self.read_tb2rad_lut(self.lutfile)
-                LOG.info("File was there and has been read!")
         else:
             LOG.info("No lut filename available in config file. "
-                     "No lut will be used")
-            self.lutfile = None
-            self.lut = None
+                     "Will generate filename automatically")
+            lutname = 'tb2rad_lut_%s_%s_ir%2.1f' % (self.platform_name.lower(),
+                                                    self.instrument.lower(),
+                                                    self.bandwavelength)
+            self.lutfile = os.path.join('/tmp', lutname + '.npz')
+
+        LOG.info("lut filename: " + str(self.lutfile))
+        if not os.path.exists(self.lutfile):
+            self.make_tb2rad_lut(self.bandname,
+                                 self.lutfile)
+            self.lut = self.read_tb2rad_lut(self.lutfile)
+            LOG.info("LUT file created")
+        else:
+            self.lut = self.read_tb2rad_lut(self.lutfile)
+            LOG.info("File was there and has been read!")
 
     def derive_rad39_corr(self, bt11, bt13, method='rosenfeld'):
         """Derive the 3.9 radiance correction factor to account for the
@@ -160,10 +164,9 @@ class Calculator(RadTbConverter):
         """Get the emissive part of the 3.x band"""
         try:
             # Emissive part:
-            # self._e3x = self._rad3x_t11 * (1 -
-            self._e3x = self._rad3x * (1 -
-                                       np.ma.masked_outside(self._r3x, 0, 1,
-                                                            copy=False))
+            self._e3x = self._rad3x_t11 * (1 - self._r3x)
+            self._e3x *= self._rad3x_correction
+
         except TypeError:
             LOG.warning(
                 "Couldn't derive the emissive part \n" +
@@ -219,38 +222,18 @@ class Calculator(RadTbConverter):
             else:
                 tbco2 = np.array(tb_ir_co2)
 
-        if self.instrument == 'seviri':
-            ch3xname = 'IR3.9'
-        elif self.instrument == 'modis':
-            ch3xname = '20'
-        elif self.instrument in ["avhrr", "avhrr3", "avhrr/3"]:
-            ch3xname = 'ch3b'
-        elif self.instrument == 'ahi':
-            ch3xname = 'ch7'
-        elif self.instrument == 'viirs':
-            ch3xname = 'M12'
-        else:
-            raise NotImplementedError('Not yet support for this '
-                                      'instrument %s' % str(self.instrument))
-
         if not self.rsr:
             raise NotImplementedError("Reflectance calculations without "
                                       "rsr not yet supported!")
-            # retv = self.tb2radiance_simple(tb_therm, ch3xname)
-            # print("tb2radiance_simple conversion: " + str(retv))
-            # thermal_emiss_one = retv['radiance']
-            # retv = self.tb2radiance_simple(tb_nir, ch3xname)
-            # print("tb2radiance_simple conversion: " + str(retv))
-            # l_nir = retv['radiance']
         else:
             # Assume rsr in in microns!!!
             # FIXME!
             scale = self.rsr_integral * 1e-6
-            retv = self.tb2radiance(tb_therm, ch3xname, self.lut)
-            # print("tb2radiance conversion: " + str(retv))
+
+            retv = self.tb2radiance(tb_therm, self.bandname, self.lut)
             thermal_emiss_one = retv['radiance'] * scale
-            retv = self.tb2radiance(tb_nir, ch3xname, self.lut)
-            # print("tb2radiance conversion: " + str(retv))
+
+            retv = self.tb2radiance(tb_nir, self.bandname, self.lut)
             l_nir = retv['radiance'] * scale
 
         if thermal_emiss_one.ravel().shape[0] < 10:
@@ -272,16 +255,25 @@ class Calculator(RadTbConverter):
         # 13.4 micron is provided:
         if co2corr:
             self.derive_rad39_corr(tb_therm, tbco2)
+            LOG.info("CO2 correction applied...")
         else:
             self._rad3x_correction = 1.0
 
-        # mask = thermal_emiss_one > l_nir
+        mask = (self._solar_radiance - self._rad3x_t11 *
+                self._rad3x_correction) < EPSILON
+        newmask = np.logical_or(sunzmask, mask)
 
         nomin = l_nir - self._rad3x_t11 * self._rad3x_correction
         LOG.debug("Shapes: %s  %s", str(mu0.shape),
                   str(self._rad3x_t11.shape))
         denom = self._solar_radiance - \
             self._rad3x_t11 * self._rad3x_correction
+
+        # # Write data to file for analysis
+        # np.savez('pyspecdata',
+        #          sunz=sun_zenith, L=l_nir,
+        #          S=self._rad3x_t11 * self._rad3x_correction,
+        #          f=self._solar_radiance)
 
         r3x = nomin / denom
         # r3x = np.ma.masked_array(r3x, mask=mask)
@@ -290,7 +282,8 @@ class Calculator(RadTbConverter):
         # r3x = np.ma.masked_outside(r3x, 0.0, 10.0)  # * 100.  # Percent!
         # if np.ma.is_masked(tb_nir):
         #    r3x = np.ma.masked_where(tb_nir.mask, r3x).filled(0)
-        self._r3x = np.ma.masked_where(sunzmask, r3x)
+
+        self._r3x = np.ma.masked_where(newmask, r3x)
 
         # Reflectances should be between 0 and 1, but values above 1 is
         # perfectly possible and okay! (Multiply by 100 to get reflectances

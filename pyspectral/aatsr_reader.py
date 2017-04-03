@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016 Adam.Dybbroe
+# Copyright (c) 2016, 2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -24,26 +24,14 @@
 ESA: http://envisat.esa.int/handbooks/aatsr/aux-files/consolidatedsrfs.xls
 
 """
-import ConfigParser
-import os
 from xlrd import open_workbook
 import numpy as np
 
 from pyspectral.utils import convert2hdf5 as tohdf5
-
+from pyspectral import get_config
 
 import logging
 LOG = logging.getLogger(__name__)
-
-try:
-    CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
-except KeyError:
-    LOG.exception('Environment variable PSP_CONFIG_FILE not set!')
-    raise
-
-if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
-    raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
-                  "variable PSP_CONFIG_FILE is not a file or does not exist!")
 
 AATSR_BAND_NAMES = ['ir12', 'ir11', 'ir37', 'v16', 'v870', 'v659', 'v555']
 
@@ -53,22 +41,14 @@ class AatsrRSR(object):
     """Class for Envisat AATSR RSR"""
 
     def __init__(self, bandname, platform_name='Envisat'):
-        """
-        Read the aatsr relative spectral responses for all channels.
+        """Read the aatsr relative spectral responses for all channels"""
 
-        """
         self.platform_name = platform_name
         self.instrument = 'aatsr'
         self.bandname = bandname
         self.rsr = None
 
-        conf = ConfigParser.ConfigParser()
-        try:
-            conf.read(CONFIG_FILE)
-        except ConfigParser.NoSectionError:
-            LOG.exception('Failed reading configuration file: %s',
-                          str(CONFIG_FILE))
-            raise
+        conf = get_config()
 
         options = {}
         for option, value in conf.items(self.platform_name + '-aatsr',

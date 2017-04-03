@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014, 2015, 2016 Adam.Dybbroe
+# Copyright (c) 2014, 2015, 2016, 2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -23,10 +23,12 @@
 
 """Utility functions"""
 
-import numpy as np
 import os
-from pyspectral import get_config
 from os.path import expanduser
+
+import numpy as np
+
+from pyspectral import get_config
 
 BANDNAMES = {'VIS006': 'VIS0.6',
              'VIS008': 'VIS0.8',
@@ -149,6 +151,23 @@ def get_central_wave(wav, resp, weight=1.0):
     return np.trapz(resp * wav * weight, wav) / np.trapz(resp * weight, wav)
 
 
+def get_bandname_from_wavelength(wavelength, rsr, epsilon=0.1):
+    """Get the bandname from h5 rsr provided the approximate wavelength."""
+    # channel_list = [channel for channel in rsr.rsr if abs(
+    # rsr.rsr[channel]['det-1']['central_wavelength'] - wavelength) < epsilon]
+
+    chdist_min = 2.0
+    chfound = None
+    for channel in rsr:
+        chdist = abs(
+            rsr[channel]['det-1']['central_wavelength'] - wavelength)
+        if chdist < chdist_min and chdist < epsilon:
+            chdist_min = chdist
+            chfound = channel
+
+    return BANDNAMES.get(chfound, chfound)
+
+
 def sort_data(x_vals, y_vals):
     """Sort the data so that x is monotonically increasing and contains
     no duplicates.
@@ -171,14 +190,13 @@ def sort_data(x_vals, y_vals):
 
 
 def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06):
-    """Retrieve original RSR data and convert to internal hdf5 format.  
+    """Retrieve original RSR data and convert to internal hdf5 format.
 
     *scale* is the number which has to be multiplied to the wavelength data in
     order to get it in the SI unit meter
 
     """
     import h5py
-    import os.path
 
     instr = ClassIn(bandnames[0], platform_name)
     instr_name = instr.instrument.replace('/', '')
@@ -193,22 +211,22 @@ def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06):
         h5f.attrs['band_names'] = bandnames
 
         for chname in bandnames:
-            aatsr = ClassIn(chname, platform_name)
+            sensor = ClassIn(chname, platform_name)
             grp = h5f.create_group(chname)
-            wvl = aatsr.rsr['wavelength'][~np.isnan(aatsr.rsr['wavelength'])]
-            rsp = aatsr.rsr['response'][~np.isnan(aatsr.rsr['wavelength'])]
+            wvl = sensor.rsr['wavelength'][~np.isnan(sensor.rsr['wavelength'])]
+            rsp = sensor.rsr['response'][~np.isnan(sensor.rsr['wavelength'])]
             grp.attrs['central_wavelength'] = get_central_wave(wvl, rsp)
-            arr = aatsr.rsr['wavelength']
+            arr = sensor.rsr['wavelength']
             dset = grp.create_dataset('wavelength', arr.shape, dtype='f')
             dset.attrs['unit'] = 'm'
             dset.attrs['scale'] = scale
             dset[...] = arr
-            arr = aatsr.rsr['response']
+            arr = sensor.rsr['response']
             dset = grp.create_dataset('response', arr.shape, dtype='f')
             dset[...] = arr
 
 
-def get_rayleigh_reflectance(parms, sunz, satz):
+def get_rayleigh_reflectance(parms, azidiff, sunz, satz):
     """Get the Rayleigh reflectance applying the polynomial fit parameters
 
     P(x,y) = c_{00} + c_{10}x + ...+ c_{n0}x^n +
@@ -216,34 +234,47 @@ def get_rayleigh_reflectance(parms, sunz, satz):
              c_{11}xy + c_{12}xy^2 + ... +
              c_{1(n-1)}xy^{n-1}+ ... + c_{(n-1)1}x^{n-1}y
 
-    x = relative azimuth difference angle
+    x = relative azimuth difference angle:
+        Azimuth difference   0: Instrument is looking into Sun
+        Azimuth difference 180: Instrument and Sun are looking in the same
+        direction
     y = secant of the satellite zenith angle
+
+    NB! The azimuth difference provided here is defined as described in the
+    documentation, and differs by 180 degrees to the angle x required in the
+    polynomial fit.
+
     """
 
     sec = 1. / np.cos(np.deg2rad(satz))
     sunsec = 1. / np.cos(np.deg2rad(sunz))
 
-    res = (parms[0] +
-           parms[1] * sunsec +
-           parms[2] * sunsec ** 2 +
-           parms[3] * sunsec ** 3 +
-           parms[4] * sunsec ** 4 +
-           parms[5] * sunsec ** 5 +
-           parms[6] * sec +
-           parms[7] * sec ** 2 +
-           parms[8] * sec ** 3 +
-           parms[9] * sec ** 4 +
-           parms[10] * sec ** 5 +
-           parms[11] * sunsec * sec +
-           parms[12] * sunsec * sec ** 2 +
-           parms[13] * sunsec * sec ** 3 +
-           parms[14] * sunsec * sec ** 4 +
-           parms[15] * sunsec ** 2 * sec +
-           parms[16] * sunsec ** 2 * sec ** 2 +
-           parms[17] * sunsec ** 2 * sec ** 3 +
-           parms[18] * sunsec ** 3 * sec +
-           parms[19] * sunsec ** 3 * sec ** 2 +
-           parms[20] * sunsec ** 4 * sec)
+    coeffs = [[parms[:, 0], parms[:, 1], parms[:, 2], parms[:, 3], parms[:, 4], parms[:, 5]],
+              [parms[:, 6], parms[:, 11], parms[:, 15],
+                  parms[:, 18], parms[:, 20]],
+              [parms[:, 7], parms[:, 12], parms[:, 16], parms[:, 19]],
+              [parms[:, 8], parms[:, 13], parms[:, 17]],
+              [parms[:, 9], parms[:, 14]],
+              [parms[:, 10]]
+              ]
+
+    # The RTM simulations are based on a definition of the sun-satellite azimuth
+    # difference according to the following:
+    # Azimuth difference 0: Instrument is looking into Sun
+    # Azimuth difference 180: Instrument and Sun are looking in the same
+    # direction
+    indices = np.rint(180. - azidiff).astype('i')
+
+    res = 0
+
+    for line, cols in enumerate(coeffs):
+        for col, coeff in enumerate(cols):
+            factor = coeff[indices]
+            for i in range(line):
+                factor *= sec
+            for i in range(col):
+                factor *= sunsec
+            res += factor
 
     return res
 

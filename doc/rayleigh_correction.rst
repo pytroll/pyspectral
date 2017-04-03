@@ -21,6 +21,15 @@ angle:
     \sigma = \sigma({\theta}_0, \theta, \phi, \lambda)
 
 
+The relative sun-satellite azimuth difference angle is defined as illustrated
+in the figure below:
+
+.. figure:: _static/sun-satellite-viewing.png
+   :alt: Definition of the sun-satellite viewing geometry
+   :scale: 70%
+   :align: center
+
+
 To apply the rayleigh correction for a given satellite sensor band, the
 procedure involves the following three steps:
 

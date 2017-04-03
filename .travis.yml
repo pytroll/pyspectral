@@ -1,6 +1,14 @@
 language: python
 python:
-  - "2.7"
+  - "2.7_with_system_site_packages"
+  - 3.4
+  - 3.5
+  - 3.6
+os:
+- linux
+matrix:
+  allow_failures:
+    - os: osx
 # command to install dependencies, e.g. 
 install: 
   - pip install -r requirements.txt
@@ -12,8 +20,8 @@ addons:
 # command to run tests, e.g. python setup.py test
 #script:  python setup.py test
 script: coverage run --source=pyspectral setup.py test
-virtualenv:
-  system_site_packages: true
+#virtualenv:
+#  system_site_packages: true
 before_install:
   - sudo apt-get install -qq python-numpy python-scipy
 after_success: coveralls
@@ -25,6 +33,5 @@ deploy:
   on:
     tags: true
     repo: pytroll/pyspectral
-    condition: $TRAVIS_PYTHON_VERSION = "2.7"
 notifications:
-  slack: pytroll:96mNSYSI1dBjGyzVXkBT6qFt
+  slack: pytroll:LR63XVq1cT8kVc3fnXKIZmYr

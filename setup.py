@@ -20,6 +20,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 
 try:
     with open('./README', 'r') as fd:
@@ -27,6 +28,12 @@ try:
 except IOError:
     long_description = ''
 
+requires = ['docutils>=0.3', 'numpy>=1.5.1', 'scipy>=0.8.1',
+            'h5py>=2.5', 'requests', 'tqdm', 'six']
+
+test_requires = ['xlrd']
+if sys.version < '3.0':
+    test_requires.append('mock')
 
 from setuptools import setup
 import imp
@@ -66,11 +73,7 @@ setup(name='pyspectral',
 
       # Project should use reStructuredText, so ensure that the docutils get
       # installed or upgraded on the target machine
-      install_requires=['docutils>=0.3',
-                        'numpy>=1.5.1', 'scipy>=0.8.1',
-                        'h5py>=2.5',
-                        'requests', 'tqdm'],
-      #                  'requests>=2.7.0', 'tqdm>=4.8.4'],
+      install_requires=requires,
       extras_require={'xlrd': ['xlrd'],
                       'matplotlib': ['matplotlib'],
                       'pandas': ['pandas']},
@@ -78,6 +81,6 @@ setup(name='pyspectral',
       data_files=[('share', ['pyspectral/data/e490_00a.dat',
                              'pyspectral/data/MSG_SEVIRI_Spectral_Response_Characterisation.XLS'])],
       test_suite='pyspectral.tests.suite',
-      tests_require=['mock', 'xlrd'],
+      tests_require=test_requires,
       zip_safe=False
       )

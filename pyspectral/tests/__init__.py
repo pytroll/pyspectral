@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014, 2015, 2016 Adam.Dybbroe
+# Copyright (c) 2013, 2014, 2015, 2016, 2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -31,10 +31,15 @@ from pyspectral.tests import (test_rayleigh,
                               test_reflectance,
                               test_solarflux,
                               test_utils,
-                              test_rad_tb_conversions)
-import unittest
-import doctest
+                              test_rad_tb_conversions,
+                              test_raw_readers)
+import sys
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
 
+import doctest
 import os
 TRAVIS = os.environ.get("TRAVIS", False)
 
@@ -61,7 +66,7 @@ def suite():
     mysuite.addTests(test_reflectance.suite())
     mysuite.addTests(test_utils.suite())
     mysuite.addTests(test_rayleigh.suite())
-
+    mysuite.addTests(test_raw_readers.suite())
     return mysuite
 
 if __name__ == '__main__':
