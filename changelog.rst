@@ -1,6 +1,82 @@
 Changelog
 =========
 
+v0.3.4 (2017-04-03)
+-------------------
+
+Fix
+~~~
+
+- Bugfix: unttests and py2.7. [Adam.Dybbroe]
+
+Other
+~~~~~
+
+- Update changelog. [Adam.Dybbroe]
+
+- Bump version: 0.3.3 → 0.3.4. [Adam.Dybbroe]
+
+- Merge branch 'pre-master' into release-v0.3.4. [Adam.Dybbroe]
+
+- Pep8 and increasing pylint score. [Adam.Dybbroe]
+
+- Add test module. [Adam.Dybbroe]
+
+- Add unitest for aatsr reader. [Adam.Dybbroe]
+
+- Remove python 3.3 from travis: does not build scipy. [Adam.Dybbroe]
+
+- Pep8 and improving pylint scores. [Adam.Dybbroe]
+
+- Add TRAVIS tests on various Python 3 versions. [Adam.Dybbroe]
+
+- Travis fix: Remove system-site-packages on anything else than 2.7.
+  [Adam.Dybbroe]
+
+- Don't set python version for travis. [Adam.Dybbroe]
+
+- Activate python3 testing to travis. [Adam.Dybbroe]
+
+- Make Python 3 compatible. [Adam.Dybbroe]
+
+- Epsilon is a input parameter not a hardcoded value anymore.
+  [Adam.Dybbroe]
+
+- Improved sun-sat viewing figure for docs. [Adam.Dybbroe]
+
+- Fix unittests near-ir reflectance. [Adam.Dybbroe]
+
+- LUT file can be generated even without having the filename defined in
+  config. [Adam.Dybbroe]
+
+  Also, only NIR bands in the 3.5-3.95 range is supported
+
+- Remove duplicate code and move get_bandname_from_wavelength to utils.
+  [Adam.Dybbroe]
+
+- Fixed the 180 degree azimuth bug in the Rayleigh correction, and
+  improved documentation. [Adam.Dybbroe]
+
+- Merge pull request #5 from pytroll/rayleigh-speedup. [Adam Dybbroe]
+
+  Speedup and optimize rayleigh computations
+
+- Remove unneeded variable. [Martin Raspaud]
+
+- Speedup and optimize rayleigh computations. [Martin Raspaud]
+
+- Remove old code commentedt out. [Adam.Dybbroe]
+
+- Correctied emissive part: Allow reflectances outside [0,1] and apply
+  correction. [Adam.Dybbroe]
+
+- More strict masking: Avoid crazy r39 values due to very small or
+  negative denominators. [Adam.Dybbroe]
+
+- Merge branch 'release-v0.3.3' into pre-master. [Adam.Dybbroe]
+
+- Merge branch 'release-v0.3.3' [Adam.Dybbroe]
+
 v0.3.3 (2017-01-13)
 -------------------
 
