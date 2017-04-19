@@ -72,7 +72,9 @@ RESULT_RSR['20']['det-1']['response'] = np.array([
     dtype='float32')
 
 
-class rsrTestData(object):
+class RsrTestData(object):
+
+    """Container for the RSR test datasets"""
 
     def __init__(self):
         self.rsr = {}
@@ -110,7 +112,7 @@ class TestUtils(unittest.TestCase):
 
     def setUp(self):
         """Set up"""
-        self.rsr = rsrTestData()
+        self.rsr = RsrTestData()
 
     def test_convert2wavenumber(self):
         """Testing the conversion of rsr from wavelength to wavenumber

@@ -263,10 +263,10 @@ def generate_seviri_file(seviri, platform_name):
 
 def main():
     """Main"""
-    sevObj = Seviri()
+    sev_obj = Seviri()
 
     for satnum in [8, 9, 10, 11]:
-        generate_seviri_file(sevObj, 'Meteosat-%d' % satnum)
+        generate_seviri_file(sev_obj, 'Meteosat-%d' % satnum)
         print "Meteosat-%d done..." % satnum
 
 if __name__ == "__main__":

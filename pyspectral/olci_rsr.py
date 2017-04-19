@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016 Adam.Dybbroe
+# Copyright (c) 2016, 2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -89,6 +89,7 @@ def main():
 
 
 def testplot():
+    """Just making a plot of the OLCI spectral response functions"""
 
     this = Dataset(RSRFILE, 'r')
     # There are 21 bands

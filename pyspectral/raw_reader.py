@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016 Adam.Dybbroe
+# Copyright (c) 2016-2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -64,6 +64,7 @@ class InstrumentRSR(object):
         self.requested_band_filename = None
 
     def _get_options_from_config(self):
+        """Get configuration settings from config/ini file"""
 
         conf = ConfigParser.ConfigParser()
         try:

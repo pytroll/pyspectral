@@ -48,6 +48,8 @@ ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
 
 
 class BandFrequencyOutOfRange(Exception):
+
+    """Exception when the band frequency is out of the visible range"""
     pass
 
 
@@ -128,8 +130,7 @@ class Rayleigh(object):
         except IOError:
             LOG.exception(
                 "No spectral responses for this platform and sensor: %s %s", self.platform_name, self.sensor)
-            if (isinstance(bandname, float) or
-                    isinstance(bandname, integer_types)):
+            if isinstance(bandname, (float, integer_types)):
                 LOG.warning(
                     "Effective wavelength is set to the requested band wavelength = %f", bandname)
                 return bandname
@@ -137,8 +138,7 @@ class Rayleigh(object):
 
         if isinstance(bandname, str):
             bandname = self.sensor_bandnames.get(bandname, bandname)
-        elif (isinstance(bandname, float) or
-              isinstance(bandname, integer_types)):
+        elif isinstance(bandname, (float, integer_types)):
             if bandname < 0.4 or bandname > 0.8:
                 raise BandFrequencyOutOfRange(
                     'Requested band frequency should be between 0.4 and 0.8 microns!')
