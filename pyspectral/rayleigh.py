@@ -106,7 +106,7 @@ class Rayleigh(object):
                                  }
 
         ext = atm_type.replace(' ', '_')
-        lutname = "rayleigh_lut_const_azidiff_%s.h5" % ext
+        lutname = "rayleigh_lut_const_azidiff_{0}.h5".format(ext)
         self.coeff_filename = os.path.join(rayleigh_dir, lutname)
 
         if not os.path.exists(self.coeff_filename):

@@ -113,16 +113,15 @@ class Calculator(RadTbConverter):
 
             if not os.path.exists(os.path.dirname(self.lutfile)):
                 LOG.warning(
-                    "Directory %s does not exist! Check config file" % os.path.dirname(self.lutfile))
+                    "Directory {0} does not exist! Check config file".format(os.path.dirname(self.lutfile)))
                 self.lutfile = os.path.join(
                     '/tmp', os.path.basename(self.lutfile))
 
         else:
             LOG.info("No lut filename available in config file. "
                      "Will generate filename automatically")
-            lutname = 'tb2rad_lut_%s_%s_ir%2.1f' % (self.platform_name.lower(),
-                                                    self.instrument.lower(),
-                                                    self.bandwavelength)
+            lutname = 'tb2rad_lut_{0}_{1}'.format(self.platform_name.lower(
+            ), self.instrument.lower()) + '_ir%2.1f' % (self.bandwavelength)
             self.lutfile = os.path.join('/tmp', lutname + '.npz')
 
         LOG.info("lut filename: " + str(self.lutfile))
@@ -209,8 +208,9 @@ class Calculator(RadTbConverter):
             tb_therm = np.array(tb_thermal)
 
         if tb_therm.shape != tb_nir.shape:
-            raise ValueError('Dimensions do not match! %s and %s' %
-                             (str(tb_therm.shape), str(tb_nir.shape)))
+            errmsg = 'Dimensions do not match! {0} and {1}'.format(
+                str(tb_therm.shape), str(tb_nir.shape))
+            raise ValueError(errmsg)
 
         if tb_ir_co2 is None:
             co2corr = False

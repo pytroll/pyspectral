@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014, 2015, 2016 Adam.Dybbroe
+# Copyright (c) 2014-2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -72,8 +72,8 @@ class RelativeSpectralResponse(object):
         instrument = instrument.replace('/', '')
 
         rsr_dir = options['rsr_dir']
-        self.filename = expanduser(os.path.join(rsr_dir, 'rsr_%s_%s.h5' %
-                                                (instrument, platform_name)))
+        self.filename = expanduser(
+            os.path.join(rsr_dir, 'rsr_{0}_{1}.h5'.format(instrument, platform_name)))
 
         LOG.debug('Filename: %s', str(self.filename))
 
@@ -85,12 +85,12 @@ class RelativeSpectralResponse(object):
                 download_rsr()
 
         if not os.path.exists(self.filename) or not os.path.isfile(self.filename):
+            fmatch = glob(
+                os.path.join(rsr_dir, '*{0}*{1}*.h5'.format(instrument, platform_name)))
             raise IOError('pyspectral RSR file does not exist! Filename = ' +
                           str(self.filename) +
                           '\nFiles matching instrument and satellite platform' +
-                          ': ' +
-                          str(glob(os.path.join(rsr_dir, '*%s*%s*.h5' %
-                                                (instrument, platform_name)))))
+                          ': ' + str(fmatch))
 
         self.load()
 
