@@ -166,7 +166,7 @@ class Rayleigh(object):
         wvl = self.get_effective_wavelength(bandname) * 1000.0
         coeff, wvl_coord, azid_coord = self.get_poly_coeff()
 
-        if wvl > wvl_coord.max() or wvl < wvl_coord.min():
+        if not(wvl_coord.min() < wvl < wvl_coord.max()):
             LOG.warning(
                 "Effective wavelength for band %s outside 400-800 nm range!", str(bandname))
             LOG.info(
