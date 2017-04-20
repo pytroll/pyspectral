@@ -22,6 +22,9 @@ sys.path.insert(0, os.path.abspath('../pyspectral'))
 
 
 class Mock(object):
+
+    """Mock class for doc/unit testing (on Travis)"""
+
     __all__ = []
 
     def __init__(self, *args, **kwargs):
@@ -85,7 +88,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Pyspectral'
-copyright = u'2013-2014, Adam Dybbroe'
+copyright = u'2013-2017, Adam Dybbroe'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
