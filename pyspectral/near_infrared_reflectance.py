@@ -120,7 +120,7 @@ class Calculator(RadTbConverter):
         else:
             LOG.info("No lut filename available in config file. "
                      "Will generate filename automatically")
-            lutname = 'tb2rad_lut_{0}_{1}_ir{3:2.1f}'.format(
+            lutname = 'tb2rad_lut_{0}_{1}_ir{2:2.1f}'.format(
                 self.platform_name.lower(), self.instrument.lower(), self.bandwavelength)
             self.lutfile = os.path.join('/tmp', lutname + '.npz')
 
