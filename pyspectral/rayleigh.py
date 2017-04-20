@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016, 2017 Adam.Dybbroe
+# Copyright (c) 2016-2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -139,7 +139,7 @@ class Rayleigh(object):
         if isinstance(bandname, str):
             bandname = self.sensor_bandnames.get(bandname, bandname)
         elif isinstance(bandname, (float, integer_types)):
-            if bandname < 0.4 or bandname > 0.8:
+            if not(0.4 < bandname < 0.8):
                 raise BandFrequencyOutOfRange(
                     'Requested band frequency should be between 0.4 and 0.8 microns!')
             bandname = get_bandname_from_wavelength(bandname, rsr.rsr)

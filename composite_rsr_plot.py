@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016 Adam.Dybbroe
+# Copyright (c) 2016-2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -86,7 +86,7 @@ if __name__ == "__main__":
         wvl = np.ma.masked_array(wvl, resp.mask)
         resp.compressed()
         wvl.compressed()
-        plt.plot(wvl, resp, label='%s - %s' % (platform, sensor))
+        plt.plot(wvl, resp, label='{} - {}'.format(platform, sensor))
 
     wmin, wmax = plt.xlim()
     wmax = wmax + (wmax - wmin) / 4.0
@@ -98,4 +98,4 @@ if __name__ == "__main__":
     plt.xlim((wmin, wmax))
     plt.title('Relative Spectral Responses')
     plt.legend(loc='lower right')
-    plt.savefig('rsr_band_%.4d.png' % int(100 * req_wvl))
+    plt.savefig('rsr_band_{:>04d}.png'.format(int(100 * req_wvl)))

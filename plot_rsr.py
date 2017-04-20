@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015, 2016 Adam.Dybbroe@smhi.se
+# Copyright (c) 2015-2017 Adam.Dybbroe@smhi.se
 
 # Author(s):
 
-#   Adam.Dybbroe@smhi.se <a000680@c20671.ad.smhi.se>
+#   Adam.Dybbroe@smhi.se <adam.dybbroe@smhi.se>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -52,5 +52,4 @@ if __name__ == "__main__":
         wvl.compressed()
         plt.plot(wvl, resp)
 
-    plt.savefig('%s_%s_rsr_band%s.png' % (platform,
-                                          sensor, band))
+    plt.savefig('{}_{}_rsr_band{}.png'.format(platform, sensor, band))
