@@ -228,7 +228,7 @@ def generate_seviri_file(seviri, platform_name):
     import h5py
 
     filename = os.path.join(seviri.output_dir,
-                            "rsr_seviri_%s%.2d.h5" % platform_name)
+                            "rsr_seviri_{0}.h5".format(platform_name))
 
     sat_name = platform_name
     with h5py.File(filename, "w") as h5f:
@@ -266,8 +266,8 @@ def main():
     sev_obj = Seviri()
 
     for satnum in [8, 9, 10, 11]:
-        generate_seviri_file(sev_obj, 'Meteosat-%d' % satnum)
-        print "Meteosat-%d done..." % satnum
+        generate_seviri_file(sev_obj, 'Meteosat-{0:d}'.format(satnum))
+        print("Meteosat-{0:d} done...".format(satnum))
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014, 2015, 2016 Adam.Dybbroe
+# Copyright (c) 2013-2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -149,10 +149,10 @@ class ViirsRSR(object):
 
         detectors = {}
         for idx in range(int(max(det))):
-            detectors["det-%d" % (idx + 1)] = {}
-            detectors["det-%d" % (idx + 1)]['wavelength'] = \
+            detectors["det-{0:d}".format(idx + 1)] = {}
+            detectors["det-{0:d}".format(idx + 1)]['wavelength'] = \
                 np.repeat(wavelength, np.equal(det, idx + 1))
-            detectors["det-%d" % (idx + 1)]['response'] = \
+            detectors["det-{0:d}".format(idx + 1)]['response'] = \
                 np.repeat(response, np.equal(det, idx + 1))
 
         self.rsr = detectors
@@ -175,7 +175,7 @@ def main():
     platform_name = "Suomi-NPP"
     viirs = ViirsRSR('M1', 'Suomi-NPP')
     filename = os.path.join(viirs.output_dir,
-                            "rsr_viirs_%s.h5" % platform_name)
+                            "rsr_viirs_{0}.h5".format(platform_name))
 
     with h5py.File(filename, "w") as h5f:
         h5f.attrs['description'] = 'Relative Spectral Responses for VIIRS'

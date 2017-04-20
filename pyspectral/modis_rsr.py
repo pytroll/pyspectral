@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014, 2015, 2016 Adam.Dybbroe
+# Copyright (c) 2014-2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -88,12 +88,14 @@ class ModisRSR(object):
             LOG.debug("Band = %s", str(band))
             if self.platform_name == 'EOS-Terra':
                 filename = os.path.join(path,
-                                        "rsr.%d.inb.final" % (bnum))
+                                        "rsr.{0:d}.inb.final".format(bnum))
             else:
                 if bnum in [5, 6, 7] + range(20, 37):
-                    filename = os.path.join(path, "%.2d.tv.1pct.det" % (bnum))
+                    filename = os.path.join(
+                        path, "{0:>02d}.tv.1pct.det".format(bnum))
                 else:
-                    filename = os.path.join(path, "%.2d.amb.1pct.det" % (bnum))
+                    filename = os.path.join(
+                        path, "{0:>02d}.amb.1pct.det".format(bnum))
 
             self.filenames[band] = filename
 
@@ -138,8 +140,8 @@ def read_modis_response(filename, scale=1.0):
     for line in lines:
         if line.find("#") == 0:
             continue
-        _, det_num, s_1, s_2 = line.split()
-        detector_name = 'det-%d' % int(det_num)
+        dummy, det_num, s_1, s_2 = line.split()
+        detector_name = 'det-{0:d}'.format(int(det_num))
         if detector_name not in detectors:
             detectors[detector_name] = {'wavelength': [], 'response': []}
 
@@ -159,7 +161,7 @@ def convert2hdf5(platform_name):
 
     modis = ModisRSR('20', platform_name)
     mfile = os.path.join(modis.output_dir,
-                         "rsr_modis_%s.h5" % platform_name)
+                         "rsr_modis_{0:d}.h5".format(platform_name))
 
     with h5py.File(mfile, "w") as h5f:
         h5f.attrs['description'] = 'Relative Spectral Responses for MODIS'

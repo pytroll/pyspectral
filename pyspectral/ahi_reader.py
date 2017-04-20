@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015, 2016 Adam.Dybbroe
+# Copyright (c) 2015-2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -121,7 +121,7 @@ def convert2hdf5(platform_id, sat_number):
 
     ahi = AhiRSR('ch1', satellite_id)
     filename = os.path.join(ahi.output_dir,
-                            "rsr_ahi_%s%d.h5" % (platform_id, sat_number))
+                            "rsr_ahi_{0}{1:d}.h5".format(platform_id, sat_number))
 
     with h5py.File(filename, "w") as h5f:
         h5f.attrs['description'] = 'Relative Spectral Responses for AHI'

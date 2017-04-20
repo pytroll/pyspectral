@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014, 2015 Adam.Dybbroe
+# Copyright (c) 2013-2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -150,15 +150,15 @@ class SolarIrradianceSpectrum(object):
                 wvl = rsr['wavelength'] * scale
                 resp = rsr['response']
             else:
-                wvl = rsr['det-%d' % detector]['wavelength'] * scale
-                resp = rsr['det-%d' % detector]['response']
+                wvl = rsr['det-{0:d}'.format(detector)]['wavelength'] * scale
+                resp = rsr['det-{0:d}'.format(detector)]['response']
         else:
             if 'response' in rsr:
                 wvl = rsr['wavenumber'] * scale
                 resp = rsr['response']
             else:
-                wvl = rsr['det-%d' % detector]['wavenumber'] * scale
-                resp = rsr['det-%d' % detector]['response']
+                wvl = rsr['det-{0:d}'.format(detector)]['wavenumber'] * scale
+                resp = rsr['det-{0:d}'.format(detector)]['response']
 
         start = wvl[0]
         end = wvl[-1]

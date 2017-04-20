@@ -201,8 +201,8 @@ def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06):
     instr = ClassIn(bandnames[0], platform_name)
     instr_name = instr.instrument.replace('/', '')
     filename = os.path.join(instr.output_dir,
-                            "rsr_%s_%s.h5" % (instr_name,
-                                              platform_name))
+                            "rsr_{0}_{1}.h5".format(instr_name,
+                                                    platform_name))
 
     with h5py.File(filename, "w") as h5f:
         h5f.attrs['description'] = ('Relative Spectral Responses for ' +
@@ -313,7 +313,8 @@ def download_luts():
         response = requests.get(http)
 
         subdirname = RAYLEIGH_LUT_DIRS[subname]
-        filename = os.path.join(subdirname, "rayleigh_luts_%s.tgz" % subname)
+        filename = os.path.join(
+            subdirname, "rayleigh_luts_{0}.tgz".format(subname))
         with open(filename, "wb") as handle:
             for data in tqdm(response.iter_content()):
                 handle.write(data)

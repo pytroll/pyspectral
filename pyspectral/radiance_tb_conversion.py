@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014, 2015, 2016 Adam.Dybbroe
+# Copyright (c) 2014-2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -115,8 +115,8 @@ class RadTbConverter(object):
 
         if 'wavespace' in options:
             if options['wavespace'] not in [WAVE_LENGTH, WAVE_NUMBER]:
-                raise AttributeError('Wave space not %s or %s!' % (WAVE_LENGTH,
-                                                                   WAVE_NUMBER))
+                raise AttributeError('Wave space not {0} or {1}!'.format(WAVE_LENGTH,
+                                                                         WAVE_NUMBER))
             self.wavespace = options['wavespace']
         else:
             self.wavespace = WAVE_LENGTH
@@ -164,8 +164,8 @@ class RadTbConverter(object):
         if self.platform_name.startswith("Meteosat"):
             return self.platform_name
         else:
-            raise NotImplementedError('Platform %s not yet supported...' %
-                                      str(self.platform_name))
+            raise NotImplementedError(
+                'Platform {0} not yet supported...'.format(self.platform_name))
 
     def tb2radiance(self, tb_, bandname, lut=None):
         """Get the radiance from the brightness temperature (Tb) given the
@@ -208,9 +208,8 @@ class RadTbConverter(object):
             resp = self.rsr[bandname][self.detector]['response']
             planck = blackbody_wn(wv_, tb_) * resp
         else:
-            raise NotImplementedError('%s representation of '
-                                      'rsr data not supported!' %
-                                      str(self.wavespace))
+            raise NotImplementedError('{0} representation of '
+                                      'rsr data not supported!'.format(self.wavespace))
 
         radiance = integrate.trapz(planck, wv_) / np.trapz(resp, wv_)
         return {'radiance': radiance,
@@ -224,7 +223,8 @@ class RadTbConverter(object):
         rad = retv['radiance']
         np.savez(filepath, tb=tb_, radiance=rad.compressed())
 
-    def read_tb2rad_lut(self, filepath):
+    @staticmethod
+    def read_tb2rad_lut(filepath):
         """Read the Tb to radiance look-up table"""
         retv = np.load(filepath, 'r')
         return retv
@@ -285,7 +285,8 @@ class RadTbConverter(object):
 
         return tb_
 
-    def radiance2tb(self, rad, wavelength, **kwargs):
+    @staticmethod
+    def radiance2tb(rad, wavelength, **kwargs):
         """Get the Tb from the radiance using the Planck function, and optionally the
         relative spectral response function
         rad:

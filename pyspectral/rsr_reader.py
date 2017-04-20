@@ -110,7 +110,7 @@ class RelativeSpectralResponse(object):
                     num_of_det = 1
 
                 for i in range(1, num_of_det + 1):
-                    dname = 'det-%d' % i
+                    dname = 'det-{0:d}'.format(i)
                     self.rsr[bandname][dname] = {}
                     try:
                         resp = h5f[bandname][dname]['response'][:]

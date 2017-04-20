@@ -112,7 +112,7 @@ def testplot():
                 'spectral_response_function'][0, cam, view, :]
             wvl = this.variables[
                 'spectral_response_function_wavelength'][0, cam, view, :]
-            label = 'Camera %d - view %d' % (cam + 1, view + 1)
+            label = 'Camera {0:d} - view {1:d}'.format(cam + 1, view + 1)
             ax.plot(wvl, resp, label=label)
     ax.set_xlim(380, 430)
     ax.legend()
