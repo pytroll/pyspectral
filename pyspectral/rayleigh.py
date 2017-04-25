@@ -184,13 +184,22 @@ class Rayleigh(object):
                 "Effective wavelength for band %s outside 400-800 nm range!", str(bandname))
             LOG.info(
                 "Set the rayleigh/aerosol reflectance contribution to zero!")
-            return np.zeros(sun_zenith.shape)
+            return np.zeros(shape)
 
-        interp_points = np.dstack(
-            (np.ones(shape) * wvl, sunzsec, np.asarray(azidiff), satzsec))
+        idx = np.sqrt((wvl_coord - wvl)**2).argsort()[0]
+        wvl1 = wvl_coord[idx - 1]
+        wvl2 = wvl_coord[idx]
 
-        ipn = interpn((wvl_coord, sunz_sec_coord, azid_coord, satz_sec_coord),
-                      rayl[:, :, :, :], interp_points)
+        fac = (wvl2 - wvl) / (wvl2 - wvl1)
+
+        raylwvl = fac * rayl[idx - 1, :, :, :] + (1 - fac) * rayl[idx, :, :, :]
+
+        interp_points = np.dstack((np.asarray(sunzsec),
+                                   np.asarray(azidiff),
+                                   np.asarray(satzsec)))
+
+        ipn = interpn((sunz_sec_coord, azid_coord, satz_sec_coord),
+                      raylwvl[:, :, :], interp_points)
 
         ipn *= 100
         res = ipn
