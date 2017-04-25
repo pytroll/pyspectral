@@ -11,6 +11,7 @@ matrix:
     - os: osx
 # command to install dependencies, e.g. 
 install: 
+  - if [[ $TRAVIS_PYTHON_VERSION == "2.7" ]]; then pip install "scipy>=0.14"; fi
   - pip install -r requirements.txt
   - pip install .
   - pip install coveralls
@@ -23,6 +24,7 @@ script: coverage run --source=pyspectral setup.py test
 #virtualenv:
 #  system_site_packages: true
 before_install:
+  - sudo apt-get install libblas-dev liblapack-dev libatlas-base-dev gfortran
   - sudo apt-get install -qq python-numpy python-scipy
 after_success: coveralls
 deploy:
