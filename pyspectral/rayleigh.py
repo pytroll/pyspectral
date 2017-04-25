@@ -199,21 +199,14 @@ class Rayleigh(object):
         satzsec_min = satzsec.min()
         c_satz = np.arange(satzsec_min, satzsec_max, 0.1)
 
-        interp_mesh = np.array(np.meshgrid(c_wvl, c_sunz, c_azi, c_satz))
-        interp_points = np.rollaxis(interp_mesh, 0, 5)
-        interp_points = interp_points.reshape((interp_mesh.size // 4, 4))
+        interp_points = np.dstack(
+            (np.ones(azidiff.shape) * wvl, sunzsec.data, azidiff, satzsec.data))
 
-        ipn = interpn(
-            (wvl_coord, sunz_sec_coord,
-             azid_coord, satz_sec_coord), rayl[:, :, :, :], interp_points)
+        ipn = interpn((wvl_coord, sunz_sec_coord, azid_coord, satz_sec_coord),
+                      rayl[:, :, :, :], interp_points)
 
-        idx = (np.argsort(np.abs(c_satz - satzsec[:, :, np.newaxis]))[:, :, 0] +
-               np.argsort(np.abs(c_azi - azidiff[:, :, np.newaxis]))[:, :, 0] * c_satz.shape[0] +
-               np.argsort(np.abs(c_wvl - wvl))[0] * c_satz.shape[0] * c_azi.shape[0] +
-               np.argsort(np.abs(c_sunz - sunzsec[:, :, np.newaxis]))[:, :, 0] *
-               c_satz.shape[0] * c_azi.shape[0] * c_wvl.shape[0])
-
-        res = ipn[idx].reshape(shape) * 100
+        ipn *= 100
+        res = ipn
         if blueband is not None:
             res = np.where(np.less(blueband, 20.), res,
                            (1 - (blueband - 20) / 80) * res)
