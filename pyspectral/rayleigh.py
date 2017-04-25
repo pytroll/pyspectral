@@ -38,7 +38,6 @@ from pyspectral import get_config
 from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.utils import (INSTRUMENTS, RAYLEIGH_LUT_DIRS,
                               download_luts, get_central_wave,
-                              get_rayleigh_reflectance,
                               get_bandname_from_wavelength)
 
 LOG = logging.getLogger(__name__)
