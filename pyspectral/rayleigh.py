@@ -169,9 +169,10 @@ class Rayleigh(object):
                         blueband=None):
         """Get the reflectance from the thre sun-sat angles."""
         # Get wavelength in nm for band:
-        sun_zenith = np.clip(sun_zenith, 0, 88.)
+        clip_angle = np.rad2deg(np.arccos(1. / 25))
+        sun_zenith = np.clip(np.asarray(sun_zenith), 0, clip_angle)
         sunzsec = 1. / np.cos(np.deg2rad(sun_zenith))
-        satzsec = 1. / np.cos(np.deg2rad(sat_zenith))
+        satzsec = 1. / np.cos(np.deg2rad(np.asarray(sat_zenith)))
 
         shape = sun_zenith.shape
 
@@ -185,22 +186,8 @@ class Rayleigh(object):
                 "Set the rayleigh/aerosol reflectance contribution to zero!")
             return np.zeros(sun_zenith.shape)
 
-        idx = np.sqrt((wvl_coord - wvl)**2).argsort()[0]
-        wvl1 = wvl_coord[idx - 1]
-        wvl2 = wvl_coord[idx]
-        c_wvl = np.arange(wvl1, wvl2, 1.)
-        #c_sunz = np.arange(1., 25., 0.1)
-        sunzsec_max = min(sunzsec.max(), 25.)
-        sunzsec_min = sunzsec.min()
-        c_sunz = np.arange(sunzsec_min, sunzsec_max, 0.1)
-        c_azi = np.arange(0., 180., 1.0)
-        #c_satz = np.arange(1., 3., 0.1)
-        satzsec_max = satzsec.max()
-        satzsec_min = satzsec.min()
-        c_satz = np.arange(satzsec_min, satzsec_max, 0.1)
-
         interp_points = np.dstack(
-            (np.ones(azidiff.shape) * wvl, sunzsec.data, azidiff, satzsec.data))
+            (np.ones(shape) * wvl, sunzsec, np.asarray(azidiff), satzsec))
 
         ipn = interpn((wvl_coord, sunz_sec_coord, azid_coord, satz_sec_coord),
                       rayl[:, :, :, :], interp_points)
@@ -224,8 +211,8 @@ if __name__ == "__main__":
 
     SHAPE = (1000, 3000)
     NDIM = SHAPE[0] * SHAPE[1]
-    SUNZ = np.arange(
+    SUNZ = np.ma.arange(
         NDIM / 2, NDIM + NDIM / 2).reshape(SHAPE) * 60. / float(NDIM)
-    SATZ = np.arange(NDIM).reshape(SHAPE) * 60. / float(NDIM)
-    AZIDIFF = np.arange(NDIM).reshape(SHAPE) * 179.9 / float(NDIM)
+    SATZ = np.ma.arange(NDIM).reshape(SHAPE) * 60. / float(NDIM)
+    AZIDIFF = np.ma.arange(NDIM).reshape(SHAPE) * 179.9 / float(NDIM)
     rfl = this.get_reflectance(SUNZ, SATZ, AZIDIFF, 'M4')
