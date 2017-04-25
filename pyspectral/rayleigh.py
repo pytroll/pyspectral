@@ -161,7 +161,7 @@ class Rayleigh(object):
 
     def get_reflectance(self, sun_zenith, sat_zenith, azidiff, bandname,
                         blueband=None):
-        """Get the reflectance from the thre sun-sat angles."""
+        """Get the reflectance from the three sun-sat angles."""
         # Get wavelength in nm for band:
         wvl = self.get_effective_wavelength(bandname) * 1000.0
         coeff, wvl_coord, azid_coord = self.get_poly_coeff()
