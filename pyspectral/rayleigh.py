@@ -190,9 +190,15 @@ class Rayleigh(object):
         wvl1 = wvl_coord[idx - 1]
         wvl2 = wvl_coord[idx]
         c_wvl = np.arange(wvl1, wvl2, 1.)
-        c_sunz = np.arange(1., 25., 0.1)
+        #c_sunz = np.arange(1., 25., 0.1)
+        sunzsec_max = min(sunzsec.max(), 25.)
+        sunzsec_min = sunzsec.min()
+        c_sunz = np.arange(sunzsec_min, sunzsec_max, 0.1)
         c_azi = np.arange(0., 180., 1.0)
-        c_satz = np.arange(1., 3., 0.1)
+        #c_satz = np.arange(1., 3., 0.1)
+        satzsec_max = satzsec.max()
+        satzsec_min = satzsec.min()
+        c_satz = np.arange(satzsec_min, satzsec_max, 0.1)
 
         interp_mesh = np.array(np.meshgrid(c_wvl, c_sunz, c_azi, c_satz))
         interp_points = np.rollaxis(interp_mesh, 0, 5)
@@ -219,7 +225,15 @@ class Rayleigh(object):
 if __name__ == "__main__":
 
     this = Rayleigh('Suomi-NPP', 'viirs')
-    SUNZ = np.arange(200000).reshape(400, 500) * 0.0004
-    SATZ = np.arange(200000).reshape(400, 500) * 0.00025
-    AZIDIFF = np.arange(200000).reshape(400, 500) * 0.0009
+    # SUNZ = np.arange(200000).reshape(400, 500) * 0.0004
+    # SATZ = np.arange(200000).reshape(400, 500) * 0.00025
+    # AZIDIFF = np.arange(200000).reshape(400, 500) * 0.0009
+    # rfl = this.get_reflectance(SUNZ, SATZ, AZIDIFF, 'M4')
+
+    SHAPE = (1000, 3000)
+    NDIM = SHAPE[0] * SHAPE[1]
+    SUNZ = np.arange(
+        NDIM / 2, NDIM + NDIM / 2).reshape(SHAPE) * 60. / float(NDIM)
+    SATZ = np.arange(NDIM).reshape(SHAPE) * 60. / float(NDIM)
+    AZIDIFF = np.arange(NDIM).reshape(SHAPE) * 179.9 / float(NDIM)
     rfl = this.get_reflectance(SUNZ, SATZ, AZIDIFF, 'M4')
