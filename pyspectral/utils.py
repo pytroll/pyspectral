@@ -65,8 +65,9 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
 
 
 HTTP_PYSPECTRAL_RSR = "https://dl.dropboxusercontent.com/u/37482654/pyspectral_rsr_data.tgz"
-HTTP_RAYLEIGH_ONLY_LUTS = "https://dl.dropboxusercontent.com/u/37482654/rayleigh_only/rayleigh_luts_rayleigh_only.tgz"
-HTTP_RURAL_AEROSOL_LUTS = "https://dl.dropboxusercontent.com/u/37482654/rural_aerosol/rayleigh_luts_rural_aerosol.tgz"
+#HTTP_RAYLEIGH_ONLY_LUTS = "https://dl.dropboxusercontent.com/u/37482654/rayleigh_only/rayleigh_luts_rayleigh_only.tgz"
+HTTP_RAYLEIGH_ONLY_LUTS = "https://dl.dropboxusercontent.com/u/37482654/rayleigh_only/pyspectral_rayleigh_correction_luts.tgz"
+#HTTP_RURAL_AEROSOL_LUTS = "https://dl.dropboxusercontent.com/u/37482654/rural_aerosol/rayleigh_luts_rural_aerosol.tgz"
 
 
 OPTIONS = {}
@@ -83,8 +84,10 @@ except OSError:
 
 LOCAL_RAYLEIGH_DIR = expanduser(OPTIONS['rayleigh_dir'])
 
-HTTPS = [HTTP_RAYLEIGH_ONLY_LUTS, HTTP_RURAL_AEROSOL_LUTS]
-RAYLEIGH_SUB_NAMES = ['rayleigh_only', 'rural_aerosol']
+#HTTPS = [HTTP_RAYLEIGH_ONLY_LUTS, HTTP_RURAL_AEROSOL_LUTS]
+HTTPS = [HTTP_RAYLEIGH_ONLY_LUTS, ]
+#RAYLEIGH_SUB_NAMES = ['rayleigh_only', 'rural_aerosol']
+RAYLEIGH_SUB_NAMES = ['rayleigh_only', ]
 RAYLEIGH_LUT_DIRS = {}
 for http_addr, sub_dir_name in zip(HTTPS, RAYLEIGH_SUB_NAMES):
     dirname = os.path.join(LOCAL_RAYLEIGH_DIR, sub_dir_name)
@@ -314,7 +317,7 @@ def download_luts():
 
         subdirname = RAYLEIGH_LUT_DIRS[subname]
         filename = os.path.join(
-            subdirname, "rayleigh_luts_{0}.tgz".format(subname))
+            subdirname, "pyspectral_rayleigh_correction_luts.tgz")
         with open(filename, "wb") as handle:
             for data in tqdm(response.iter_content()):
                 handle.write(data)
