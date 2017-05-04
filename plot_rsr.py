@@ -31,8 +31,8 @@ import numpy as np
 if __name__ == "__main__":
     import sys
     if len(sys.argv) < 4:
-        print("Usage: %s <platform_name> <sensor> <band name>" %
-              (sys.argv[0]))
+        print("Usage: {0!s} <platform_name> <sensor> <band name>".format(
+              (sys.argv[0])))
         exit(0)
 
     platform = str(sys.argv[1])
