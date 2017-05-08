@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014, 2015, 2016, 2017 Adam.Dybbroe
+# Copyright (c) 2014-2017 Pytroll
 
 # Author(s):
 
@@ -65,9 +65,25 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
 
 
 HTTP_PYSPECTRAL_RSR = "https://dl.dropboxusercontent.com/u/37482654/pyspectral_rsr_data.tgz"
-#HTTP_RAYLEIGH_ONLY_LUTS = "https://dl.dropboxusercontent.com/u/37482654/rayleigh_only/rayleigh_luts_rayleigh_only.tgz"
-HTTP_RAYLEIGH_ONLY_LUTS = "https://dl.dropboxusercontent.com/u/37482654/rayleigh_only/pyspectral_rayleigh_correction_luts.tgz"
-#HTTP_RURAL_AEROSOL_LUTS = "https://dl.dropboxusercontent.com/u/37482654/rural_aerosol/rayleigh_luts_rural_aerosol.tgz"
+
+AEROSOL_TYPES = ['antarctic_aerosol', 'continental_average_aerosol',
+                 'continental_clean_aerosol', 'continental_polluted_aerosol',
+                 'desert_aerosol', 'marine_clean_aerosol',
+                 'marine_polluted_aerosol', 'marine_tropical_aerosol',
+                 'rayleigh_only', 'rural_aerosol', 'urban_aerosol']
+
+ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
+               'midlatitude summer': 6, 'midlatitude winter': 7,
+               'tropical': 8, 'us-standard': 9}
+
+
+HTTPS_RAYLEIGH_LUTS = {}
+HTTPS_RAYLEIGH_LUTS[
+    'rayleigh_only'] = "https://dl.dropboxusercontent.com/u/37482654/rayleigh_only/pyspectral_rayleigh_correction_luts.tgz"
+HTTPS_RAYLEIGH_LUTS[
+    'continental_polluted_aerosol'] = "https://dl.dropboxusercontent.com/u/37482654/continental_polluted_aerosol/pyspectral_rayleigh_correction_luts.tgz"
+HTTPS_RAYLEIGH_LUTS[
+    'rural_aerosol'] = "https://dl.dropboxusercontent.com/u/37482654/rural_aerosol/rayleigh_luts_rural_aerosol.tgz"
 
 
 OPTIONS = {}
@@ -84,19 +100,9 @@ except OSError:
 
 LOCAL_RAYLEIGH_DIR = expanduser(OPTIONS['rayleigh_dir'])
 
-#HTTPS = [HTTP_RAYLEIGH_ONLY_LUTS, HTTP_RURAL_AEROSOL_LUTS]
-HTTPS = [HTTP_RAYLEIGH_ONLY_LUTS, ]
-#RAYLEIGH_SUB_NAMES = ['rayleigh_only', 'rural_aerosol']
-RAYLEIGH_SUB_NAMES = ['rayleigh_only', ]
 RAYLEIGH_LUT_DIRS = {}
-for http_addr, sub_dir_name in zip(HTTPS, RAYLEIGH_SUB_NAMES):
+for sub_dir_name in HTTPS_RAYLEIGH_LUTS:
     dirname = os.path.join(LOCAL_RAYLEIGH_DIR, sub_dir_name)
-    try:
-        os.makedirs(dirname)
-    except OSError:
-        if not os.path.isdir(dirname):
-            raise
-
     RAYLEIGH_LUT_DIRS[sub_dir_name] = dirname
 
 
@@ -305,14 +311,31 @@ def download_rsr():
     os.remove(filename)
 
 
-def download_luts():
+def download_luts(**kwargs):
     """Download the luts from internet."""
     #
     import tarfile
     import requests
     from tqdm import tqdm
 
-    for http, subname in zip(HTTPS, RAYLEIGH_SUB_NAMES):
+    if 'aerosol_type' in kwargs:
+        if isinstance(kwargs['aerosol_type'], (list, tuple, set)):
+            aerosol_types = kwargs['aerosol_type']
+        else:
+            aerosol_types = [kwargs['aerosol_type'], ]
+    else:
+        aerosol_types = HTTPS_RAYLEIGH_LUTS.keys()
+
+    for subname in aerosol_types:
+
+        http = HTTPS_RAYLEIGH_LUTS[subname]
+
+        try:
+            os.makedirs(RAYLEIGH_LUT_DIRS[subname])
+        except OSError:
+            if not os.path.isdir(RAYLEIGH_LUT_DIRS[subname]):
+                raise
+
         response = requests.get(http)
 
         subdirname = RAYLEIGH_LUT_DIRS[subname]

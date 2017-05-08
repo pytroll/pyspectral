@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016-2017 Adam.Dybbroe
+# Copyright (c) 2016-2017 Pytroll
 
 # Author(s):
 
@@ -37,14 +37,11 @@ from scipy.interpolate import interpn
 from pyspectral import get_config
 from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.utils import (INSTRUMENTS, RAYLEIGH_LUT_DIRS,
+                              AEROSOL_TYPES, ATMOSPHERES,
                               download_luts, get_central_wave,
                               get_bandname_from_wavelength)
 
 LOG = logging.getLogger(__name__)
-
-ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
-               'midlatitude summer': 6, 'midlatitude winter': 7,
-               'tropical': 8, 'us-standard': 9}
 
 
 class BandFrequencyOutOfRange(Exception):
@@ -70,10 +67,15 @@ class Rayleigh(object):
         else:
             atm_type = 'subarctic summer'
 
-        if 'rural_aerosol' in kwargs and kwargs['rural_aerosol']:
-            rayleigh_dir = RAYLEIGH_LUT_DIRS['rural_aerosol']
+        if 'aerosol_type' in kwargs:
+            if kwargs['aerosol_type'] not in AEROSOL_TYPES:
+                raise AttributeError('Aerosol type not supported! ' +
+                                     'Need to be one of {0}'.format(str(AEROSOL_TYPES)))
+            aerosol_type = kwargs['aerosol_type']
         else:
-            rayleigh_dir = RAYLEIGH_LUT_DIRS['rayleigh_only']
+            aerosol_type = 'rayleigh_only'
+
+        rayleigh_dir = RAYLEIGH_LUT_DIRS[aerosol_type]
 
         if atm_type not in ATMOSPHERES.keys():
             LOG.error("Atmosphere type %s not supported", atm_type)
@@ -113,7 +115,7 @@ class Rayleigh(object):
             LOG.warning(
                 "No lut file %s on disk", self.reflectance_lut_filename)
             LOG.info("Will download from internet...")
-            download_luts()
+            download_luts(aerosol_type=aerosol_type)
 
         if (not os.path.exists(self.reflectance_lut_filename) or
                 not os.path.isfile(self.reflectance_lut_filename)):
@@ -195,7 +197,7 @@ class Rayleigh(object):
         raylwvl = fac * rayl[idx - 1, :, :, :] + (1 - fac) * rayl[idx, :, :, :]
 
         interp_points = np.dstack((np.asarray(sunzsec),
-                                   np.asarray(azidiff),
+                                   np.asarray(180. - azidiff),
                                    np.asarray(satzsec)))
 
         ipn = interpn((sunz_sec_coord, azid_coord, satz_sec_coord),
