@@ -79,11 +79,25 @@ ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
 
 HTTPS_RAYLEIGH_LUTS = {}
 HTTPS_RAYLEIGH_LUTS[
-    'rayleigh_only'] = "https://dl.dropboxusercontent.com/u/37482654/rayleigh_only/pyspectral_rayleigh_correction_luts.tgz"
+    'antarctic_aerosol'] = "https://www.dropbox.com/s/ksfko1xcm7rx3rj/pyspectral_rayleigh_correction_luts.tgz?dl=0"
 HTTPS_RAYLEIGH_LUTS[
-    'continental_polluted_aerosol'] = "https://dl.dropboxusercontent.com/u/37482654/continental_polluted_aerosol/pyspectral_rayleigh_correction_luts.tgz"
+    'continental_average_aerosol'] = "https://www.dropbox.com/s/w1rbx0q04q95nwh/pyspectral_rayleigh_correction_luts.tgz?dl=0"
 HTTPS_RAYLEIGH_LUTS[
-    'rural_aerosol'] = "https://dl.dropboxusercontent.com/u/37482654/rural_aerosol/rayleigh_luts_rural_aerosol.tgz"
+    'continental_clean_aerosol'] = "https://www.dropbox.com/s/b7wut0n0r3i3vhi/pyspectral_rayleigh_correction_luts.tgz?dl=0"
+HTTPS_RAYLEIGH_LUTS[
+    'continental_polluted_aerosol'] = "https://www.dropbox.com/s/3rwio6m7wdpkwj0/pyspectral_rayleigh_correction_luts.tgz?dl=0"
+HTTPS_RAYLEIGH_LUTS[
+    'desert_aerosol'] = "https://www.dropbox.com/s/bnxrjxwsapjpqic/pyspectral_rayleigh_correction_luts.tgz?dl=0"
+HTTPS_RAYLEIGH_LUTS[
+    'marine_clean_aerosol'] = "https://www.dropbox.com/s/r8djfwbyzpgrab4/pyspectral_rayleigh_correction_luts.tgz?dl=0"
+HTTPS_RAYLEIGH_LUTS[
+    'marine_polluted_aerosol'] = "https://www.dropbox.com/s/esdwtjvdb0qjjh1/pyspectral_rayleigh_correction_luts.tgz?dl=0"
+HTTPS_RAYLEIGH_LUTS[
+    'marine_tropical_aerosol'] = "https://www.dropbox.com/s/v6xqnlj9ltcatg5/pyspectral_rayleigh_correction_luts.tgz?dl=0"
+HTTPS_RAYLEIGH_LUTS[
+    'rural_aerosol'] = "https://www.dropbox.com/s/n1etlrg8x9dpd22/pyspectral_rayleigh_correction_luts.tgz?dl=0"
+HTTPS_RAYLEIGH_LUTS[
+    'urban_aerosol'] = "https://www.dropbox.com/s/rmb4x3s1ap6g2ft/pyspectral_rayleigh_correction_luts.tgz?dl=0"
 
 
 OPTIONS = {}
@@ -233,59 +247,6 @@ def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06):
             arr = sensor.rsr['response']
             dset = grp.create_dataset('response', arr.shape, dtype='f')
             dset[...] = arr
-
-
-def get_rayleigh_reflectance(parms, azidiff, sunz, satz):
-    """Get the Rayleigh reflectance applying the polynomial fit parameters
-
-    P(x,y) = c_{00} + c_{10}x + ...+ c_{n0}x^n +
-             c_{01}y + ...+ c_{0n}y^n +
-             c_{11}xy + c_{12}xy^2 + ... +
-             c_{1(n-1)}xy^{n-1}+ ... + c_{(n-1)1}x^{n-1}y
-
-    x = relative azimuth difference angle:
-        Azimuth difference   0: Instrument is looking into Sun
-        Azimuth difference 180: Instrument and Sun are looking in the same
-        direction
-    y = secant of the satellite zenith angle
-
-    NB! The azimuth difference provided here is defined as described in the
-    documentation, and differs by 180 degrees to the angle x required in the
-    polynomial fit.
-
-    """
-
-    sec = 1. / np.cos(np.deg2rad(satz))
-    sunsec = 1. / np.cos(np.deg2rad(sunz))
-
-    coeffs = [[parms[:, 0], parms[:, 1], parms[:, 2], parms[:, 3], parms[:, 4], parms[:, 5]],
-              [parms[:, 6], parms[:, 11], parms[:, 15],
-                  parms[:, 18], parms[:, 20]],
-              [parms[:, 7], parms[:, 12], parms[:, 16], parms[:, 19]],
-              [parms[:, 8], parms[:, 13], parms[:, 17]],
-              [parms[:, 9], parms[:, 14]],
-              [parms[:, 10]]
-              ]
-
-    # The RTM simulations are based on a definition of the sun-satellite azimuth
-    # difference according to the following:
-    # Azimuth difference 0: Instrument is looking into Sun
-    # Azimuth difference 180: Instrument and Sun are looking in the same
-    # direction
-    indices = np.rint(180. - azidiff).astype('i')
-
-    res = 0
-
-    for line, cols in enumerate(coeffs):
-        for col, coeff in enumerate(cols):
-            factor = coeff[indices]
-            for i in range(line):
-                factor *= sec
-            for i in range(col):
-                factor *= sunsec
-            res += factor
-
-    return res
 
 
 def download_rsr():
