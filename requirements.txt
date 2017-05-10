@@ -1,4 +1,4 @@
 numpy>=1.5.1
-scipy>=0.8.1
+scipy>=0.14
 h5py>=2.5
 six
