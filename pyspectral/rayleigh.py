@@ -174,6 +174,8 @@ class Rayleigh(object):
         clip_angle = np.rad2deg(np.arccos(1. / 25))
         sun_zenith = np.clip(np.asarray(sun_zenith), 0, clip_angle)
         sunzsec = 1. / np.cos(np.deg2rad(sun_zenith))
+        clip_angle = np.rad2deg(np.arccos(1. / 3.))
+        sat_zenith = np.clip(np.asarray(sat_zenith), 0, clip_angle)
         satzsec = 1. / np.cos(np.deg2rad(np.asarray(sat_zenith)))
 
         shape = sun_zenith.shape
