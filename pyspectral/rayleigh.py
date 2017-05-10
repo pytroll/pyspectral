@@ -171,17 +171,17 @@ class Rayleigh(object):
                         blueband=None):
         """Get the reflectance from the thre sun-sat angles."""
         # Get wavelength in nm for band:
-        clip_angle = np.rad2deg(np.arccos(1. / 25))
+        wvl = self.get_effective_wavelength(bandname) * 1000.0
+        rayl, wvl_coord, azid_coord, satz_sec_coord, sunz_sec_coord = self.get_reflectance_lut()
+
+        clip_angle = np.rad2deg(np.arccos(1. / sunz_sec_coord.max()))
         sun_zenith = np.clip(np.asarray(sun_zenith), 0, clip_angle)
         sunzsec = 1. / np.cos(np.deg2rad(sun_zenith))
-        clip_angle = np.rad2deg(np.arccos(1. / 3.))
+        clip_angle = np.rad2deg(np.arccos(1. / satz_sec_coord.max()))
         sat_zenith = np.clip(np.asarray(sat_zenith), 0, clip_angle)
         satzsec = 1. / np.cos(np.deg2rad(np.asarray(sat_zenith)))
 
         shape = sun_zenith.shape
-
-        wvl = self.get_effective_wavelength(bandname) * 1000.0
-        rayl, wvl_coord, azid_coord, satz_sec_coord, sunz_sec_coord = self.get_reflectance_lut()
 
         if not(wvl_coord.min() < wvl < wvl_coord.max()):
             LOG.warning(
