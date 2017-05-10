@@ -79,26 +79,29 @@ ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
 
 HTTPS_RAYLEIGH_LUTS = {}
 HTTPS_RAYLEIGH_LUTS[
-    'antarctic_aerosol'] = "https://www.dropbox.com/s/ksfko1xcm7rx3rj/pyspectral_rayleigh_correction_luts.tgz?dl=0"
+    'antarctic_aerosol'] = "https://www.dropbox.com/sh/9s3vgk0ragoa0mu/AABIRkNdmf-5tBLe6uiKE7ZSa?dl=0"
 HTTPS_RAYLEIGH_LUTS[
-    'continental_average_aerosol'] = "https://www.dropbox.com/s/w1rbx0q04q95nwh/pyspectral_rayleigh_correction_luts.tgz?dl=0"
+    'continental_average_aerosol'] = "https://dl.dropboxusercontent.com/u/37482654/pyspectral/continental_average_aerosol/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'continental_clean_aerosol'] = "https://www.dropbox.com/s/b7wut0n0r3i3vhi/pyspectral_rayleigh_correction_luts.tgz?dl=0"
+    'continental_clean_aerosol'] = "https://dl.dropboxusercontent.com/u/37482654/pyspectral/continental_clean_aerosol/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'continental_polluted_aerosol'] = "https://www.dropbox.com/s/3rwio6m7wdpkwj0/pyspectral_rayleigh_correction_luts.tgz?dl=0"
+    'continental_polluted_aerosol'] = "https://dl.dropboxusercontent.com/u/37482654/pyspectral/continental_polluted_aerosol/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'desert_aerosol'] = "https://www.dropbox.com/s/bnxrjxwsapjpqic/pyspectral_rayleigh_correction_luts.tgz?dl=0"
+    'desert_aerosol'] = "https://dl.dropboxusercontent.com/u/37482654/pyspectral/desert_aerosol/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'marine_clean_aerosol'] = "https://www.dropbox.com/s/r8djfwbyzpgrab4/pyspectral_rayleigh_correction_luts.tgz?dl=0"
+    'marine_clean_aerosol'] = "https://dl.dropboxusercontent.com/u/37482654/pyspectral/marine_clean_aerosol/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'marine_polluted_aerosol'] = "https://www.dropbox.com/s/esdwtjvdb0qjjh1/pyspectral_rayleigh_correction_luts.tgz?dl=0"
+    'marine_polluted_aerosol'] = "https://dl.dropboxusercontent.com/u/37482654/pyspectral/marine_polluted_aerosol/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'marine_tropical_aerosol'] = "https://www.dropbox.com/s/v6xqnlj9ltcatg5/pyspectral_rayleigh_correction_luts.tgz?dl=0"
+    'marine_tropical_aerosol'] = "https://dl.dropboxusercontent.com/u/37482654/pyspectral/marine_tropical_aerosol/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'rural_aerosol'] = "https://www.dropbox.com/s/n1etlrg8x9dpd22/pyspectral_rayleigh_correction_luts.tgz?dl=0"
+    'rural_aerosol'] = "https://dl.dropboxusercontent.com/u/37482654/pyspectral/rural_aerosol/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'urban_aerosol'] = "https://www.dropbox.com/s/rmb4x3s1ap6g2ft/pyspectral_rayleigh_correction_luts.tgz?dl=0"
-
+    'urban_aerosol'] = "https://dl.dropboxusercontent.com/u/37482654/pyspectral/urban_aerosol/pyspectral_rayleigh_correction_luts.tgz"
+# HTTPS_RAYLEIGH_LUTS[
+#    'rayleigh_only'] = "https://dl.dropboxusercontent.com/u/37482654/rayleigh_only/pyspectral_rayleigh_correction_luts.tgz"
+HTTPS_RAYLEIGH_LUTS[
+    'rayleigh_only'] = "https://dl.dropboxusercontent.com/u/37482654/pyspectral/rayleigh_only/pyspectral_rayleigh_correction_luts.tgz"
 
 OPTIONS = {}
 CONF = get_config()
