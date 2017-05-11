@@ -190,7 +190,7 @@ class Rayleigh(object):
                 "Set the rayleigh/aerosol reflectance contribution to zero!")
             return np.zeros(shape)
 
-        idx = np.sqrt((wvl_coord - wvl)**2).argsort()[0]
+        idx = np.searchsorted(wvl_coord, wvl)
         wvl1 = wvl_coord[idx - 1]
         wvl2 = wvl_coord[idx]
 
