@@ -219,28 +219,28 @@ In python it may look like this:
    >>> from pyspectral.blackbody import blackbody_wn
    >>> wavenumber = 90909.1
    >>> rad = blackbody_wn((wavenumber, ), [300., 301])
-   >>> print rad
-   [0.001158354413530655 0.0011754771652280277]
+   >>> print("{0:7.6f} {1:7.6f}".format(rad[0], rad[1]))
+   0.001158 0.001175
 
 Which are the spectral radiances in SI units at wavenumber around :math:`909 cm^{-1}` at
 temperatures 300 and 301 Kelvin. In units of :math:`mW/m^2 (cm^{-1})^{-1}\ sr^{-1}` this becomes:
 
-   >>> print rad*1e+5
-   [115.83544135306549 117.54771652280277]
+   >>> print("{0:7.4f} {1:7.4f}".format((rad*1e+5)[0], (rad*1e+5)[1]))
+   115.8354 117.5477
 
 And using wavelength representation:
 
    >>> from pyspectral.blackbody import blackbody
    >>> wvl = 1./wavenumber
    >>> rad = blackbody(wvl, [300., 301])
-   >>> print rad
-   [9573178.885963218 9714689.258871676]
+   >>> print("{0:10.3f} {1:10.3f}".format(rad[0], rad[1]))
+   9573178.886 9714689.259
 
 Which are the spectral radiances in SI units around :math:`11 \mu m` at
 temperatures 300 and 301 Kelvin. In units of :math:`mW/m^2\ m^{-1} sr^{-1}` this becomes:
 
-   >>> print rad*1e-6
-   [9.573178885963218 9.714689258871676]
+   >>> print("{0:7.5f} {1:7.5f}".format((rad*1e-6)[0], (rad*1e-6)[1]))
+   9.57318 9.71469
 
 
 The inverse Planck function
