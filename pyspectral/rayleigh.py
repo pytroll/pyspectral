@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016-2017 Adam.Dybbroe
+# Copyright (c) 2016-2017 Pytroll
 
 # Author(s):
 
@@ -32,19 +32,25 @@ from six import integer_types
 
 import h5py
 import numpy as np
+from scipy.interpolate import interpn
 
 from pyspectral import get_config
 from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.utils import (INSTRUMENTS, RAYLEIGH_LUT_DIRS,
+                              AEROSOL_TYPES, ATMOSPHERES,
                               download_luts, get_central_wave,
-                              get_rayleigh_reflectance,
                               get_bandname_from_wavelength)
 
 LOG = logging.getLogger(__name__)
 
-ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
-               'midlatitude summer': 6, 'midlatitude winter': 7,
-               'tropical': 8, 'us-standard': 9}
+WITH_CYTHON = True
+try:
+    from geotiepoints.multilinear import MultilinearInterpolator
+except ImportError:
+    LOG.warning(
+        "Couldn't import fast multilinear interpolation with Cython.")
+    LOG.warning("Check your geotiepoints installation!")
+    WITH_CYTHON = False
 
 
 class BandFrequencyOutOfRange(Exception):
@@ -70,10 +76,15 @@ class Rayleigh(object):
         else:
             atm_type = 'subarctic summer'
 
-        if 'rural_aerosol' in kwargs and kwargs['rural_aerosol']:
-            rayleigh_dir = RAYLEIGH_LUT_DIRS['rural_aerosol']
+        if 'aerosol_type' in kwargs:
+            if kwargs['aerosol_type'] not in AEROSOL_TYPES:
+                raise AttributeError('Aerosol type not supported! ' +
+                                     'Need to be one of {0}'.format(str(AEROSOL_TYPES)))
+            aerosol_type = kwargs['aerosol_type']
         else:
-            rayleigh_dir = RAYLEIGH_LUT_DIRS['rayleigh_only']
+            aerosol_type = 'rayleigh_only'
+
+        rayleigh_dir = RAYLEIGH_LUT_DIRS[aerosol_type]
 
         if atm_type not in ATMOSPHERES.keys():
             LOG.error("Atmosphere type %s not supported", atm_type)
@@ -106,21 +117,22 @@ class Rayleigh(object):
                                  }
 
         ext = atm_type.replace(' ', '_')
-        lutname = "rayleigh_lut_const_azidiff_{0}.h5".format(ext)
-        self.coeff_filename = os.path.join(rayleigh_dir, lutname)
+        lutname = "rayleigh_lut_{0}.h5".format(ext)
+        self.reflectance_lut_filename = os.path.join(rayleigh_dir, lutname)
 
-        if not os.path.exists(self.coeff_filename):
-            LOG.warning("No lut file %s on disk", self.coeff_filename)
+        if not os.path.exists(self.reflectance_lut_filename):
+            LOG.warning(
+                "No lut file %s on disk", self.reflectance_lut_filename)
             LOG.info("Will download from internet...")
-            download_luts()
+            download_luts(aerosol_type=aerosol_type)
 
-        if (not os.path.exists(self.coeff_filename) or
-                not os.path.isfile(self.coeff_filename)):
+        if (not os.path.exists(self.reflectance_lut_filename) or
+                not os.path.isfile(self.reflectance_lut_filename)):
             raise IOError('pyspectral file for Rayleigh scattering correction ' +
                           'does not exist! Filename = ' +
-                          str(self.coeff_filename))
+                          str(self.reflectance_lut_filename))
 
-        LOG.debug('LUT filename: %s', str(self.coeff_filename))
+        LOG.debug('LUT filename: %s', str(self.reflectance_lut_filename))
 
     def get_effective_wavelength(self, bandname):
         """Get the effective wavelength with Rayleigh scattering in mind"""
@@ -149,45 +161,101 @@ class Rayleigh(object):
 
         return get_central_wave(wvl, resp, weight=1. / wvl**4)
 
-    def get_poly_coeff(self):
-        """Extract the polynomial fit coefficients from file"""
+    def get_reflectance_lut(self):
+        """Read the LUT with reflectances as a function of wavelength, satellite zenith
+        secant, azimuth difference angle, and sun zenith secant
 
-        with h5py.File(self.coeff_filename, 'r') as h5f:
-            tab = h5f['coeff'][:]
+        """
+
+        with h5py.File(self.reflectance_lut_filename, 'r') as h5f:
+            tab = h5f['reflectance'][:]
             wvl = h5f['wavelengths'][:]
             azidiff = h5f['azimuth_difference'][:]
+            satellite_zenith_secant = h5f['satellite_zenith_secant'][:]
+            sun_zenith_secant = h5f['sun_zenith_secant'][:]
 
-        return tab, wvl, azidiff
+        return tab, wvl, azidiff, satellite_zenith_secant, sun_zenith_secant
 
     def get_reflectance(self, sun_zenith, sat_zenith, azidiff, bandname,
                         blueband=None):
         """Get the reflectance from the three sun-sat angles."""
         # Get wavelength in nm for band:
         wvl = self.get_effective_wavelength(bandname) * 1000.0
-        coeff, wvl_coord, azid_coord = self.get_poly_coeff()
+        rayl, wvl_coord, azid_coord, satz_sec_coord, sunz_sec_coord = self.get_reflectance_lut()
+
+        clip_angle = np.rad2deg(np.arccos(1. / sunz_sec_coord.max()))
+        sun_zenith = np.clip(np.asarray(sun_zenith), 0, clip_angle)
+        sunzsec = 1. / np.cos(np.deg2rad(sun_zenith))
+        clip_angle = np.rad2deg(np.arccos(1. / satz_sec_coord.max()))
+        sat_zenith = np.clip(np.asarray(sat_zenith), 0, clip_angle)
+        satzsec = 1. / np.cos(np.deg2rad(np.asarray(sat_zenith)))
+
+        shape = sun_zenith.shape
 
         if not(wvl_coord.min() < wvl < wvl_coord.max()):
             LOG.warning(
                 "Effective wavelength for band %s outside 400-800 nm range!", str(bandname))
             LOG.info(
                 "Set the rayleigh/aerosol reflectance contribution to zero!")
-            return np.zeros(sun_zenith.shape)
+            return np.zeros(shape)
 
-        idx = np.sqrt((wvl_coord - wvl)**2).argsort()[0]
-        wvl1 = wvl_coord[idx]
-        wvl2 = wvl_coord[idx + 1]
+        idx = np.searchsorted(wvl_coord, wvl)
+        wvl1 = wvl_coord[idx - 1]
+        wvl2 = wvl_coord[idx]
 
-        d__ = (wvl2 - wvl) / (wvl2 - wvl1)
+        fac = (wvl2 - wvl) / (wvl2 - wvl1)
 
-        wvl_coeff = coeff[idx, :, :] * d__ + coeff[idx + 1, :, :] * (1 - d__)
+        raylwvl = fac * rayl[idx - 1, :, :, :] + (1 - fac) * rayl[idx, :, :, :]
 
-        sun_zenith = np.clip(sun_zenith, 0, 88.)
-        res = get_rayleigh_reflectance(wvl_coeff, azidiff,
-                                       sun_zenith, sat_zenith)
-        res *= 100
+        import time
+        tic = time.time()
 
+        if WITH_CYTHON:
+            smin = [sunz_sec_coord[0], azid_coord[0], satz_sec_coord[0]]
+            smax = [sunz_sec_coord[-1], azid_coord[-1], satz_sec_coord[-1]]
+            orders = [
+                len(sunz_sec_coord), len(azid_coord), len(satz_sec_coord)]
+            f_3d_grid = raylwvl
+
+            minterp = MultilinearInterpolator(smin, smax, orders)
+            minterp.set_values(np.atleast_2d(f_3d_grid.ravel()))
+
+            interp_points2 = np.vstack((np.asarray(sunzsec).ravel(),
+                                        np.asarray(180 - azidiff).ravel(),
+                                        np.asarray(satzsec).ravel()))
+
+            ipn = minterp(interp_points2).reshape(shape)
+        else:
+            interp_points = np.dstack((np.asarray(sunzsec),
+                                       np.asarray(180. - azidiff),
+                                       np.asarray(satzsec)))
+
+            ipn = interpn((sunz_sec_coord, azid_coord, satz_sec_coord),
+                          raylwvl[:, :, :], interp_points)
+
+        LOG.debug("Time - Interpolation: {0:f}".format(time.time() - tic))
+
+        ipn *= 100
+        res = ipn
         if blueband is not None:
             res = np.where(np.less(blueband, 20.), res,
                            (1 - (blueband - 20) / 80) * res)
 
         return np.clip(res, 0, 100)
+
+
+if __name__ == "__main__":
+
+    this = Rayleigh('Suomi-NPP', 'viirs')
+    # SUNZ = np.arange(200000).reshape(400, 500) * 0.0004
+    # SATZ = np.arange(200000).reshape(400, 500) * 0.00025
+    # AZIDIFF = np.arange(200000).reshape(400, 500) * 0.0009
+    # rfl = this.get_reflectance(SUNZ, SATZ, AZIDIFF, 'M4')
+
+    SHAPE = (1000, 3000)
+    NDIM = SHAPE[0] * SHAPE[1]
+    SUNZ = np.ma.arange(
+        NDIM / 2, NDIM + NDIM / 2).reshape(SHAPE) * 60. / float(NDIM)
+    SATZ = np.ma.arange(NDIM).reshape(SHAPE) * 60. / float(NDIM)
+    AZIDIFF = np.ma.arange(NDIM).reshape(SHAPE) * 179.9 / float(NDIM)
+    rfl = this.get_reflectance(SUNZ, SATZ, AZIDIFF, 'M4')

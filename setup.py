@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014, 2015, 2016, 2017 Adam Dybbroe
+# Copyright (c) 2013-2017 Pytroll
 
 # Author(s):
 
@@ -28,7 +28,7 @@ try:
 except IOError:
     long_description = ''
 
-requires = ['docutils>=0.3', 'numpy>=1.5.1', 'scipy>=0.8.1',
+requires = ['docutils>=0.3', 'numpy>=1.5.1', 'scipy>=0.14',
             'h5py>=2.5', 'requests', 'tqdm', 'six']
 
 test_requires = ['xlrd']

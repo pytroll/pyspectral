@@ -23,7 +23,8 @@ the Aqua MODIS 3.7 micron band::
   0.251249
 
 
-And, here is how to derive the rayleigh (with additional optional aerosol absorption) contribution in a short wave band::
+And, here is how to derive the rayleigh (with additional optional aerosol
+absorption) contribution in a short wave band::
 
   >>> from pyspectral import rayleigh
   >>> rcor = rayleigh.Rayleigh('GOES-16', 'abi')
@@ -33,5 +34,7 @@ And, here is how to derive the rayleigh (with additional optional aerosol absorp
   >>> azidiff = np.array([[160, 160], [160, 160]])
   >>> blueband =  np.array([[0.1, 0.15], [0.11, 0.16]])
   >>> print rcor.get_reflectance(sunz, satz, azidiff, 'ch2', blueband)
-  [[ 2.13819557  3.27372626]
-   [ 2.20019015  3.47498879]]
+  [[ 2.01927932  3.20415785]
+   [ 2.08904394  3.41731944]]
+
+

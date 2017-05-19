@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014, 2015, 2016, 2017 Adam.Dybbroe
+# Copyright (c) 2014-2017 Pytroll
 
 # Author(s):
 
@@ -65,9 +65,43 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
 
 
 HTTP_PYSPECTRAL_RSR = "https://dl.dropboxusercontent.com/u/37482654/pyspectral_rsr_data.tgz"
-HTTP_RAYLEIGH_ONLY_LUTS = "https://dl.dropboxusercontent.com/u/37482654/rayleigh_only/rayleigh_luts_rayleigh_only.tgz"
-HTTP_RURAL_AEROSOL_LUTS = "https://dl.dropboxusercontent.com/u/37482654/rural_aerosol/rayleigh_luts_rural_aerosol.tgz"
 
+AEROSOL_TYPES = ['antarctic_aerosol', 'continental_average_aerosol',
+                 'continental_clean_aerosol', 'continental_polluted_aerosol',
+                 'desert_aerosol', 'marine_clean_aerosol',
+                 'marine_polluted_aerosol', 'marine_tropical_aerosol',
+                 'rayleigh_only', 'rural_aerosol', 'urban_aerosol']
+
+ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
+               'midlatitude summer': 6, 'midlatitude winter': 7,
+               'tropical': 8, 'us-standard': 9}
+
+
+HTTPS_RAYLEIGH_LUTS = {}
+HTTPS_RAYLEIGH_LUTS[
+    'antarctic_aerosol'] = "https://www.dropbox.com/sh/9s3vgk0ragoa0mu/AABIRkNdmf-5tBLe6uiKE7ZSa?dl=0"
+HTTPS_RAYLEIGH_LUTS[
+    'continental_average_aerosol'] = "https://dl.dropboxusercontent.com/u/37482654/pyspectral/continental_average_aerosol/pyspectral_rayleigh_correction_luts.tgz"
+HTTPS_RAYLEIGH_LUTS[
+    'continental_clean_aerosol'] = "https://dl.dropboxusercontent.com/u/37482654/pyspectral/continental_clean_aerosol/pyspectral_rayleigh_correction_luts.tgz"
+HTTPS_RAYLEIGH_LUTS[
+    'continental_polluted_aerosol'] = "https://dl.dropboxusercontent.com/u/37482654/pyspectral/continental_polluted_aerosol/pyspectral_rayleigh_correction_luts.tgz"
+HTTPS_RAYLEIGH_LUTS[
+    'desert_aerosol'] = "https://dl.dropboxusercontent.com/u/37482654/pyspectral/desert_aerosol/pyspectral_rayleigh_correction_luts.tgz"
+HTTPS_RAYLEIGH_LUTS[
+    'marine_clean_aerosol'] = "https://dl.dropboxusercontent.com/u/37482654/pyspectral/marine_clean_aerosol/pyspectral_rayleigh_correction_luts.tgz"
+HTTPS_RAYLEIGH_LUTS[
+    'marine_polluted_aerosol'] = "https://dl.dropboxusercontent.com/u/37482654/pyspectral/marine_polluted_aerosol/pyspectral_rayleigh_correction_luts.tgz"
+HTTPS_RAYLEIGH_LUTS[
+    'marine_tropical_aerosol'] = "https://dl.dropboxusercontent.com/u/37482654/pyspectral/marine_tropical_aerosol/pyspectral_rayleigh_correction_luts.tgz"
+HTTPS_RAYLEIGH_LUTS[
+    'rural_aerosol'] = "https://dl.dropboxusercontent.com/u/37482654/pyspectral/rural_aerosol/pyspectral_rayleigh_correction_luts.tgz"
+HTTPS_RAYLEIGH_LUTS[
+    'urban_aerosol'] = "https://dl.dropboxusercontent.com/u/37482654/pyspectral/urban_aerosol/pyspectral_rayleigh_correction_luts.tgz"
+# HTTPS_RAYLEIGH_LUTS[
+#    'rayleigh_only'] = "https://dl.dropboxusercontent.com/u/37482654/rayleigh_only/pyspectral_rayleigh_correction_luts.tgz"
+HTTPS_RAYLEIGH_LUTS[
+    'rayleigh_only'] = "https://dl.dropboxusercontent.com/u/37482654/pyspectral/rayleigh_only/pyspectral_rayleigh_correction_luts.tgz"
 
 OPTIONS = {}
 CONF = get_config()
@@ -83,17 +117,9 @@ except OSError:
 
 LOCAL_RAYLEIGH_DIR = expanduser(OPTIONS['rayleigh_dir'])
 
-HTTPS = [HTTP_RAYLEIGH_ONLY_LUTS, HTTP_RURAL_AEROSOL_LUTS]
-RAYLEIGH_SUB_NAMES = ['rayleigh_only', 'rural_aerosol']
 RAYLEIGH_LUT_DIRS = {}
-for http_addr, sub_dir_name in zip(HTTPS, RAYLEIGH_SUB_NAMES):
+for sub_dir_name in HTTPS_RAYLEIGH_LUTS:
     dirname = os.path.join(LOCAL_RAYLEIGH_DIR, sub_dir_name)
-    try:
-        os.makedirs(dirname)
-    except OSError:
-        if not os.path.isdir(dirname):
-            raise
-
     RAYLEIGH_LUT_DIRS[sub_dir_name] = dirname
 
 
@@ -226,59 +252,6 @@ def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06):
             dset[...] = arr
 
 
-def get_rayleigh_reflectance(parms, azidiff, sunz, satz):
-    """Get the Rayleigh reflectance applying the polynomial fit parameters
-
-    P(x,y) = c_{00} + c_{10}x + ...+ c_{n0}x^n +
-             c_{01}y + ...+ c_{0n}y^n +
-             c_{11}xy + c_{12}xy^2 + ... +
-             c_{1(n-1)}xy^{n-1}+ ... + c_{(n-1)1}x^{n-1}y
-
-    x = relative azimuth difference angle:
-        Azimuth difference   0: Instrument is looking into Sun
-        Azimuth difference 180: Instrument and Sun are looking in the same
-        direction
-    y = secant of the satellite zenith angle
-
-    NB! The azimuth difference provided here is defined as described in the
-    documentation, and differs by 180 degrees to the angle x required in the
-    polynomial fit.
-
-    """
-
-    sec = 1. / np.cos(np.deg2rad(satz))
-    sunsec = 1. / np.cos(np.deg2rad(sunz))
-
-    coeffs = [[parms[:, 0], parms[:, 1], parms[:, 2], parms[:, 3], parms[:, 4], parms[:, 5]],
-              [parms[:, 6], parms[:, 11], parms[:, 15],
-                  parms[:, 18], parms[:, 20]],
-              [parms[:, 7], parms[:, 12], parms[:, 16], parms[:, 19]],
-              [parms[:, 8], parms[:, 13], parms[:, 17]],
-              [parms[:, 9], parms[:, 14]],
-              [parms[:, 10]]
-              ]
-
-    # The RTM simulations are based on a definition of the sun-satellite azimuth
-    # difference according to the following:
-    # Azimuth difference 0: Instrument is looking into Sun
-    # Azimuth difference 180: Instrument and Sun are looking in the same
-    # direction
-    indices = np.rint(180. - azidiff).astype('i')
-
-    res = 0
-
-    for line, cols in enumerate(coeffs):
-        for col, coeff in enumerate(cols):
-            factor = coeff[indices]
-            for i in range(line):
-                factor *= sec
-            for i in range(col):
-                factor *= sunsec
-            res += factor
-
-    return res
-
-
 def download_rsr():
     """Download the pre-compiled hdf5 formatet relative spectral response functions
     from the internet
@@ -302,19 +275,36 @@ def download_rsr():
     os.remove(filename)
 
 
-def download_luts():
+def download_luts(**kwargs):
     """Download the luts from internet."""
     #
     import tarfile
     import requests
     from tqdm import tqdm
 
-    for http, subname in zip(HTTPS, RAYLEIGH_SUB_NAMES):
+    if 'aerosol_type' in kwargs:
+        if isinstance(kwargs['aerosol_type'], (list, tuple, set)):
+            aerosol_types = kwargs['aerosol_type']
+        else:
+            aerosol_types = [kwargs['aerosol_type'], ]
+    else:
+        aerosol_types = HTTPS_RAYLEIGH_LUTS.keys()
+
+    for subname in aerosol_types:
+
+        http = HTTPS_RAYLEIGH_LUTS[subname]
+
+        try:
+            os.makedirs(RAYLEIGH_LUT_DIRS[subname])
+        except OSError:
+            if not os.path.isdir(RAYLEIGH_LUT_DIRS[subname]):
+                raise
+
         response = requests.get(http)
 
         subdirname = RAYLEIGH_LUT_DIRS[subname]
         filename = os.path.join(
-            subdirname, "rayleigh_luts_{0}.tgz".format(subname))
+            subdirname, "pyspectral_rayleigh_correction_luts.tgz")
         with open(filename, "wb") as handle:
             for data in tqdm(response.iter_content()):
                 handle.write(data)
