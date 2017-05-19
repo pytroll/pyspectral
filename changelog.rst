@@ -1,6 +1,88 @@
 Changelog
 =========
 
+v0.4.0 (2017-05-19)
+-------------------
+
+- Update changelog. [Adam.Dybbroe]
+
+- Bump version: 0.3.4 → 0.4.0. [Adam.Dybbroe]
+
+- Merge branch 'develop' of github.com:pytroll/pyspectral into develop.
+  [Adam.Dybbroe]
+
+- Merge pull request #9 from pytroll/autofix/wrapped2_to3_fix. [Adam
+  Dybbroe]
+
+  Fix "Prefer `format()` over string interpolation operator" issue
+
+- Migrated `%` string formating. [Cody]
+
+- Merge branch 'feature-new-rayleigh' into develop. [Adam.Dybbroe]
+
+- Fix doctest. [Adam.Dybbroe]
+
+- Fall back to scipy if Cython is not available. [Adam.Dybbroe]
+
+- Fix nearest wavelength search. [Martin Raspaud]
+
+- Clip angles using bounds given in hdf5 file instead of hardcoded
+  values. [Adam.Dybbroe]
+
+- Try without using with_system_site_packages for Travis. [Adam.Dybbroe]
+
+- Update requirements file. [Adam.Dybbroe]
+
+- Try solve for slow scipy building on travis. [Adam.Dybbroe]
+
+- Clip satellite-zenith angles outside range. [Adam.Dybbroe]
+
+- Update url's for all aerosol-types. [Adam.Dybbroe]
+
+- Add all aerosol-simulations. [Adam.Dybbroe]
+
+- Don't install standard system-site scipy. [Adam.Dybbroe]
+
+- Fix azimuth angle bug. And prepare for several aerosol types.
+  [Adam.Dybbroe]
+
+- Interpolate Rayleigh lut in 3d with fixed wavelength. [Martin Raspaud]
+
+- Try fix scipy installation on travis for py2.7. [Adam.Dybbroe]
+
+- Work on non-masked arrays in rayleigh correction and fix for low sun
+  elevation. [Adam.Dybbroe]
+
+- Interpolate rayleigh lut on data points directly. [Martin Raspaud]
+
+- Require scipy 0.14. [Adam.Dybbroe]
+
+- Minimize memory footprint in rayleigh correction. [Adam.Dybbroe]
+
+  However, still requiring too much memory!
+
+- New rayleigh correction - Using 4d interpolation of RTM tables.
+  [Adam.Dybbroe]
+
+- Fix typo in doc string. [Adam.Dybbroe]
+
+- Simplify out of bounds check. [Adam.Dybbroe]
+
+- Use format() for string formating and simplify code improving
+  readability. [Adam.Dybbroe]
+
+- Bugfix in string formatting. [Adam.Dybbroe]
+
+- Use format() instead of string interpolation operator. [Adam.Dybbroe]
+
+- Class documented. [Adam.Dybbroe]
+
+- Improve string formating. [Adam.Dybbroe]
+
+- Improve doc-strings and syntax. [Adam.Dybbroe]
+
+- Add quantifiedcode badge. [Adam.Dybbroe]
+
 v0.3.4 (2017-04-03)
 -------------------
 
