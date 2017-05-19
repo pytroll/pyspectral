@@ -43,6 +43,15 @@ from pyspectral.utils import (INSTRUMENTS, RAYLEIGH_LUT_DIRS,
 
 LOG = logging.getLogger(__name__)
 
+WITH_CYTHON = True
+try:
+    from geotiepoints.multilinear import MultilinearInterpolator
+except ImportError:
+    LOG.warning(
+        "Couldn't import fast multilinear interpolation with Cython.")
+    LOG.warning("Check your geotiepoints installation!")
+    WITH_CYTHON = False
+
 
 class BandFrequencyOutOfRange(Exception):
 
@@ -198,12 +207,33 @@ class Rayleigh(object):
 
         raylwvl = fac * rayl[idx - 1, :, :, :] + (1 - fac) * rayl[idx, :, :, :]
 
-        interp_points = np.dstack((np.asarray(sunzsec),
-                                   np.asarray(180. - azidiff),
-                                   np.asarray(satzsec)))
+        import time
+        tic = time.time()
 
-        ipn = interpn((sunz_sec_coord, azid_coord, satz_sec_coord),
-                      raylwvl[:, :, :], interp_points)
+        if WITH_CYTHON:
+            smin = [sunz_sec_coord[0], azid_coord[0], satz_sec_coord[0]]
+            smax = [sunz_sec_coord[-1], azid_coord[-1], satz_sec_coord[-1]]
+            orders = [
+                len(sunz_sec_coord), len(azid_coord), len(satz_sec_coord)]
+            f_3d_grid = raylwvl
+
+            minterp = MultilinearInterpolator(smin, smax, orders)
+            minterp.set_values(np.atleast_2d(f_3d_grid.ravel()))
+
+            interp_points2 = np.vstack((np.asarray(sunzsec).ravel(),
+                                        np.asarray(180 - azidiff).ravel(),
+                                        np.asarray(satzsec).ravel()))
+
+            ipn = minterp(interp_points2).reshape(shape)
+        else:
+            interp_points = np.dstack((np.asarray(sunzsec),
+                                       np.asarray(180. - azidiff),
+                                       np.asarray(satzsec)))
+
+            ipn = interpn((sunz_sec_coord, azid_coord, satz_sec_coord),
+                          raylwvl[:, :, :], interp_points)
+
+        LOG.debug("Time - Interpolation: {0:f}".format(time.time() - tic))
 
         ipn *= 100
         res = ipn
