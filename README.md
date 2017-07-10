@@ -9,6 +9,7 @@ pyspectral
 [![Code Issues](https://www.quantifiedcode.com/api/v1/project/fbd81dbfd25e40da86862d4d186aaafe/badge.svg)](https://www.quantifiedcode.com/app/project/fbd81dbfd25e40da86862d4d186aaafe)
 [![Code Climate](https://codeclimate.com/github/pytroll/pyspectral/badges/gpa.svg)](https://codeclimate.com/github/pytroll/pyspectral)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/pytroll/pyspectral/badges/quality-score.png?b=develop)](https://scrutinizer-ci.com/g/pytroll/pyspectral/?branch=develop)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/9f039d7d640846ca89be8a78fa11e1f6)](https://www.codacy.com/app/adybbroe/pyspectral?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=pytroll/pyspectral&amp;utm_campaign=Badge_Grade)
 
 
 Given a passive sensor on a meteorological satellite the purpose of pyspectral
