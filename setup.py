@@ -29,6 +29,7 @@ except IOError:
     long_description = ''
 
 requires = ['docutils>=0.3', 'numpy>=1.5.1', 'scipy>=0.14',
+            'python-geotiepoints>=1.1.1',
             'h5py>=2.5', 'requests', 'tqdm', 'six']
 
 test_requires = ['xlrd']
