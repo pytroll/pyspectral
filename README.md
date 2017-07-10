@@ -7,6 +7,7 @@ pyspectral
 [![PyPI version](https://badge.fury.io/py/pyspectral.svg)](https://badge.fury.io/py/pyspectral)
 [![Research software impact](http://depsy.org/api/package/pypi/pyspectral/badge.svg)](http://depsy.org/package/python/pyspectral)
 [![Code Issues](https://www.quantifiedcode.com/api/v1/project/fbd81dbfd25e40da86862d4d186aaafe/badge.svg)](https://www.quantifiedcode.com/app/project/fbd81dbfd25e40da86862d4d186aaafe)
+[![Code Climate](https://codeclimate.com/github/pytroll/pyspectral/badges/gpa.svg)](https://codeclimate.com/github/pytroll/pyspectral)
 
 
 Given a passive sensor on a meteorological satellite the purpose of pyspectral
