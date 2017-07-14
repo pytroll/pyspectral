@@ -25,7 +25,6 @@
 
 import ConfigParser
 import os
-import numpy as np
 
 import logging
 LOG = logging.getLogger(__name__)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014, 2015, 2016 Adam.Dybbroe
+# Copyright (c) 2014, 2015, 2016, 2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -32,7 +32,6 @@ from pyspectral.utils import convert2hdf5 as tohdf5
 
 import logging
 LOG = logging.getLogger(__name__)
-from pyspectral import get_config
 
 AVHRR_BAND_NAMES = {'avhrr/3': ['ch1', 'ch2', 'ch3a', 'ch3b', 'ch4', 'ch5'],
                     'avhrr/2': ['ch1', 'ch2', 'ch3', 'ch4', 'ch5'],
