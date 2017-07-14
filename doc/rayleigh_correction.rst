@@ -1,6 +1,10 @@
 Rayleigh scattering correction
 ------------------------------
 
+.. figure:: _static/truecolor_composite_20170518_nrk_reception_cropped_thumb.png
+   :align: left
+
+
 In particular at the shorter wavelengths around :math:`400-600 nm`, which
 include the region used e.g. for ocean color products or true color imagery,
 the Rayleigh scattering due to atmospheric molecules or atoms becomes
@@ -73,6 +77,8 @@ absorption, but it is possible to specify if you want the other setup, e.g.:
 
 A few words on the Rayleigh scattering simulations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
 
   .. image:: _static/refl_subarctic_winter_lambda_0400_ssa_000.png
 
