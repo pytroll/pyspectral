@@ -1,6 +1,31 @@
 Changelog
 =========
 
+v0.4.1 (2017-07-14)
+-------------------
+
+- Update changelog. [Adam.Dybbroe]
+
+- Bump version: 0.4.0 → 0.4.1. [Adam.Dybbroe]
+
+- Deactivate the SEVIRI system tests - these should be in the pytroll
+  gallery instead. [Adam.Dybbroe]
+
+- Add rayleight corrected image dor documentation. [Adam.Dybbroe]
+
+- Clean up for easier maintanance. [Adam.Dybbroe]
+
+- Fix requirements: python-geotiepoints >= 1.1.1 is required.
+  [Adam.Dybbroe]
+
+- Add Codacy integration. [Adam.Dybbroe]
+
+- Add Scrutinizer integration. [Adam.Dybbroe]
+
+- Correct code version in documentation. [Adam.Dybbroe]
+
+- Add integration with codeclimate. [Adam.Dybbroe]
+
 v0.4.0 (2017-05-19)
 -------------------
 
