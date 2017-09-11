@@ -1,1 +1,2 @@
 etc/pyspectral_rsr_data.tgz filter=lfs diff=lfs merge=lfs -text
+pyspectral/etc/pyspectral_rsr_data.tgz filter=lfs diff=lfs merge=lfs -text
