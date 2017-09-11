@@ -54,8 +54,7 @@ setup(name='pyspectral',
                    'Operating System :: OS Independent',
                    'Programming Language :: Python',
                    'Topic :: Scientific/Engineering'],
-      url='https://github.com/adybbroe/pyspectral',
-      # download_url="https://github.com/adybbroe/py....
+      url='https://github.com/pytroll/pyspectral',
       long_description=long_description,
       license='GPLv3',
 
