@@ -64,7 +64,7 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                }
 
 
-HTTP_PYSPECTRAL_RSR = "https://dl.dropboxusercontent.com/u/37482654/pyspectral_rsr_data.tgz"
+HTTP_PYSPECTRAL_RSR = "https://www.dropbox.com/s/kejqd9wchqd50pw/pyspectral_rsr_data.tgz?dl=1"
 
 AEROSOL_TYPES = ['antarctic_aerosol', 'continental_average_aerosol',
                  'continental_clean_aerosol', 'continental_polluted_aerosol',
@@ -101,7 +101,8 @@ HTTPS_RAYLEIGH_LUTS[
 # HTTPS_RAYLEIGH_LUTS[
 #    'rayleigh_only'] = "https://dl.dropboxusercontent.com/u/37482654/rayleigh_only/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'rayleigh_only'] = "https://dl.dropboxusercontent.com/u/37482654/pyspectral/rayleigh_only/pyspectral_rayleigh_correction_luts.tgz"
+    'rayleigh_only'] = "https://zenodo.org/record/888971/files/pyspectral_rayleigh_correction_luts.tgz"
+
 
 OPTIONS = {}
 CONF = get_config()
