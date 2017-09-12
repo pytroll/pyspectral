@@ -10,21 +10,22 @@ more info on what is being done behind the curtan):
   >>> olci = RelativeSpectralResponse('Sentinel-3A', 'olci')
 
 You will see that if you haven't run this kind of code before, pyspectral will
-download the spectral responses for all satellites supported from zenodo.org.
+download the spectral responses for all satellites supported from Zenodo.
+
 
 Now, you can work with the data as you wish, make some simple plot for instance:
-  >>> print olci.band_names
-  ['ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'ch7', 'ch8', 'ch9', 'ch10', 'ch11', 'ch12', 'ch13', 'ch14', 'ch15', 'ch16', 'ch17', 'ch18', 'ch19', 'ch20']
 
+  >>> print olci.band_names
+  ['ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'ch7', 'ch8', 'ch9', 'ch10', 'ch11', 'ch12',
+   'ch13', 'ch14', 'ch15', 'ch16', 'ch17', 'ch18', 'ch19', 'ch20']
   >>> print olci.rsr['ch1']['det-1']['central_wavelength']
   0.400123
-
   >>> import matplotlib.pyplot as plt
   >>> plt.figure(figsize=(10, 5))
   >>> import numpy as np
   >>> resp = np.ma.masked_less_equal(olci.rsr['ch1']['det-1']['response'], 0.015)
   >>> wvl = np.ma.masked_array(olci.rsr['ch1']['det-1']['wavelength'], resp.mask)
-  >>> plt.plot(wvl.compressed(), resp.compressed(), label='{0} - OLCI'.format(olci.platform_name))
+  >>> plt.plot(wvl.compressed(), resp.compressed())
   >>> plt.show()
 
   .. image:: _static/olci_ch1.png
