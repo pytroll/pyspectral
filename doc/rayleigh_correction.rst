@@ -82,8 +82,5 @@ A few words on the Rayleigh scattering simulations
 
   .. image:: _static/refl_subarctic_winter_lambda_0400_ssa_000.png
 
-  .. image:: _static/refl_subarctic_winter_lambda_0400_ssa_180.png
-
   .. image:: _static/refl_subarctic_winter_lambda_0500_ssa_090.png
 
-  .. image:: _static/refl_subarctic_winter_lambda_0500_ssa_180.png
