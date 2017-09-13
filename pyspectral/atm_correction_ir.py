@@ -89,10 +89,10 @@ class AtmosphericalCorrection(object):
         """
 
         # From band name we will eventually need the effective wavelength
-        # and then use that to find the atm contribution depedning on zenith
+        # and then use that to find the atm contribution depending on zenith
         # angle from a LUT
 
-        return viewzen_corr(data, sat_zenith)
+        return viewzen_corr(data.copy(), sat_zenith)
 
 
 def viewzen_corr(data, view_zen):

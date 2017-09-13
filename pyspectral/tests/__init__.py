@@ -32,7 +32,9 @@ from pyspectral.tests import (test_rayleigh,
                               test_solarflux,
                               test_utils,
                               test_rad_tb_conversions,
-                              test_raw_readers)
+                              test_raw_readers,
+                              test_atm_correction_ir)
+
 import sys
 if sys.version_info < (2, 7):
     import unittest2 as unittest
