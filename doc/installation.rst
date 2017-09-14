@@ -96,7 +96,7 @@ Then adjust the *pyspectral.cfg* so it looks something like this:
    download_from_internet = False
 
 
-.. _pyspectral rsr: https://dl.dropboxusercontent.com/u/37482654/pyspectral_rsr_data.tgz
+.. _pyspectral rsr: https://zenodo.org/record/889206/files/pyspectral_rsr_data.tgz
 .. _eumetsat: http://www.eumetsat.int/website/wcm/idc/idcplg?IdcService=GET_FILE&dDocName=ZIP_MSG_SEVIRI_SPEC_RES_CHAR&RevisionSelectionMethod=LatestReleased&Rendition=Web
 .. _GSICS: http://www.wmo.int/pages/prog/sat/GSICS/
 .. _GCC: http://www.star.nesdis.noaa.gov/smcd/GCC/index.php
