@@ -26,6 +26,8 @@ from pyspectral.blackbody import (blackbody, blackbody_wn,
                                   blackbody_wn_rad2temp,
                                   blackbody_rad2temp)
 
+from pyspectral.tests.unittest_helpers import assertNumpyArraysEqual
+
 import unittest
 import numpy as np
 
@@ -39,13 +41,6 @@ WN_RAD_11MICRON_300KELVIN = 0.00115835441353
 WN_RAD_11MICRON_301KELVIN = 0.00117547716523
 
 __unittest = True
-
-
-def assertNumpyArraysEqual(self, other):
-    if self.shape != other.shape:
-        raise AssertionError("Shapes don't match")
-    if not np.allclose(self, other):
-        raise AssertionError("Elements don't match!")
 
 
 class TestBlackbody(unittest.TestCase):
