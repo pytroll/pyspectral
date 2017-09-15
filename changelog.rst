@@ -1,6 +1,44 @@
 Changelog
 =========
 
+v0.4.2 (2017-09-15)
+-------------------
+
+- Update changelog. [Adam.Dybbroe]
+
+- Bump version: 0.4.1 → 0.4.2. [Adam.Dybbroe]
+
+- Fix doc tests and get rid of duplicate code. [Adam.Dybbroe]
+
+- Update link to internally formatted RSR data. [Adam.Dybbroe]
+
+- Added unit test for atm correction. [Adam.Dybbroe]
+
+- Add simple framework for it atm correction, with old DWD parametric
+  method for a start. [Adam.Dybbroe]
+
+- Bugfixing documentation pages. [Adam.Dybbroe]
+
+- Enhance documentation: add simple example how to work with rsr data.
+  [Adam.Dybbroe]
+
+- Add debug_on function (copy from satpy) [Adam.Dybbroe]
+
+- RSR data is downloaded from Zenodo. [Adam.Dybbroe]
+
+- Update Dropbox links to LUTs. [Adam.Dybbroe]
+
+- Track the rsr tar file (again) [Adam.Dybbroe]
+
+- Update git-lfs tracked file. [Adam.Dybbroe]
+
+- Fix dropbox link for rsr data file and rayleigh only lut.
+  [Adam.Dybbroe]
+
+- Moving the rsr data into the package etc dir. [Adam.Dybbroe]
+
+- Adding rsr-data to git-lfs. [Adam.Dybbroe]
+
 v0.4.1 (2017-07-14)
 -------------------
 
