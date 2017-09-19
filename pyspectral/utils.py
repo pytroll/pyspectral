@@ -80,25 +80,25 @@ ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
 
 HTTPS_RAYLEIGH_LUTS = {}
 HTTPS_RAYLEIGH_LUTS[
-    'antarctic_aerosol'] = "https://www.dropbox.com/s/ksfko1xcm7rx3rj/pyspectral_rayleigh_correction_luts.tgz?dl=1"
+    'antarctic_aerosol'] = "https://zenodo.org/record/891952/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'continental_average_aerosol'] = "https://www.dropbox.com/s/w1rbx0q04q95nwh/pyspectral_rayleigh_correction_luts.tgz?dl=1"
+    'continental_average_aerosol'] = "https://zenodo.org/record/892092/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'continental_clean_aerosol'] = "https://www.dropbox.com/s/b7wut0n0r3i3vhi/pyspectral_rayleigh_correction_luts.tgz?dl=1"
+    'continental_clean_aerosol'] = "https://zenodo.org/record/892178/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'continental_polluted_aerosol'] = "https://www.dropbox.com/s/3rwio6m7wdpkwj0/pyspectral_rayleigh_correction_luts.tgz?dl=1"
+    'continental_polluted_aerosol'] = "https://zenodo.org/record/896859/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'desert_aerosol'] = "https://www.dropbox.com/s/bnxrjxwsapjpqic/pyspectral_rayleigh_correction_luts.tgz?dl=1"
+    'desert_aerosol'] = "https://zenodo.org/record/896863/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'marine_clean_aerosol'] = "https://www.dropbox.com/s/r8djfwbyzpgrab4/pyspectral_rayleigh_correction_luts.tgz?dl=1"
+    'marine_clean_aerosol'] = "https://zenodo.org/record/896869/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'marine_polluted_aerosol'] = "https://www.dropbox.com/s/esdwtjvdb0qjjh1/pyspectral_rayleigh_correction_luts.tgz?dl=1"
+    'marine_polluted_aerosol'] = "https://zenodo.org/record/896875/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'marine_tropical_aerosol'] = "https://www.dropbox.com/s/v6xqnlj9ltcatg5/pyspectral_rayleigh_correction_luts.tgz?dl=1"
+    'marine_tropical_aerosol'] = "https://zenodo.org/record/896879/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'rural_aerosol'] = "https://www.dropbox.com/s/n1etlrg8x9dpd22/pyspectral_rayleigh_correction_luts.tgz?dl=1"
+    'rural_aerosol'] = "https://zenodo.org/record/896881/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'urban_aerosol'] = "https://www.dropbox.com/s/rmb4x3s1ap6g2ft/pyspectral_rayleigh_correction_luts.tgz?dl=1"
+    'urban_aerosol'] = "https://zenodo.org/record/896887/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
     'rayleigh_only'] = "https://zenodo.org/record/888971/files/pyspectral_rayleigh_correction_luts.tgz"
 
