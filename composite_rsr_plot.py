@@ -27,7 +27,7 @@ set of satellite instruments for a give wavelength range
 
 import matplotlib.pyplot as plt
 from pyspectral.rsr_reader import RelativeSpectralResponse
-
+from pyspectral.utils import get_bandname_from_wavelength
 import numpy as np
 
 if __name__ == "__main__":
@@ -58,8 +58,13 @@ if __name__ == "__main__":
                         help="The wavelength range for the plot",
                         default=[None, None], type=float)
 
-    args = parser.parse_args()
+    parser.add_argument("-t", "--minimum_response",
+                        help=("Minimum response: Any response lower than " +
+                              "this will be ignored when plotting"),
+                        default=0.015, type=float)
 
+    args = parser.parse_args()
+    minimum_response = args.minimum_response
     wvlmin, wvlmax = args.range
     req_wvl = args.req_wvl
 
@@ -68,24 +73,21 @@ if __name__ == "__main__":
     for platform, sensor in SAT_INSTR:
         rsr = RelativeSpectralResponse(platform, sensor)
 
-        band_found = None
-        delta_wvl = 5.0
-        for band in rsr.rsr:
-            det1 = rsr.rsr[band]['det-1']
-            if abs(det1['central_wavelength'] - req_wvl) < delta_wvl:
-                delta_wvl = abs(det1['central_wavelength'] - req_wvl)
-                band_found = det1
-
-        if not band_found:
+        band = get_bandname_from_wavelength(req_wvl, rsr.rsr)
+        if not band:
             continue
 
-        wvl = band_found['wavelength']
-        resp = band_found['response']
+        detectors = rsr.rsr[band].keys()
+        # for det in detectors:
+        det = detectors[0]
+        resp = rsr.rsr[band][det]['response']
+        wvl = rsr.rsr[band][det]['wavelength']
 
-        resp = np.ma.masked_less_equal(resp, 0.015)
+        resp = np.ma.masked_less_equal(resp, minimum_response)
         wvl = np.ma.masked_array(wvl, resp.mask)
         resp.compressed()
         wvl.compressed()
+
         plt.plot(wvl, resp, label='{} - {}'.format(platform, sensor))
 
     wmin, wmax = plt.xlim()

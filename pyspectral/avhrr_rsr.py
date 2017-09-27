@@ -23,6 +23,7 @@
 
 """Read the NOAA/Metop AVHRR relative spectral response functions.
 Data from NOAA STAR.
+https://www.star.nesdis.noaa.gov/smcd/spb/fwu/homepage/AVHRR/spec_resp_func/index.html
 """
 
 import os
