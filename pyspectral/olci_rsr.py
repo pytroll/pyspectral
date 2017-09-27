@@ -61,18 +61,18 @@ class OlciRSR(InstrumentRSR):
 
         LOG.debug("Filename: %s", str(self.path))
         if os.path.exists(self.path):
-            self._load(bandname)
+            self._load()
         else:
             raise IOError("Couldn't find an existing file for this band: " +
                           str(self.bandname))
 
-    def _load(self, bandname, scale=0.001):
+    def _load(self, scale=0.001):
         """Load the SLSTR relative spectral responses
         """
 
         ncf = Dataset(self.path, 'r')
 
-        bandnum = OLCI_BAND_NAMES.index(bandname)
+        bandnum = OLCI_BAND_NAMES.index(self.bandname)
         cam = 0
         view = 0
         resp = ncf.variables[
