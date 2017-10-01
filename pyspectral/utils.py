@@ -88,7 +88,7 @@ HTTPS_RAYLEIGH_LUTS[
 HTTPS_RAYLEIGH_LUTS[
     'continental_polluted_aerosol'] = "https://zenodo.org/record/896859/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'desert_aerosol'] = "https://zenodo.org/record/896863/files/pyspectral_rayleigh_correction_luts.tgz"
+    'desert_aerosol'] = "https://zenodo.org/record/1000414/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
     'marine_clean_aerosol'] = "https://zenodo.org/record/896869/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
