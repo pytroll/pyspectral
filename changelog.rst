@@ -1,6 +1,28 @@
 Changelog
 =========
 
+v0.4.3 (2017-10-02)
+-------------------
+
+Fix
+~~~
+
+- Bugfix: Desert aerosol LUT table changed. [Adam.Dybbroe]
+
+Other
+~~~~~
+
+- Update changelog. [Adam.Dybbroe]
+
+- Bump version: 0.4.2 → 0.4.3. [Adam.Dybbroe]
+
+- Improve code style: Make codacy more happy. [Adam.Dybbroe]
+
+- More plotting facilities and add documentation on spectral response
+  sources. [Adam.Dybbroe]
+
+- Use Rayleigh LUTs from Zenodo. [Adam.Dybbroe]
+
 v0.4.2 (2017-09-15)
 -------------------
 
