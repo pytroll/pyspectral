@@ -28,76 +28,173 @@ set of satellite instruments for a give wavelength range
 import matplotlib.pyplot as plt
 from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.utils import get_bandname_from_wavelength
+#import logging
+from pyspectral.utils import logging_on, logging_off, get_logger
 import numpy as np
 
+
+def plot_band(plt_in, band_name, spec_response, pltname=None):
+    """Do the plotting of one band
+    """
+
+    detectors = spec_response[band_name].keys()
+    # for det in detectors:
+    det = detectors[0]
+    resp = spec_response[band_name][det]['response']
+    wvl = spec_response[band_name][det]['wavelength']
+
+    resp = np.ma.masked_less_equal(resp, minimum_response)
+    wvl = np.ma.masked_array(wvl, resp.mask)
+    resp.compressed()
+    wvl.compressed()
+
+    # plt.plot(wvl, resp, label='{platform} - {sensor} - {band}'.format(
+    #    platform=platform, sensor=sensor, band=band))
+    if pltname:
+        plt_in.plot(wvl, resp, label='{platform} - {band}'.format(
+            platform=pltname, band=band_name))
+    else:
+        plt_in.plot(wvl, resp, label='{band}'.format(band=band_name))
+
+    return plt_in
+
 if __name__ == "__main__":
-
-    # SAT_INSTR = [('NOAA-18', 'avhrr/3'), ('Metop-B', 'avhrr/3'),
-    #              ('Suomi-NPP', 'viirs'),
-    #              ('Envisat', 'aatsr'), ('Sentinel-3A', 'slstr')]
-
-    SAT_INSTR = [('NOAA-19', 'avhrr/3'), ('Metop-B', 'avhrr/3'),
-                 ('NOAA-18', 'avhrr/3'), ('Metop-A', 'avhrr/3'),
-                 ('NOAA-17', 'avhrr/3'), ('NOAA-16', 'avhrr/3'),
-                 ('NOAA-15', 'avhrr/3'),
-                 ('NOAA-14', 'avhrr/2'), ('NOAA-12', 'avhrr/2'),
-                 ('NOAA-11', 'avhrr/2'), ('NOAA-9', 'avhrr/2'),
-                 ('NOAA-7', 'avhrr/2'), ('NOAA-10', 'avhrr/1'),
-                 ('NOAA-8', 'avhrr/1'), ('NOAA-6', 'avhrr/1'),
-                 ('TIROS-N', 'avhrr/1'),
-                 ]
-
     import argparse
+    import sys
     parser = argparse.ArgumentParser(
         description='Plot spectral responses for a set of satellite imagers')
 
-    parser.add_argument('req_wvl', metavar='wavelength', type=float,
-                        help='the approximate spectral wavelength in micron')
-
-    parser.add_argument("-r", "--range", nargs='*',
-                        help="The wavelength range for the plot",
-                        default=[None, None], type=float)
-
+    parser.add_argument("--platform_name", '-p', nargs='*',
+                        help="The Platform name",
+                        type=str, required=True)
+    parser.add_argument("--sensor", '-s', nargs='*',
+                        help="The sensor/instrument name",
+                        type=str, required=True)
+    parser.add_argument("-x", "--xlimits", nargs=2,
+                        help=("x-axis boundaries for plot"),
+                        default=None, type=float)
     parser.add_argument("-t", "--minimum_response",
                         help=("Minimum response: Any response lower than " +
                               "this will be ignored when plotting"),
                         default=0.015, type=float)
 
+    parser.add_argument("-no_platform_name_in_legend", help=("No platform name in legend"),
+                        action='store_true')
+    parser.add_argument("--title", help=("Plot title"),
+                        default=None, type=str)
+    parser.add_argument("-o", "--filename", help=("Output plot file name"),
+                        default=None, type=str)
+    parser.add_argument(
+        "-v", '--verbose', help=("Turn logging on"), action='store_true')
+
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--bandname", '-b',
+                       help="The sensor band name", type=str)
+    group.add_argument("--wavelength", "-w", type=float,
+                       help='the approximate spectral wavelength in micron')
+    group.add_argument("--range", "-r", nargs='*',
+                       help="The wavelength range for the plot",
+                       default=[None, None], type=float)
+
+    LOG = get_logger(__name__)
+
     args = parser.parse_args()
+    platform_names = args.platform_name
+    sensors = args.sensor
     minimum_response = args.minimum_response
+    xlimits = args.xlimits
+    title = args.title
+    if not title:
+        title = 'Relative Spectral Responses'
+    filename = args.filename
+    no_platform_name_in_legend = args.no_platform_name_in_legend
+    verbose = args.verbose
+
+    if verbose:
+        logging_on()
+    else:
+        logging_off()
+
+    req_wvl = None
+    band = None
     wvlmin, wvlmax = args.range
-    req_wvl = args.req_wvl
+    if args.bandname:
+        band = args.bandname
+    elif args.wavelength:
+        req_wvl = args.wavelength
 
-    plt.figure(figsize=(10, 5))
+    figscale = 1.0
+    if wvlmin:
+        figscale = (wvlmax - wvlmin) / 4.
+    figsize = (figscale * 1. + 10, figscale * 0.5 + 5)
 
-    for platform, sensor in SAT_INSTR:
-        rsr = RelativeSpectralResponse(platform, sensor)
+    plt.figure(figsize=figsize)
+    something2plot = False
+    for platform in platform_names:
+        for sensor in sensors:
+            try:
+                rsr = RelativeSpectralResponse(platform, sensor)
+            except IOError:
+                # LOG.exception('Failed getting the rsr data for platform %s ' +
+                #               'and sensor %s', platform, sensor)
+                rsr = None
+            else:
+                break
 
-        band = get_bandname_from_wavelength(req_wvl, rsr.rsr)
-        if not band:
+        if not rsr:
             continue
 
-        detectors = rsr.rsr[band].keys()
-        # for det in detectors:
-        det = detectors[0]
-        resp = rsr.rsr[band][det]['response']
-        wvl = rsr.rsr[band][det]['wavelength']
+        something2plot = True
+        if req_wvl:
+            band = get_bandname_from_wavelength(req_wvl, rsr.rsr, 0.5)
+            if not band:
+                continue
+            if no_platform_name_in_legend:
+                plt = plot_band(plt, band, rsr.rsr)
+            else:
+                plt = plot_band(plt, band, rsr.rsr, platform)
+        elif band:
+            if no_platform_name_in_legend:
+                plt = plot_band(plt, band, rsr.rsr)
+            else:
+                plt = plot_band(plt, band, rsr.rsr, platform)
+        else:
+            wvlx = wvlmin
+            prev_band = None
+            while wvlx < wvlmax:
+                band = get_bandname_from_wavelength(wvlx, rsr.rsr, 0.05)
+                wvlx = wvlx + 0.05
+                if not band:
+                    continue
+                if band != prev_band:
+                    if no_platform_name_in_legend:
+                        plt = plot_band(plt, band, rsr.rsr)
+                    else:
+                        plt = plot_band(plt, band, rsr.rsr, platform)
+                    prev_band = band
 
-        resp = np.ma.masked_less_equal(resp, minimum_response)
-        wvl = np.ma.masked_array(wvl, resp.mask)
-        resp.compressed()
-        wvl.compressed()
-
-        plt.plot(wvl, resp, label='{} - {}'.format(platform, sensor))
+    if not something2plot:
+        LOG.error("Nothing to plot!")
+        sys.exit(0)
 
     wmin, wmax = plt.xlim()
-    wmax = wmax + (wmax - wmin) / 4.0
-    if wvlmin:
-        wmin = wvlmin
-    if wvlmax:
-        wmax = wvlmax
+    delta_x = (wmax - wmin)
+    wmax = wmax + delta_x / 4.0
+    if xlimits:
+        wmin = xlimits[0]
+        wmax = xlimits[1]
 
     plt.xlim((wmin, wmax))
-    plt.title('Relative Spectral Responses')
+
+    plt.title(title)
     plt.legend(loc='lower right')
-    plt.savefig('rsr_band_{:>04d}.png'.format(int(100 * req_wvl)))
+    if filename:
+        plt.savefig(filename)
+    else:
+        if req_wvl:
+            plt.savefig('rsr_band_{:>04d}.png'.format(int(100 * req_wvl)))
+        elif wvlmin and wvlmax:
+            plt.savefig('rsr_band_{:>04d}_{:>04d}.png'.format(
+                int(100 * wvlmin), int(100 * wvlmax)))
+        else:
+            plt.savefig('rsr_band_{bandname}.png'.format(bandname=band))

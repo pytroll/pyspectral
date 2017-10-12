@@ -1,0 +1,52 @@
+rsr_dir: ~/.local/share/pyspectral/
+rayleigh_dir: ~/.local/share/pyspectral/
+download_from_internet: False
+
+path1: '/home/a000680/data/SpectralResponses/jpss1-viirs/J1_VIIRS_Detector_RSR_V2'
+path2: '/home/a000680/data/SpectralResponses/jpss1-viirs/J1_VIIRS_V1_RSR_used_in_V2'
+
+
+NOAA-20-viirs:
+  # J1_VIIRS_RSR_M1_Detector_Fused_V2.txt
+  # J1_VIIRS_V1_RSR_used_in_V2/J1_VIIRS_RSR_M10_Det_V1.txt
+  # J1_VIIRS_V1_RSR_used_in_V2/J1_VIIRS_RSR_M8_Det_V1.txt
+
+  rootdir: /home/a000680/data/SpectralResponses/jpss1-viirs
+  
+  block1:
+    filename: J1_VIIRS_Detector_RSR_V2/J1_VIIRS_RSR_{bandname}_Detector_Fused_V2.txt
+    bands: [M1, M2, M3, M4, M5, M6, M7]
+
+  block2:
+    filename: J1_VIIRS_Detector_RSR_V2/J1_VIIRS_RSR_{bandname}_Detector_Fused_V2.txt
+    bands: [I1, I2]
+
+  block3:
+    filename: J1_VIIRS_V1_RSR_used_in_V2/J1_VIIRS_RSR_M8_Det_V1.txt
+    bands: [M8]
+    
+  block4:
+    filename: J1_VIIRS_Detector_RSR_V2.1/J1_VIIRS_RSR_M9_Det_V2.1.txt
+    bands: [M9]
+  
+  block5:
+    filename: J1_VIIRS_V1_RSR_used_in_V2/J1_VIIRS_RSR_{bandname}_Det_V1.txt
+    bands: [M10, M11, M12, M14, M15]
+
+  block6:
+    filename: J1_VIIRS_Detector_RSR_V2/J1_VIIRS_RSR_M13_Det_V2.txt
+    bands: [M13]
+
+  block7:
+    filename: J1_VIIRS_V1_RSR_used_in_V2/J1_VIIRS_RSR_M16A_Det_V1.txt
+    bands: [M16]
+
+  block8:
+    filename: J1_VIIRS_V1_RSR_used_in_V2/J1_VIIRS_RSR_{bandname}_Det_V1.txt
+    bands: [I3, I4, I5]
+
+  block9:
+    filename: J1_VIIRS_Detector_RSR_V2/J1_VIIRS_RSR_DNBLGS_Detector_Fused_V2S.txt
+    bands: [DNB]
+
+

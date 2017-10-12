@@ -43,6 +43,7 @@ color imagery.
 
    installation
    usage
+   rsr_plotting
    seviri_example
    37_reflectance
    rayleigh_correction

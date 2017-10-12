@@ -30,8 +30,8 @@ import numpy as np
 
 platforms = ['Himawari-8', 'GOES-16', 'Meteosat-10',
              'EOS-Aqua', 'Sentinel-3A', 'Sentinel-3A',
-             'Suomi-NPP']
-sensors = ['ahi', 'abi', 'seviri', 'modis', 'olci', 'slstr', 'viirs']
+             'Suomi-NPP', 'NOAA-20']
+sensors = ['ahi', 'abi', 'seviri', 'modis', 'olci', 'slstr', 'viirs', 'viirs']
 
 
 if __name__ == "__main__":

@@ -56,11 +56,7 @@ class RelativeSpectralResponse(object):
         self.si_scale = 1e-6  # How to scale the wavelengths to become SI unit
         self._wavespace = WAVL
 
-        conf = get_config()
-
-        options = {}
-        for option, value in conf.items('general', raw=True):
-            options[option] = value
+        options = get_config()
 
         # Try fix instrument naming
         instr = INSTRUMENTS.get(platform_name, instrument)

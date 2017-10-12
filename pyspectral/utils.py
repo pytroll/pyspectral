@@ -103,19 +103,16 @@ HTTPS_RAYLEIGH_LUTS[
     'rayleigh_only'] = "https://zenodo.org/record/888971/files/pyspectral_rayleigh_correction_luts.tgz"
 
 
-OPTIONS = {}
 CONF = get_config()
-for option, value in CONF.items('general', raw=True):
-    OPTIONS[option] = value
 
-LOCAL_RSR_DIR = expanduser(OPTIONS['rsr_dir'])
+LOCAL_RSR_DIR = expanduser(CONF['rsr_dir'])
+LOCAL_RAYLEIGH_DIR = expanduser(CONF['rayleigh_dir'])
+
 try:
     os.makedirs(LOCAL_RSR_DIR)
 except OSError:
     if not os.path.isdir(LOCAL_RSR_DIR):
         raise
-
-LOCAL_RAYLEIGH_DIR = expanduser(OPTIONS['rayleigh_dir'])
 
 RAYLEIGH_LUT_DIRS = {}
 for sub_dir_name in HTTPS_RAYLEIGH_LUTS:
@@ -341,6 +338,17 @@ def logging_on(level=logging.WARNING):
     log.setLevel(level)
     for h in log.handlers:
         h.setLevel(level)
+
+
+class NullHandler(logging.Handler):
+
+    """Empty handler.
+    """
+
+    def emit(self, record):
+        """Record a message.
+        """
+        pass
 
 
 def logging_off():

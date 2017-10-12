@@ -29,11 +29,13 @@ import os
 
 LOG = logging.getLogger(__name__)
 
-from six.moves import configparser
+#from six.moves import configparser
+import yaml
+from collections import Mapping
 
 import pkg_resources
 BUILTIN_CONFIG_FILE = pkg_resources.resource_filename(__name__,
-                                                      os.path.join('etc', 'pyspectral.cfg'))
+                                                      os.path.join('etc', 'pyspectral.yaml'))
 
 CONFIG_FILE = os.environ.get('PSP_CONFIG_FILE')
 
@@ -43,16 +45,47 @@ if CONFIG_FILE is not None and (not os.path.exists(CONFIG_FILE) or
                   "variable PSP_CONFIG_FILE is not a file or does not exist!")
 
 
+# def get_config():
+#     """Get config from file"""
+
+#     conf = configparser.ConfigParser()
+#     conf.read(BUILTIN_CONFIG_FILE)
+#     if CONFIG_FILE is not None:
+#         try:
+#             conf.read(CONFIG_FILE)
+#         except configparser.NoSectionError:
+#             LOG.info('Failed reading configuration file: %s',
+#                      str(CONFIG_FILE))
+
+#     return conf
+
+def recursive_dict_update(d, u):
+    """Recursive dictionary update using
+
+    Copied from:
+
+        http://stackoverflow.com/questions/3232943/update-value-of-a-nested-dictionary-of-varying-depth
+
+    """
+    for k, v in u.items():
+        if isinstance(v, Mapping):
+            r = recursive_dict_update(d.get(k, {}), v)
+            d[k] = r
+        else:
+            d[k] = u[k]
+    return d
+
+
 def get_config():
-    """Get config from file"""
+    """Get the configuration from file"""
 
-    conf = configparser.ConfigParser()
-    conf.read(BUILTIN_CONFIG_FILE)
     if CONFIG_FILE is not None:
-        try:
-            conf.read(CONFIG_FILE)
-        except configparser.NoSectionError:
-            LOG.info('Failed reading configuration file: %s',
-                     str(CONFIG_FILE))
+        configfile = CONFIG_FILE
+    else:
+        configfile = BUILTIN_CONFIG_FILE
 
-    return conf
+    config = {}
+    with open(configfile, 'r') as fp_:
+        config = recursive_dict_update(config, yaml.load(fp_))
+
+    return config
