@@ -25,7 +25,7 @@ Now, you can work with the data as you wish, make some simple plot for instance:
   >>> resp = np.ma.masked_less_equal(olci.rsr['ch1']['det-1']['response'], 0.015)
   >>> wvl = np.ma.masked_array(olci.rsr['ch1']['det-1']['wavelength'], resp.mask)
   >>> dummy = plt.plot(wvl.compressed(), resp.compressed())
-  >>> plt.show()
+  >>> plt.show() # doctest: +SKIP
 
   .. image:: _static/olci_ch1.png
 
