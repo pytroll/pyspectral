@@ -26,14 +26,13 @@
 from pyspectral.version import __version__
 import logging
 import os
-
-LOG = logging.getLogger(__name__)
-
 #from six.moves import configparser
 import yaml
 from collections import Mapping
-
 import pkg_resources
+
+LOG = logging.getLogger(__name__)
+
 BUILTIN_CONFIG_FILE = pkg_resources.resource_filename(__name__,
                                                       os.path.join('etc', 'pyspectral.yaml'))
 

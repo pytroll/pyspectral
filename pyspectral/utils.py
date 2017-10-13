@@ -344,8 +344,7 @@ def logging_on(level=logging.WARNING):
 
 class NullHandler(logging.Handler):
 
-    """Empty handler.
-    """
+    """Empty handler"""
 
     def emit(self, record):
         """Record a message.

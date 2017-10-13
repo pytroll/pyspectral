@@ -92,9 +92,7 @@ class RelativeSpectralResponse(object):
         self.load()
 
     def _check_instrument(self):
-        """Check and try correct instrument name if needed"""
-
-        # Try fix instrument naming
+        """Check and try fix instrument name if needed"""
         instr = INSTRUMENTS.get(self.platform_name, self.instrument)
         if instr != self.instrument:
             self.instrument = instr
@@ -105,15 +103,14 @@ class RelativeSpectralResponse(object):
 
     def _get_filename(self):
         """Get the rsr filname from platform and instrument names, and download if not
-           available
-        """
+           available.
 
+        """
         self.filename = expanduser(
             os.path.join(self.rsr_dir, 'rsr_{0}_{1}.h5'.format(self.instrument,
                                                                self.platform_name)))
 
         LOG.debug('Filename: %s', str(self.filename))
-
         if not os.path.exists(self.filename) or not os.path.isfile(self.filename):
             # Try download from the internet!
             LOG.warning("No rsr file %s on disk", self.filename)

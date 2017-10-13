@@ -109,8 +109,6 @@ class ViirsRSR(object):
     """Container for the (S-NPP/JPSS) VIIRS RSR data"""
 
     def __init__(self, bandname, platform_name):
-        """Init"""
-
         self.platform_name = platform_name
         self.bandname = bandname
         self.filename = None
@@ -128,7 +126,6 @@ class ViirsRSR(object):
 
     def _get_bandfilenames(self, **options):
         """Get filename for each band"""
-
         conf = options[self.platform_name + '-viirs']
 
         rootdir = conf['rootdir']

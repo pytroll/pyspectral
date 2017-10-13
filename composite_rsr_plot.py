@@ -34,8 +34,7 @@ import numpy as np
 
 
 def plot_band(plt_in, band_name, spec_response, pltname=None):
-    """Do the plotting of one band
-    """
+    """Do the plotting of one band"""
 
     detectors = spec_response[band_name].keys()
     # for det in detectors:
@@ -58,9 +57,11 @@ def plot_band(plt_in, band_name, spec_response, pltname=None):
 
     return plt_in
 
-if __name__ == "__main__":
+
+def get_arguments():
+    """Get the command line arguments"""
+
     import argparse
-    import sys
     parser = argparse.ArgumentParser(
         description='Plot spectral responses for a set of satellite imagers')
 
@@ -96,9 +97,15 @@ if __name__ == "__main__":
                        help="The wavelength range for the plot",
                        default=[None, None], type=float)
 
+    return parser.parse_args()
+
+if __name__ == "__main__":
+    import sys
+
+    args = get_arguments()
+
     LOG = get_logger(__name__)
 
-    args = parser.parse_args()
     platform_names = args.platform_name
     sensors = args.sensor
     minimum_response = args.minimum_response
