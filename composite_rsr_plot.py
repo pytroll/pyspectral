@@ -33,25 +33,27 @@ from pyspectral.utils import logging_on, logging_off, get_logger
 import numpy as np
 
 
-def plot_band(plt_in, band_name, spec_response, pltname=None):
+def plot_band(plt_in, band_name, rsr_obj, **kwargs):
     """Do the plotting of one band"""
+    if 'platform_name_in_legend' in kwargs:
+        platform_name_in_legend = kwargs['platform_name_in_legend']
+    else:
+        platform_name_in_legend = False
 
-    detectors = spec_response[band_name].keys()
+    detectors = rsr_obj.rsr[band_name].keys()
     # for det in detectors:
     det = detectors[0]
-    resp = spec_response[band_name][det]['response']
-    wvl = spec_response[band_name][det]['wavelength']
+    resp = rsr_obj.rsr[band_name][det]['response']
+    wvl = rsr_obj.rsr[band_name][det]['wavelength']
 
     resp = np.ma.masked_less_equal(resp, minimum_response)
     wvl = np.ma.masked_array(wvl, resp.mask)
     resp.compressed()
     wvl.compressed()
 
-    # plt.plot(wvl, resp, label='{platform} - {sensor} - {band}'.format(
-    #    platform=platform, sensor=sensor, band=band))
-    if pltname:
+    if platform_name_in_legend:
         plt_in.plot(wvl, resp, label='{platform} - {band}'.format(
-            platform=pltname, band=band_name))
+            platform=rsr_obj.platform_name, band=band_name))
     else:
         plt_in.plot(wvl, resp, label='{band}'.format(band=band_name))
 
@@ -60,7 +62,6 @@ def plot_band(plt_in, band_name, spec_response, pltname=None):
 
 def get_arguments():
     """Get the command line arguments"""
-
     import argparse
     parser = argparse.ArgumentParser(
         description='Plot spectral responses for a set of satellite imagers')
@@ -156,15 +157,11 @@ if __name__ == "__main__":
             band = get_bandname_from_wavelength(req_wvl, rsr.rsr, 0.5)
             if not band:
                 continue
-            if no_platform_name_in_legend:
-                plt = plot_band(plt, band, rsr.rsr)
-            else:
-                plt = plot_band(plt, band, rsr.rsr, platform)
+            plt = plot_band(plt, band, rsr,
+                            platform_name_in_legend=(not no_platform_name_in_legend))
         elif band:
-            if no_platform_name_in_legend:
-                plt = plot_band(plt, band, rsr.rsr)
-            else:
-                plt = plot_band(plt, band, rsr.rsr, platform)
+            plt = plot_band(plt, band, rsr,
+                            platform_name_in_legend=(not no_platform_name_in_legend))
         else:
             wvlx = wvlmin
             prev_band = None
@@ -174,10 +171,8 @@ if __name__ == "__main__":
                 if not band:
                     continue
                 if band != prev_band:
-                    if no_platform_name_in_legend:
-                        plt = plot_band(plt, band, rsr.rsr)
-                    else:
-                        plt = plot_band(plt, band, rsr.rsr, platform)
+                    plt = plot_band(plt, band, rsr,
+                                    platform_name_in_legend=(not no_platform_name_in_legend))
                     prev_band = band
 
     if not something2plot:

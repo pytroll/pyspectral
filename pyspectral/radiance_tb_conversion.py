@@ -88,7 +88,7 @@ class RadTbConverter(object):
     tabulated standard values using non-linear regression methods.
     Methods:
       1: Spectral response function
-      2: non-linear approximation using tabulated coefficients 
+      2: non-linear approximation using tabulated coefficients
     """
 
     def __init__(self, platform_name, instrument, band, method=1,
@@ -169,7 +169,8 @@ class RadTbConverter(object):
 
     def tb2radiance(self, tb_, bandname, lut=None):
         """Get the radiance from the brightness temperature (Tb) given the
-        band name. 
+        band name
+
         """
         from scipy import integrate
 
@@ -261,7 +262,7 @@ class RadTbConverter(object):
 
     def radiance2tb_simple(self, rad, bandname):
         """Get the Tb from the radiance using the simple non-linear regression
-        method. 
+        method.
         rad: Radiance in units = 'mW/m^2 sr^-1 (cm^-1)^-1'
         """
         #

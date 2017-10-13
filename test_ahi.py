@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015 Adam.Dybbroe
+# Copyright (c) 2015, 2017 Adam.Dybbroe
 
 # Author(s):
 
@@ -23,16 +23,19 @@
 """Test the AHI plugins
 """
 
+import sys
+import logging
+import numpy as np
+from pyspectral.rsr_reader import RelativeSpectralResponse
+from pyspectral.solar import (
+    SolarIrradianceSpectrum, TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
+from pyspectral.near_infrared_reflectance import Calculator
 
 #: Default time format
 _DEFAULT_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 #: Default log format
 _DEFAULT_LOG_FORMAT = '[%(levelname)s: %(asctime)s : %(name)s] %(message)s'
-
-import sys
-import logging
-
 LOG = logging.getLogger('test_ahi')
 handler = logging.StreamHandler(sys.stderr)
 
@@ -45,23 +48,17 @@ logging.getLogger("").setLevel(logging.DEBUG)
 LOG.addHandler(handler)
 
 
-from pyspectral.rsr_reader import RelativeSpectralResponse
-from pyspectral.solar import (
-    SolarIrradianceSpectrum, TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
 ahi = RelativeSpectralResponse('Himawari-8', 'ahi')
 solar_irr = SolarIrradianceSpectrum(
     TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, dlambda=0.005)
 sflux = solar_irr.inband_solarflux(ahi.rsr['ch7'])
 LOG.info("Solar flux over Band: " + str(sflux))
 
-from pyspectral.near_infrared_reflectance import Calculator
-
 # sunz = [80., 80.5]
 # tb7 = [288.0, 390.0]
 # tb14 = [282.0, 272.0]
 # tb16 = [275.0, 269.0]
 
-import numpy as np
 sunz = np.random.rand(5500, 550) * 120.
 tb7 = np.random.rand(5500, 550) * 120. + 260.0
 tb14 = np.random.rand(5500, 550) * 30. + 260.0

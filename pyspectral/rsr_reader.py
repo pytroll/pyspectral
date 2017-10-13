@@ -46,6 +46,8 @@ class RelativeSpectralResponse(object):
     """
 
     def __init__(self, platform_name=None, instrument=None, **kwargs):
+        """Create the instance either from platform name and instrument or from
+        filename and load the data"""
         self.platform_name = platform_name
         self.instrument = instrument
         self.filename = None
@@ -67,10 +69,10 @@ class RelativeSpectralResponse(object):
 
         options = get_config()
         self.rsr_dir = options['rsr_dir']
-        if 'download_from_internet' in options and options['download_from_internet'] == 'True':
+        self.do_download = False
+
+        if 'download_from_internet' in options and options['download_from_internet']:
             self.do_download = True
-        else:
-            self.do_download = False
 
         if not self.filename:
             self._get_filename()
