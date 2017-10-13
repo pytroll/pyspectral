@@ -206,8 +206,8 @@ def main():
     LOG.setLevel(logging.DEBUG)
     LOG.addHandler(handler)
 
-    #platform_name = "NOAA-20"
-    platform_name = "Suomi-NPP"
+    platform_name = "NOAA-20"
+    #platform_name = "Suomi-NPP"
     viirs = ViirsRSR('M1', platform_name)
     filename = os.path.join(viirs.output_dir,
                             "rsr_viirs_{0}.h5".format(platform_name))
@@ -215,6 +215,7 @@ def main():
     with h5py.File(filename, "w") as h5f:
         h5f.attrs['description'] = 'Relative Spectral Responses for VIIRS'
         h5f.attrs['platform_name'] = platform_name
+        h5f.attrs['sensor'] = 'viirs'
         h5f.attrs['band_names'] = VIIRS_BAND_NAMES
 
         for chname in VIIRS_BAND_NAMES:

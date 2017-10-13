@@ -61,7 +61,9 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'TIROS-N': 'avhrr/1',
                'Metop-A': 'avhrr/3',
                'Metop-B': 'avhrr/3',
-               'Metop-C': 'avhrr/3'
+               'Metop-C': 'avhrr/3',
+               'Suomi-NPP': 'viirs',
+               'NOAA-20': 'viirs'
                }
 
 
