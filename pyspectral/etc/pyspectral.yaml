@@ -216,7 +216,7 @@ NOAA-14-avhrr/2:
   ch4: NOAA_14_A204C004.txt
   ch5: NOAA_14_A204C005.txt
 
-NOAA-12-avhrr/2
+NOAA-12-avhrr/2:
   path: /path/to/original/noaa12/avhrr/data
   ch1: NOAA_12_A205C001.txt
   ch2: NOAA_12_A205C002.txt
