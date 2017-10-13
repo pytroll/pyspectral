@@ -34,7 +34,6 @@ import h5py
 import numpy as np
 from scipy.interpolate import interpn
 
-from pyspectral import get_config
 from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.utils import (INSTRUMENTS, RAYLEIGH_LUT_DIRS,
                               AEROSOL_TYPES, ATMOSPHERES,
@@ -90,12 +89,6 @@ class Rayleigh(object):
             LOG.error("Atmosphere type %s not supported", atm_type)
 
         LOG.info("Atmosphere chosen: %s", atm_type)
-
-        conf = get_config()
-
-        options = {}
-        for option, value in conf.items('general', raw=True):
-            options[option] = value
 
         # Try fix instrument naming
         instr = INSTRUMENTS.get(platform_name, sensor)

@@ -80,11 +80,13 @@ class Calculator(RadTbConverter):
                 raise NotImplementedError('NIR reflectance is not supported outside ' +
                                           'the 3.5-3.95 micron interval')
 
-        options = {}
-        conf = get_config()
-        for option, value in conf.items(platform_name + '-' + instrument,
-                                        raw=True):
-            options[option] = value
+        options = get_config()
+
+        # options = {}
+        # conf = get_config()
+        # for option, value in conf.items(platform_name + '-' + instrument,
+        #                                 raw=True):
+        #     options[option] = value
 
         if solar_flux is None:
             self._get_solarflux()
@@ -106,8 +108,9 @@ class Calculator(RadTbConverter):
         wv_ = self.rsr[self.bandname][self.detector][self.wavespace]
         self.rsr_integral = np.trapz(resp, wv_)
 
-        if 'tb2rad_lut_filename' in options:
-            self.lutfile = options['tb2rad_lut_filename']
+        platform_sensor = platform_name + '-' + instrument
+        if platform_sensor in options and 'tb2rad_lut_filename' in options[platform_sensor]:
+            self.lutfile = options[platform_sensor]['tb2rad_lut_filename']
             if not self.lutfile.endswith('.npz'):
                 self.lutfile = self.lutfile + '.npz'
 

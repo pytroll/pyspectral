@@ -52,18 +52,12 @@ class Seviri(object):
         default. Can be 'wavenumber' in which case the unit is in cm-1.
 
         """
-        conf = get_config()
+        options = get_config()
 
-        options = {}
-        for option, value in conf.items('seviri', raw=True):
-            options[option] = value
-
-        self.seviri_path = options.get('path')
+        self.seviri_path = options['seviri'].get('path')
         if not os.path.exists(self.seviri_path):
-            self.seviri_path = os.path.join(DATA_PATH, options.get('filename'))
-
-        for option, value in conf.items('general', raw=True):
-            options[option] = value
+            self.seviri_path = os.path.join(
+                DATA_PATH, options['seviri'].get('filename'))
 
         self.output_dir = options.get('rsr_dir', './')
 

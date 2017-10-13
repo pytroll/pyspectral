@@ -132,12 +132,12 @@ class ViirsRSR(object):
         conf = options[self.platform_name + '-viirs']
 
         rootdir = conf['rootdir']
-        for block in conf:
-            if not block.startswith('block'):
+        for section in conf:
+            if not section.startswith('section'):
                 continue
-            bandnames = conf[block]['bands']
+            bandnames = conf[section]['bands']
             for band in bandnames:
-                filename = os.path.join(rootdir, conf[block]['filename'])
+                filename = os.path.join(rootdir, conf[section]['filename'])
                 self.bandfilenames[band] = compose(
                     filename, {'bandname': band})
 
@@ -160,23 +160,22 @@ class ViirsRSR(object):
 
     def _load(self, scale=0.001):
         """Load the VIIRS RSR data for the band requested"""
+        if self.bandname == 'DNB':
+            header_lines_to_skip = N_HEADER_LINES_DNB[self.platform_name]
+        else:
+            header_lines_to_skip = N_HEADER_LINES[self.platform_name]
+
         try:
             data = np.genfromtxt(self.filename,
-                                 unpack=True, skip_header=N_HEADER_LINES[
-                                     self.platform_name],
+                                 unpack=True, skip_header=header_lines_to_skip,
                                  names=NAMES1[self.platform_name],
                                  dtype=DTYPE1[self.platform_name])
         except ValueError:
             data = np.genfromtxt(self.filename,
-                                 unpack=True, skip_header=N_HEADER_LINES_DNB[
+                                 unpack=True, skip_header=N_HEADER_LINES[
                                      self.platform_name],
-                                 names=NAMES1[self.platform_name],
-                                 dtype=DTYPE1[self.platform_name])
-            # data = np.genfromtxt(self.filename,
-            #                      unpack=True, skip_header=N_HEADER_LINES[
-            #                          self.platform_name],
-            #                      names=NAMES2[self.platform_name],
-            #                      dtype=DTYPE2[self.platform_name])
+                                 names=NAMES2[self.platform_name],
+                                 dtype=DTYPE2[self.platform_name])
 
         wavelength = data['wavelength'] * scale
         response = data['response']
@@ -207,7 +206,8 @@ def main():
     LOG.setLevel(logging.DEBUG)
     LOG.addHandler(handler)
 
-    platform_name = "NOAA-20"
+    #platform_name = "NOAA-20"
+    platform_name = "Suomi-NPP"
     viirs = ViirsRSR('M1', platform_name)
     filename = os.path.join(viirs.output_dir,
                             "rsr_viirs_{0}.h5".format(platform_name))

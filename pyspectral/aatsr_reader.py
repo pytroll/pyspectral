@@ -48,17 +48,10 @@ class AatsrRSR(object):
         self.bandname = bandname
         self.rsr = None
 
-        conf = get_config()
+        options = get_config()
 
-        options = {}
-        for option, value in conf.items(self.platform_name + '-aatsr',
-                                        raw=True):
-            options[option] = value
-
-        self.aatsr_path = options.get('path')
-
-        for option, value in conf.items('general', raw=True):
-            options[option] = value
+        self.aatsr_path = options[
+            self.platform_name + '-' + self.instrument].get('path')
 
         self.output_dir = options.get('rsr_dir', './')
 

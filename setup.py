@@ -64,7 +64,7 @@ setup(name='pyspectral',
       package_data={
           # If any package contains *.txt files, include them:
           '': ['*.txt', '*.det'],
-          'pyspectral': [os.path.join('etc', 'pyspectral.cfg'),
+          'pyspectral': [os.path.join('etc', 'pyspectral.yaml'),
                          os.path.join('data', '*.dat'),
                          os.path.join('data', '*.XLS'),
                          'data/modis/terra/Reference_RSR_Dataset/*.det'],
