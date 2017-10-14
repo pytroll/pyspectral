@@ -7,10 +7,9 @@
 Welcome to Pyspectral's documentation!
 ======================================
 
-.. figure:: _static/msg_daysolar_rgb_20131129_1100_overlay_small_thumb.png 
-   :align: left
-.. figure:: _static/msg_day_microphysics_summer_rgb_20131129_1100_overlay_small_thumb.png
-   
+.. figure:: _static/pyspectral_header_montage.png
+
+            
 Pyspectral is a package to read meteorological satellite instrument relative
 spectral response functions and solar irradiance spectra, and e.g. provide
 functionality to derive the in-band solar flux for various satellite sensors.
@@ -41,6 +40,7 @@ color imagery.
 .. toctree::
    :maxdepth: 2
 
+   platforms_supported
    installation
    usage
    rsr_plotting
