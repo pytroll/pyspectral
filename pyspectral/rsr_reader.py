@@ -129,7 +129,18 @@ class RelativeSpectralResponse(object):
             self.band_names = h5f.attrs['band_names'].tolist()
             self.description = h5f.attrs['description']
             if not self.platform_name:
-                self.platform_name = h5f.attrs['platform_name']
+                try:
+                    self.platform_name = h5f.attrs['platform_name']
+                except KeyError:
+                    LOG.warning("No platform_name in HDF5 file")
+                    try:
+                        self.platform_name = h5f.attrs[
+                            'platform'] + '-' + h5f.attrs['satnum']
+                    except KeyError:
+                        LOG.warning(
+                            "Unable to determine platform name from HDF5 file content")
+                        self.platform_name = None
+
             if not self.instrument:
                 try:
                     self.instrument = h5f.attrs['sensor']

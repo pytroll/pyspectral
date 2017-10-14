@@ -23,15 +23,13 @@
 """Unit testing the generic rsr hdf5 reader
 """
 import sys
+from pyspectral.rsr_reader import RelativeSpectralResponse
+from mock import patch
 if sys.version_info < (2, 7):
     import unittest2 as unittest
 else:
     import unittest
 
-from pyspectral.rsr_reader import RelativeSpectralResponse
-
-import mock
-from mock import patch
 
 TEST_CONFIG = {}
 TEST_CONFIG['rsr_dir'] = '/test/path/to/rsr/data'
