@@ -43,10 +43,10 @@ class TestRsrReader(unittest.TestCase):
         """Setup the test"""
         pass
 
-    @mock.patch('os.path.exists')
-    @mock.patch('os.path.isfile')
-    @mock.patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-    @mock.patch('pyspectral.rsr_reader.download_rsr')
+    @patch('os.path.exists')
+    @patch('os.path.isfile')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
+    @patch('pyspectral.rsr_reader.download_rsr')
     def test_rsr_reponse(self, download_rsr, load, isfile, exists):
         """Test the relative_"""
         load.return_code = None

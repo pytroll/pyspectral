@@ -6,7 +6,7 @@ path1: '/home/a000680/data/SpectralResponses/jpss1-viirs/J1_VIIRS_Detector_RSR_V
 path2: '/home/a000680/data/SpectralResponses/jpss1-viirs/J1_VIIRS_V1_RSR_used_in_V2'
 
 seviri:
-  path: /path/to/original/seviri/rsr/data
+  path: /path/to/original/seviri/rsr/data/MSG_SEVIRI_Spectral_Response_Characterisation.XLS
   filename: MSG_SEVIRI_Spectral_Response_Characterisation.XLS
 
 Meteosat-8-seviri:
