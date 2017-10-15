@@ -47,7 +47,7 @@ pyspectral is being run the first time. On default these static data will reside
 
 You can also choose to download the pyspectral source code from github_::
 
-  $> git clone git://github.com/adybbroe/pyspectral.git
+  $> git clone git://github.com/pytroll/pyspectral.git
 
 and then run::
 
@@ -61,32 +61,32 @@ or, if you want to hack the package::
 Configuration file
 ^^^^^^^^^^^^^^^^^^
 
-A default configuration file *pyspectral.cfg* is installed automatically and
+A default configuration file *pyspectral.yaml* is installed automatically and
 being part of the package under the *etc* directory. In many cases the default
 settings will allow one to do all what is needed. However, it can easily be
 overwritten by making your own copy and set an environment variable pointing to
 this configuration file, as e.g.::
 
-  $> PSP_CONFIG_FILE=/home/a000680/pyspectral.cfg; export PSP_CONFIG_FILE
+  $> PSP_CONFIG_FILE=/home/a000680/pyspectral.yaml; export PSP_CONFIG_FILE
 
 So, in case you want to download the internal pyspectral formatet relative
 spectral responses as well as the rayleigh-correction look-up-tables once and
 for all, and keep them somewhere else, here is what you need to do::
 
   $> cd /path/to/internal/rsr_data
-  $> wget https://dl.dropboxusercontent.com/u/37482654/pyspectral_rsr_data.tgz
+  $> wget https://zenodo.org/record/1012412/files/pyspectral_rsr_data.tgz
   $> tar xvzf pyspectral_rsr_data.tgz
 
   $> cd /path/to/rayleigh/correction/luts
-  $> cd rural_aerosol rayleigh_only
+  $> mkdir rural_aerosol rayleigh_only
   $> cd rayleigh_only/
-  $> wget https://dl.dropboxusercontent.com/u/37482654/rayleigh_only/rayleigh_luts_rayleigh_only.tgz
-  $> tar xvzf rayleigh_luts_rayleigh_only.tgz
+  $> wget https://zenodo.org/record/888971/files/pyspectral_rayleigh_correction_luts.tgz
+  $> tar xvzf pyspectral_rayleigh_correction_luts.tgz
   $> cd ../rural_aerosol
-  $> wget https://dl.dropboxusercontent.com/u/37482654/rural_aerosol/rayleigh_luts_rural_aerosol.tgz
-  $> tar xvzf rayleigh_luts_rural_aerosol.tgz 
+  $> wget https://zenodo.org/record/896881/files/pyspectral_rayleigh_correction_luts.tgz
+  $> tar xvzf pyspectral_rayleigh_correction_luts.tgz
 
-Then adjust the *pyspectral.cfg* so it looks something like this:
+Then adjust the *pyspectral.yaml* so it looks something like this:
 
 .. code-block:: ini
 
@@ -96,12 +96,9 @@ Then adjust the *pyspectral.cfg* so it looks something like this:
    download_from_internet = False
 
 
-.. _pyspectral rsr: https://zenodo.org/record/889206/files/pyspectral_rsr_data.tgz
+.. _pyspectral rsr: https://zenodo.org/record/1012412/files/pyspectral_rsr_data.tgz
 .. _eumetsat: http://www.eumetsat.int/website/wcm/idc/idcplg?IdcService=GET_FILE&dDocName=ZIP_MSG_SEVIRI_SPEC_RES_CHAR&RevisionSelectionMethod=LatestReleased&Rendition=Web
 .. _GSICS: http://www.wmo.int/pages/prog/sat/GSICS/
 .. _GCC: http://www.star.nesdis.noaa.gov/smcd/GCC/index.php
 .. _instrument response data: http://www.star.nesdis.noaa.gov/smcd/GCC/instrInfo-srf.php
-
-
-
-.. _github: http://github.com/adybbroe/pyspectral
+.. _github: http://github.com/pytroll/pyspectral
