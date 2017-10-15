@@ -90,7 +90,6 @@ Then adjust the *pyspectral.yaml* so it looks something like this:
 
 .. code-block:: ini
 
-   [general]
    rsr_dir = /path/to/internal/rsr_data
    rayleigh_dir = /path/to/rayleigh/correction/luts
    download_from_internet = False
