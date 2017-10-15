@@ -51,7 +51,7 @@ MOCK_MODULES = ['numpy', 'numpy.core',
                 'numpy.distutils.core', 'numpy.core.multiarray',
                 'scipy', 'scipy.integrate', 'scipy.interpolate',
                 'scipy.interpolate.InterpolatedUnivariateSpline',
-                'h5py', 'requests', 'tqdm', 'six', 'pyyaml',
+                'h5py', 'requests', 'tqdm',
                 'xlrd']
 
 for mod_name in MOCK_MODULES:
