@@ -26,8 +26,8 @@
 from pyspectral.version import __version__
 import logging
 import os
-#from six.moves import configparser
 import yaml
+#from six.moves import configparser
 from collections import Mapping
 import pkg_resources
 
@@ -77,7 +77,6 @@ def recursive_dict_update(d, u):
 
 def get_config():
     """Get the configuration from file"""
-
     if CONFIG_FILE is not None:
         configfile = CONFIG_FILE
     else:

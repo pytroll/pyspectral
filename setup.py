@@ -32,7 +32,7 @@ requires = ['docutils>=0.3', 'numpy>=1.5.1', 'scipy>=0.14',
             'python-geotiepoints>=1.1.1',
             'h5py>=2.5', 'requests', 'tqdm', 'six', 'pyyaml']
 
-test_requires = ['xlrd']
+test_requires = ['xlrd', 'yaml']
 if sys.version < '3.0':
     test_requires.append('mock')
 
