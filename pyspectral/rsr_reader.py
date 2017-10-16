@@ -31,7 +31,7 @@ from os.path import expanduser
 import logging
 LOG = logging.getLogger(__name__)
 
-from pyspectral import get_config
+from pyspectral.config import get_config
 
 WAVL = 'wavelength'
 WAVN = 'wavenumber'

@@ -28,7 +28,7 @@ from xlrd import open_workbook
 import numpy as np
 
 from pyspectral.utils import convert2hdf5 as tohdf5
-from pyspectral import get_config
+from pyspectral.config import get_config
 
 import logging
 LOG = logging.getLogger(__name__)

@@ -30,7 +30,7 @@ from trollsift.parser import compose
 
 import logging
 LOG = logging.getLogger(__name__)
-from pyspectral import get_config
+from pyspectral.config import get_config
 
 VIIRS_BAND_NAMES = ['M1', 'M2', 'M3', 'M4', 'M5',
                     'M6', 'M7', 'M8', 'M9', 'M10',

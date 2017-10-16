@@ -26,10 +26,9 @@
 import os
 import logging
 from os.path import expanduser
-
 import numpy as np
 
-from pyspectral import get_config
+from pyspectral.config import get_config
 
 BANDNAMES = {'VIS006': 'VIS0.6',
              'VIS008': 'VIS0.8',

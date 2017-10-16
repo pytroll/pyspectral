@@ -33,7 +33,7 @@ import numpy as np
 from xlrd import open_workbook
 
 from pyspectral.utils import get_central_wave
-from pyspectral import get_config
+from pyspectral.config import get_config
 
 
 AHI_BAND_NAMES = {'Band 1': 'ch1',

@@ -33,7 +33,7 @@ import numpy as np
 import logging
 LOG = logging.getLogger(__name__)
 
-from pyspectral import get_config
+from pyspectral.config import get_config
 
 import pkg_resources
 DATA_PATH = pkg_resources.resource_filename('pyspectral', 'data/')

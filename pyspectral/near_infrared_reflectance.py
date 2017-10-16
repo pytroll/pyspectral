@@ -32,7 +32,7 @@ from pyspectral.solar import (SolarIrradianceSpectrum,
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
 from pyspectral.utils import BANDNAMES, get_bandname_from_wavelength
 from pyspectral.radiance_tb_conversion import RadTbConverter
-from pyspectral import get_config
+from pyspectral.config import get_config
 
 import logging
 LOG = logging.getLogger(__name__)
