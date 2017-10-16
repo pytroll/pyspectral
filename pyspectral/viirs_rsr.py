@@ -26,11 +26,11 @@
 import os
 import numpy as np
 from pyspectral.utils import get_central_wave
+from pyspectral.config import get_config
 from trollsift.parser import compose
 
 import logging
 LOG = logging.getLogger(__name__)
-from pyspectral.config import get_config
 
 VIIRS_BAND_NAMES = ['M1', 'M2', 'M3', 'M4', 'M5',
                     'M6', 'M7', 'M8', 'M9', 'M10',

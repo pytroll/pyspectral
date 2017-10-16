@@ -23,21 +23,11 @@
 """Base class for reading raw instrument spectral responses 
 """
 
-import ConfigParser
 import os
-
 import logging
+from pyspectral.config import get_config
+
 LOG = logging.getLogger(__name__)
-
-try:
-    CONFIG_FILE = os.environ['PSP_CONFIG_FILE']
-except KeyError:
-    LOG.exception('Environment variable PSP_CONFIG_FILE not set!')
-    raise
-
-if not os.path.exists(CONFIG_FILE) or not os.path.isfile(CONFIG_FILE):
-    raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
-                  "variable PSP_CONFIG_FILE is not a file or does not exist!")
 
 
 class InstrumentRSR(object):
@@ -63,34 +53,20 @@ class InstrumentRSR(object):
         self.requested_band_filename = None
 
     def _get_options_from_config(self):
-        """Get configuration settings from config/ini file"""
+        """Get configuration settings from configuration file"""
 
-        conf = ConfigParser.ConfigParser()
-        try:
-            conf.read(CONFIG_FILE)
-        except ConfigParser.NoSectionError:
-            LOG.exception('Failed reading configuration file: %s',
-                          str(CONFIG_FILE))
-            raise
-
-        options = {}
-        for option, value in conf.items(self.platform_name + '-' +
-                                        self.instrument,
-                                        raw=True):
-            options[option] = value
-
-        for option, value in conf.items('general', raw=True):
-            options[option] = value
-
+        options = get_config()
         self.output_dir = options.get('rsr_dir', './')
-        self.path = options['path']
+        self.path = options[self.platform_name + '-' + self.instrument]['path']
         self.options = options
 
     def _get_bandfilenames(self):
         """Get the instrument rsr filenames"""
         for band in self.bandnames:
             LOG.debug("Band = %s", str(band))
-            self.filenames[band] = os.path.join(self.path, self.options[band])
+            self.filenames[band] = os.path.join(self.path,
+                                                self.options[self.platform_name + '-' +
+                                                             self.instrument][band])
             LOG.debug(self.filenames[band])
             if not os.path.exists(self.filenames[band]):
                 LOG.warning("Couldn't find an existing file for this band: %s",

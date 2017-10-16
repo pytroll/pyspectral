@@ -74,7 +74,7 @@ setup(name='pyspectral',
       # Project should use reStructuredText, so ensure that the docutils get
       # installed or upgraded on the target machine
       install_requires=requires,
-      extras_require={'xlrd': ['xlrd'],
+      extras_require={'xlrd': ['xlrd'], 'trollsift': ['trollsift'],
                       'matplotlib': ['matplotlib'],
                       'pandas': ['pandas']},
       scripts=['plot_rsr.py', 'composite_rsr_plot.py'],

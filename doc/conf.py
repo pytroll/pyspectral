@@ -51,7 +51,7 @@ MOCK_MODULES = ['numpy', 'numpy.core',
                 'numpy.distutils.core', 'numpy.core.multiarray',
                 'scipy', 'scipy.integrate', 'scipy.interpolate',
                 'scipy.interpolate.InterpolatedUnivariateSpline',
-                'geotiepoints',
+                'geotiepoints', 'trollsift',
                 'h5py', 'tqdm', 'xlrd']
 
 for mod_name in MOCK_MODULES:
