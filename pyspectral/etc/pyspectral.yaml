@@ -1,0 +1,277 @@
+rsr_dir: ~/.local/share/pyspectral/
+rayleigh_dir: ~/.local/share/pyspectral/
+download_from_internet: True
+
+path1: '/home/a000680/data/SpectralResponses/jpss1-viirs/J1_VIIRS_Detector_RSR_V2'
+path2: '/home/a000680/data/SpectralResponses/jpss1-viirs/J1_VIIRS_V1_RSR_used_in_V2'
+
+seviri:
+  path: /path/to/original/seviri/rsr/data/MSG_SEVIRI_Spectral_Response_Characterisation.XLS
+  filename: MSG_SEVIRI_Spectral_Response_Characterisation.XLS
+
+Meteosat-8-seviri:
+  # You can provide any file name as you wish but it has to end with ".npz":
+  tb2rad_lut_filename: /path/to/radiance/tb/lut/data/tb2rad_lut_meteosat9_seviri_ir3.9.npz
+
+Meteosat-9-seviri:
+  tb2rad_lut_filename: /path/to/radiance/tb/lut/data/tb2rad_lut_meteosat10_seviri_ir3.9.npz
+
+Meteosat-10-seviri:
+  tb2rad_lut_filename: /path/to/radiance/tb/lut/data/tb2rad_lut_meteosat10_seviri_ir3.9.npz
+
+Meteosat-11-seviri:
+  tb2rad_lut_filename: /path/to/radiance/tb/lut/data/tb2rad_lut_meteosat10_seviri_ir3.9.npz
+
+EOS-Terra-modis:
+  path: /home/a000680/data/SpectralResponses/modis/terra/L1B_RSR_LUT
+  tb2rad_lut_filename: /path/to/radiance/tb/lut/data/tb2rad_lut_terra_modis_ir3.7.npz
+
+EOS-Aqua-modis:
+  path: /home/a000680/data/SpectralResponses/modis/aqua
+  tb2rad_lut_filename: /path/to/radiance/tb/lut/data/tb2rad_lut_aqua_modis_ir3.7.npz
+
+
+NOAA-20-viirs:
+  # J1_VIIRS_RSR_M1_Detector_Fused_V2.txt
+  # J1_VIIRS_V1_RSR_used_in_V2/J1_VIIRS_RSR_M10_Det_V1.txt
+  # J1_VIIRS_V1_RSR_used_in_V2/J1_VIIRS_RSR_M8_Det_V1.txt
+
+  rootdir: /path/to/original/jpss1/viirs/data
+  tb2rad_lut_filename: /path/to/radiance/tb/lut/data/tb2rad_lut_noaa20_viirs_ir3.7.npz
+  
+  section1:
+    filename: J1_VIIRS_Detector_RSR_V2/J1_VIIRS_RSR_{bandname}_Detector_Fused_V2.txt
+    bands: [M1, M2, M3, M4, M5, M6, M7]
+
+  section2:
+    filename: J1_VIIRS_Detector_RSR_V2/J1_VIIRS_RSR_{bandname}_Detector_Fused_V2.txt
+    bands: [I1, I2]
+
+  section3:
+    filename: J1_VIIRS_V1_RSR_used_in_V2/J1_VIIRS_RSR_M8_Det_V1.txt
+    bands: [M8]
+    
+  section4:
+    filename: J1_VIIRS_Detector_RSR_V2.1/J1_VIIRS_RSR_M9_Det_V2.1.txt
+    bands: [M9]
+  
+  section5:
+    filename: J1_VIIRS_V1_RSR_used_in_V2/J1_VIIRS_RSR_{bandname}_Det_V1.txt
+    bands: [M10, M11, M12, M14, M15]
+
+  section6:
+    filename: J1_VIIRS_Detector_RSR_V2/J1_VIIRS_RSR_M13_Det_V2.txt
+    bands: [M13]
+
+  section7:
+    filename: J1_VIIRS_V1_RSR_used_in_V2/J1_VIIRS_RSR_M16A_Det_V1.txt
+    bands: [M16]
+
+  section8:
+    filename: J1_VIIRS_V1_RSR_used_in_V2/J1_VIIRS_RSR_{bandname}_Det_V1.txt
+    bands: [I3, I4, I5]
+
+  section9:
+    filename: J1_VIIRS_Detector_RSR_V2/J1_VIIRS_RSR_DNBLGS_Detector_Fused_V2S.txt
+    bands: [DNB]
+
+
+Suomi-NPP-viirs:
+
+  rootdir: /path/to/original/snpp/viirs/data
+  tb2rad_lut_filename: /path/to/radiance/tb/lut/data/tb2rad_lut_snpp_viirs_ir3.7.npz
+  
+  section1:
+    filename: GT_F1_SC_RSR_Release1.0_Best_Mbands/GT_F1_SC_RSR_Release1.0_Best_{bandname}_V2.71_ib_oob.txt
+    bands: [M1, M2, M3, M4, M5, M6, M7]
+
+  section2:
+    filename: GT_F1_CFPA_RSR_Release1.0_Best/GT_F1_CFPA_RSR_Release1.0_Best_{bandname}_v3_ib_oob.txt
+    bands: [M8, M9, M10, M11, M12, M13, M14, M15]
+
+  section3:
+    filename: GT_F1_CFPA_RSR_Release1.0_Best/GT_F1_CFPA_RSR_Release1.0_Best_M16A_v3_ib_oob.txt
+    bands: [M16]
+
+  section4:
+    filename: GT_F1_CFPA_RSR_Release1.0_Best/GT_F1_CFPA_RSR_Release1.0_Best_{bandname}_S0_v3_ib_oob.txt
+    bands: [I3, I4, I5]
+
+  section5:
+    filename: GT_F1_SC_RSR_Release1.0_Best_Ibands/GT_F1_SC_RSR_Release1.0_Best_{bandname}_V2.72_ib_oob.txt
+    bands: [I1, I2]
+
+  section6:
+    filename: tmp/GT_F1_DNB_RSR_Release1-1_Best/GT_F1_DNB_RSR_Release1.1_Best_DNBLGS_v3r1_ib_oob.txt
+    bands: [DNB]
+
+
+Envisat-aatsr:
+  path: /path/to/original/envisat/aatsr/data
+
+Sentinel-3A-slstr:
+  path: /path/to/original/sentinel-3a/slstr/data
+  ch1: SLSTR_FM02_S1_20150122.nc
+  ch2: SLSTR_FM02_S2_20150122.nc
+  ch3: SLSTR_FM02_S3_20150122.nc
+  ch4: SLSTR_FM02_S4_20150122.nc
+  ch5: SLSTR_FM02_S5_20150122.nc
+  ch6: SLSTR_FM02_S6_20150122.nc
+  ch7: SLSTR_FM02_S7_20150122.nc
+  ch8: SLSTR_FM02_S8_20150122.nc
+  ch9: SLSTR_FM02_S9_20150122.nc
+
+Sentinel-3A-olci:
+  path: /path/to/original/sentinel-3a/olci/data
+
+
+Himawari-8-ahi:
+  path: /path/to/original/ahi/data
+  ch1: AHI_Sep2013_CH01.SRF
+  ch2: AHI_Sep2013_CH02.SRF
+  ch3: AHI_Sep2013_CH03.SRF
+  ch4: AHI_Sep2013_CH04.SRF
+  ch5: AHI_Sep2013_CH05.SRF
+  ch6: AHI_Sep2013_CH06.SRF
+  ch7: AHI_Sep2013_CH07.SRF
+  ch8: AHI_Sep2013_CH08.SRF
+  ch9: AHI_Sep2013_CH09.SRF
+  ch10: AHI_Sep2013_CH10.SRF
+  ch11: AHI_Sep2013_CH11.SRF
+  ch12: AHI_Sep2013_CH12.SRF
+  ch13: AHI_Sep2013_CH13.SRF
+  ch14: AHI_Sep2013_CH14.SRF
+  ch15: AHI_Sep2013_CH15.SRF
+  ch16: AHI_Sep2013_CH16.SRF
+
+GOES-16-abi:
+  path: /path/to/original/goes16/abi/data
+  ch1: GOES-R_ABI_PFM_SRF_CWG_ch1.txt
+  ch2: GOES-R_ABI_PFM_SRF_CWG_ch2.txt
+  ch3: GOES-R_ABI_PFM_SRF_CWG_ch3.txt
+  ch4: GOES-R_ABI_PFM_SRF_CWG_ch4.txt
+  ch5: GOES-R_ABI_PFM_SRF_CWG_ch5.txt
+  ch6: GOES-R_ABI_PFM_SRF_CWG_ch6.txt
+  ch7: GOES-R_ABI_PFM_SRF_CWG_ch7.txt
+  ch8: GOES-R_ABI_PFM_SRF_CWG_ch8.txt
+  ch9: GOES-R_ABI_PFM_SRF_CWG_ch9.txt
+  ch10: GOES-R_ABI_PFM_SRF_CWG_ch10.txt
+  ch11: GOES-R_ABI_PFM_SRF_CWG_ch11.txt
+  ch12: GOES-R_ABI_PFM_SRF_CWG_ch12.txt
+  ch13: GOES-R_ABI_PFM_SRF_CWG_ch13.txt
+  ch14: GOES-R_ABI_PFM_SRF_CWG_ch14.txt
+  ch15: GOES-R_ABI_PFM_SRF_CWG_ch15.txt
+  ch16: GOES-R_ABI_PFM_SRF_CWG_ch16.txt
+
+NOAA-19-avhrr/3:
+  path: /path/to/original/noaa19/avhrr/data
+  ch1: NOAA_19_A308C001.txt
+  ch2: NOAA_19_A308C002.txt
+  ch3a: NOAA_19_A308C03A.txt
+  ch3b: NOAA_19_A308C03B.txt
+  ch4: NOAA_19_A308C004.txt
+  ch5: NOAA_19_A308C005.txt
+
+NOAA-18-avhrr/3:
+  path: /path/to/original/noaa18/avhrr/data
+  ch1: NOAA_18_A306C001.txt
+  ch2: NOAA_18_A306C002.txt
+  ch3a: NOAA_18_A306C03A.txt
+  ch3b: NOAA_18_A306C03B.txt
+  ch4: NOAA_18_A306C004.txt
+  ch5: NOAA_18_A306C005.txt
+
+NOAA-17-avhrr/3:
+  path: /path/to/original/noaa17/avhrr/data
+  ch1: NOAA_17_A304C001.txt
+  ch2: NOAA_17_A304C002.txt
+  ch3a: NOAA_17_A304C03A.txt
+  ch3b: NOAA_17_A304C03B.txt
+  ch4: NOAA_17_A304C004.txt
+  ch5: NOAA_17_A304C005.txt
+
+NOAA-16-avhrr/3:
+  path: /path/to/original/noaa16/avhrr/data
+  ch1: NOAA_16_A301C001.txt
+  ch2: NOAA_16_A301C002.txt
+  ch3a: NOAA_16_A301C03A.txt
+  ch3b: NOAA_16_A301C03B.txt
+  ch4: NOAA_16_A301C004.txt
+  ch5: NOAA_16_A301C005.txt
+
+NOAA-15-avhrr/3:
+  path: /path/to/original/noaa15/avhrr/data
+  ch1: NOAA_15_A302xx01.txt
+  ch2: NOAA_15_A302xx02.txt
+  ch3a: NOAA_15_A302xx3A.txt
+  ch3b: NOAA_15_A302xx3B.txt
+  ch4: NOAA_15_A302xx04.txt
+  ch5: NOAA_15_A302xx05.txt
+
+NOAA-14-avhrr/2:
+  path: /path/to/original/noaa14/avhrr/data
+  ch1: NOAA_14_A204C001.txt
+  ch2: NOAA_14_A204C002.txt
+  ch3: NOAA_14_A204C003.txt
+  ch4: NOAA_14_A204C004.txt
+  ch5: NOAA_14_A204C005.txt
+
+NOAA-12-avhrr/2:
+  path: /path/to/original/noaa12/avhrr/data
+  ch1: NOAA_12_A205C001.txt
+  ch2: NOAA_12_A205C002.txt
+  ch3: NOAA_12_A205C003.txt
+  ch4: NOAA_12_A205C004.txt
+  ch5: NOAA_12_A205C005.txt
+
+NOAA-11-avhrr/2:
+  path: /path/to/original/noaa11/avhrr/data
+  ch1: NOAA_11_A203C001.txt
+  ch2: NOAA_11_A203C002.txt
+  ch3: NOAA_11_A203C003.txt
+  ch4: NOAA_11_A203C004.txt
+  ch5: NOAA_11_A203C005.txt
+
+NOAA-9-avhrr/2:
+  path: /path/to/original/noaa9/avhrr/data
+  ch1: NOAA_9_A202C001.txt
+  ch2: NOAA_9_A202C002.txt
+  ch3: NOAA_9_A202C003.txt
+  ch4: NOAA_9_A202C004.txt
+  ch5: NOAA_9_A202C005.txt
+
+NOAA-7-avhrr/2:
+  path: /path/to/original/noaa7/avhrr/data
+  ch1: NOAA_7_A201C001.txt
+  ch2: NOAA_7_A201C002.txt
+  ch3: NOAA_7_A201C003.txt
+  ch4: NOAA_7_A201C004.txt
+  ch5: NOAA_7_A201C005.txt
+
+NOAA-10-avhrr/1:
+  path: /path/to/original/noaa10/avhrr/data
+  ch1: NOAA_10_A101C001.txt
+  ch2: NOAA_10_A101C002.txt
+  ch3: NOAA_10_A101C003.txt
+  ch4: NOAA_10_A101C004.txt
+
+NOAA-8-avhrr/1:
+  path: /path/to/original/noaa8/avhrr/data
+  ch1: NOAA_8_A102C001.txt
+  ch2: NOAA_8_A102C002.txt
+  ch3: NOAA_8_A102C003.txt
+  ch4: NOAA_8_A102C004.txt
+
+NOAA-6-avhrr/1:
+  path: /path/to/original/noaa6/avhrr/data
+  ch1: NOAA_6_A103C001.txt
+  ch2: NOAA_6_A103C002.txt
+  ch3: NOAA_6_A103C003.txt
+  ch4: NOAA_6_A103C004.txt
+
+TIROS-N-avhrr/1:
+  path: /path/to/original/tirosn/avhrr/data
+  ch1: TIROS_N_PFMC001.txt
+  ch2: TIROS_N_PFMC002.txt
+  ch3: TIROS_N_PFMC003.txt
+  ch4: TIROS_N_APFMC004.txt

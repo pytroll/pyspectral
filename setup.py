@@ -30,9 +30,9 @@ except IOError:
 
 requires = ['docutils>=0.3', 'numpy>=1.5.1', 'scipy>=0.14',
             'python-geotiepoints>=1.1.1',
-            'h5py>=2.5', 'requests', 'tqdm', 'six']
+            'h5py>=2.5', 'requests', 'tqdm', 'six', 'pyyaml']
 
-test_requires = ['xlrd']
+test_requires = ['xlrd', 'pyyaml']
 if sys.version < '3.0':
     test_requires.append('mock')
 
@@ -64,7 +64,7 @@ setup(name='pyspectral',
       package_data={
           # If any package contains *.txt files, include them:
           '': ['*.txt', '*.det'],
-          'pyspectral': [os.path.join('etc', 'pyspectral.cfg'),
+          'pyspectral': [os.path.join('etc', 'pyspectral.yaml'),
                          os.path.join('data', '*.dat'),
                          os.path.join('data', '*.XLS'),
                          'data/modis/terra/Reference_RSR_Dataset/*.det'],
@@ -74,10 +74,10 @@ setup(name='pyspectral',
       # Project should use reStructuredText, so ensure that the docutils get
       # installed or upgraded on the target machine
       install_requires=requires,
-      extras_require={'xlrd': ['xlrd'],
+      extras_require={'xlrd': ['xlrd'], 'trollsift': ['trollsift'],
                       'matplotlib': ['matplotlib'],
                       'pandas': ['pandas']},
-      scripts=['plot_rsr.py', 'composite_rsr_plot.py', 'plot_some_band.py'],
+      scripts=['plot_rsr.py', 'composite_rsr_plot.py'],
       data_files=[('share', ['pyspectral/data/e490_00a.dat',
                              'pyspectral/data/MSG_SEVIRI_Spectral_Response_Characterisation.XLS'])],
       test_suite='pyspectral.tests.suite',

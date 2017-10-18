@@ -41,7 +41,7 @@ class TestAatsrRsrReader(unittest.TestCase):
 
     @mock.patch('xlrd.open_workbook')
     @mock.patch('pyspectral.aatsr_reader.AatsrRSR._load')
-    @mock.patch('pyspectral.get_config')
+    @mock.patch('pyspectral.config.get_config')
     def setUp(self, get_config, _load, open_workbook):
         """Setup the natve MSG file handler for testing."""
         open_workbook.return_code = None

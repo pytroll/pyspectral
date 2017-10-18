@@ -21,7 +21,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Read the Himawari AHI spectral response functions. Data from
-http://cimss.ssec.wisc.edu/goes/calibration/SRF/ahi/ 
+http://www.data.jma.go.jp/mscweb/en/himawari89/space_segment/spsg_ahi.html#srf
+
 """
 
 import logging
@@ -29,14 +30,29 @@ LOG = logging.getLogger(__name__)
 
 import os
 import numpy as np
+from xlrd import open_workbook
 
 from pyspectral.utils import get_central_wave
-from pyspectral import get_config
+from pyspectral.config import get_config
 
 
-AHI_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5',
-                  'ch6', 'ch7', 'ch8', 'ch9', 'ch10',
-                  'ch11', 'ch12', 'ch13', 'ch14', 'ch15', 'ch16']
+AHI_BAND_NAMES = {'Band 1': 'ch1',
+                  'Band 2': 'ch2',
+                  'Band 3': 'ch3',
+                  'Band 4': 'ch4',
+                  'Band 5': 'ch5',
+                  'Band 6': 'ch6',
+                  'Band 7': 'ch7',
+                  'Band 8': 'ch8',
+                  'Band 9': 'ch9',
+                  'Band 10': 'ch10',
+                  'Band 11': 'ch11',
+                  'Band 12': 'ch12',
+                  'Band 13': 'ch13',
+                  'Band 14': 'ch14',
+                  'Band 15': 'ch15',
+                  'Band 16': 'ch16'
+                  }
 
 #: Default time format
 _DEFAULT_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -49,103 +65,89 @@ class AhiRSR(object):
 
     """Container for the Himawari AHI relative spectral response data"""
 
-    def __init__(self, bandname, satname='himawari8'):
+    def __init__(self, platform_name, wavespace='wavelength'):
         """
         """
-        self.satname = satname
-        self.bandname = bandname
-        self.filenames = {}
+        self.platform_name = platform_name
+        self.filename = None
         self.rsr = None
 
-        conf = get_config()
-        options = {}
-        for option, value in conf.items(self.satname + '-ahi', raw=True):
-            options[option] = value
-
-        for option, value in conf.items('general', raw=True):
-            options[option] = value
+        options = get_config()
 
         self.output_dir = options.get('rsr_dir', './')
-
-        self._get_bandfilenames(**options)
-        LOG.debug("Filenames: " + str(self.filenames))
-        if os.path.exists(self.filenames[bandname]):
-            self.requested_band_filename = self.filenames[bandname]
+        ahi_options = options[platform_name + '-ahi']
+        self.filename = ahi_options['path']
+        LOG.debug("Filenames: " + str(self.filename))
+        if os.path.exists(self.filename):
             self._load()
         else:
             raise IOError("Couldn't find an existing file for this band: " +
                           str(self.bandname))
 
-        # To be compatible with VIIRS....
-        self.filename = self.requested_band_filename
-
-    def _get_bandfilenames(self, **options):
-        """Get the AHI rsr filenames"""
-
-        path = options["path"]
-        for band in AHI_BAND_NAMES:
-            LOG.debug("Band = " + str(band))
-            self.filenames[band] = os.path.join(path, options[band])
-            LOG.debug(self.filenames[band])
-            if not os.path.exists(self.filenames[band]):
-                LOG.warning("Couldn't find an existing file for this band: " +
-                            str(self.filenames[band]))
-
-    def _load(self):
+    def _load(self, filename=None):
         """Load the Himawari AHI RSR data for the band requested
         """
+        if not filename:
+            filename = self.filename
 
-        data = np.genfromtxt(self.requested_band_filename,
-                             unpack=True,
-                             names=['wavenumber',
-                                    'response'])
-        # Data seems to be wavenumbers (in some unit...)
-        # Now, provide wavelengths in micro meters
-        wavelength = 1.e4 / data['wavenumber']
-        response = data['response']
-
-        idx = np.argsort(wavelength)
-        wavelength = np.take(wavelength, idx)
-        response = np.take(response, idx)
+        wb_ = open_workbook(filename)
         self.rsr = {}
-        self.rsr['det-1'] = {'wavelength': wavelength,
-                             'response': response}
+        sheet_names = []
+        for sheet in wb_.sheets():
+            if sheet.name in ['Title', ]:
+                continue
+            ch_name = AHI_BAND_NAMES.get(
+                sheet.name.strip(), sheet.name.strip())
+            sheet_names.append(sheet.name.strip())
+            self.rsr[ch_name] = {'wavelength': None,
+                                 'response': None}
+            wvl = np.array(
+                sheet.col_values(0, start_rowx=5, end_rowx=5453))
+            resp = np.array(
+                sheet.col_values(2, start_rowx=5, end_rowx=5453))
+            self.rsr[ch_name]['wavelength'] = wvl
+            self.rsr[ch_name]['response'] = resp
 
 
-def convert2hdf5(platform_id, sat_number):
+def convert2hdf5(platform_name):
     """Retrieve original RSR data and convert to internal hdf5 format"""
 
     import h5py
 
-    satellite_id = platform_id + str(sat_number)
-
-    ahi = AhiRSR('ch1', satellite_id)
+    ahi = AhiRSR(platform_name)
     filename = os.path.join(ahi.output_dir,
-                            "rsr_ahi_{0}{1:d}.h5".format(platform_id, sat_number))
+                            "rsr_ahi_{platform}.h5".format(platform=platform_name))
 
     with h5py.File(filename, "w") as h5f:
         h5f.attrs['description'] = 'Relative Spectral Responses for AHI'
-        h5f.attrs['platform'] = platform_id
-        h5f.attrs['sat_number'] = sat_number
-        h5f.attrs['band_names'] = AHI_BAND_NAMES
+        h5f.attrs['platform_name'] = platform_name
+        h5f.attrs['sensor'] = 'ahi'
+        h5f.attrs['band_names'] = AHI_BAND_NAMES.values()
 
-        for chname in AHI_BAND_NAMES:
-            ahi = AhiRSR(chname, satellite_id)
+        for chname in AHI_BAND_NAMES.values():
+
             grp = h5f.create_group(chname)
-            wvl = ahi.rsr[
-                'det-1']['wavelength'][~np.isnan(ahi.rsr['det-1']['wavelength'])]
-            rsp = ahi.rsr[
-                'det-1']['response'][~np.isnan(ahi.rsr['det-1']['wavelength'])]
+            wvl = ahi.rsr[chname][
+                'wavelength'][~np.isnan(ahi.rsr[chname]['wavelength'])]
+            rsp = ahi.rsr[chname][
+                'response'][~np.isnan(ahi.rsr[chname]['wavelength'])]
             grp.attrs['central_wavelength'] = get_central_wave(wvl, rsp)
-            arr = ahi.rsr['det-1']['wavelength']
+            arr = ahi.rsr[chname]['wavelength']
             dset = grp.create_dataset('wavelength', arr.shape, dtype='f')
             dset.attrs['unit'] = 'm'
             dset.attrs['scale'] = 1e-06
             dset[...] = arr
-            arr = ahi.rsr['det-1']['response']
+            arr = ahi.rsr[chname]['response']
             dset = grp.create_dataset('response', arr.shape, dtype='f')
             dset[...] = arr
 
+
+def main():
+    """Main"""
+
+    for satnum in [8, 9]:
+        convert2hdf5('Himawari-{0:d}'.format(satnum))
+        print("Himawari-{0:d} done...".format(satnum))
 
 if __name__ == "__main__":
 
@@ -160,5 +162,4 @@ if __name__ == "__main__":
     LOG.setLevel(logging.DEBUG)
     LOG.addHandler(handler)
 
-    #ahi = AhiRSR('ch1', 'himawari8')
-    convert2hdf5('himawari', 8)
+    main()

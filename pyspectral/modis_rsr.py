@@ -25,14 +25,14 @@
 
 import os
 import numpy as np
+import logging
 
 from pyspectral.utils import sort_data
 from pyspectral.utils import get_central_wave
+from pyspectral.config import get_config
 
-import logging
 LOG = logging.getLogger(__name__)
 
-from pyspectral import get_config
 
 MODIS_BAND_NAMES = [str(i) for i in range(1, 37)]
 SHORTWAVE_BANDS = [str(i) for i in range(1, 20) + [26]]

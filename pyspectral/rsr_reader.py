@@ -31,7 +31,7 @@ from os.path import expanduser
 import logging
 LOG = logging.getLogger(__name__)
 
-from pyspectral import get_config
+from pyspectral.config import get_config
 
 WAVL = 'wavelength'
 WAVN = 'wavenumber'
@@ -45,10 +45,21 @@ class RelativeSpectralResponse(object):
     satellite imagers
     """
 
-    def __init__(self, platform_name, instrument):
+    def __init__(self, platform_name=None, instrument=None, **kwargs):
+        """Create the instance either from platform name and instrument or from
+        filename and load the data"""
         self.platform_name = platform_name
         self.instrument = instrument
         self.filename = None
+        if not self.instrument or not self.platform_name:
+            if 'filename' in kwargs:
+                self.filename = kwargs['filename']
+            else:
+                raise IOError(
+                    "platform name and sensor or filename must be specified")
+        else:
+            self._check_instrument()
+
         self.rsr = {}
         self.description = "Unknown"
         self.band_names = None
@@ -56,58 +67,96 @@ class RelativeSpectralResponse(object):
         self.si_scale = 1e-6  # How to scale the wavelengths to become SI unit
         self._wavespace = WAVL
 
-        conf = get_config()
+        options = get_config()
+        self.rsr_dir = options['rsr_dir']
+        self.do_download = False
 
-        options = {}
-        for option, value in conf.items('general', raw=True):
-            options[option] = value
+        if 'download_from_internet' in options and options['download_from_internet']:
+            self.do_download = True
 
-        # Try fix instrument naming
-        instr = INSTRUMENTS.get(platform_name, instrument)
-        if instr != instrument:
-            instrument = instr
-            LOG.warning("Inconsistent instrument/satellite input - " +
-                        "instrument set to %s", instrument)
-
-        instrument = instrument.replace('/', '')
-
-        rsr_dir = options['rsr_dir']
-        self.filename = expanduser(
-            os.path.join(rsr_dir, 'rsr_{0}_{1}.h5'.format(instrument, platform_name)))
-
-        LOG.debug('Filename: %s', str(self.filename))
+        if not self.filename:
+            self._get_filename()
 
         if not os.path.exists(self.filename) or not os.path.isfile(self.filename):
-            # Try download from the internet!
-            LOG.warning("No rsr file %s on disk", self.filename)
-            if 'download_from_internet' in options and options['download_from_internet'] == 'True':
-                LOG.info("Will download from internet...")
-                download_rsr()
-
-        if not os.path.exists(self.filename) or not os.path.isfile(self.filename):
-            fmatch = glob(
-                os.path.join(rsr_dir, '*{0}*{1}*.h5'.format(instrument, platform_name)))
-            raise IOError('pyspectral RSR file does not exist! Filename = ' +
-                          str(self.filename) +
+            errmsg = ('pyspectral RSR file does not exist! Filename = ' +
+                      str(self.filename))
+            if self.instrument and self.platform_name:
+                fmatch = glob(
+                    os.path.join(self.rsr_dir, '*{0}*{1}*.h5'.format(self.instrument,
+                                                                     self.platform_name)))
+                errmsg = (errmsg +
                           '\nFiles matching instrument and satellite platform' +
                           ': ' + str(fmatch))
 
+            raise IOError(errmsg)
+
+        LOG.debug('Filename: %s', str(self.filename))
         self.load()
+
+    def _check_instrument(self):
+        """Check and try fix instrument name if needed"""
+        instr = INSTRUMENTS.get(self.platform_name, self.instrument)
+        if instr != self.instrument:
+            self.instrument = instr
+            LOG.warning("Inconsistent instrument/satellite input - " +
+                        "instrument set to %s", self.instrument)
+
+        self.instrument = self.instrument.replace('/', '')
+
+    def _get_filename(self):
+        """Get the rsr filname from platform and instrument names, and download if not
+           available.
+
+        """
+        self.filename = expanduser(
+            os.path.join(self.rsr_dir, 'rsr_{0}_{1}.h5'.format(self.instrument,
+                                                               self.platform_name)))
+
+        LOG.debug('Filename: %s', str(self.filename))
+        if not os.path.exists(self.filename) or not os.path.isfile(self.filename):
+            # Try download from the internet!
+            LOG.warning("No rsr file %s on disk", self.filename)
+            if self.do_download:
+                LOG.info("Will download from internet...")
+                download_rsr()
 
     def load(self):
         """Read the internally formatet hdf5 relative spectral response data"""
         import h5py
 
+        no_detectors_message = False
         with h5py.File(self.filename, 'r') as h5f:
             self.band_names = h5f.attrs['band_names'].tolist()
             self.description = h5f.attrs['description']
+            if not self.platform_name:
+                try:
+                    self.platform_name = h5f.attrs['platform_name']
+                except KeyError:
+                    LOG.warning("No platform_name in HDF5 file")
+                    try:
+                        self.platform_name = h5f.attrs[
+                            'platform'] + '-' + h5f.attrs['satnum']
+                    except KeyError:
+                        LOG.warning(
+                            "Unable to determine platform name from HDF5 file content")
+                        self.platform_name = None
+
+            if not self.instrument:
+                try:
+                    self.instrument = h5f.attrs['sensor']
+                except KeyError:
+                    LOG.warning("No sensor name specified in HDF5 file")
+                    self.instrument = INSTRUMENTS.get(self.platform_name)
+
             for bandname in self.band_names:
                 self.rsr[bandname] = {}
                 try:
                     num_of_det = h5f[bandname].attrs['number_of_detectors']
                 except KeyError:
-                    LOG.debug("No detectors found - assume only one...")
+                    if not no_detectors_message:
+                        LOG.debug("No detectors found - assume only one...")
                     num_of_det = 1
+                    no_detectors_message = True
 
                 for i in range(1, num_of_det + 1):
                     dname = 'det-{0:d}'.format(i)
