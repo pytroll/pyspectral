@@ -25,7 +25,7 @@ Sentinel-3A SLSTR and OLCI, Envisat AATSR, GOES-16 ABI, and Himawari-8 are
 available. The data are automagically downloaded and installed when needed. But
 if you need to specifically retrieve the data independently the data are
 available from the `pyspectral rsr`_ repository. (The md5sum of this gzipped
-tar file is 2780207fd45755a4dbde9010d266e8df).
+tar file is d3f014a8c4e8a00321419a1325435982).
 
 It is still also possible to download the original spectral responses from the
 various satellite operators instead and generate the internal hdf5 formatet
