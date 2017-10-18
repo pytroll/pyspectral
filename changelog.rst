@@ -1,6 +1,101 @@
 Changelog
 =========
 
+v0.5.0 (2017-10-18)
+-------------------
+
+Fix
+~~~
+
+- Bugfix: default yaml config file had a missing ':' [Adam.Dybbroe]
+
+Other
+~~~~~
+
+- Update changelog. [Adam.Dybbroe]
+
+- Bump version: 0.4.3 → 0.5.0. [Adam.Dybbroe]
+
+- Merge pull request #12 from pytroll/yaml_jpss1. [Adam Dybbroe]
+
+  Yaml jpss1
+  Tests are passing and coverage has not decreased. Now also RTD builds fine, so ready to merge
+
+- Remove old empty readthedocs req file. [Adam.Dybbroe]
+
+- Revers back to mocking h5py and tqdm when building documentation. Add
+  RTD requirements file. [Adam.Dybbroe]
+
+- Don't mock h5py and tqdm. [Adam.Dybbroe]
+
+- Mock trollsift.parser. [Adam.Dybbroe]
+
+- Bugfix, adapt raw readers to new yaml config. [Adam.Dybbroe]
+
+- Mock geotiepoints and not requests for sphinx. [Adam.Dybbroe]
+
+- Add a seperate config.py module. [Adam.Dybbroe]
+
+- Try please RTD concerning yaml. [Adam.Dybbroe]
+
+- Don't mock yaml and six in conf.py. [Adam.Dybbroe]
+
+- Fix automatc versioning in conf.py and mock some more 3rd party sw.
+  [Adam.Dybbroe]
+
+- Update documentation of customized config setting. [Adam.Dybbroe]
+
+- Show inheritance in api doc. [Adam.Dybbroe]
+
+- Bring installation documentation up to date. [Adam.Dybbroe]
+
+- Bugfix unit testing the rsr reader. [Adam.Dybbroe]
+
+- Added Himawari-9 and adjusted Himawari-8 AHI RSR files. [Adam.Dybbroe]
+
+- Add rst file with table with supported platforms and sensors.
+  [Adam.Dybbroe]
+
+- Add new fromt page header (montage) image. [Adam.Dybbroe]
+
+- Add small tool to compare two pyspectral rsr files. [Adam.Dybbroe]
+
+- Add table showing which sensors are supported. [Adam.Dybbroe]
+
+- Fix original ahi reader to read original excell sheets and add
+  Himawari-9. [Adam.Dybbroe]
+
+- Add unittesting for the generic RSR reader. [Adam.Dybbroe]
+
+- Bugfix, download rsr files from zenodo, and improve code style.
+  [Adam.Dybbroe]
+
+- Improve code style (following Codacy) [Adam.Dybbroe]
+
+- Update to new RSR tar file including JPSS-1 VIIRS. [Adam.Dybbroe]
+
+- Get the platform_name and sensor from the hdf5 file if not specified
+  in the call. [Adam.Dybbroe]
+
+- Store the sensor name in the hdf5 file. [Adam.Dybbroe]
+
+- Add NOAA-20 (JPSS-1) rsr and update Suomi-NPP one with more meta data.
+  [Adam.Dybbroe]
+
+- Add pyyaml in the requirements. [Adam.Dybbroe]
+
+- Remove old config file. [Adam.Dybbroe]
+
+- Make it possible to instatiate the RSR class with the rsr filename.
+  [Adam.Dybbroe]
+
+- Fix for yaml config. [Adam.Dybbroe]
+
+- Don't show plot when running doctests. [Adam.Dybbroe]
+
+- Add yaml config file, update for JPSS-1 VIIRS and enhance plotting and
+  documentation. [Adam.Dybbroe]
+
 v0.4.3 (2017-10-02)
 -------------------
 
