@@ -52,7 +52,7 @@ MOCK_MODULES = ['numpy', 'numpy.core',
                 'scipy', 'scipy.integrate', 'scipy.interpolate',
                 'scipy.interpolate.InterpolatedUnivariateSpline',
                 'geotiepoints', 'trollsift', 'trollsift.parser',
-                'xlrd']
+                'h5py', 'tqdm', 'xlrd']
 
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = Mock()
