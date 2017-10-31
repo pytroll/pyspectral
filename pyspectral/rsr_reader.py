@@ -95,7 +95,7 @@ class RelativeSpectralResponse(object):
 
     def _check_instrument(self):
         """Check and try fix instrument name if needed"""
-        instr = INSTRUMENTS.get(self.platform_name, self.instrument)
+        instr = INSTRUMENTS.get(self.platform_name, self.instrument.lower())
         if instr != self.instrument:
             self.instrument = instr
             LOG.warning("Inconsistent instrument/satellite input - " +
