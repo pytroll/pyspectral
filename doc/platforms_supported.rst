@@ -10,41 +10,38 @@ have been included in Pyspectral.
     * - Satellite sensor
       - Filename
       - Link to the original RSR
-    * - Meteosat-8 Seviri
+    * - Meteosat-8 seviri
       - `rsr_seviri_Meteosat-8.h5`
       - GSICS_
-    * - Meteosat-9 Seviri
+    * - Meteosat-9 seviri
       - `rsr_seviri_Meteosat-9.h5`
       - GSICS_
-    * - Meteosat-10 Seviri
+    * - Meteosat-10 seviri
       - `rsr_seviri_Meteosat-10.h5`
       - GSICS_
-    * - Meteosat-11 Seviri
+    * - Meteosat-11 seviri
       - `rsr_seviri_Meteosat-11.h5`
       - GSICS_
-    * - GOES-16 ABI
+    * - GOES-16 abi
       - `rsr_abi_GOES-16.h5`
       - GOES-R_
-    * - Himawari-8 AHI
+    * - Himawari-8 ahi
       - `rsr_ahi_Himawari-8.h5`
       - JMA_
-    * - Himawari-9 AHI
+    * - Himawari-9 ahi
       - `rsr_ahi_Himawari-9.h5`
       - JMA_
-    * - Envisat AATSR
+    * - Envisat aatsr
       - `rsr_aatsr_Envisat.h5`
       - ESA-Envisat_
-    * - TIROS-N to NOAA-19 AVHRR
+    * - TIROS-N to NOAA-19 avhrr
       - e.g. `rsr_avhrr3_NOAA-19.h5`
       - GSICS_
-    * - Metop-A AVHRR
+    * - Metop-A avhrr
       - `rsr_avhrr3_Metop-A.h5`
       - GSICS_
-    * - Metop-B AVHRR
+    * - Metop-B avhrr
       - `rsr_avhrr3_Metop-B.h5`
-      - GSICS_
-    * - EOS-Terra
-      - `rsr_modis_EOS-Terra.h5`
       - GSICS_
     * - EOS-Terra modis
       - `rsr_modis_EOS-Terra.h5`
@@ -52,19 +49,16 @@ have been included in Pyspectral.
     * - EOS-Aqua modis
       - `rsr_modis_EOS-Aqua.h5`
       - GSICS_
-    * - EOS-Aqua modis
-      - `rsr_modis_EOS-Aqua.h5`
-      - GSICS_
-    * - Sentinel-3A SLSTR
+    * - Sentinel-3A slstr
       - `rsr_slstr_Sentinel-3A.h5`
       - ESA-Sentinel-SLSTR_
-    * - Sentinel-3A OLCI
+    * - Sentinel-3A olci
       - `rsr_olci_Sentinel-3A.h5`
       - ESA-Sentinel-OLCI_
-    * - NOAA-20 VIIRS
+    * - NOAA-20 viirs
       - `rsr_viirs_NOAA-20.h5`
       - NESDIS_
-    * - Suomi-NPP VIIRS
+    * - Suomi-NPP viirs
       - `rsr_viirs_Suomi-NPP.h5`
       - GSICS_
 
