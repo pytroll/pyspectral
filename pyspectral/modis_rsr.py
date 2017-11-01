@@ -59,18 +59,11 @@ class ModisRSR(object):
         self.rsr = None
         self._sort = sort
 
-        conf = get_config()
-        options = {}
-        for option, value in conf.items(self.platform_name + '-modis',
-                                        raw=True):
-            options[option] = value
-
-        for option, value in conf.items('general', raw=True):
-            options[option] = value
-
+        options = get_config()
+        self.path = options[platform_name + '-modis'].get('path')
         self.output_dir = options.get('rsr_dir', './')
 
-        self._get_bandfilenames(**options)
+        self._get_bandfilenames()
         LOG.debug("Filenames: %s", str(self.filenames))
         if os.path.exists(self.filenames[bandname]):
             self.requested_band_filename = self.filenames[bandname]
@@ -79,9 +72,9 @@ class ModisRSR(object):
             raise IOError("Couldn't find an existing file for this band: " +
                           str(self.bandname))
 
-    def _get_bandfilenames(self, **options):
+    def _get_bandfilenames(self):
         """Get the MODIS rsr filenames"""
-        path = options["path"]
+        path = self.path
 
         for band in MODIS_BAND_NAMES:
             bnum = int(band)
@@ -134,6 +127,7 @@ def read_modis_response(filename, scale=1.0):
     with open(filename, "r") as fid:
         lines = fid.readlines()
 
+    nodata = -99.0
     # The IR channels seem to be in microns, whereas the short wave channels are
     # in nanometers! For VIS/NIR scale should be 0.001
     detectors = {}
@@ -149,8 +143,11 @@ def read_modis_response(filename, scale=1.0):
         detectors[detector_name]['response'].append(float(s_2))
 
     for key in detectors:
-        detectors[key]['wavelength'] = np.array(detectors[key]['wavelength'])
-        detectors[key]['response'] = np.array(detectors[key]['response'])
+        mask = np.array(detectors[key]['response']) == nodata
+        detectors[key]['response'] = np.ma.masked_array(
+            detectors[key]['response'], mask=mask).compressed()
+        detectors[key]['wavelength'] = np.ma.masked_array(
+            detectors[key]['wavelength'], mask=mask).compressed()
 
     return detectors
 
@@ -161,7 +158,7 @@ def convert2hdf5(platform_name):
 
     modis = ModisRSR('20', platform_name)
     mfile = os.path.join(modis.output_dir,
-                         "rsr_modis_{0:d}.h5".format(platform_name))
+                         "rsr_modis_{platform}.h5".format(platform=platform_name))
 
     with h5py.File(mfile, "w") as h5f:
         h5f.attrs['description'] = 'Relative Spectral Responses for MODIS'
