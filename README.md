@@ -9,7 +9,6 @@ pyspectral
 [![Research software impact](http://depsy.org/api/package/pypi/pyspectral/badge.svg)](http://depsy.org/package/python/pyspectral)
 [![Code Climate](https://codeclimate.com/github/pytroll/pyspectral/badges/gpa.svg)](https://codeclimate.com/github/pytroll/pyspectral)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/pytroll/pyspectral/badges/quality-score.png?b=develop)](https://scrutinizer-ci.com/g/pytroll/pyspectral/?branch=develop)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/9f039d7d640846ca89be8a78fa11e1f6)](https://www.codacy.com/app/adybbroe/pyspectral?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=pytroll/pyspectral&amp;utm_campaign=Badge_Grade)
 
 
 Given a passive sensor on a meteorological satellite the purpose of pyspectral
