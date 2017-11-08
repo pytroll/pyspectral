@@ -1,6 +1,7 @@
 pyspectral
 ==========
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/9f039d7d640846ca89be8a78fa11e1f6)](https://www.codacy.com/app/adybbroe/pyspectral?utm_source=github.com&utm_medium=referral&utm_content=pytroll/pyspectral&utm_campaign=badger)
 [![Build Status](https://travis-ci.org/pytroll/pyspectral.png?branch=pre-master)](https://travis-ci.org/pytroll/pyspectral)
 [![Coverage Status](https://coveralls.io/repos/github/pytroll/pyspectral/badge.svg?branch=pre-master)](https://coveralls.io/github/pytroll/pyspectral?branch=pre-master)
 [![Code Health](https://landscape.io/github/pytroll/pyspectral/pre-master/landscape.png)](https://landscape.io/github/pytroll/pyspectral/pre-master)
