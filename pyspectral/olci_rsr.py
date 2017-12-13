@@ -47,7 +47,7 @@ from pyspectral.raw_reader import InstrumentRSR
 
 class OlciRSR(InstrumentRSR):
 
-    """Class for Envisat SLSTR RSR"""
+    """Class for Sentinel OLCI RSR"""
 
     def __init__(self, bandname, platform_name):
         """
@@ -67,7 +67,7 @@ class OlciRSR(InstrumentRSR):
                           str(self.bandname))
 
     def _load(self, scale=0.001):
-        """Load the SLSTR relative spectral responses
+        """Load the OLCI relative spectral responses
         """
 
         ncf = Dataset(self.path, 'r')
