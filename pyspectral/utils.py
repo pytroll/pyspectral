@@ -68,11 +68,28 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
 
 HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/1040312/files/pyspectral_rsr_data.tgz"
 
-AEROSOL_TYPES = ['antarctic_aerosol', 'continental_average_aerosol',
-                 'continental_clean_aerosol', 'continental_polluted_aerosol',
-                 'desert_aerosol', 'marine_clean_aerosol',
-                 'marine_polluted_aerosol', 'marine_tropical_aerosol',
-                 'rayleigh_only', 'rural_aerosol', 'urban_aerosol']
+AEROSOL_TYPES = ['antarctic', 'antarctic_aerosol',
+                 'continental_average', 'continental_average_aerosol',
+                 'continental_clean', 'continental_clean_aerosol',
+                 'continental_polluted', 'continental_polluted_aerosol',
+                 'desert', 'desert_aerosol',
+                 'marine_clean', 'marine_clean_aerosol',
+                 'marine_polluted', 'marine_polluted',
+                 'marine_tropical', 'marine_tropical_aerosol',
+                 'rayleigh_only',
+                 'rural', 'rural_aerosol',
+                 'urban', 'urban_aerosol']
+
+AEROSOL_TYPE_STANDARD_NAMES = {'antarctic_aerosol': 'antarctic',
+                               'continental_average_aerosol': 'continental_average',
+                               'continental_clean_aerosol': 'continental_clean',
+                               'continental_polluted_aerosol': 'continental_polluted',
+                               'desert_aerosol': 'desert',
+                               'marine_clean_aerosol': 'marine_clean',
+                               'marine_polluted_aerosol': 'marine_polluted',
+                               'marine_tropical_aerosol': 'marine_tropical',
+                               'rural_aerosol': 'rural',
+                               'urban_aerosol': 'urban'}
 
 ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
                'midlatitude summer': 6, 'midlatitude winter': 7,
@@ -81,25 +98,25 @@ ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
 
 HTTPS_RAYLEIGH_LUTS = {}
 HTTPS_RAYLEIGH_LUTS[
-    'antarctic_aerosol'] = "https://zenodo.org/record/891952/files/pyspectral_rayleigh_correction_luts.tgz"
+    'antarctic'] = "https://zenodo.org/record/891952/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'continental_average_aerosol'] = "https://zenodo.org/record/892092/files/pyspectral_rayleigh_correction_luts.tgz"
+    'continental_average'] = "https://zenodo.org/record/892092/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'continental_clean_aerosol'] = "https://zenodo.org/record/892178/files/pyspectral_rayleigh_correction_luts.tgz"
+    'continental_clean'] = "https://zenodo.org/record/892178/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'continental_polluted_aerosol'] = "https://zenodo.org/record/896859/files/pyspectral_rayleigh_correction_luts.tgz"
+    'continental_polluted'] = "https://zenodo.org/record/896859/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'desert_aerosol'] = "https://zenodo.org/record/1000414/files/pyspectral_rayleigh_correction_luts.tgz"
+    'desert'] = "https://zenodo.org/record/1000414/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'marine_clean_aerosol'] = "https://zenodo.org/record/896869/files/pyspectral_rayleigh_correction_luts.tgz"
+    'marine_clean'] = "https://zenodo.org/record/896869/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'marine_polluted_aerosol'] = "https://zenodo.org/record/896875/files/pyspectral_rayleigh_correction_luts.tgz"
+    'marine_polluted'] = "https://zenodo.org/record/896875/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'marine_tropical_aerosol'] = "https://zenodo.org/record/896879/files/pyspectral_rayleigh_correction_luts.tgz"
+    'marine_tropical'] = "https://zenodo.org/record/896879/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'rural_aerosol'] = "https://zenodo.org/record/896881/files/pyspectral_rayleigh_correction_luts.tgz"
+    'rural'] = "https://zenodo.org/record/896881/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'urban_aerosol'] = "https://zenodo.org/record/896887/files/pyspectral_rayleigh_correction_luts.tgz"
+    'urban'] = "https://zenodo.org/record/896887/files/pyspectral_rayleigh_correction_luts.tgz"
 HTTPS_RAYLEIGH_LUTS[
     'rayleigh_only'] = "https://zenodo.org/record/888971/files/pyspectral_rayleigh_correction_luts.tgz"
 
@@ -119,6 +136,9 @@ RAYLEIGH_LUT_DIRS = {}
 for sub_dir_name in HTTPS_RAYLEIGH_LUTS:
     dirname = os.path.join(LOCAL_RAYLEIGH_DIR, sub_dir_name)
     RAYLEIGH_LUT_DIRS[sub_dir_name] = dirname
+    for key, val in AEROSOL_TYPE_STANDARD_NAMES.items():
+        if val == sub_dir_name:
+            RAYLEIGH_LUT_DIRS[key] = os.path.join(LOCAL_RAYLEIGH_DIR, key)
 
 
 def convert2wavenumber(rsr):

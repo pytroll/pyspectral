@@ -36,7 +36,8 @@ from scipy.interpolate import interpn
 
 from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.utils import (INSTRUMENTS, RAYLEIGH_LUT_DIRS,
-                              AEROSOL_TYPES, ATMOSPHERES,
+                              AEROSOL_TYPES, AEROSOL_TYPE_STANDARD_NAMES,
+                              ATMOSPHERES,
                               download_luts, get_central_wave,
                               get_bandname_from_wavelength)
 
@@ -75,18 +76,27 @@ class Rayleigh(object):
         else:
             atm_type = 'subarctic summer'
 
+        other_name = None
         if 'aerosol_type' in kwargs:
             if kwargs['aerosol_type'] not in AEROSOL_TYPES:
                 raise AttributeError('Aerosol type not supported! ' +
                                      'Need to be one of {0}'.format(str(AEROSOL_TYPES)))
-            aerosol_type = kwargs['aerosol_type']
+            aerosol_type = AEROSOL_TYPE_STANDARD_NAMES.get(kwargs['aerosol_type'],
+                                                           kwargs['aerosol_type'])
+            for key, val in AEROSOL_TYPE_STANDARD_NAMES.items():
+                if val == aerosol_type:
+                    other_name = key
+
         else:
             aerosol_type = 'rayleigh_only'
 
-        rayleigh_dir = RAYLEIGH_LUT_DIRS[aerosol_type]
+        rayleigh_dir = [RAYLEIGH_LUT_DIRS[aerosol_type]]
+        if other_name:
+            rayleigh_dir.append(RAYLEIGH_LUT_DIRS[other_name])
 
         if atm_type not in ATMOSPHERES.keys():
-            LOG.error("Atmosphere type %s not supported", atm_type)
+            raise ValueError(
+                "Atmosphere type {atm} not supported".format(atm=atm_type))
 
         LOG.info("Atmosphere chosen: %s", atm_type)
 
@@ -111,13 +121,23 @@ class Rayleigh(object):
 
         ext = atm_type.replace(' ', '_')
         lutname = "rayleigh_lut_{0}.h5".format(ext)
-        self.reflectance_lut_filename = os.path.join(rayleigh_dir, lutname)
+        self.reflectance_lut_filename = None
+        for dirname in rayleigh_dir:
+            if os.path.exists(dirname):
+                self.reflectance_lut_filename = os.path.join(dirname, lutname)
+                break
 
-        if not os.path.exists(self.reflectance_lut_filename):
-            LOG.warning(
-                "No lut file %s on disk", self.reflectance_lut_filename)
+        if (not self.reflectance_lut_filename or
+                not os.path.exists(self.reflectance_lut_filename)):
+            LOG.warning("No lut file %s for aerosol type %s on disk",
+                        lutname, aerosol_type)
             LOG.info("Will download from internet...")
             download_luts(aerosol_type=aerosol_type)
+            for dirname in rayleigh_dir:
+                if os.path.exists(dirname):
+                    self.reflectance_lut_filename = os.path.join(
+                        dirname, lutname)
+                    break
 
         if (not os.path.exists(self.reflectance_lut_filename) or
                 not os.path.isfile(self.reflectance_lut_filename)):
@@ -230,11 +250,27 @@ class Rayleigh(object):
 
         ipn *= 100
         res = ipn
-        if blueband is not None:
-            res = np.where(np.less(blueband, 20.), res,
-                           (1 - (blueband - 20) / 80) * res)
+        # if blueband is not None:
+        #     res = np.where(np.less(blueband, 20.), res,
+        #                    (1 - (blueband - 20) / 80) * res)
 
-        return np.clip(res, 0, 100)
+        # Where the blue band reflectance is above a threshold (20.%)
+        # we start reduce the atmospheric  correction as a function of
+        # reflectance above the threshold.
+        # But, this correction should should be less prominent at very large
+        # satellite zenith angles.
+        if blueband is not None:
+            thr = 20. + res
+            # thr = 20.
+            corr_factor = (1 - (blueband - thr) / 80)
+            # Satellite zenith angle damping:
+            satz_corr = np.exp(
+                0.25 * np.log(-0.5e-4 * np.exp(0.11 * sat_zenith) + 1.))
+            # satz_corr = 1.
+            res = np.where(
+                np.less(blueband, thr), res, satz_corr * corr_factor * res)
+
+        return np.clip(res, 0, None)
 
 
 if __name__ == "__main__":
