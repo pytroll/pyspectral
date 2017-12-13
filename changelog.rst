@@ -1,6 +1,37 @@
 Changelog
 =========
 
+v0.5.1 (2017-12-13)
+-------------------
+
+- Update changelog. [Adam.Dybbroe]
+
+- Bump version: 0.5.0 → 0.5.1. [Adam.Dybbroe]
+
+- Correct doc strings replacing SLSTR with OLCI. [Adam.Dybbroe]
+
+- Reduce redundant Badge. [Adam.Dybbroe]
+
+- Merge pull request #10 from codacy-badger/codacy-badge. [Adam Dybbroe]
+
+  Add a Codacy badge to README.md
+
+- Add Codacy badge. [The Codacy Badger]
+
+- Corrects the md5sum of the newly updated rsr tar file. [Adam.Dybbroe]
+
+- Bugfix Terra modis response functions. [Adam.Dybbroe]
+
+  Some of the original responses have a few -99 as a response,
+  which create wrong central wavelengths in pyspectral
+
+- Instrument names are lower case, variable upper/lower case can be used
+  in API. [Adam.Dybbroe]
+
+- Consistent instrument naming, lower case throughout. [Adam.Dybbroe]
+
+- Fix md5sum of latest rsr tar file at zenodo. [Adam.Dybbroe]
+
 v0.5.0 (2017-10-18)
 -------------------
 
