@@ -70,7 +70,7 @@ Brightness temperature to spectral radiance
 
 If the satellite observation is given in terms of the brightness temperature,
 then the corresponding spectral radiance can be derived by convolving the relative
-spectral response with the Planck function and diving by the equivalent band width:
+spectral response with the Planck function and divding by the equivalent band width:
 
 .. math::
 
