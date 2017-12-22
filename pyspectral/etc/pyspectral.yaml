@@ -1,5 +1,11 @@
-rsr_dir: ~/.local/share/pyspectral/
-rayleigh_dir: ~/.local/share/pyspectral/
+#
+# Here you may overwrite the default PySpectral user data directories
+#
+#rsr_dir: ~/.local/share/pyspectral/
+#rayleigh_dir: ~/.local/share/pyspectral/
+
+# On default relative spectral responses and Rayleigh (atmospheric) correction
+# LUTs are downloaded from internet:
 download_from_internet: True
 
 path1: '/home/a000680/data/SpectralResponses/jpss1-viirs/J1_VIIRS_Detector_RSR_V2'
