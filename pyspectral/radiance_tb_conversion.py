@@ -292,6 +292,8 @@ class RadTbConverter(object):
         relative spectral response function
         rad:
             Radiance in SI units
+        wavelength:
+            Wavelength in SI units (meter)
         """
 
         from pyspectral.blackbody import blackbody_rad2temp as rad2temp
