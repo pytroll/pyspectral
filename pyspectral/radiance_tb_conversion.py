@@ -164,11 +164,7 @@ class RadTbConverter(object):
         self.wavelength_or_wavenumber = (self.rsr[self.bandname][self.detector][self.wavespace] *
                                          self._wave_si_scale)
         self.response = self.rsr[self.bandname][self.detector]['response']
-        self.integrate_response()
-
-    def integrate_response(self):
-        """Integrate the spectral response curve"""
-
+        # Get the integral of the spectral response curve:
         self.rsr_integral = np.trapz(self.response, self.wavelength_or_wavenumber)
 
     def _getsatname(self):
