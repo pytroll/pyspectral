@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014-2017 Pytroll
+# Copyright (c) 2014-2018 Pytroll
 
 # Author(s):
 
@@ -27,6 +27,7 @@ import os
 import logging
 from os.path import expanduser
 import numpy as np
+LOG = logging.getLogger(__name__)
 
 from pyspectral.config import get_config
 
@@ -125,12 +126,26 @@ def convert2wavenumber(rsr):
     """Take rsr data set with all channels and detectors for an instrument
     each with a set of wavelengths and normalised responses and
     convert to wavenumbers and responses
+    rsr:
+      Relative Spectral Response function (all bands)
+    Returns:
+      retv:
+        Relative Spectral Responses in wave number space
+      info:
+        Dictionary with scale (to go convert to SI units) and unit
     """
+
     retv = {}
     for chname in rsr.keys():  # Go through bands/channels
         retv[chname] = {}
         for det in rsr[chname].keys():  # Go through detectors
             retv[chname][det] = {}
+            if 'wavenumber' in rsr[chname][det].keys():
+                # Make a copy. Data are already in wave number space
+                retv[chname][det] = rsr[chname][det].copy()
+                LOG.debug("RSR data already in wavenumber space. No conversion needed.")
+                continue
+
             for sat in rsr[chname][det].keys():
                 if sat == "wavelength":
                     # micro meters to cm
@@ -149,7 +164,6 @@ def convert2wavenumber(rsr):
 
     unit = 'cm-1'
     si_scale = 100.0
-
     return retv, {'unit': unit, 'si_scale': si_scale}
 
 

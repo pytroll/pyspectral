@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014, 2015, 2016, 2017 Adam.Dybbroe
+# Copyright (c) 2014-2018 Adam.Dybbroe
 
 # Author(s):
 
@@ -48,7 +48,7 @@ TB_MAX = 360.
 
 class Calculator(RadTbConverter):
 
-    """A thermal near-infrared (e.g. 3.7 micron) band reflectance calculator.
+    """A thermal near-infrared (~3.7 micron) band reflectance calculator.
 
     Given the relative spectral response of the NIR band, the solar zenith
     angle, and the brightness temperatures of the NIR and the Thermal bands,
@@ -82,12 +82,6 @@ class Calculator(RadTbConverter):
 
         options = get_config()
 
-        # options = {}
-        # conf = get_config()
-        # for option, value in conf.items(platform_name + '-' + instrument,
-        #                                 raw=True):
-        #     options[option] = value
-
         if solar_flux is None:
             self._get_solarflux()
         else:
@@ -103,10 +97,6 @@ class Calculator(RadTbConverter):
             self.detector = kwargs['detector']
         else:
             self.detector = 'det-1'
-
-        resp = self.rsr[self.bandname][self.detector]['response']
-        wv_ = self.rsr[self.bandname][self.detector][self.wavespace]
-        self.rsr_integral = np.trapz(resp, wv_)
 
         platform_sensor = platform_name + '-' + instrument
         if platform_sensor in options and 'tb2rad_lut_filename' in options[platform_sensor]:
@@ -129,8 +119,7 @@ class Calculator(RadTbConverter):
 
         LOG.info("lut filename: " + str(self.lutfile))
         if not os.path.exists(self.lutfile):
-            self.make_tb2rad_lut(self.bandname,
-                                 self.lutfile)
+            self.make_tb2rad_lut(self.lutfile)
             self.lut = self.read_tb2rad_lut(self.lutfile)
             LOG.info("LUT file created")
         else:
@@ -231,12 +220,13 @@ class Calculator(RadTbConverter):
         else:
             # Assume rsr in in microns!!!
             # FIXME!
-            scale = self.rsr_integral * 1e-6
+            #scale = self.rsr_integral * 1e-6
+            scale = self.rsr_integral
 
-            retv = self.tb2radiance(tb_therm, self.bandname, self.lut)
+            retv = self.tb2radiance(tb_therm, self.lut)
             thermal_emiss_one = retv['radiance'] * scale
 
-            retv = self.tb2radiance(tb_nir, self.bandname, self.lut)
+            retv = self.tb2radiance(tb_nir, self.lut)
             l_nir = retv['radiance'] * scale
 
         if thermal_emiss_one.ravel().shape[0] < 10:
