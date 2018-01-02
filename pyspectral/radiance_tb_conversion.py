@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014-2017 Adam.Dybbroe
+# Copyright (c) 2014-2018 Adam.Dybbroe
 
 # Author(s):
 
@@ -285,6 +285,10 @@ class SeviriRadTbConverter(RadTbConverter):
 
         self.blackbody_function = BLACKBODY_FUNC[self.wavespace]
         self.rsr_integral = 1.0
+
+    def _get_rsr(self):
+        """Overload the _get_rsr method, since RSR data are ignored here"""
+        pass
 
     def radiance2tb(self, rad):
         """Get the Tb from the radiance using the simple non-linear regression
