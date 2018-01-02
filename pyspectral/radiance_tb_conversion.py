@@ -177,17 +177,36 @@ class RadTbConverter(object):
             raise NotImplementedError(
                 'Platform {0} not yet supported...'.format(self.platform_name))
 
-    def tb2radiance(self, tb_, lut=None):
+    def tb2radiance(self, tb_, **kwargs):
         """Get the radiance from the brightness temperature (Tb) given the
-        band name
+        band name.
+
+        Input:
+          tb_: Brightness temperature of the band (self.band)
+
+        Optional arguments:
+          lut: If not none, this is a Look Up Table with tb and radiance values
+            which will be used for the conversion. Default is None.
+
+          normalized: If True, the derived radiance values are the spectral radiances for the band.
+            If False the radiance is the band integrated radiance. Default is True.
 
         """
 
+        lut = kwargs.get('lut', None)
+        normalized = kwargs.get('normalized', True)
+
         if self.wavespace == WAVE_NUMBER:
-            unit = 'W/m^2 sr^-1 (m^-1)^-1'
+            if normalized:
+                unit = 'W/m^2 sr^-1 (m^-1)^-1'
+            else:
+                unit = 'W/m^2 sr^-1'
             scale = 1.0
         else:
-            unit = 'W/m^2 sr^-1 m^-1'
+            if normalized:
+                unit = 'W/m^2 sr^-1 m^-1'
+            else:
+                unit = 'W/m^2 sr^-1'
             scale = 1.0
 
         if lut:
@@ -204,15 +223,19 @@ class RadTbConverter(object):
             return retv
 
         planck = self.blackbody_function(self.wavelength_or_wavenumber, tb_) * self.response
-        radiance = integrate.trapz(planck, self.wavelength_or_wavenumber) / self.rsr_integral
+        if normalized:
+            radiance = integrate.trapz(planck, self.wavelength_or_wavenumber) / self.rsr_integral
+        else:
+            radiance = integrate.trapz(planck, self.wavelength_or_wavenumber)
+
         return {'radiance': radiance,
                 'unit': unit,
                 'scale': scale}
 
-    def make_tb2rad_lut(self, filepath):
+    def make_tb2rad_lut(self, filepath, normalized=True):
         """Generate a Tb to radiance look-up table"""
         tb_ = np.arange(TB_MIN, TB_MAX, self.tb_resolution)
-        retv = self.tb2radiance(tb_)
+        retv = self.tb2radiance(tb_, normalized=normalized)
         rad = retv['radiance']
         np.savez(filepath, tb=tb_, radiance=rad.compressed())
 
@@ -315,7 +338,7 @@ class SeviriRadTbConverter(RadTbConverter):
 
         return tb_
 
-    def tb2radiance(self, tb_, lut=None):
+    def tb2radiance(self, tb_, **kwargs):
         """Get the radiance from the Tb using the simple non-linear regression
         method. SI units of course!
         """
@@ -324,8 +347,13 @@ class SeviriRadTbConverter(RadTbConverter):
         # C1 = 2 * h * c**2 and C2 = hc/k
         #
 
+        lut = kwargs.get('lut', None)
+        normalized = kwargs.get('normalized', True)
+
         if lut is not None:
             raise NotImplementedError('Using a tb-radiance LUT is not yet supported')
+        if not normalized:
+            raise NotImplementedError('Deriving the band integrated radiance is not supported')
 
         c_1 = 2 * H_PLANCK * C_SPEED ** 2
         c_2 = H_PLANCK * C_SPEED / K_BOLTZMANN

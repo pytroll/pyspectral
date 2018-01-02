@@ -223,10 +223,10 @@ class Calculator(RadTbConverter):
             #scale = self.rsr_integral * 1e-6
             scale = self.rsr_integral
 
-            retv = self.tb2radiance(tb_therm, self.lut)
+            retv = self.tb2radiance(tb_therm, lut=self.lut)
             thermal_emiss_one = retv['radiance'] * scale
 
-            retv = self.tb2radiance(tb_nir, self.lut)
+            retv = self.tb2radiance(tb_nir, lut=self.lut)
             l_nir = retv['radiance'] * scale
 
         if thermal_emiss_one.ravel().shape[0] < 10:

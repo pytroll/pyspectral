@@ -226,6 +226,10 @@ class TestRadTbConversions(unittest.TestCase):
         res = self.modis2.tb2radiance(TEST_TBS, lut=False)
         self.assertTrue(np.allclose(TRUE_RADS, res['radiance']))
 
+        res = self.modis.tb2radiance(TEST_TBS, lut=False, normalized=False)
+        integral = self.modis.rsr_integral
+        self.assertTrue(np.allclose(TRUE_RADS * integral, res['radiance']))
+
         res = self.modis.tb2radiance(237., lut=False)
         self.assertAlmostEqual(16570.592171157, res['radiance'])
 
