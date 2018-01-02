@@ -369,8 +369,6 @@ class SeviriRadTbConverter(RadTbConverter):
 
         unit = 'W/m^2 sr^-1 (m^-1)^-1'
         scale = 1.0
-        #unit = 'mW/m^2 sr^-1 (cm^-1)^-1'
-        #scale = 10.0
         return {'radiance': radiance,
                 'unit': unit,
                 'scale': scale}

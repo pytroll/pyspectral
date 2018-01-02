@@ -27,9 +27,9 @@ import os
 import logging
 from os.path import expanduser
 import numpy as np
-LOG = logging.getLogger(__name__)
-
 from pyspectral.config import get_config
+
+LOG = logging.getLogger(__name__)
 
 BANDNAMES = {'VIS006': 'VIS0.6',
              'VIS008': 'VIS0.8',

@@ -218,9 +218,8 @@ class Calculator(RadTbConverter):
             raise NotImplementedError("Reflectance calculations without "
                                       "rsr not yet supported!")
         else:
-            # Assume rsr in in microns!!!
+            # Assume rsr is in microns!!!
             # FIXME!
-            #scale = self.rsr_integral * 1e-6
             scale = self.rsr_integral
 
             retv = self.tb2radiance(tb_therm, lut=self.lut)
