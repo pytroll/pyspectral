@@ -97,11 +97,11 @@ class RadTbConverter(object):
     spectral response functions.
     """
 
-    def __init__(self, platform_name, instrument, band,
-                 **options):
+    def __init__(self, platform_name, instrument, band, **options):
         """E.g.:
         platform_name = 'Meteosat-9'
         instrument = 'seviri'
+        band = 3.75
         """
         self.platform_name = platform_name
         self.instrument = instrument
@@ -139,8 +139,10 @@ class RadTbConverter(object):
         self._get_rsr()
 
     def _get_rsr(self):
-        """Get the relative spectral responses from file, find the bandname, and
-           convert to the requested wave-spave (wavelength or wave number)
+        """
+        Get the relative spectral responses from file, find the bandname, and
+        convert to the requested wave-spave (wavelength or wave number)
+
         """
 
         sensor = RelativeSpectralResponse(self.platform_name, self.instrument)
@@ -168,9 +170,12 @@ class RadTbConverter(object):
         self.rsr_integral = np.trapz(self.response, self.wavelength_or_wavenumber)
 
     def _getsatname(self):
-        """Get the satellite name used in the rsr-reader, from the platform
-        and number
         """
+        Get the satellite name used in the rsr-reader, from the platform
+        and number
+
+        """
+
         if self.platform_name.startswith("Meteosat"):
             return self.platform_name
         else:
@@ -245,18 +250,29 @@ class RadTbConverter(object):
         retv = np.load(filepath, 'r')
         return retv
 
-    @staticmethod
-    def radiance2tb(rad, wavelength):
-        """Get the Tb from the radiance using the Planck function
+    def radiance2tb(self, rad):
+        """
+        Get the Tb from the radiance using the Planck function and the central wavelength of the band
+
         rad:
             Radiance in SI units
-        wavelength:
-            Wavelength in SI units (meter)
         """
 
-        from pyspectral.blackbody import blackbody_rad2temp as rad2temp
+        return radiance2tb(rad, self.rsr[self.bandname][self.detector]['central_wavelength'] * 1e-6)
 
-        return rad2temp(wavelength, rad)
+
+def radiance2tb(rad, wavelength):
+    """
+    Get the Tb from the radiance using the Planck function
+
+    rad:
+        Radiance in SI units
+    wavelength:
+        Wavelength in SI units (meter)
+    """
+
+    from pyspectral.blackbody import blackbody_rad2temp as rad2temp
+    return rad2temp(wavelength, rad)
 
 
 class SeviriRadTbConverter(RadTbConverter):
@@ -268,13 +284,15 @@ class SeviriRadTbConverter(RadTbConverter):
     """
 
     def __init__(self, platform_name, band, **kwargs):
-        """Init"""
+        """
+        E.g.:
+        platform_name = Meteosat-9
+        band = 3.75
+        """
+
         super(SeviriRadTbConverter, self).__init__(platform_name, 'seviri',
                                                    band, **kwargs)
 
-        """E.g.:
-        platform_name = 'Meteosat-9'
-        """
         self.response = None
         self.wavelength_or_wavenumber = None
         self.band = band
