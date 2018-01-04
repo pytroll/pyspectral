@@ -103,8 +103,8 @@ look like this:
   >>> print("Central wavelength = {cwl}".format(cwl=round(seviri.central_wavelength['VIS0.6']['Meteosat-8'], 6)))
   Central wavelength = 0.640216
   >>> seviri = Seviri(wavespace='wavenumber')
-  >>> seviri.central_wavenumber['VIS0.6']['Meteosat-8']
-  15682.623379
+  >>> print("Central wavenumber = {wvn}".format(wvn=round(seviri.central_wavenumber['VIS0.6']['Meteosat-8'], 6)))
+  Central wavenumber = 15682.623379
   >>> print(round(1./seviri.central_wavenumber['VIS0.6']['Meteosat-8']*1e4, 6))
   0.637648
 

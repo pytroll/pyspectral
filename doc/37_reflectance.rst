@@ -276,11 +276,8 @@ And in Kelvin:
   >>> import numpy as np
   >>> rad = np.ma.array([80658.90755549872, 81837.24025449924, 84904.17435667581, 100210.43527271158, 104780.4133411212], mask=False)
   >>> tb = blackbody_rad2temp(viirs.rsr['M12']['det-1']['central_wavelength']*1e-6, rad)
-  >>> np.ma.round(tb, 4)
-  masked_array(data = [267.0815 267.3475 268.0246 271.1181 271.9627],
-               mask = [False False False False False],
-         fill_value = 1e+20)
-  <BLANKLINE>
+  >>> ['{tb:6.3f}'.format(tb=round(t, 4)) for t in tb.data]
+  ['267.082', '267.348', '268.025', '271.118', '271.963']
   
 Or with less code:
          
