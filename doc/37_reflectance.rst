@@ -253,6 +253,15 @@ transmissivity) objects.
 
 Using the example of the VIIRS M12 band from above this gives the following spectral radiance:
 
+  >>> from pyspectral.radiance_tb_conversion import RadTbConverter
+  >>> from pyspectral.near_infrared_reflectance import Calculator
+  >>> import numpy as np
+  >>> refl_m12 = Calculator('Suomi-NPP', 'viirs', 'M12')
+  >>> sunz = np.array([68.98597217,  68.9865146 ,  68.98705756,  68.98760105, 68.98814508])
+  >>> tb37 = np.array([298.07385254, 297.15478516, 294.43276978, 281.67633057, 273.7923584])
+  >>> tb11 = np.array([271.38806152, 271.38806152, 271.33453369, 271.98553467, 271.93609619])
+  >>> viirs = RadTbConverter('Suomi-NPP', 'viirs', 'M12')
+  >>> m12r = refl_m12.reflectance_from_tbs(sunz, tb37, tb11)
   >>> rad = (1-m12r) * viirs.tb2radiance(tb11)['radiance']
   >>> rad
   masked_array(data = [80658.90755549872 81837.24025449924 84904.17435667581 100210.43527271158
@@ -264,6 +273,7 @@ Using the example of the VIIRS M12 band from above this gives the following spec
 And in Kelvin:
 
   >>> from pyspectral.blackbody import blackbody_rad2temp
+  >>> rad = np.ma.array([80658.90755549872, 81837.24025449924, 84904.17435667581, 100210.43527271158, 104780.4133411212], mask=False)
   >>> tb = blackbody_rad2temp(viirs.rsr['M12']['det-1']['central_wavelength']*1e-6, rad)
   >>> tb
   masked_array(data = [ 267.08147338  267.34745633  268.02457082  271.11811063  271.96265185],
