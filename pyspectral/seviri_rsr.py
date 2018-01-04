@@ -165,19 +165,23 @@ class Seviri(object):
     def convert2wavenumber(self):
         """Convert from wavelengths to wavenumber"""
         for chname in self.rsr.keys():
-            for sat in self.rsr[chname].keys():
+            elems = [k for k in self.rsr[chname].keys()]
+            for sat in elems:
                 if sat == "wavelength":
-                    wnum = 1. / (1e-4 * self.rsr[chname][sat])  # microns to cm
+                    LOG.debug("Get the wavenumber from the wavelength: sat=%s chname=%s", sat, chname)
+                    wnum = 1. / (1e-4 * self.rsr[chname][sat][:])  # microns to cm
                     self.rsr[chname]['wavenumber'] = wnum[::-1]
-                    del self.rsr[chname][sat]
                 else:
                     if type(self.rsr[chname][sat]) is dict:
                         for name in self.rsr[chname][sat].keys():
-                            resp = self.rsr[chname][sat][name]
+                            resp = self.rsr[chname][sat][name][:]
                             self.rsr[chname][sat][name] = resp[::-1]
                     else:
-                        resp = self.rsr[chname][sat]
+                        resp = self.rsr[chname][sat][:]
                         self.rsr[chname][sat] = resp[::-1]
+
+        for chname in self.rsr.keys():
+            del self.rsr[chname]['wavelength']
 
         self.unit = 'cm-1'
 
