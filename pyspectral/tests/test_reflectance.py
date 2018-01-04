@@ -127,17 +127,26 @@ class TestReflectance(unittest.TestCase):
         refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
         self.assertAlmostEqual(refl, 0.251245010648, 6)
 
+        tb3x = refl37.emissive_part_3x()
+        self.assertAlmostEqual(tb3x, 276.213054, 6)
+
         sunz = 80.
         tb3 = 295.
         tb4 = 282.
         refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
         self.assertAlmostEqual(refl, 0.452497961, 6)
 
+        tb3x = refl37.emissive_part_3x()
+        self.assertAlmostEqual(tb3x, 270.077268, 6)
+
         sunz = 50.
         tb3 = 300.
         tb4 = 285.
         refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
         self.assertAlmostEqual(refl, 0.1189217, 6)
+
+        tb3x = refl37.emissive_part_3x()
+        self.assertAlmostEqual(tb3x, 282.455426, 6)
 
     def tearDown(self):
         """Clean up"""
