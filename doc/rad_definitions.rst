@@ -1,5 +1,5 @@
-Some definitions
-----------------
+Definitions and some radiation theory
+-------------------------------------
 
 In radiation physics there is unfortunately several slightly different ways of
 presenting the theory. For instance, there is no single custom on the mathematical
