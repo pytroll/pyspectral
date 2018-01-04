@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013-2017 Pytroll
+# Copyright (c) 2013-2018 Pytroll
 
 # Author(s):
 
@@ -32,7 +32,7 @@ requires = ['docutils>=0.3', 'numpy>=1.5.1', 'scipy>=0.14',
             'python-geotiepoints>=1.1.1',
             'h5py>=2.5', 'requests', 'tqdm', 'six', 'pyyaml']
 
-test_requires = ['xlrd', 'pyyaml']
+test_requires = ['xlrd', 'pyyaml', 'matplotlib']
 if sys.version < '3.0':
     test_requires.append('mock')
 

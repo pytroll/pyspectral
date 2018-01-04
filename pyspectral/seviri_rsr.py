@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014, 2015, 2016, 2017 Adam.Dybbroe
+# Copyright (c) 2013-2018 Adam.Dybbroe
 
 # Author(s):
 
@@ -58,6 +58,8 @@ class Seviri(object):
         if not os.path.exists(self.seviri_path):
             self.seviri_path = os.path.join(
                 DATA_PATH, options['seviri'].get('filename'))
+
+        LOG.debug("Original RSR file from EUMETSAT: {}".format(self.seviri_path))
 
         self.output_dir = options.get('rsr_dir', './')
 
