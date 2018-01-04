@@ -59,11 +59,8 @@ class Calculator(RadTbConverter):
     The relfectance calculated is without units and should be between 0 and 1.
     """
 
-    def __init__(self, platform_name, instrument, band,
-                 solar_flux=None, **kwargs):
-        """Init"""
-        super(Calculator, self).__init__(platform_name, instrument,
-                                         band, method=1, **kwargs)
+    def __init__(self, platform_name, instrument, band, solar_flux=None, **kwargs):
+        super(Calculator, self).__init__(platform_name, instrument, band, **kwargs)
 
         from numbers import Number
         self.bandname = None
@@ -92,6 +89,7 @@ class Calculator(RadTbConverter):
         self._rad3x_correction = 1.0
         self._r3x = None
         self._e3x = None
+        self.lutfile = None
 
         if 'detector' in kwargs:
             self.detector = kwargs['detector']
@@ -100,21 +98,31 @@ class Calculator(RadTbConverter):
 
         platform_sensor = platform_name + '-' + instrument
         if platform_sensor in options and 'tb2rad_lut_filename' in options[platform_sensor]:
-            self.lutfile = options[platform_sensor]['tb2rad_lut_filename']
-            if not self.lutfile.endswith('.npz'):
+            if isinstance(options[platform_sensor]['tb2rad_lut_filename'], dict):
+                for item in options[platform_sensor]['tb2rad_lut_filename']:
+                    if item == self.bandname or item == self.bandname.lower():
+                        self.lutfile = options[platform_sensor]['tb2rad_lut_filename'][item]
+                        break
+                if self.lutfile is None:
+                    LOG.warning("Failed determine LUT filename from config: %s", str(
+                        options[platform_sensor]['tb2rad_lut_filename']))
+            else:
+                self.lutfile = options[platform_sensor]['tb2rad_lut_filename']
+
+            if self.lutfile and not self.lutfile.endswith('.npz'):
                 self.lutfile = self.lutfile + '.npz'
 
-            if not os.path.exists(os.path.dirname(self.lutfile)):
+            if self.lutfile and not os.path.exists(os.path.dirname(self.lutfile)):
                 LOG.warning(
-                    "Directory {0} does not exist! Check config file".format(os.path.dirname(self.lutfile)))
+                    "Directory %s does not exist! Check config file", os.path.dirname(self.lutfile))
                 self.lutfile = os.path.join(
                     '/tmp', os.path.basename(self.lutfile))
 
-        else:
+        if self.lutfile is None:
             LOG.info("No lut filename available in config file. "
                      "Will generate filename automatically")
-            lutname = 'tb2rad_lut_{0}_{1}_ir{2:2.1f}'.format(
-                self.platform_name.lower(), self.instrument.lower(), self.bandwavelength)
+            lutname = 'tb2rad_lut_{0}_{1}_{band}'.format(
+                self.platform_name.lower(), self.instrument.lower(), band=self.bandname.lower())
             self.lutfile = os.path.join('/tmp', lutname + '.npz')
 
         LOG.info("lut filename: " + str(self.lutfile))
@@ -133,6 +141,7 @@ class Calculator(RadTbConverter):
         CO2 absorption band, as e.g. available on SEVIRI. Currently
         only supports the Rosenfeld method
         """
+
         if method != 'rosenfeld':
             raise AttributeError("Only CO2 correction for SEVIRI using "
                                  "the Rosenfeld equation is supported!")
@@ -148,15 +157,16 @@ class Calculator(RadTbConverter):
             SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM,
                                     dlambda=0.0005,
                                     wavespace=self.wavespace)
-        self.solar_flux = \
-            solar_spectrum.inband_solarflux(self.rsr[self.bandname])
+        self.solar_flux = solar_spectrum.inband_solarflux(self.rsr[self.bandname])
 
     def emissive_part_3x(self, tb=True):
         """Get the emissive part of the 3.x band"""
         try:
             # Emissive part:
             self._e3x = self._rad3x_t11 * (1 - self._r3x)
-            self._e3x *= self._rad3x_correction
+            # Unsure how much sense it makes to apply the co2 correction term here!?
+            # FIXME!
+            # self._e3x *= self._rad3x_correction
 
         except TypeError:
             LOG.warning(
@@ -164,15 +174,13 @@ class Calculator(RadTbConverter):
                 "Please derive the relfectance prior to requesting the emissive part")
 
         if tb:
-            # FIXME! Get the correct central wavelength
-            return self.radiance2tb(self._e3x, 3.9e-6)
+            return self.radiance2tb(self._e3x)
         else:
             return self._e3x
 
-    def reflectance_from_tbs(self, sun_zenith, tb_near_ir, tb_thermal,
-                             tb_ir_co2=None):
-        """The relfectance calculated is without units and should be between 0
-        and 1.
+    def reflectance_from_tbs(self, sun_zenith, tb_near_ir, tb_thermal, **kwargs):
+        """
+        The relfectance calculated is without units and should be between 0 and 1.
 
         Inputs:
 
@@ -204,6 +212,9 @@ class Calculator(RadTbConverter):
                 str(tb_therm.shape), str(tb_nir.shape))
             raise ValueError(errmsg)
 
+        tb_ir_co2 = kwargs.get('tb_ir_co2')
+        lut = kwargs.get('lut', self.lut)
+
         if tb_ir_co2 is None:
             co2corr = False
             tbco2 = None
@@ -217,16 +228,13 @@ class Calculator(RadTbConverter):
         if not self.rsr:
             raise NotImplementedError("Reflectance calculations without "
                                       "rsr not yet supported!")
-        else:
-            # Assume rsr is in microns!!!
-            # FIXME!
-            scale = self.rsr_integral
 
-            retv = self.tb2radiance(tb_therm, lut=self.lut)
-            thermal_emiss_one = retv['radiance'] * scale
+        # Assume rsr is in microns!!!
+        # FIXME!
+        self._rad3x_t11 = self.tb2radiance(tb_therm, lut=lut)['radiance']
+        thermal_emiss_one = self._rad3x_t11 * self.rsr_integral
 
-            retv = self.tb2radiance(tb_nir, lut=self.lut)
-            l_nir = retv['radiance'] * scale
+        l_nir = self.tb2radiance(tb_nir, lut=lut)['radiance'] * self.rsr_integral
 
         if thermal_emiss_one.ravel().shape[0] < 10:
             LOG.info('thermal_emiss_one = %s', str(thermal_emiss_one))
@@ -240,7 +248,6 @@ class Calculator(RadTbConverter):
         mu0 = np.cos(np.deg2rad(sunz))
         # mu0 = np.where(np.less(mu0, 0.1), 0.1, mu0)
         self._rad3x = l_nir
-        self._rad3x_t11 = thermal_emiss_one
         self._solar_radiance = 1. / np.pi * self.solar_flux * mu0
 
         # CO2 correction to the 3.9 radiance, only if tbs of a co2 band around
@@ -251,31 +258,13 @@ class Calculator(RadTbConverter):
         else:
             self._rad3x_correction = 1.0
 
-        mask = (self._solar_radiance - self._rad3x_t11 *
+        mask = (self._solar_radiance - thermal_emiss_one *
                 self._rad3x_correction) < EPSILON
         newmask = np.logical_or(sunzmask, mask)
 
-        nomin = l_nir - self._rad3x_t11 * self._rad3x_correction
-        LOG.debug("Shapes: %s  %s", str(mu0.shape),
-                  str(self._rad3x_t11.shape))
-        denom = self._solar_radiance - \
-            self._rad3x_t11 * self._rad3x_correction
-
-        # # Write data to file for analysis
-        # np.savez('pyspecdata',
-        #          sunz=sun_zenith, L=l_nir,
-        #          S=self._rad3x_t11 * self._rad3x_correction,
-        #          f=self._solar_radiance)
-
-        r3x = nomin / denom
-        # r3x = np.ma.masked_array(r3x, mask=mask)
-        # r3x = np.ma.masked_where(r3x < 0, r3x)
-        # Do some further masking, also with sun-zenith:
-        # r3x = np.ma.masked_outside(r3x, 0.0, 10.0)  # * 100.  # Percent!
-        # if np.ma.is_masked(tb_nir):
-        #    r3x = np.ma.masked_where(tb_nir.mask, r3x).filled(0)
-
-        self._r3x = np.ma.masked_where(newmask, r3x)
+        nomin = l_nir - thermal_emiss_one * self._rad3x_correction
+        denom = self._solar_radiance - thermal_emiss_one * self._rad3x_correction
+        self._r3x = np.ma.masked_where(newmask, nomin / denom)
 
         # Reflectances should be between 0 and 1, but values above 1 is
         # perfectly possible and okay! (Multiply by 100 to get reflectances

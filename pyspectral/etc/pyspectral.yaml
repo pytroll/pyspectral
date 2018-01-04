@@ -79,7 +79,9 @@ NOAA-20-viirs:
 Suomi-NPP-viirs:
 
   rootdir: /path/to/original/snpp/viirs/data
-  tb2rad_lut_filename: /path/to/radiance/tb/lut/data/tb2rad_lut_snpp_viirs_ir3.7.npz
+  tb2rad_lut_filename:
+    m12: /path/to/radiance/tb/lut/data/tb2rad_lut_snpp_viirs_m12.npz
+    i4: /path/to/radiance/tb/lut/data/tb2rad_lut_snpp_viirs_i4.npz
   
   section1:
     filename: GT_F1_SC_RSR_Release1.0_Best_Mbands/GT_F1_SC_RSR_Release1.0_Best_{bandname}_V2.71_ib_oob.txt
