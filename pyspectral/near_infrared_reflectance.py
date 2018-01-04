@@ -59,7 +59,7 @@ class Calculator(RadTbConverter):
     The relfectance calculated is without units and should be between 0 and 1.
     """
 
-    def __init__(self, platform_name, instrument, band, solar_flux=None, **kwargs):
+    def __init__(self, platform_name, instrument, band, **kwargs):
         super(Calculator, self).__init__(platform_name, instrument, band, **kwargs)
 
         from numbers import Number
@@ -79,10 +79,10 @@ class Calculator(RadTbConverter):
 
         options = get_config()
 
-        if solar_flux is None:
+        self.solar_flux = kwargs.get('solar_flux', None)
+        if self.solar_flux is None:
             self._get_solarflux()
-        else:
-            self.solar_flux = solar_flux
+
         self._rad3x = None
         self._rad3x_t11 = None
         self._solar_radiance = None

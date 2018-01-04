@@ -111,26 +111,16 @@ class RadTbConverter(object):
         self.bandwavelength = None
         self.band = band
 
-        if 'wavespace' in options:
-            if options['wavespace'] not in [WAVE_LENGTH, WAVE_NUMBER]:
-                raise AttributeError('Wave space not {0} or {1}!'.format(WAVE_LENGTH,
-                                                                         WAVE_NUMBER))
-            self.wavespace = options['wavespace']
-        else:
-            self.wavespace = WAVE_LENGTH
+        self.wavespace = options.get('wavespace', WAVE_LENGTH)
+        if self.wavespace not in [WAVE_LENGTH, WAVE_NUMBER]:
+            raise AttributeError('Wave space not {0} or {1}!'.format(WAVE_LENGTH,
+                                                                     WAVE_NUMBER))
 
         self._wave_unit = 'm'
         self._wave_si_scale = 1.0
 
-        if 'detector' in options:
-            self.detector = options['detector']
-        else:
-            self.detector = 'det-1'
-
-        if 'tb_resolution' in options:
-            self.tb_resolution = options['tb_resolution']
-        else:
-            self.tb_resolution = 0.1
+        self.detector = options.get('detector', 'det-1')
+        self.tb_resolution = options.get('tb_resolution', 0.1)
         self.tb_scale = 1. / self.tb_resolution
 
         self.blackbody_function = BLACKBODY_FUNC[self.wavespace]
@@ -144,7 +134,6 @@ class RadTbConverter(object):
         convert to the requested wave-spave (wavelength or wave number)
 
         """
-
         sensor = RelativeSpectralResponse(self.platform_name, self.instrument)
 
         if self.wavespace == WAVE_NUMBER:
@@ -175,7 +164,6 @@ class RadTbConverter(object):
         and number
 
         """
-
         if self.platform_name.startswith("Meteosat"):
             return self.platform_name
         else:
@@ -197,7 +185,6 @@ class RadTbConverter(object):
             If False the radiance is the band integrated radiance. Default is True.
 
         """
-
         lut = kwargs.get('lut', None)
         normalized = kwargs.get('normalized', True)
 
@@ -257,7 +244,6 @@ class RadTbConverter(object):
         rad:
             Radiance in SI units
         """
-
         return radiance2tb(rad, self.rsr[self.bandname][self.detector]['central_wavelength'] * 1e-6)
 
 
@@ -270,7 +256,6 @@ def radiance2tb(rad, wavelength):
     wavelength:
         Wavelength in SI units (meter)
     """
-
     from pyspectral.blackbody import blackbody_rad2temp as rad2temp
     return rad2temp(wavelength, rad)
 
@@ -288,44 +273,15 @@ class SeviriRadTbConverter(RadTbConverter):
         E.g.:
         platform_name = Meteosat-9
         band = 3.75
-        """
 
+        """
         super(SeviriRadTbConverter, self).__init__(platform_name, 'seviri',
                                                    band, **kwargs)
-
-        self.response = None
-        self.wavelength_or_wavenumber = None
-        self.band = band
 
         if isinstance(self.band, str):
             self.bandname = BANDNAMES.get(self.band, self.band)
         else:
             raise AttributeError('Band name provided as a string is required')
-
-        if 'wavespace' in kwargs:
-            if kwargs['wavespace'] not in [WAVE_LENGTH, WAVE_NUMBER]:
-                raise AttributeError('Wave space not {0} or {1}!'.format(WAVE_LENGTH,
-                                                                         WAVE_NUMBER))
-            self.wavespace = kwargs['wavespace']
-        else:
-            self.wavespace = WAVE_LENGTH
-
-        self._wave_unit = 'm'
-        self._wave_si_scale = 1.0
-
-        if 'detector' in kwargs:
-            self.detector = kwargs['detector']
-        else:
-            self.detector = 'det-1'
-
-        if 'tb_resolution' in kwargs:
-            self.tb_resolution = kwargs['tb_resolution']
-        else:
-            self.tb_resolution = 0.1
-        self.tb_scale = 1. / self.tb_resolution
-
-        self.blackbody_function = BLACKBODY_FUNC[self.wavespace]
-        self.rsr_integral = 1.0
 
     def _get_rsr(self):
         """Overload the _get_rsr method, since RSR data are ignored here"""
@@ -334,14 +290,15 @@ class SeviriRadTbConverter(RadTbConverter):
     def radiance2tb(self, rad):
         """Get the Tb from the radiance using the simple non-linear regression
         method.
+
         rad: Radiance in units = 'mW/m^2 sr^-1 (cm^-1)^-1'
+
         """
         #
         # Tb = C2 * νc/{α * log[C1*νc**3 / L + 1]} - β/α
         #
         # C1 = 2 * h * c**2 and C2 = hc/k
         #
-
         c_1 = 2 * H_PLANCK * C_SPEED ** 2
         c_2 = H_PLANCK * C_SPEED / K_BOLTZMANN
 
@@ -364,7 +321,6 @@ class SeviriRadTbConverter(RadTbConverter):
         #
         # C1 = 2 * h * c**2 and C2 = hc/k
         #
-
         lut = kwargs.get('lut', None)
         normalized = kwargs.get('normalized', True)
 
