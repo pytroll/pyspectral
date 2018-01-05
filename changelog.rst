@@ -1,6 +1,114 @@
 Changelog
 =========
 
+v0.5.2 (2018-01-05)
+-------------------
+
+Fix
+~~~
+
+- Bugfix: Move appdirs usage to the config. [Adam.Dybbroe]
+
+Other
+~~~~~
+
+- Update changelog. [Adam.Dybbroe]
+
+- Bump version: 0.5.1 → 0.5.2. [Adam.Dybbroe]
+
+- Improve documentation of the NIR emissive part of the 3.x reflectance
+  derivations, using more condensed code example. [Adam.Dybbroe]
+
+- Merge pull request #20 from pytroll/appdirs. [Adam Dybbroe]
+
+  Appdirs
+
+- Bugfix, module misspelled. [Adam.Dybbroe]
+
+- Merge branch 'develop' into appdirs. [Adam.Dybbroe]
+
+  Conflicts:
+  	pyspectral/utils.py
+
+- Merge pull request #19 from pytroll/radiance_tb_conversions. [Adam
+  Dybbroe]
+
+  Radiance tb conversions
+
+- Fix code quality issues from Codacy and Codeclimate. [Adam.Dybbroe]
+
+- Add tests for emissive part of the r37 refl derivations and
+  radiance2tb conversions. [Adam.Dybbroe]
+
+- Fix bug for wavenumber conversion in native seviri rsr reader. The bug
+  affected the conversion in python 3, and probably not in Py2.
+  [Adam.Dybbroe]
+
+- Fix doc tests. [Adam.Dybbroe]
+
+- Fixing doc tests for python 3. [Adam.Dybbroe]
+
+- Merge branch 'radiance_tb_conversions' of
+  github.com:pytroll/pyspectral into radiance_tb_conversions.
+  [Adam.Dybbroe]
+
+  Conflicts:
+  	doc/37_reflectance.rst
+
+
+- Fix doc tests for py3. [Adam.Dybbroe]
+
+- Utf-8 decode of strings from rsr hdf5 files. Needed for python 3.
+  [Adam.Dybbroe]
+
+- Fix for doc tests. [Adam.Dybbroe]
+
+- Rearrange and improve documentation on 3.7 reflectance derivations.
+  [Adam.Dybbroe]
+
+- Move up radiance definitions and theory a bit. [Adam.Dybbroe]
+
+- Fix for VIIRS I- and M-bands. Make it possible to make tb<->radiance
+  conversions without the LUT. Fix derivation of emissive part.
+  [Adam.Dybbroe]
+
+- Fix tb-radiance conversion so it can only be done on the specific band
+  in question. [Adam.Dybbroe]
+
+- Rearrange doc pages, moving definitions and theory up a bit. Clean
+  away mpop examples. This should be in the PyTroll Gallery instead.
+  [Adam.Dybbroe]
+
+- Fix complaints by flake8. [Adam.Dybbroe]
+
+- Allow for derivation of the band integrated radiance, in addition to
+  the default, which is the spectral radiance for the band.
+  [Adam.Dybbroe]
+
+- Overload the _get_rsr method for the SEVIRI class. RSR data should be
+  ignored in the special case of SEVIRI when using off line coefficients
+  for the Tb-Radiance conversions. [Adam.Dybbroe]
+
+- Remove method integrate_response. RSR integration is provided by the
+  rsr_reader. [Adam.Dybbroe]
+
+- Clean up code, more clear separation of the radiance-tb conversion
+  based on RSR and offline derived coefficients for SEVIRI. RSR integral
+  is part of the rad-tb conversion class now. Improve unit tests.
+  [Adam.Dybbroe]
+
+- Add definition of band integrated radiance. [Adam.Dybbroe]
+
+- Improved function documentation: Specify what the arguments are.
+  [Adam.Dybbroe]
+
+- Use appdirs to standardize where pyspectral downloads LUTs and RSR
+  files. [Adam.Dybbroe]
+
+- Fix spelling error in doc-pages. [Adam.Dybbroe]
+
+- Add PR and Issue templates - copies from satpy. [Adam.Dybbroe]
+
 v0.5.1 (2017-12-13)
 -------------------
 
