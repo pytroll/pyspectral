@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014-2017 Adam.Dybbroe
+# Copyright (c) 2014-2018 Adam.Dybbroe
 
 # Author(s):
 
@@ -126,11 +126,11 @@ class RelativeSpectralResponse(object):
 
         no_detectors_message = False
         with h5py.File(self.filename, 'r') as h5f:
-            self.band_names = h5f.attrs['band_names'].tolist()
-            self.description = h5f.attrs['description']
+            self.band_names = [b.decode('utf-8') for b in h5f.attrs['band_names'].tolist()]
+            self.description = h5f.attrs['description'].decode('utf-8')
             if not self.platform_name:
                 try:
-                    self.platform_name = h5f.attrs['platform_name']
+                    self.platform_name = h5f.attrs['platform_name'].decode('utf-8')
                 except KeyError:
                     LOG.warning("No platform_name in HDF5 file")
                     try:
@@ -143,7 +143,7 @@ class RelativeSpectralResponse(object):
 
             if not self.instrument:
                 try:
-                    self.instrument = h5f.attrs['sensor']
+                    self.instrument = h5f.attrs['sensor'].decode('utf-8')
                 except KeyError:
                     LOG.warning("No sensor name specified in HDF5 file")
                     self.instrument = INSTRUMENTS.get(self.platform_name)

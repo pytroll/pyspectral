@@ -45,9 +45,9 @@ color imagery.
    usage
    rsr_plotting
    seviri_example
+   rad_definitions
    37_reflectance
    rayleigh_correction
-   rad_definitions
    api
 
 Indices and tables

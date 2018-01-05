@@ -1,5 +1,5 @@
-Some definitions
-----------------
+Definitions and some radiation theory
+-------------------------------------
 
 In radiation physics there is unfortunately several slightly different ways of
 presenting the theory. For instance, there is no single custom on the mathematical
@@ -33,6 +33,8 @@ Symbols and definitions used in Pyspectral
   | :math:`L_{\nu}`                 | Spectral radiance at wavenumber :math:`\nu` (:math:`W/m^2 sr^{-1} (cm^{-1})^{-1}`)     |
   +---------------------------------+----------------------------------------------------------------------------------------+
   | :math:`L_{\lambda}`             | Spectral radiance at wavelength :math:`\lambda` (:math:`W/m^2 sr^{-1} \mu m^{-1}`)     |
+  +---------------------------------+----------------------------------------------------------------------------------------+
+  | :math:`L`                       | Radiance - (band) integrated spectral radiance (:math:`W/m^2 sr^{-1}`)                 |
   +---------------------------------+----------------------------------------------------------------------------------------+
 
 
@@ -81,16 +83,16 @@ we see that this is indeed true:
   >>> from pyspectral.rsr_reader import RelativeSpectralResponse
   >>> from pyspectral.utils import convert2wavenumber, get_central_wave
   >>> seviri = RelativeSpectralResponse('Meteosat-8', 'seviri')
-  >>> print get_central_wave(seviri.rsr['VIS0.6']['det-1']['wavelength'], seviri.rsr['VIS0.6']['det-1']['response'])
+  >>> print(get_central_wave(seviri.rsr['VIS0.6']['det-1']['wavelength'], seviri.rsr['VIS0.6']['det-1']['response']))
   0.640216
   >>> rsr, info = convert2wavenumber(seviri.rsr)
-  >>> print info
-  {'si_scale': 100.0, 'unit': 'cm-1'}
+  >>> print("si_scale={scale}, unit={unit}".format(scale=info['si_scale'], unit=info['unit']))
+  si_scale=100.0, unit=cm-1
   >>> wvc = get_central_wave(rsr['VIS0.6']['det-1']['wavenumber'], rsr['VIS0.6']['det-1']['response'])
-  >>> print wvc
-  15682.6
-  >>> print 1./wvc*1e4
-  0.637648471994
+  >>> round(wvc, 3)
+  15682.622
+  >>> print(round(1./wvc*1e4, 6))
+  0.637648
 
 This was using the pyspectral unified HDF5 formated spectral response data. If
 you want to use the original spectral response data from EUMETSAT the code may
@@ -98,14 +100,13 @@ look like this:
  
   >>> from pyspectral.seviri_rsr import Seviri
   >>> seviri = Seviri()
-  >>> print seviri.central_wavelength['VIS0.6']['Meteosat-8']
-  0.640215597159
+  >>> print("Central wavelength = {cwl}".format(cwl=round(seviri.central_wavelength['VIS0.6']['Meteosat-8'], 6)))
+  Central wavelength = 0.640216
   >>> seviri = Seviri(wavespace='wavenumber')
-  >>> print seviri.central_wavenumber['VIS0.6']['Meteosat-8']
-  15682.623379
-  >>> print 1./seviri.central_wavenumber['VIS0.6']['Meteosat-8']*1e4
-  0.637648418783
-
+  >>> print("Central wavenumber = {wvn}".format(wvn=round(seviri.central_wavenumber['VIS0.6']['Meteosat-8'], 6)))
+  Central wavenumber = 15682.623379
+  >>> print(round(1./seviri.central_wavenumber['VIS0.6']['Meteosat-8']*1e4, 6))
+  0.637648
 
 
 Spectral Irradiance
@@ -145,8 +146,8 @@ First, the TOA solar irradiance in wavelength space:
 
   >>> from pyspectral.solar import (SolarIrradianceSpectrum, TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
   >>> solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, dlambda=0.0005) 
-  >>> print("%6.2f" % solar_irr.solar_constant())
-  1366.09
+  >>> print("Solar irradiance = {}".format(round(solar_irr.solar_constant(), 3)))
+  Solar irradiance = 1366.091
   >>> solar_irr.plot('/tmp/solar_irradiance.png')
 
   .. image:: _static/solar_irradiance.png
@@ -156,7 +157,7 @@ irradiance in wavenumber space using wavenumbers in units of :math:`cm^{-1}`
 the solar flux is in units of :math:`mW/m^2`:
 
   >>> solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, dlambda=0.0005, wavespace='wavenumber')
-  >>> print solar_irr.solar_constant()
+  >>> print(solar_irr.solar_constant())
   1366077.16482
   >>> solar_irr.plot('/tmp/solar_irradiance_wnum.png')
 
@@ -189,10 +190,9 @@ In python code it may look like this:
    >>> seviri = RelativeSpectralResponse('Meteosat-8', 'seviri')
    >>> rsr, info = convert2wavenumber(seviri.rsr)
    >>> from pyspectral.solar import (SolarIrradianceSpectrum, TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
-
    >>> solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, dlambda=0.0005, wavespace='wavenumber')
-   >>> print solar_irr.inband_solarflux(rsr['VIS0.8'])
-   63767.9084048
+   >>> print("Solar Irrdiance (SEVIRI band VIS008) = {sflux:12.6f}".format(sflux=solar_irr.inband_solarflux(rsr['VIS0.8'])))
+   Solar Irrdiance (SEVIRI band VIS008) = 63767.908405
 
 
 Planck radiation
@@ -265,7 +265,7 @@ In python it may look like this:
    >>> from pyspectral.blackbody import blackbody_wn_rad2temp
    >>> wavenumber = 90909.1
    >>> temp = blackbody_wn_rad2temp(wavenumber, [0.001158354, 0.001175477])
-   >>> print temp
+   >>> print(temp)
    [ 299.99998562  301.00000518]
 
 

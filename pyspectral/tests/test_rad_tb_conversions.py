@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014 Adam.Dybbroe
+# Copyright (c) 2014-2018 Adam.Dybbroe
 
 # Author(s):
 
@@ -23,14 +23,23 @@
 """Testing the radiance to brightness temperature conversion"""
 
 from pyspectral.radiance_tb_conversion import RadTbConverter
+from pyspectral.radiance_tb_conversion import SeviriRadTbConverter
+from pyspectral.utils import get_central_wave
 import unittest
 import numpy as np
+from mock import patch
 
 TEST_TBS = np.array([200., 270., 300., 302., 350.], dtype='float32')
 
 TRUE_RADS = np.array([856.937353205, 117420.385297,
                       479464.582505, 521412.9511, 2928735.18944],
                      dtype='float64')
+TRUE_RADS_SEVIRI = np.array([2.391091e-08,
+                             2.559173e-06,
+                             9.797091e-06,
+                             1.061431e-05,
+                             5.531423e-05],
+                            dtype='float64')
 
 TEST_RSR = {'20': {}}
 TEST_RSR['20']['det-1'] = {}
@@ -51,6 +60,9 @@ TEST_RSR['20']['det-1']['response'] = np.array([
     0.95687, 0.91037, 0.91058, 0.94256, 0.94719, 0.94808,
     1., 0.92676, 0.67429, 0.44715, 0.27762, 0.14852,
     0.07141, 0.04151, 0.02925, 0.02085, 0.01414, 0.01], dtype='double')
+
+TEST_RSR['20']['det-1']['central_wavelength'] = get_central_wave(TEST_RSR['20']['det-1']['wavelength'],
+                                                                 TEST_RSR['20']['det-1']['response'])
 
 
 SEV_RSR = {'IR3.9': {}}
@@ -121,76 +133,55 @@ SEV_RSR['IR3.9']['det-1']['wavenumber'] = WAVN
 SEV_RSR['IR3.9']['det-1']['response'] = RESP
 
 
-class ProductionClass(RadTbConverter):
+class RSRTestDataModis(object):
 
-    """Production class"""
+    """RSR test data for Aqua Modis"""
 
-    def get_rsr(self):
-        """Get RSR"""
+    def __init__(self):
+        """Making a testdata set of relative spectral responses"""
+
         self.rsr = TEST_RSR
-        self._wave_unit = '1e-6 m'
-        self._wave_si_scale = 1e-6
 
 
-class SeviriClass(RadTbConverter):
-
-    """Class for Seviri"""
-
-    def get_rsr(self):
-        """Get RSR"""
-        self.rsr = SEV_RSR
-        self._wave_unit = 'cm-1'
-        self._wave_si_scale = 100.
-
-
-class TestRadTbConversions(unittest.TestCase):
+class TestSeviriConversions(unittest.TestCase):
 
     """Testing the conversions between radiances and brightness temperatures"""
 
     def setUp(self):
         """Set up"""
-        self.modis = ProductionClass('EOS-Terra', 'modis', '20', method=1)
-        self.sev1 = SeviriClass('Meteosat-9', 'seviri', 'IR3.9',
-                                method=1, wavespace='wavenumber')
-        self.sev2 = ProductionClass('Meteosat-9', 'seviri', 'IR3.9',
-                                    method=2)
+
+        with patch('pyspectral.radiance_tb_conversion.RelativeSpectralResponse') as mymock:
+            instance = mymock.return_value
+            instance.rsr = SEV_RSR
+            instance.unit = 'cm-1'
+            instance.si_scale = 100.
+
+            self.sev1 = RadTbConverter('Meteosat-9', 'seviri', 'IR3.9',
+                                       wavespace='wavenumber')
+
+        self.sev2 = SeviriRadTbConverter('Meteosat-9', 'IR3.9')
 
     def test_rad2tb(self):
         """Unit testing the radiance to brightness temperature conversion"""
-        res = self.modis.tb2radiance(TEST_TBS, '20', lut=False)
-        self.assertTrue(np.allclose(TRUE_RADS, res['radiance']))
-
-        res = self.modis.tb2radiance(237., '20', lut=False)
-        self.assertAlmostEqual(16570.592171157, res['radiance'])
-
-        res = self.modis.tb2radiance(277., '20', lut=False)
-        self.assertAlmostEqual(167544.3823631, res['radiance'])
-
-        res = self.modis.tb2radiance(1.1, '20', lut=False)
-        self.assertAlmostEqual(0.0, res['radiance'])
-
-        res = self.modis.tb2radiance(11.1, '20', lut=False)
-        self.assertAlmostEqual(0.0, res['radiance'])
-
-        res = self.modis.tb2radiance(100.1, '20', lut=False)
-        self.assertAlmostEqual(5.3940515573e-06, res['radiance'])
-
-        res = self.modis.tb2radiance(200.1, '20', lut=False)
-        self.assertAlmostEqual(865.09776189, res['radiance'])
+        res = self.sev1.tb2radiance(TEST_TBS, lut=False)
+        self.assertTrue(np.allclose(TRUE_RADS_SEVIRI, res['radiance']))
 
     def test_conversion_simple(self):
-        """Test the tb2radiance_simple function to convert radiances to Tb's"""
-        retv = self.sev2.tb2radiance_simple(TEST_TBS, 'IR3.9')
+        """Test the tb2radiance function to convert radiances to Tb's 
+        using tabulated coefficients based on a non-linear approximation
+
+        """
+        retv = self.sev2.tb2radiance(TEST_TBS)
         rads = retv['radiance']
         # Units space = wavenumber (cm-1):
-        tbs = self.sev2.radiance2tb_simple(rads, 'IR3.9')
+        tbs = self.sev2.radiance2tb(rads)
         self.assertTrue(np.allclose(TEST_TBS, tbs))
 
         np.random.seed()
         tbs1 = 200.0 + np.random.random(50) * 150.0
-        retv = self.sev2.tb2radiance_simple(tbs1, 'IR3.9')
+        retv = self.sev2.tb2radiance(tbs1)
         rads = retv['radiance']
-        tbs = self.sev2.radiance2tb_simple(rads, 'IR3.9')
+        tbs = self.sev2.radiance2tb(rads)
         self.assertTrue(np.allclose(tbs1, tbs))
 
     def test_conversions_methods(self):
@@ -199,12 +190,67 @@ class TestRadTbConversions(unittest.TestCase):
         only
         """
         # Units space = wavenumber (cm-1):
-        retv2 = self.sev2.tb2radiance_simple(TEST_TBS, 'IR3.9')
-        retv1 = self.sev1.tb2radiance(TEST_TBS, 'IR3.9')
+        retv2 = self.sev2.tb2radiance(TEST_TBS)
+        retv1 = self.sev1.tb2radiance(TEST_TBS)
 
         rads1 = retv1['radiance']
         rads2 = retv2['radiance']
         self.assertTrue(np.allclose(rads1, rads2))
+
+    def tearDown(self):
+        """Clean up"""
+        pass
+
+
+class TestRadTbConversions(unittest.TestCase):
+
+    """Testing the conversions between radiances and brightness temperatures"""
+
+    def setUp(self):
+        """Set up"""
+        # mymock:
+        with patch('pyspectral.radiance_tb_conversion.RelativeSpectralResponse') as mymock:
+            instance = mymock.return_value
+            instance.rsr = TEST_RSR
+            instance.unit = '1e-6 m'
+            instance.si_scale = 1e-6
+
+            self.modis = RadTbConverter('EOS-Aqua', 'modis', '20')
+            self.modis2 = RadTbConverter('EOS-Aqua', 'modis', 3.75)
+
+    def test_rad2tb(self):
+        """Unit testing the radiance to brightness temperature conversion"""
+        res = self.modis.tb2radiance(TEST_TBS, lut=False)
+        self.assertTrue(np.allclose(TRUE_RADS, res['radiance']))
+
+        res = self.modis2.tb2radiance(TEST_TBS, lut=False)
+        self.assertTrue(np.allclose(TRUE_RADS, res['radiance']))
+
+        rad = res['radiance']
+        tbs = self.modis.radiance2tb(rad)
+        self.assertTrue(np.allclose(TEST_TBS, tbs, atol=0.25))
+
+        res = self.modis.tb2radiance(TEST_TBS, lut=False, normalized=False)
+        integral = self.modis.rsr_integral
+        self.assertTrue(np.allclose(TRUE_RADS * integral, res['radiance']))
+
+        res = self.modis.tb2radiance(237., lut=False)
+        self.assertAlmostEqual(16570.592171157, res['radiance'])
+
+        res = self.modis.tb2radiance(277., lut=False)
+        self.assertAlmostEqual(167544.3823631, res['radiance'])
+
+        res = self.modis.tb2radiance(1.1, lut=False)
+        self.assertAlmostEqual(0.0, res['radiance'])
+
+        res = self.modis.tb2radiance(11.1, lut=False)
+        self.assertAlmostEqual(0.0, res['radiance'])
+
+        res = self.modis.tb2radiance(100.1, lut=False)
+        self.assertAlmostEqual(5.3940515573e-06, res['radiance'])
+
+        res = self.modis.tb2radiance(200.1, lut=False)
+        self.assertAlmostEqual(865.09776189, res['radiance'])
 
     def tearDown(self):
         """Clean up"""
@@ -216,5 +262,6 @@ def suite():
     loader = unittest.TestLoader()
     mysuite = unittest.TestSuite()
     mysuite.addTest(loader.loadTestsFromTestCase(TestRadTbConversions))
+    mysuite.addTest(loader.loadTestsFromTestCase(TestSeviriConversions))
 
     return mysuite
