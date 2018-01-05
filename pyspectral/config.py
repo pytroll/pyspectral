@@ -25,6 +25,8 @@
 
 import logging
 import os
+from os.path import expanduser
+from appdirs import AppDirs
 import yaml
 from collections import Mapping
 import pkg_resources
@@ -34,6 +36,7 @@ LOG = logging.getLogger(__name__)
 
 BUILTIN_CONFIG_FILE = pkg_resources.resource_filename(__name__,
                                                       os.path.join('etc', 'pyspectral.yaml'))
+
 
 CONFIG_FILE = os.environ.get('PSP_CONFIG_FILE')
 
@@ -70,5 +73,10 @@ def get_config():
     config = {}
     with open(configfile, 'r') as fp_:
         config = recursive_dict_update(config, yaml.load(fp_))
+
+    app_dirs = AppDirs('pyspectral', 'pytroll')
+    user_datadir = app_dirs.user_data_dir
+    config['rsr_dir'] = expanduser(config.get('rsr_dir', user_datadir))
+    config['rayleigh_dir'] = expanduser(config.get('rayleigh_dir', user_datadir))
 
     return config

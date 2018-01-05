@@ -30,7 +30,8 @@ except IOError:
 
 requires = ['docutils>=0.3', 'numpy>=1.5.1', 'scipy>=0.14',
             'python-geotiepoints>=1.1.1',
-            'h5py>=2.5', 'requests', 'tqdm', 'six', 'pyyaml']
+            'h5py>=2.5', 'requests', 'tqdm', 'six', 'pyyaml',
+            'appdirs']
 
 test_requires = ['xlrd', 'pyyaml', 'matplotlib']
 if sys.version < '3.0':
