@@ -25,9 +25,7 @@
 
 import os
 import logging
-from os.path import expanduser
 import numpy as np
-from appdirs import AppDirs
 from pyspectral.config import get_config
 
 LOG = logging.getLogger(__name__)
@@ -121,12 +119,8 @@ HTTPS_RAYLEIGH_LUTS[
 
 
 CONF = get_config()
-
-DIRS = AppDirs('pyspectral', 'pytroll')
-USER_DATA_DIR = DIRS.user_data_dir
-LOCAL_RSR_DIR = expanduser(CONF.get('rsr_dir', USER_DATA_DIR))
-LOCAL_RAYLEIGH_DIR = expanduser(CONF.get('rayleigh_dir', USER_DATA_DIR))
-
+LOCAL_RSR_DIR = CONF.get('rsr_dir')
+LOCAL_RAYLEIGH_DIR = CONF.get('rayleigh_dir')
 
 try:
     os.makedirs(LOCAL_RSR_DIR)
