@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v0.6.0 (2018-01-05)
+-------------------
+
+- Update changelog. [Adam.Dybbroe]
+
+- Bump version: 0.5.2 → 0.6.0. [Adam.Dybbroe]
+
 v0.5.2 (2018-01-05)
 -------------------
 
