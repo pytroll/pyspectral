@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014-2017 Pytroll
+# Copyright (c) 2014-2018 Pytroll
 
 # Author(s):
 
@@ -27,8 +27,9 @@ import os
 import logging
 from os.path import expanduser
 import numpy as np
-
 from pyspectral.config import get_config
+
+LOG = logging.getLogger(__name__)
 
 BANDNAMES = {'VIS006': 'VIS0.6',
              'VIS008': 'VIS0.8',
@@ -41,7 +42,21 @@ BANDNAMES = {'VIS006': 'VIS0.6',
              'IR_108': 'IR10.8',
              'IR_120': 'IR12.0',
              'IR_134': 'IR13.4',
-             'HRV': 'HRV'
+             'HRV': 'HRV',
+             'I01': 'I1',
+             'I02': 'I2',
+             'I03': 'I3',
+             'I04': 'I4',
+             'I05': 'I5',
+             'M01': 'M1',
+             'M02': 'M2',
+             'M03': 'M3',
+             'M04': 'M4',
+             'M05': 'M5',
+             'M06': 'M6',
+             'M07': 'M7',
+             'M08': 'M8',
+             'M09': 'M9'
              }
 
 INSTRUMENTS = {'NOAA-19': 'avhrr/3',
@@ -125,12 +140,26 @@ def convert2wavenumber(rsr):
     """Take rsr data set with all channels and detectors for an instrument
     each with a set of wavelengths and normalised responses and
     convert to wavenumbers and responses
+    rsr:
+      Relative Spectral Response function (all bands)
+    Returns:
+      retv:
+        Relative Spectral Responses in wave number space
+      info:
+        Dictionary with scale (to go convert to SI units) and unit
     """
+
     retv = {}
     for chname in rsr.keys():  # Go through bands/channels
         retv[chname] = {}
         for det in rsr[chname].keys():  # Go through detectors
             retv[chname][det] = {}
+            if 'wavenumber' in rsr[chname][det].keys():
+                # Make a copy. Data are already in wave number space
+                retv[chname][det] = rsr[chname][det].copy()
+                LOG.debug("RSR data already in wavenumber space. No conversion needed.")
+                continue
+
             for sat in rsr[chname][det].keys():
                 if sat == "wavelength":
                     # micro meters to cm
@@ -149,7 +178,6 @@ def convert2wavenumber(rsr):
 
     unit = 'cm-1'
     si_scale = 100.0
-
     return retv, {'unit': unit, 'si_scale': si_scale}
 
 

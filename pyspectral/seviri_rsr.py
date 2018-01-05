@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014, 2015, 2016, 2017 Adam.Dybbroe
+# Copyright (c) 2013-2018 Adam.Dybbroe
 
 # Author(s):
 
@@ -58,6 +58,8 @@ class Seviri(object):
         if not os.path.exists(self.seviri_path):
             self.seviri_path = os.path.join(
                 DATA_PATH, options['seviri'].get('filename'))
+
+        LOG.debug("Original RSR file from EUMETSAT: {}".format(self.seviri_path))
 
         self.output_dir = options.get('rsr_dir', './')
 
@@ -163,19 +165,23 @@ class Seviri(object):
     def convert2wavenumber(self):
         """Convert from wavelengths to wavenumber"""
         for chname in self.rsr.keys():
-            for sat in self.rsr[chname].keys():
+            elems = [k for k in self.rsr[chname].keys()]
+            for sat in elems:
                 if sat == "wavelength":
-                    wnum = 1. / (1e-4 * self.rsr[chname][sat])  # microns to cm
+                    LOG.debug("Get the wavenumber from the wavelength: sat=%s chname=%s", sat, chname)
+                    wnum = 1. / (1e-4 * self.rsr[chname][sat][:])  # microns to cm
                     self.rsr[chname]['wavenumber'] = wnum[::-1]
-                    del self.rsr[chname][sat]
                 else:
                     if type(self.rsr[chname][sat]) is dict:
                         for name in self.rsr[chname][sat].keys():
-                            resp = self.rsr[chname][sat][name]
+                            resp = self.rsr[chname][sat][name][:]
                             self.rsr[chname][sat][name] = resp[::-1]
                     else:
-                        resp = self.rsr[chname][sat]
+                        resp = self.rsr[chname][sat][:]
                         self.rsr[chname][sat] = resp[::-1]
+
+        for chname in self.rsr.keys():
+            del self.rsr[chname]['wavelength']
 
         self.unit = 'cm-1'
 
