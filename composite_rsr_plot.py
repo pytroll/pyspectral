@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016-2017 Adam.Dybbroe
+# Copyright (c) 2016-2018 Adam.Dybbroe
 
 # Author(s):
 
@@ -28,7 +28,6 @@ set of satellite instruments for a give wavelength range
 import matplotlib.pyplot as plt
 from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.utils import get_bandname_from_wavelength
-#import logging
 from pyspectral.utils import logging_on, logging_off, get_logger
 import numpy as np
 
@@ -154,11 +153,17 @@ if __name__ == "__main__":
 
         something2plot = True
         if req_wvl:
-            band = get_bandname_from_wavelength(req_wvl, rsr.rsr, 0.5)
-            if not band:
+            bands = get_bandname_from_wavelength(req_wvl, rsr.rsr, 0.25, multiple_bands=True)
+            if not bands:
                 continue
-            plt = plot_band(plt, band, rsr,
-                            platform_name_in_legend=(not no_platform_name_in_legend))
+            if isinstance(bands, list):
+                for band in bands:
+                    plt = plot_band(plt, band, rsr,
+                                    platform_name_in_legend=(not no_platform_name_in_legend))
+            else:
+                plt = plot_band(plt, bands, rsr,
+                                platform_name_in_legend=(not no_platform_name_in_legend))
+
         elif band:
             plt = plot_band(plt, band, rsr,
                             platform_name_in_legend=(not no_platform_name_in_legend))
@@ -166,7 +171,14 @@ if __name__ == "__main__":
             wvlx = wvlmin
             prev_band = None
             while wvlx < wvlmax:
-                band = get_bandname_from_wavelength(wvlx, rsr.rsr, 0.05)
+                bands = get_bandname_from_wavelength(wvlx, rsr.rsr, 0.05, multiple_bands=True)
+                if isinstance(bands, list):
+                    band = bands[0]
+                    for b in bands[1:]:
+                        LOG.warning("Skipping band %s", str(b))
+                else:
+                    band = bands
+
                 wvlx = wvlx + 0.05
                 if not band:
                     continue
