@@ -1,6 +1,25 @@
 Changelog
 =========
 
+v0.6.1 (2018-01-08)
+-------------------
+
+- Update changelog. [Adam.Dybbroe]
+
+- Bump version: 0.6.0 → 0.6.1. [Adam.Dybbroe]
+
+- Make it possible to plot multiple bands matching the requested
+  wavelength. [Adam.Dybbroe]
+
+- Bugfix check for wavelength range in nir reflectance, and improve unit
+  tests. [Adam.Dybbroe]
+
+- Add static data for unit testing. [Adam.Dybbroe]
+
+- Improve unit test coverage. [Adam.Dybbroe]
+
+- Update badges: Refer to develop instead of pre-master. [Adam.Dybbroe]
+
 v0.6.0 (2018-01-05)
 -------------------
 
