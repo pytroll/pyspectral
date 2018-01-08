@@ -72,9 +72,10 @@ class Calculator(RadTbConverter):
         elif isinstance(band, Number):
             self.bandwavelength = band
             self.bandname = get_bandname_from_wavelength(band, self.rsr)
-            if self.bandwavelength > 3.95 or self.bandwavelength < 3.5:
-                raise NotImplementedError('NIR reflectance is not supported outside ' +
-                                          'the 3.5-3.95 micron interval')
+
+        if self.bandwavelength > 3.95 or self.bandwavelength < 3.5:
+            raise NotImplementedError('NIR reflectance is not supported outside ' +
+                                      'the 3.5-3.95 micron interval')
 
         options = get_config()
 

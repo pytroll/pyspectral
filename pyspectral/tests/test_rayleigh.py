@@ -150,6 +150,8 @@ class TestRayleigh(unittest.TestCase):
 
             with self.assertRaises(AttributeError):
                 this = rayleigh.Rayleigh('Himawari-8', 'ahi', atmosphere='unknown')
+
+            with self.assertRaises(AttributeError):
                 this = rayleigh.Rayleigh('Himawari-8', 'ahi', aerosol_type='unknown')
 
             this = rayleigh.Rayleigh('Himawari-8', 'ahi', atmosphere='subarctic winter')

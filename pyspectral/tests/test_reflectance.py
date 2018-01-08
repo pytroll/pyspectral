@@ -28,7 +28,8 @@ from mock import patch
 import unittest
 import numpy as np
 
-TEST_RSR = {'20': {}}
+TEST_RSR = {'20': {},
+            '99': {}}
 TEST_RSR['20']['det-1'] = {}
 TEST_RSR['20']['det-1']['central_wavelength'] = 3.780281935
 TEST_RSR['20']['det-1']['wavelength'] = np.array([
@@ -48,6 +49,22 @@ TEST_RSR['20']['det-1']['response'] = np.array([
     0.95687, 0.91037, 0.91058, 0.94256, 0.94719, 0.94808,
     1., 0.92676, 0.67429, 0.44715, 0.27762, 0.14852,
     0.07141, 0.04151, 0.02925, 0.02085, 0.01414, 0.01], dtype='double')
+
+TEST_RSR['99']['det-1'] = {}
+TEST_RSR['99']['det-1']['central_wavelength'] = 10.8
+TEST_RSR['99']['det-1']['wavelength'] = np.array([
+    10.6123999,
+    10.7563652,
+    10.8563975,
+    10.9064275,
+    10.9535347], dtype='double')
+
+TEST_RSR['99']['det-1']['response'] = np.array([
+    0.33792,
+    0.86008,
+    1.,
+    0.67429,
+    0.07141], dtype='double')
 
 TEST_RSR_WN = {'20': {}}
 TEST_RSR_WN['20']['det-1'] = {}
@@ -112,6 +129,19 @@ class TestReflectance(unittest.TestCase):
 
     def test_reflectance(self):
         """Test the derivation of the reflective part of a 3.7 micron band"""
+
+        with patch('pyspectral.radiance_tb_conversion.RelativeSpectralResponse') as mymock:
+            instance = mymock.return_value
+            instance.rsr = TEST_RSR
+            instance.unit = '1e-6 m'
+            instance.si_scale = 1e-6
+
+            with self.assertRaises(NotImplementedError):
+                dummy = Calculator('Suomi-NPP', 'viirs', 10.8)
+
+            refl37 = Calculator('Suomi-NPP', 'viirs', 3.7)
+            self.assertEqual(refl37.bandwavelength, 3.7)
+            self.assertEqual(refl37.bandname, '20')
 
         with patch('pyspectral.radiance_tb_conversion.RelativeSpectralResponse') as mymock:
             instance = mymock.return_value
