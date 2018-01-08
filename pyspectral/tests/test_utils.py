@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014, 2017 Adam.Dybbroe
+# Copyright (c) 2014, 2017, 2018 Adam.Dybbroe
 
 # Author(s):
 
@@ -134,9 +134,10 @@ class TestUtils(unittest.TestCase):
 
         x = utils.get_bandname_from_wavelength(0.4, self.rsr.rsr)
         self.assertEqual(x, 'ch1')
-        x = utils.get_bandname_from_wavelength(0.5, self.rsr.rsr)
-        self.assertEqual(x, 'ch2')
-        x = utils.get_bandname_from_wavelength(0.6, self.rsr.rsr)
+        with self.assertRaises(AttributeError):
+            x = utils.get_bandname_from_wavelength(0.5, self.rsr.rsr)
+
+        x = utils.get_bandname_from_wavelength(0.6, self.rsr.rsr, epsilon=0.05)
         self.assertEqual(x, 'ch3')
         x = utils.get_bandname_from_wavelength(0.7, self.rsr.rsr)
         self.assertEqual(x, 'ch3')

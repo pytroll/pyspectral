@@ -32,10 +32,8 @@ import logging
 LOG = logging.getLogger(__name__)
 
 from pyspectral.config import get_config
-
-WAVL = 'wavelength'
-WAVN = 'wavenumber'
-
+from pyspectral.utils import WAVE_NUMBER
+from pyspectral.utils import WAVE_LENGTH
 from pyspectral.utils import (INSTRUMENTS, download_rsr)
 
 
@@ -55,7 +53,7 @@ class RelativeSpectralResponse(object):
             if 'filename' in kwargs:
                 self.filename = kwargs['filename']
             else:
-                raise IOError(
+                raise AttributeError(
                     "platform name and sensor or filename must be specified")
         else:
             self._check_instrument()
@@ -65,7 +63,7 @@ class RelativeSpectralResponse(object):
         self.band_names = None
         self.unit = '1e-6 m'
         self.si_scale = 1e-6  # How to scale the wavelengths to become SI unit
-        self._wavespace = WAVL
+        self._wavespace = WAVE_LENGTH
 
         options = get_config()
         self.rsr_dir = options['rsr_dir']
@@ -202,21 +200,26 @@ class RelativeSpectralResponse(object):
     def convert(self):
         """Convert spectral response functions from wavelength to wavenumber"""
 
-        from pyspectral.utils import convert2wavenumber
-        if self._wavespace == WAVL:
+        from pyspectral.utils import (convert2wavenumber, get_central_wave)
+        if self._wavespace == WAVE_LENGTH:
             rsr, info = convert2wavenumber(self.rsr)
             for band in rsr.keys():
                 for det in rsr[band].keys():
-                    self.rsr[band][det]['wavenumber'] = rsr[
-                        band][det]['wavenumber']
+                    self.rsr[band][det][WAVE_NUMBER] = rsr[
+                        band][det][WAVE_NUMBER]
                     self.rsr[band][det]['response'] = rsr[
                         band][det]['response']
                     self.unit = info['unit']
                     self.si_scale = info['si_scale']
-            self._wavespace = WAVN
+            self._wavespace = WAVE_NUMBER
+            for band in rsr.keys():
+                for det in rsr[band].keys():
+                    self.rsr[band][det]['central_wavenumber'] = \
+                        get_central_wave(self.rsr[band][det][WAVE_NUMBER], self.rsr[band][det]['response'])
+                    del self.rsr[band][det][WAVE_LENGTH]
         else:
-            raise NotImplementedError("Conversion from wavenumber to " +
-                                      "wavelength not supported yet")
+            errmsg = "Conversion from {wn} to {wl} not supported yet".format(wn=WAVE_NUMBER, wl=WAVE_LENGTH)
+            raise NotImplementedError(errmsg)
 
 
 def main():

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016-2017 Pytroll
+# Copyright (c) 2016-2018 Pytroll
 
 # Author(s):
 
@@ -37,6 +37,7 @@ from scipy.interpolate import interpn
 from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.utils import (INSTRUMENTS, RAYLEIGH_LUT_DIRS,
                               AEROSOL_TYPES, ATMOSPHERES,
+                              BANDNAMES,
                               download_luts, get_central_wave,
                               get_bandname_from_wavelength)
 
@@ -70,18 +71,16 @@ class Rayleigh(object):
         self.sensor = sensor
         self.coeff_filename = None
 
-        if 'atmosphere' in kwargs:
-            atm_type = kwargs['atmosphere']
-        else:
-            atm_type = 'subarctic summer'
+        atm_type = kwargs.get('atmosphere', 'subarctic summer')
+        if atm_type not in ATMOSPHERES:
+            raise AttributeError('Atmosphere type not supported! ' +
+                                 'Need to be one of {}'.format(str(ATMOSPHERES)))
 
-        if 'aerosol_type' in kwargs:
-            if kwargs['aerosol_type'] not in AEROSOL_TYPES:
-                raise AttributeError('Aerosol type not supported! ' +
-                                     'Need to be one of {0}'.format(str(AEROSOL_TYPES)))
-            aerosol_type = kwargs['aerosol_type']
-        else:
-            aerosol_type = 'rayleigh_only'
+        aerosol_type = kwargs.get('aerosol_type', 'rayleigh_only')
+
+        if aerosol_type not in AEROSOL_TYPES:
+            raise AttributeError('Aerosol type not supported! ' +
+                                 'Need to be one of {0}'.format(str(AEROSOL_TYPES)))
 
         rayleigh_dir = RAYLEIGH_LUT_DIRS[aerosol_type]
 
@@ -99,20 +98,9 @@ class Rayleigh(object):
 
         self.sensor = sensor.replace('/', '')
 
-        # Conversion from standard band names to pyspectral band naming.
-        # Preferably take from config! FIXME!
-        self.sensor_bandnames = {'B01': 'ch1',
-                                 'B02': 'ch2',
-                                 'B03': 'ch3',
-                                 'M03': 'M3',
-                                 'M04': 'M4',
-                                 'M05': 'M5',
-                                 }
-
         ext = atm_type.replace(' ', '_')
         lutname = "rayleigh_lut_{0}.h5".format(ext)
         self.reflectance_lut_filename = os.path.join(rayleigh_dir, lutname)
-
         if not os.path.exists(self.reflectance_lut_filename):
             LOG.warning(
                 "No lut file %s on disk", self.reflectance_lut_filename)
@@ -142,7 +130,7 @@ class Rayleigh(object):
             raise
 
         if isinstance(bandname, str):
-            bandname = self.sensor_bandnames.get(bandname, bandname)
+            bandname = BANDNAMES.get(bandname, bandname)
         elif isinstance(bandname, (float, integer_types)):
             if not(0.4 < bandname < 0.8):
                 raise BandFrequencyOutOfRange(
@@ -160,14 +148,7 @@ class Rayleigh(object):
 
         """
 
-        with h5py.File(self.reflectance_lut_filename, 'r') as h5f:
-            tab = h5f['reflectance'][:]
-            wvl = h5f['wavelengths'][:]
-            azidiff = h5f['azimuth_difference'][:]
-            satellite_zenith_secant = h5f['satellite_zenith_secant'][:]
-            sun_zenith_secant = h5f['sun_zenith_secant'][:]
-
-        return tab, wvl, azidiff, satellite_zenith_secant, sun_zenith_secant
+        return get_reflectance_lut(self.reflectance_lut_filename)
 
     def get_reflectance(self, sun_zenith, sat_zenith, azidiff, bandname,
                         blueband=None):
@@ -236,6 +217,21 @@ class Rayleigh(object):
 
         return np.clip(res, 0, 100)
 
+
+def get_reflectance_lut(filename):
+    """Read the LUT with reflectances as a function of wavelength, satellite
+    zenith secant, azimuth difference angle, and sun zenith secant
+
+    """
+
+    with h5py.File(filename, 'r') as h5f:
+        tab = h5f['reflectance'][:]
+        wvl = h5f['wavelengths'][:]
+        azidiff = h5f['azimuth_difference'][:]
+        satellite_zenith_secant = h5f['satellite_zenith_secant'][:]
+        sun_zenith_secant = h5f['sun_zenith_secant'][:]
+
+    return tab, wvl, azidiff, satellite_zenith_secant, sun_zenith_secant
 
 if __name__ == "__main__":
 

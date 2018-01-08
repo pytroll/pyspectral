@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2017 Adam.Dybbroe
+# Copyright (c) 2017, 2018 Adam.Dybbroe
 
 # Author(s):
 
@@ -24,12 +24,46 @@
 """
 import sys
 from pyspectral.rsr_reader import RelativeSpectralResponse
+from pyspectral.utils import WAVE_NUMBER
+from pyspectral.utils import WAVE_LENGTH
 from mock import patch
 if sys.version_info < (2, 7):
     import unittest2 as unittest
 else:
     import unittest
 
+import numpy as np
+
+TEST_RSR = {'20': {}, }
+TEST_RSR['20']['det-1'] = {}
+TEST_RSR['20']['det-1']['central_wavelength'] = 3.75
+TEST_RSR['20']['det-1']['wavelength'] = np.array([
+    3.6123999, 3.6163599, 3.6264927, 3.6363862, 3.646468,
+    3.6564937, 3.6664478, 3.6765388, 3.6865413, 3.6964585,
+    3.7065142, 3.716509, 3.7264658, 3.7364102, 3.7463682,
+    3.7563652, 3.7664226, 3.7763396, 3.7863384, 3.7964207,
+    3.8063589, 3.8163606, 3.8264089, 3.8364836, 3.8463381,
+    3.8563975, 3.8664163, 3.8763755, 3.8864797, 3.8964978,
+    3.9064275, 3.9164873, 3.9264729, 3.9364026, 3.9465107,
+    3.9535347], dtype='float32')
+
+TEST_RSR['20']['det-1']['response'] = np.array([
+    0.01, 0.0118, 0.01987, 0.03226, 0.05028, 0.0849,
+    0.16645, 0.33792, 0.59106, 0.81815, 0.96077, 0.92855,
+    0.86008, 0.8661, 0.87697, 0.85412, 0.88922, 0.9541,
+    0.95687, 0.91037, 0.91058, 0.94256, 0.94719, 0.94808,
+    1., 0.92676, 0.67429, 0.44715, 0.27762, 0.14852,
+    0.07141, 0.04151, 0.02925, 0.02085, 0.01414, 0.01], dtype='float32')
+
+RESULT_WVN_RSR = np.array([2529.38232422,  2533.8840332,  2540.390625,  2546.81494141,
+                           2553.30859375,  2559.88378906,  2566.40722656,  2573.02270508,
+                           2579.72949219,  2586.37451172,  2593.09375,  2599.87548828,
+                           2606.55371094,  2613.41674805,  2620.29760742,  2627.18286133,
+                           2634.06005859,  2641.07421875,  2648.06713867,  2655.03930664,
+                           2662.14794922,  2669.25170898,  2676.36572266,  2683.50805664,
+                           2690.69702148,  2697.95288086,  2705.29199219,  2712.56982422,
+                           2719.94970703,  2727.43554688,  2734.8605957,  2742.37988281,
+                           2749.9831543,  2757.48510742,  2765.21142578,  2768.24291992], dtype=np.float32)
 
 TEST_CONFIG = {}
 TEST_CONFIG['rsr_dir'] = '/test/path/to/rsr/data'
@@ -48,11 +82,22 @@ class TestRsrReader(unittest.TestCase):
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
     @patch('pyspectral.rsr_reader.download_rsr')
     def test_rsr_reponse(self, download_rsr, load, isfile, exists):
-        """Test the relative_"""
+        """Test the RelativeSpectralResponse class initialisation"""
         load.return_code = None
         download_rsr.return_code = None
         isfile.return_code = True
         exists.return_code = True
+
+        with patch('pyspectral.rsr_reader.get_config', return_value=TEST_CONFIG):
+            with self.assertRaises(AttributeError):
+                test_rsr = RelativeSpectralResponse('GOES-16')
+                test_rsr = RelativeSpectralResponse(instrument='ABI')
+
+            test_rsr = RelativeSpectralResponse('GOES-16', 'AbI')
+            self.assertEqual(test_rsr.platform_name, 'GOES-16')
+            self.assertEqual(test_rsr.instrument, 'abi')
+            test_rsr = RelativeSpectralResponse('GOES-16', 'ABI')
+            self.assertEqual(test_rsr.instrument, 'abi')
 
         with patch('pyspectral.rsr_reader.get_config', return_value=TEST_CONFIG):
             test_rsr = RelativeSpectralResponse('GOES-16', 'abi')
@@ -68,6 +113,28 @@ class TestRsrReader(unittest.TestCase):
 
         self.assertEqual(
             test_rsr.filename, '/test/path/to/rsr/data/rsr_abi_GOES-16.h5')
+
+    @patch('os.path.exists')
+    @patch('os.path.isfile')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
+    @patch('pyspectral.rsr_reader.download_rsr')
+    def test_convert(self, download_rsr, load, isfile, exists):
+        """Test the conversion method"""
+        load.return_code = None
+        download_rsr.return_code = None
+        isfile.return_code = True
+        exists.return_code = True
+
+        with patch('pyspectral.rsr_reader.get_config', return_value=TEST_CONFIG):
+            test_rsr = RelativeSpectralResponse('EOS-Aqua', 'modis')
+            test_rsr.rsr = TEST_RSR
+            test_rsr.convert()
+            self.assertAlmostEqual(test_rsr.rsr['20']['det-1']['central_wavenumber'], 2647.397, 3)
+            self.assertTrue(np.allclose(test_rsr.rsr['20']['det-1'][WAVE_NUMBER], RESULT_WVN_RSR, 5))
+            self.assertEqual(test_rsr._wavespace, WAVE_NUMBER)
+
+            with self.assertRaises(NotImplementedError):
+                test_rsr.convert()
 
     def tearDown(self):
         """Clean up"""

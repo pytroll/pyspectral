@@ -30,6 +30,9 @@ from pyspectral.config import get_config
 
 LOG = logging.getLogger(__name__)
 
+WAVE_LENGTH = 'wavelength'
+WAVE_NUMBER = 'wavenumber'
+
 BANDNAMES = {'VIS006': 'VIS0.6',
              'VIS008': 'VIS0.8',
              'IR_016': 'NIR1.6',
@@ -55,7 +58,39 @@ BANDNAMES = {'VIS006': 'VIS0.6',
              'M06': 'M6',
              'M07': 'M7',
              'M08': 'M8',
-             'M09': 'M9'
+             'M09': 'M9',
+             'B01': 'ch1',
+             'B02': 'ch2',
+             'B03': 'ch3',
+             'B04': 'ch4',
+             'B05': 'ch5',
+             'B06': 'ch6',
+             'B07': 'ch7',
+             'B08': 'ch8',
+             'B09': 'ch9',
+             'B10': 'ch10',
+             'B11': 'ch11',
+             'B12': 'ch12',
+             'B13': 'ch13',
+             'B14': 'ch14',
+             'B15': 'ch15',
+             'B16': 'ch16',
+             'C01': 'ch1',
+             'C02': 'ch2',
+             'C03': 'ch3',
+             'C04': 'ch4',
+             'C05': 'ch5',
+             'C06': 'ch6',
+             'C07': 'ch7',
+             'C08': 'ch8',
+             'C09': 'ch9',
+             'C10': 'ch10',
+             'C11': 'ch11',
+             'C12': 'ch12',
+             'C13': 'ch13',
+             'C14': 'ch14',
+             'C15': 'ch15',
+             'C16': 'ch16'
              }
 
 INSTRUMENTS = {'NOAA-19': 'avhrr/3',
@@ -201,21 +236,31 @@ def get_central_wave(wav, resp, weight=1.0):
     return np.trapz(resp * wav * weight, wav) / np.trapz(resp * weight, wav)
 
 
-def get_bandname_from_wavelength(wavelength, rsr, epsilon=0.1):
+def get_bandname_from_wavelength(wavelength, rsr, epsilon=0.1, multiple_bands=False):
     """Get the bandname from h5 rsr provided the approximate wavelength."""
     # channel_list = [channel for channel in rsr.rsr if abs(
     # rsr.rsr[channel]['det-1']['central_wavelength'] - wavelength) < epsilon]
 
     chdist_min = 2.0
-    chfound = None
+    chfound = []
     for channel in rsr:
         chdist = abs(
             rsr[channel]['det-1']['central_wavelength'] - wavelength)
         if chdist < chdist_min and chdist < epsilon:
-            chdist_min = chdist
-            chfound = channel
+            #chdist_min = chdist
+            chfound.append(BANDNAMES.get(channel, channel))
 
-    return BANDNAMES.get(chfound, chfound)
+    if len(chfound) == 1:
+        return chfound[0]
+    elif len(chfound) > 1:
+        bstrlist = ['band={}'.format(b) for b in chfound]
+        if not multiple_bands:
+            raise AttributeError("More than one band found with that wavelength! {}".format(str(bstrlist)))
+        else:
+            LOG.debug("More than one band found with requested wavelength: %s", str(bstrlist))
+        return chfound
+    else:
+        return None
 
 
 def sort_data(x_vals, y_vals):

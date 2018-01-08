@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016, 2017 Adam.Dybbroe
+# Copyright (c) 2016, 2017, 2018 Adam.Dybbroe
 
 # Author(s):
 
@@ -32,12 +32,24 @@ else:
 import numpy as np
 from pyspectral import rayleigh
 from pyspectral.rayleigh import BandFrequencyOutOfRange
+from pyspectral.tests.data import (
+    TEST_RAYLEIGH_LUT,
+    TEST_RAYLEIGH_AZID_COORD,
+    TEST_RAYLEIGH_SUNZ_COORD,
+    TEST_RAYLEIGH_SATZ_COORD,
+    TEST_RAYLEIGH_WVL_COORD)
 
+
+TEST_RAYLEIGH_RESULT1 = np.array([10.40727436,   8.69775471], dtype='float32')
+TEST_RAYLEIGH_RESULT2 = np.array([9.71695252,  8.51415601], dtype='float32')
+
+
+import os
 from mock import patch
 
 # Mock some modules, so we don't need them for tests.
 
-#sys.modules['pyresample'] = MagicMock()
+# sys.modules['pyresample'] = MagicMock()
 
 
 class RelativeSpectralResponseTestData(object):
@@ -85,6 +97,15 @@ class TestRayleigh(unittest.TestCase):
 
         self.rsr = RelativeSpectralResponseTestData()
 
+        # mymock:
+        with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
+            instance = mymock.return_value
+            instance.rsr = RelativeSpectralResponseTestData().rsr
+            instance.unit = '1e-6 m'
+            instance.si_scale = 1e-6
+
+            self.viirs_rayleigh = rayleigh.Rayleigh('NOAA-20', 'viirs', atmosphere='midlatitude summer')
+
     def test_get_effective_wavelength(self):
         """Test getting the effective wavelength"""
 
@@ -98,9 +119,7 @@ class TestRayleigh(unittest.TestCase):
                 this.get_effective_wavelength(0.9)
 
             # Only ch3 (~0.63) testdata implemented yet...
-            ewl = this.get_effective_wavelength(0.7)
-            self.assertAlmostEqual(ewl, 0.6356167)
-            ewl = this.get_effective_wavelength(0.6)
+            ewl = this.get_effective_wavelength(0.65)
             self.assertAlmostEqual(ewl, 0.6356167)
 
         # mymock:
@@ -115,6 +134,61 @@ class TestRayleigh(unittest.TestCase):
             self.assertEqual(ewl, 0.9)
             ewl = this.get_effective_wavelength(0.455)
             self.assertEqual(ewl, 0.455)
+
+    @patch('os.path.exists')
+    @patch('pyspectral.utils.download_luts')
+    def test_rayleigh_init(self, download_luts, exists):
+        """Test getting the effective wavelength"""
+
+        download_luts.return_code = None
+        exists.return_code = True
+
+        # mymock:
+        with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
+            instance = mymock.return_value
+            instance.rsr = RelativeSpectralResponseTestData().rsr
+
+            with self.assertRaises(AttributeError):
+                this = rayleigh.Rayleigh('Himawari-8', 'ahi', atmosphere='unknown')
+                this = rayleigh.Rayleigh('Himawari-8', 'ahi', aerosol_type='unknown')
+
+            this = rayleigh.Rayleigh('Himawari-8', 'ahi', atmosphere='subarctic winter')
+            self.assertTrue(os.path.basename(this.reflectance_lut_filename).endswith('subarctic_winter.h5'))
+            self.assertTrue(this.sensor == 'ahi')
+
+            this = rayleigh.Rayleigh('NOAA-19', 'avhrr/3', atmosphere='tropical')
+            self.assertTrue(this.sensor == 'avhrr3')
+
+    @patch('os.path.exists')
+    @patch('pyspectral.utils.download_luts')
+    @patch('pyspectral.rayleigh.get_reflectance_lut')
+    def test_get_reflectance(self, get_reflectance_lut, download_luts, exists):
+        """Test getting the reflectance correction"""
+
+        rayl = TEST_RAYLEIGH_LUT
+        wvl_coord = TEST_RAYLEIGH_WVL_COORD
+        azid_coord = TEST_RAYLEIGH_AZID_COORD
+        sunz_sec_coord = TEST_RAYLEIGH_SUNZ_COORD
+        satz_sec_coord = TEST_RAYLEIGH_SATZ_COORD
+
+        get_reflectance_lut.return_value = (rayl, wvl_coord, azid_coord,
+                                            satz_sec_coord, sunz_sec_coord)
+        download_luts.return_code = None
+        exists.return_code = True
+
+        sun_zenith = np.array([67., 32.])
+        sat_zenith = np.array([45., 18.])
+        azidiff = np.array([150., 110.])
+        blueband = np.array([14., 5.])
+        retv = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', blueband)
+        self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT1))
+
+        sun_zenith = np.array([60., 20.])
+        sat_zenith = np.array([49., 26.])
+        azidiff = np.array([140., 130.])
+        blueband = np.array([12., 8.])
+        retv = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', blueband)
+        self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT2))
 
     def tearDown(self):
         """Clean up"""
