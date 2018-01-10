@@ -1,6 +1,15 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+- Update changelog. [Adam.Dybbroe]
+
+- Change name of optional (red) band to "redband" [Adam.Dybbroe]
+
+- Fix band naming for OLCI. [Adam.Dybbroe]
+
 v0.6.1 (2018-01-08)
 -------------------
 
