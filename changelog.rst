@@ -1,8 +1,12 @@
 Changelog
 =========
 
-Unreleased
-----------
+v0.6.2 (2018-01-10)
+-------------------
+
+- Update changelog. [Adam.Dybbroe]
+
+- Bump version: 0.6.1 → 0.6.2. [Adam.Dybbroe]
 
 - Update changelog. [Adam.Dybbroe]
 
