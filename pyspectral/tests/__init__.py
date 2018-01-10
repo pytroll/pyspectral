@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013-2017 Adam.Dybbroe
+# Copyright (c) 2013-2018 Adam.Dybbroe
 
 # Author(s):
 
@@ -45,13 +45,14 @@ else:
 import doctest
 import os
 TRAVIS = os.environ.get("TRAVIS", False)
+APPVEYOR = os.environ.get("APPVEYOR", False)
 
 
 def suite():
     """The global test suite.
     """
     mysuite = unittest.TestSuite()
-    if not TRAVIS:
+    if not TRAVIS and not APPVEYOR:
         # Test sphinx documentation pages:
         mysuite.addTests(doctest.DocFileSuite('../../doc/usage.rst'))
         mysuite.addTests(doctest.DocFileSuite('../../doc/rad_definitions.rst'))
