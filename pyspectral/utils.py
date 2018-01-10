@@ -25,6 +25,7 @@
 
 import os
 import logging
+import tempfile
 import numpy as np
 from pyspectral.config import get_config
 
@@ -188,6 +189,9 @@ RAYLEIGH_LUT_DIRS = {}
 for sub_dir_name in HTTPS_RAYLEIGH_LUTS:
     dirname = os.path.join(LOCAL_RAYLEIGH_DIR, sub_dir_name)
     RAYLEIGH_LUT_DIRS[sub_dir_name] = dirname
+
+
+TMPDIR = tempfile.gettempdir()
 
 
 def convert2wavenumber(rsr):
