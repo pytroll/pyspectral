@@ -140,7 +140,9 @@ class Rayleigh(object):
         wvl, resp = rsr.rsr[bandname][
             'det-1']['wavelength'], rsr.rsr[bandname]['det-1']['response']
 
-        return get_central_wave(wvl, resp, weight=1. / wvl**4)
+        cwvl = get_central_wave(wvl, resp, weight=1. / wvl**4)
+        LOG.debug("Band name: %s  Effective wavelength: %f", bandname, cwvl)
+        return cwvl
 
     def get_reflectance_lut(self):
         """Read the LUT with reflectances as a function of wavelength, satellite zenith
@@ -151,7 +153,7 @@ class Rayleigh(object):
         return get_reflectance_lut(self.reflectance_lut_filename)
 
     def get_reflectance(self, sun_zenith, sat_zenith, azidiff, bandname,
-                        blueband=None):
+                        redband=None):
         """Get the reflectance from the three sun-sat angles."""
         # Get wavelength in nm for band:
         wvl = self.get_effective_wavelength(bandname) * 1000.0
@@ -211,9 +213,9 @@ class Rayleigh(object):
 
         ipn *= 100
         res = ipn
-        if blueband is not None:
-            res = np.where(np.less(blueband, 20.), res,
-                           (1 - (blueband - 20) / 80) * res)
+        if redband is not None:
+            res = np.where(np.less(redband, 20.), res,
+                           (1 - (redband - 20) / 80) * res)
 
         return np.clip(res, 0, 100)
 
