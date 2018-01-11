@@ -40,32 +40,32 @@ from pyspectral.config import get_config
 from pyspectral.raw_reader import InstrumentRSR
 
 MSI_BAND_NAMES = {}
-MSI_BAND_NAMES['S2A'] = {'S2A_SR_AV_B1': 'ch1',
-                         'S2A_SR_AV_B2': 'ch2',
-                         'S2A_SR_AV_B3': 'ch3',
-                         'S2A_SR_AV_B4': 'ch4',
-                         'S2A_SR_AV_B5': 'ch5',
-                         'S2A_SR_AV_B6': 'ch6',
-                         'S2A_SR_AV_B7': 'ch7',
-                         'S2A_SR_AV_B8': 'ch8',
-                         'S2A_SR_AV_B8A': 'ch9',
-                         'S2A_SR_AV_B9': 'ch10',
-                         'S2A_SR_AV_B10': 'ch11',
-                         'S2A_SR_AV_B11': 'ch12',
-                         'S2A_SR_AV_B12': 'ch13'}
-MSI_BAND_NAMES['S2B'] = {'S2B_SR_AV_B1': 'ch1',
-                         'S2B_SR_AV_B2': 'ch2',
-                         'S2B_SR_AV_B3': 'ch3',
-                         'S2B_SR_AV_B4': 'ch4',
-                         'S2B_SR_AV_B5': 'ch5',
-                         'S2B_SR_AV_B6': 'ch6',
-                         'S2B_SR_AV_B7': 'ch7',
-                         'S2B_SR_AV_B8': 'ch8',
-                         'S2B_SR_AV_B8A': 'ch9',
-                         'S2B_SR_AV_B9': 'ch10',
-                         'S2B_SR_AV_B10': 'ch11',
-                         'S2B_SR_AV_B11': 'ch12',
-                         'S2B_SR_AV_B12': 'ch13'}
+MSI_BAND_NAMES['S2A'] = {'S2A_SR_AV_B1': 'B01',
+                         'S2A_SR_AV_B2': 'B02',
+                         'S2A_SR_AV_B3': 'B03',
+                         'S2A_SR_AV_B4': 'B04',
+                         'S2A_SR_AV_B5': 'B05',
+                         'S2A_SR_AV_B6': 'B06',
+                         'S2A_SR_AV_B7': 'B07',
+                         'S2A_SR_AV_B8': 'B08',
+                         'S2A_SR_AV_B8A': 'B8A',
+                         'S2A_SR_AV_B9': 'B09',
+                         'S2A_SR_AV_B10': 'B10',
+                         'S2A_SR_AV_B11': 'B11',
+                         'S2A_SR_AV_B12': 'B12'}
+MSI_BAND_NAMES['S2B'] = {'S2B_SR_AV_B1': 'B01',
+                         'S2B_SR_AV_B2': 'B02',
+                         'S2B_SR_AV_B3': 'B03',
+                         'S2B_SR_AV_B4': 'B04',
+                         'S2B_SR_AV_B5': 'B05',
+                         'S2B_SR_AV_B6': 'B06',
+                         'S2B_SR_AV_B7': 'B07',
+                         'S2B_SR_AV_B8': 'B08',
+                         'S2B_SR_AV_B8A': 'B8A',
+                         'S2B_SR_AV_B9': 'B09',
+                         'S2B_SR_AV_B10': 'B10',
+                         'S2B_SR_AV_B11': 'B11',
+                         'S2B_SR_AV_B12': 'B12'}
 
 SHEET_HEADERS = {'Spectral Responses (S2A)': 'S2A',
                  'Spectral Responses (S2B)': 'S2B'}
@@ -115,9 +115,18 @@ class MsiRSR(InstrumentRSR):
                         continue
 
                     resp = sheet.col_values(idx, 1)
+                    resp = np.array(resp)
+                    resp = np.where(resp == '', 0, resp).astype('float32')
+                    mask = np.less_equal(resp, 0.00001)
+                    wvl0 = np.ma.masked_array(wvl, mask=mask)
+                    wvl_mask = np.ma.masked_outside(wvl, wvl0.min() - 2, wvl0.max() + 2)
 
-                self.rsr = {'wavelength': np.array(wvl) / 1000.,
-                            'response': np.array(resp)}
+                    wvl = wvl_mask.compressed()
+                    resp = np.ma.masked_array(resp, mask=wvl_mask.mask).compressed()
+                    self.rsr = {'wavelength': wvl / 1000., 'response': resp}
+
+                    break
+
                 break
 
 
@@ -136,3 +145,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+    #this = MsiRSR('ch5', 'Sentinel-2A')

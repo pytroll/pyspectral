@@ -67,12 +67,12 @@ class Calculator(RadTbConverter):
         self.bandwavelength = None
 
         if isinstance(band, str):
-            self.bandname = BANDNAMES.get(band, band)
+            self.bandname = BANDNAMES.get(self.instrument, BANDNAMES['generic']).get(band, band)
             self.bandwavelength = self.rsr[self.bandname][
                 'det-1']['central_wavelength']
         elif isinstance(band, Number):
             self.bandwavelength = band
-            self.bandname = get_bandname_from_wavelength(band, self.rsr)
+            self.bandname = get_bandname_from_wavelength(self.instrument, band, self.rsr)
 
         if self.bandwavelength > 3.95 or self.bandwavelength < 3.5:
             raise NotImplementedError('NIR reflectance is not supported outside ' +

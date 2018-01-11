@@ -130,12 +130,12 @@ class Rayleigh(object):
             raise
 
         if isinstance(bandname, str):
-            bandname = BANDNAMES.get(bandname, bandname)
+            bandname = BANDNAMES.get(self.sensor, BANDNAMES['generic']).get(bandname, bandname)
         elif isinstance(bandname, (float, integer_types)):
             if not(0.4 < bandname < 0.8):
                 raise BandFrequencyOutOfRange(
                     'Requested band frequency should be between 0.4 and 0.8 microns!')
-            bandname = get_bandname_from_wavelength(bandname, rsr.rsr)
+            bandname = get_bandname_from_wavelength(self.sensor, bandname, rsr.rsr)
 
         wvl, resp = rsr.rsr[bandname][
             'det-1']['wavelength'], rsr.rsr[bandname]['det-1']['response']
