@@ -31,8 +31,6 @@ import numpy as np
 from pyspectral.solar import (SolarIrradianceSpectrum,
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
 from pyspectral.utils import BANDNAMES, get_bandname_from_wavelength
-from pyspectral.utils import WAVE_NUMBER
-from pyspectral.utils import WAVE_LENGTH
 from pyspectral.utils import TMPDIR
 from pyspectral.radiance_tb_conversion import RadTbConverter
 from pyspectral.config import get_config
