@@ -61,7 +61,8 @@ provide a more gentle scaling in cases of high reflectances (above 20%):
 
   >>> refl_cor_m2 = viirs.get_reflectance(sunz, satz, ssadiff, 'M2', blueband)
 
-In case you do not know the name of the band (defined in the pyspectral rsr files) you can provide the approximate band frequency in micro meters:
+In case you do not know the name of the band (defined in the PySpectral rsr
+files) you can provide the approximate band frequency in micro meters:
 
   >>> refl_cor_m2 = viirs.get_reflectance(sunz, satz, ssadiff, 0.45, blueband)
 

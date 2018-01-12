@@ -1,7 +1,7 @@
 Installation
 ------------
 
-Pyspectral reads relative spectral response functions for various satellite
+PySpectral reads relative spectral response functions for various satellite
 sensors. The original agency specific spectral response data are stored in
 various formats (e.g. ascii, excel, or netCDF) and usually not following any
 agreed international standard. These data are usually available at the
@@ -17,7 +17,7 @@ The spectral response data
 
 So all these instrument relative spectral response data are stored in different
 formats with varying levels of detailed information available. Therefore, in
-order to make life easier for the *pyspectral* user we have defined one common
+order to make life easier for the *PySpectral* user we have defined one common
 internal hdf5 format. That way it is also easy to add support for new
 instruments. Currently the relative spectral reponses for Suomi-NPP VIIRS, all
 of the NOAA/TIROS-N and Metop AVHRRs, Terra/Aqua MODIS, Meteosat 8-11 SEVIRI,
@@ -42,10 +42,12 @@ Installation of the latest stable version is always done using::
 
 Some static data are part of the package but both the Rayleigh correction
 coefficients and the spectral responses are downloaded and installed once
-pyspectral is being run the first time. On default these static data will reside in 
-*~/.local/share/pyspectral*. See further down.
+PySpectral is being run the first time. On default these static data will
+reside in the platform specific standard destination for storing user data,
+via the use of the appdirs_ package.
+On Linux this will be under *~/.local/share/pyspectral*. See further down.
 
-You can also choose to download the pyspectral source code from github_::
+You can also choose to download the PySpectral source code from github_::
 
   $> git clone git://github.com/pytroll/pyspectral.git
 
@@ -69,7 +71,7 @@ this configuration file, as e.g.::
 
   $> PSP_CONFIG_FILE=/home/a000680/pyspectral.yaml; export PSP_CONFIG_FILE
 
-So, in case you want to download the internal pyspectral formatet relative
+So, in case you want to download the internal PySpectral formatet relative
 spectral responses as well as the rayleigh-correction look-up-tables once and
 for all, and keep them somewhere else, here is what you need to do::
 
@@ -101,3 +103,4 @@ Then adjust the *pyspectral.yaml* so it looks something like this:
 .. _GCC: http://www.star.nesdis.noaa.gov/smcd/GCC/index.php
 .. _instrument response data: http://www.star.nesdis.noaa.gov/smcd/GCC/instrInfo-srf.php
 .. _github: http://github.com/pytroll/pyspectral
+.. _appdirs: https://github.com/ActiveState/appdirs
