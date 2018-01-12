@@ -132,24 +132,24 @@ class TestUtils(unittest.TestCase):
 
         """
 
-        x = utils.get_bandname_from_wavelength(0.4, self.rsr.rsr)
+        x = utils.get_bandname_from_wavelength('abi', 0.4, self.rsr.rsr)
         self.assertEqual(x, 'ch1')
         with self.assertRaises(AttributeError):
-            x = utils.get_bandname_from_wavelength(0.5, self.rsr.rsr)
+            x = utils.get_bandname_from_wavelength('abi', 0.5, self.rsr.rsr)
 
-        x = utils.get_bandname_from_wavelength(0.6, self.rsr.rsr, epsilon=0.05)
+        x = utils.get_bandname_from_wavelength('abi', 0.6, self.rsr.rsr, epsilon=0.05)
         self.assertEqual(x, 'ch3')
-        x = utils.get_bandname_from_wavelength(0.7, self.rsr.rsr)
+        x = utils.get_bandname_from_wavelength('abi', 0.7, self.rsr.rsr)
         self.assertEqual(x, 'ch3')
-        x = utils.get_bandname_from_wavelength(0.8, self.rsr.rsr)
+        x = utils.get_bandname_from_wavelength('abi', 0.8, self.rsr.rsr)
         self.assertEqual(x, 'ch4')
-        x = utils.get_bandname_from_wavelength(1.0, self.rsr.rsr)
+        x = utils.get_bandname_from_wavelength('abi', 1.0, self.rsr.rsr)
         self.assertEqual(x, None)
 
-        bandname = utils.get_bandname_from_wavelength(3.7, TEST_RSR)
+        bandname = utils.get_bandname_from_wavelength('abi', 3.7, TEST_RSR)
         self.assertEqual(bandname, '20')
 
-        bandname = utils.get_bandname_from_wavelength(3.0, TEST_RSR)
+        bandname = utils.get_bandname_from_wavelength('abi', 3.0, TEST_RSR)
         self.assertIsNone(bandname)
 
     def tearDown(self):

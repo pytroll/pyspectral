@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015-2017 Adam.Dybbroe@smhi.se
+# Copyright (c) 2015-2018 Adam.Dybbroe@smhi.se
 
 # Author(s):
 
@@ -72,7 +72,7 @@ if __name__ == "__main__":
         band = args.bandname
     else:
         wavelength = args.wavelength
-        band = get_bandname_from_wavelength(wavelength, rsr.rsr)
+        band = get_bandname_from_wavelength(sensor, wavelength, rsr.rsr)
 
     detectors = rsr.rsr[band].keys()
     for det in detectors:

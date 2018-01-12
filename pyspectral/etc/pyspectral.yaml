@@ -133,6 +133,11 @@ Sentinel-3A-olci:
   path: /path/to/original/sentinel-3a/olci/data
 
 
+Sentinel-2A-msi:
+  path: /path/to/original/sentinel-2a/msi/data/S2-SRF_COPE-GSEG-EOPG-TN-15-0007_3.0.xlsx
+Sentinel-2B-msi:
+  path: /path/to/original/sentinel-2b/msi/data/S2-SRF_COPE-GSEG-EOPG-TN-15-0007_3.0.xlsx
+
 Himawari-8-ahi:
   path: /path/to/original/ahi/data
   ch1: AHI_Sep2013_CH01.SRF

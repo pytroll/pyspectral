@@ -146,10 +146,10 @@ class RadTbConverter(object):
         self._wave_si_scale = info['si_scale']
 
         if isinstance(self.band, str):
-            self.bandname = BANDNAMES.get(self.band, self.band)
+            self.bandname = BANDNAMES.get(self.instrument, BANDNAMES['generic']).get(self.band, self.band)
         elif isinstance(self.band, Number):
             self.bandwavelength = self.band
-            self.bandname = get_bandname_from_wavelength(self.band, self.rsr)
+            self.bandname = get_bandname_from_wavelength(self.instrument, self.band, self.rsr)
 
         self.wavelength_or_wavenumber = (self.rsr[self.bandname][self.detector][self.wavespace] *
                                          self._wave_si_scale)
@@ -278,7 +278,7 @@ class SeviriRadTbConverter(RadTbConverter):
                                                    band, **kwargs)
 
         if isinstance(self.band, str):
-            self.bandname = BANDNAMES.get(self.band, self.band)
+            self.bandname = BANDNAMES.get(self.instrument, BANDNAMES['generic']).get(self.band, self.band)
         else:
             raise AttributeError('Band name provided as a string is required')
 

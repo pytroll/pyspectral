@@ -34,86 +34,89 @@ LOG = logging.getLogger(__name__)
 WAVE_LENGTH = 'wavelength'
 WAVE_NUMBER = 'wavenumber'
 
-BANDNAMES = {'VIS006': 'VIS0.6',
-             'VIS008': 'VIS0.8',
-             'IR_016': 'NIR1.6',
-             'IR_039': 'IR3.9',
-             'WV_062': 'IR6.2',
-             'WV_073': 'IR7.3',
-             'IR_087': 'IR8.7',
-             'IR_097': 'IR9.7',
-             'IR_108': 'IR10.8',
-             'IR_120': 'IR12.0',
-             'IR_134': 'IR13.4',
-             'HRV': 'HRV',
-             'I01': 'I1',
-             'I02': 'I2',
-             'I03': 'I3',
-             'I04': 'I4',
-             'I05': 'I5',
-             'M01': 'M1',
-             'M02': 'M2',
-             'M03': 'M3',
-             'M04': 'M4',
-             'M05': 'M5',
-             'M06': 'M6',
-             'M07': 'M7',
-             'M08': 'M8',
-             'M09': 'M9',
-             'B01': 'ch1',
-             'B02': 'ch2',
-             'B03': 'ch3',
-             'B04': 'ch4',
-             'B05': 'ch5',
-             'B06': 'ch6',
-             'B07': 'ch7',
-             'B08': 'ch8',
-             'B09': 'ch9',
-             'B10': 'ch10',
-             'B11': 'ch11',
-             'B12': 'ch12',
-             'B13': 'ch13',
-             'B14': 'ch14',
-             'B15': 'ch15',
-             'B16': 'ch16',
-             'C01': 'ch1',
-             'C02': 'ch2',
-             'C03': 'ch3',
-             'C04': 'ch4',
-             'C05': 'ch5',
-             'C06': 'ch6',
-             'C07': 'ch7',
-             'C08': 'ch8',
-             'C09': 'ch9',
-             'C10': 'ch10',
-             'C11': 'ch11',
-             'C12': 'ch12',
-             'C13': 'ch13',
-             'C14': 'ch14',
-             'C15': 'ch15',
-             'C16': 'ch16',
-             'Oa01': 'ch1',  # OLCI
-             'Oa02': 'ch2',
-             'Oa03': 'ch3',
-             'Oa04': 'ch4',
-             'Oa05': 'ch5',
-             'Oa06': 'ch6',
-             'Oa07': 'ch7',
-             'Oa08': 'ch8',
-             'Oa09': 'ch9',
-             'Oa10': 'ch10',
-             'Oa11': 'ch11',
-             'Oa12': 'ch12',
-             'Oa13': 'ch13',
-             'Oa14': 'ch14',
-             'Oa15': 'ch15',
-             'Oa16': 'ch16',
-             'Oa17': 'ch17',
-             'Oa18': 'ch18',
-             'Oa19': 'ch19',
-             'Oa20': 'ch20',
-             'Oa21': 'ch21'
-             }
+BANDNAMES = {}
+BANDNAMES['generic'] = {'VIS006': 'VIS0.6',
+                        'VIS008': 'VIS0.8',
+                        'IR_016': 'NIR1.6',
+                        'IR_039': 'IR3.9',
+                        'WV_062': 'IR6.2',
+                        'WV_073': 'IR7.3',
+                        'IR_087': 'IR8.7',
+                        'IR_097': 'IR9.7',
+                        'IR_108': 'IR10.8',
+                        'IR_120': 'IR12.0',
+                        'IR_134': 'IR13.4',
+                        'HRV': 'HRV',
+                        'I01': 'I1',
+                        'I02': 'I2',
+                        'I03': 'I3',
+                        'I04': 'I4',
+                        'I05': 'I5',
+                        'M01': 'M1',
+                        'M02': 'M2',
+                        'M03': 'M3',
+                        'M04': 'M4',
+                        'M05': 'M5',
+                        'M06': 'M6',
+                        'M07': 'M7',
+                        'M08': 'M8',
+                        'M09': 'M9',
+                        'C01': 'ch1',
+                        'C02': 'ch2',
+                        'C03': 'ch3',
+                        'C04': 'ch4',
+                        'C05': 'ch5',
+                        'C06': 'ch6',
+                        'C07': 'ch7',
+                        'C08': 'ch8',
+                        'C09': 'ch9',
+                        'C10': 'ch10',
+                        'C11': 'ch11',
+                        'C12': 'ch12',
+                        'C13': 'ch13',
+                        'C14': 'ch14',
+                        'C15': 'ch15',
+                        'C16': 'ch16',
+                        'Oa01': 'ch1',  # OLCI
+                        'Oa02': 'ch2',
+                        'Oa03': 'ch3',
+                        'Oa04': 'ch4',
+                        'Oa05': 'ch5',
+                        'Oa06': 'ch6',
+                        'Oa07': 'ch7',
+                        'Oa08': 'ch8',
+                        'Oa09': 'ch9',
+                        'Oa10': 'ch10',
+                        'Oa11': 'ch11',
+                        'Oa12': 'ch12',
+                        'Oa13': 'ch13',
+                        'Oa14': 'ch14',
+                        'Oa15': 'ch15',
+                        'Oa16': 'ch16',
+                        'Oa17': 'ch17',
+                        'Oa18': 'ch18',
+                        'Oa19': 'ch19',
+                        'Oa20': 'ch20',
+                        'Oa21': 'ch21'
+                        }
+
+BANDNAMES['ahi'] = {'B01': 'ch1',
+                    'B02': 'ch2',
+                    'B03': 'ch3',
+                    'B04': 'ch4',
+                    'B05': 'ch5',
+                    'B06': 'ch6',
+                    'B07': 'ch7',
+                    'B08': 'ch8',
+                    'B09': 'ch9',
+                    'B10': 'ch10',
+                    'B11': 'ch11',
+                    'B12': 'ch12',
+                    'B13': 'ch13',
+                    'B14': 'ch14',
+                    'B15': 'ch15',
+                    'B16': 'ch16'
+                    }
 
 INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'NOAA-18': 'avhrr/3',
@@ -137,7 +140,7 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                }
 
 
-HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/1040312/files/pyspectral_rsr_data.tgz"
+HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/1146748/files/pyspectral_rsr_data.tgz"
 
 AEROSOL_TYPES = ['antarctic_aerosol', 'continental_average_aerosol',
                  'continental_clean_aerosol', 'continental_polluted_aerosol',
@@ -261,7 +264,7 @@ def get_central_wave(wav, resp, weight=1.0):
     return np.trapz(resp * wav * weight, wav) / np.trapz(resp * weight, wav)
 
 
-def get_bandname_from_wavelength(wavelength, rsr, epsilon=0.1, multiple_bands=False):
+def get_bandname_from_wavelength(sensor, wavelength, rsr, epsilon=0.1, multiple_bands=False):
     """Get the bandname from h5 rsr provided the approximate wavelength."""
     # channel_list = [channel for channel in rsr.rsr if abs(
     # rsr.rsr[channel]['det-1']['central_wavelength'] - wavelength) < epsilon]
@@ -272,8 +275,7 @@ def get_bandname_from_wavelength(wavelength, rsr, epsilon=0.1, multiple_bands=Fa
         chdist = abs(
             rsr[channel]['det-1']['central_wavelength'] - wavelength)
         if chdist < chdist_min and chdist < epsilon:
-            #chdist_min = chdist
-            chfound.append(BANDNAMES.get(channel, channel))
+            chfound.append(BANDNAMES.get(sensor, BANDNAMES['generic']).get(channel, channel))
 
     if len(chfound) == 1:
         return chfound[0]
