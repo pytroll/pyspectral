@@ -4,11 +4,11 @@ Definitions and some radiation theory
 In radiation physics there is unfortunately several slightly different ways of
 presenting the theory. For instance, there is no single custom on the mathematical
 symbolism, and various different non SI-units are used in different situations. Here
-we present just a few terms and definitions with relevance to Pyspectral, and
+we present just a few terms and definitions with relevance to PySpectral, and
 how to possible go from one common representation to another.
 
 
-Symbols and definitions used in Pyspectral
+Symbols and definitions used in PySpectral
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
   +---------------------------------+----------------------------------------------------------------------------------------+
@@ -94,7 +94,7 @@ we see that this is indeed true:
   >>> print(round(1./wvc*1e4, 6))
   0.637648
 
-This was using the pyspectral unified HDF5 formated spectral response data. If
+This was using the PySpectral unified HDF5 formated spectral response data. If
 you want to use the original spectral response data from EUMETSAT the code may
 look like this:
  
@@ -113,7 +113,7 @@ Spectral Irradiance
 ^^^^^^^^^^^^^^^^^^^
 
 We denote the spectral irradiance :math:`E` which is a function of wavelength
-or wavenumber, depending on what representation is used. In Pyspectral the aim
+or wavenumber, depending on what representation is used. In PySpectral the aim
 is to support both representations. The units are of course dependent of which
 representation is used. 
 
