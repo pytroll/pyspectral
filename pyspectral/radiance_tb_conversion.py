@@ -32,15 +32,14 @@ from pyspectral.utils import get_bandname_from_wavelength
 from pyspectral.blackbody import (H_PLANCK, K_BOLTZMANN, C_SPEED)
 from pyspectral.utils import convert2wavenumber
 from pyspectral.rsr_reader import RelativeSpectralResponse
+from pyspectral.utils import WAVE_NUMBER
+from pyspectral.utils import WAVE_LENGTH
 
 from numbers import Number
 from scipy import integrate
 
 import logging
 LOG = logging.getLogger(__name__)
-
-WAVE_LENGTH = 'wavelength'
-WAVE_NUMBER = 'wavenumber'
 
 BLACKBODY_FUNC = {WAVE_LENGTH: blackbody,
                   WAVE_NUMBER: blackbody_wn}

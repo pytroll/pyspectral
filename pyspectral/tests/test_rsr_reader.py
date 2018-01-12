@@ -65,8 +65,11 @@ RESULT_WVN_RSR = np.array([2529.38232422,  2533.8840332,  2540.390625,  2546.814
                            2719.94970703,  2727.43554688,  2734.8605957,  2742.37988281,
                            2749.9831543,  2757.48510742,  2765.21142578,  2768.24291992], dtype=np.float32)
 
+DIR_PATH_ITEMS = ['test', 'path', 'to', 'rsr', 'data']
 TEST_CONFIG = {}
-TEST_CONFIG['rsr_dir'] = '/test/path/to/rsr/data'
+import os.path
+TEST_RSR_DIR = os.path.join(*DIR_PATH_ITEMS)
+TEST_CONFIG['rsr_dir'] = TEST_RSR_DIR
 
 
 class TestRsrReader(unittest.TestCase):
@@ -105,14 +108,14 @@ class TestRsrReader(unittest.TestCase):
         self.assertEqual(test_rsr.platform_name, 'GOES-16')
         self.assertEqual(test_rsr.instrument, 'abi')
         self.assertEqual(
-            test_rsr.filename, '/test/path/to/rsr/data/rsr_abi_GOES-16.h5')
+            test_rsr.filename, os.path.join(TEST_RSR_DIR, 'rsr_abi_GOES-16.h5'))
 
         with patch('pyspectral.rsr_reader.get_config', return_value=TEST_CONFIG):
             test_rsr = RelativeSpectralResponse(
-                filename='/test/path/to/rsr/data/rsr_abi_GOES-16.h5')
+                filename=os.path.join(TEST_RSR_DIR, 'rsr_abi_GOES-16.h5'))
 
         self.assertEqual(
-            test_rsr.filename, '/test/path/to/rsr/data/rsr_abi_GOES-16.h5')
+            test_rsr.filename, os.path.join(TEST_RSR_DIR, 'rsr_abi_GOES-16.h5'))
 
     @patch('os.path.exists')
     @patch('os.path.isfile')
