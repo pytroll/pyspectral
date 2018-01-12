@@ -27,12 +27,10 @@ import os
 from xlrd import open_workbook
 import numpy as np
 from pyspectral.utils import convert2hdf5 as tohdf5
-
+from pyspectral.raw_reader import InstrumentRSR
 import logging
 LOG = logging.getLogger(__name__)
 
-from pyspectral.config import get_config
-from pyspectral.raw_reader import InstrumentRSR
 
 OLI_BAND_NAMES = {'CoastalAerosol': 'B1',
                   'Blue': 'B2',
