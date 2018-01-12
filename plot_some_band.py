@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2017 Adam.Dybbroe
+# Copyright (c) 2017, 2018 Adam.Dybbroe
 
 # Author(s):
 
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     for platform, sensor in zip(platforms, sensors):
         rsr = RelativeSpectralResponse(platform, sensor)
 
-        band = get_bandname_from_wavelength(wavelength, rsr.rsr)
+        band = get_bandname_from_wavelength(sensor, wavelength, rsr.rsr)
         if not band:
             continue
 

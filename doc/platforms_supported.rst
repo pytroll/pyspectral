@@ -2,7 +2,7 @@ Satellite sensors supported
 ===========================
 
 Below we list the satellite sensors for which the relative spectral responses
-have been included in Pyspectral. 
+have been included in PySpectral. 
 
 .. list-table:: Satellite sensors supported
     :header-rows: 1
@@ -55,12 +55,21 @@ have been included in Pyspectral.
     * - Sentinel-3A olci
       - `rsr_olci_Sentinel-3A.h5`
       - ESA-Sentinel-OLCI_
+    * - Sentinel-2A msi
+      - `rsr_msi_Sentinel-2A.h5`
+      - ESA-Sentinel-MSI_
+    * - Sentinel-2B msi
+      - `rsr_msi_Sentinel-2B.h5`
+      - ESA-Sentinel-MSI_
     * - NOAA-20 viirs
       - `rsr_viirs_NOAA-20.h5`
       - NESDIS_
     * - Suomi-NPP viirs
       - `rsr_viirs_Suomi-NPP.h5`
       - GSICS_
+    * - Landsat-8 oli
+      - `rsr_oli_Landsat-8.h5`
+      - NASA-Landsat-OLI_
 
 
 .. _Eumetsat: https://www.eumetsat.int/website/home/Data/Products/Calibration/MSGCalibration/index.html
@@ -70,4 +79,6 @@ have been included in Pyspectral.
 .. _ESA-Envisat: http://envisat.esa.int/handbooks/aatsr/aux-files/consolidatedsrfs.xls
 .. _ESA-Sentinel-OLCI: https://sentinel.esa.int/documents/247904/322304/OLCI+SRF+%28NetCDF%29/15cfd7a6-b7bc-4051-87f8-c35d765ae43a
 .. _ESA-Sentinel-SLSTR: https://sentinel.esa.int/documents/247904/322305/SLSTR_FM02_Spectral_Responses_Necdf_zip/3a4482b8-6e44-47f3-a8f2-79c000663976
+.. _ESA-Sentinel-MSI: https://earth.esa.int/documents/247904/685211/S2-SRF_COPE-GSEG-EOPG-TN-15-0007_3.0.xlsx
+.. _NASA-Landsat-OLI: https://landsat.gsfc.nasa.gov/wp-content/uploads/2013/06/Ball_BA_RSR.v1.1-1.xlsx
 .. _NESDIS: https://ncc.nesdis.noaa.gov/J1VIIRS/J1VIIRSSpectralResponseFunctions.php

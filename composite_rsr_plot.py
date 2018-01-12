@@ -137,6 +137,7 @@ if __name__ == "__main__":
 
     plt.figure(figsize=figsize)
     something2plot = False
+
     for platform in platform_names:
         for sensor in sensors:
             try:
@@ -152,13 +153,15 @@ if __name__ == "__main__":
             continue
 
         something2plot = True
+        LOG.debug("Platform name %s and Sensor: %s", str(rsr.platform_name), str(rsr.instrument))
+
         if req_wvl:
-            bands = get_bandname_from_wavelength(req_wvl, rsr.rsr, 0.25, multiple_bands=True)
+            bands = get_bandname_from_wavelength(sensor, req_wvl, rsr.rsr, 0.25, multiple_bands=True)
             if not bands:
                 continue
             if isinstance(bands, list):
-                for band in bands:
-                    plt = plot_band(plt, band, rsr,
+                for b__ in bands:
+                    plt = plot_band(plt, b__, rsr,
                                     platform_name_in_legend=(not no_platform_name_in_legend))
             else:
                 plt = plot_band(plt, bands, rsr,
@@ -167,25 +170,27 @@ if __name__ == "__main__":
         elif band:
             plt = plot_band(plt, band, rsr,
                             platform_name_in_legend=(not no_platform_name_in_legend))
+
         else:
             wvlx = wvlmin
             prev_band = None
             while wvlx < wvlmax:
-                bands = get_bandname_from_wavelength(wvlx, rsr.rsr, 0.05, multiple_bands=True)
+                bands = get_bandname_from_wavelength(sensor, wvlx, rsr.rsr, 0.05, multiple_bands=True)
+
                 if isinstance(bands, list):
-                    band = bands[0]
+                    b__ = bands[0]
                     for b in bands[1:]:
                         LOG.warning("Skipping band %s", str(b))
                 else:
-                    band = bands
+                    b__ = bands
 
                 wvlx = wvlx + 0.05
-                if not band:
+                if not b__:
                     continue
-                if band != prev_band:
-                    plt = plot_band(plt, band, rsr,
+                if b__ != prev_band:
+                    plt = plot_band(plt, b__, rsr,
                                     platform_name_in_legend=(not no_platform_name_in_legend))
-                    prev_band = band
+                    prev_band = b__
 
     if not something2plot:
         LOG.error("Nothing to plot!")
