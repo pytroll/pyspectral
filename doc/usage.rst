@@ -16,14 +16,14 @@ download the spectral responses for all satellites supported from Zenodo.
 Now, you can work with the data as you wish, make some simple plot for instance:
 
   >>> [str(b) for b in olci.band_names]
-  ['ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'ch7', 'ch8', 'ch9', 'ch10', 'ch11', 'ch12', 'ch13', 'ch14', 'ch15', 'ch16', 'ch17', 'ch18', 'ch19', 'ch20']
-  >>> print("Central wavelength = {wvl:7.6f}".format(wvl=olci.rsr['ch1']['det-1']['central_wavelength']))
+  ['Oa01', 'Oa02', 'Oa03', 'Oa04', 'Oa05', 'Oa06', 'Oa07', 'Oa08', 'Oa09', 'Oa10', 'Oa11', 'Oa12', 'Oa13', 'Oa14', 'Oa15', 'Oa16', 'Oa17', 'Oa18', 'Oa19', 'Oa20', 'Oa21']
+  >>> print("Central wavelength = {wvl:7.6f}".format(wvl=olci.rsr['Oa01']['det-1']['central_wavelength']))
   Central wavelength = 0.400123
   >>> import matplotlib.pyplot as plt
   >>> dummy = plt.figure(figsize=(10, 5))
   >>> import numpy as np
-  >>> resp = np.ma.masked_less_equal(olci.rsr['ch1']['det-1']['response'], 0.015)
-  >>> wvl = np.ma.masked_array(olci.rsr['ch1']['det-1']['wavelength'], resp.mask)
+  >>> resp = np.ma.masked_less_equal(olci.rsr['Oa01']['det-1']['response'], 0.015)
+  >>> wvl = np.ma.masked_array(olci.rsr['Oa01']['det-1']['wavelength'], resp.mask)
   >>> dummy = plt.plot(wvl.compressed(), resp.compressed())
   >>> plt.show() # doctest: +SKIP
 
