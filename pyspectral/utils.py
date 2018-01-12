@@ -275,7 +275,6 @@ def get_bandname_from_wavelength(sensor, wavelength, rsr, epsilon=0.1, multiple_
         chdist = abs(
             rsr[channel]['det-1']['central_wavelength'] - wavelength)
         if chdist < chdist_min and chdist < epsilon:
-            #chdist_min = chdist
             chfound.append(BANDNAMES.get(sensor, BANDNAMES['generic']).get(channel, channel))
 
     if len(chfound) == 1:

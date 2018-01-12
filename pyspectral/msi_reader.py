@@ -27,17 +27,14 @@ https://earth.esa.int/documents/247904/685211/S2-SRF_COPE-GSEG-EOPG-TN-15-0007_3
 
 """
 
-
 import os
 from xlrd import open_workbook
 import numpy as np
 from pyspectral.utils import convert2hdf5 as tohdf5
-
+from pyspectral.raw_reader import InstrumentRSR
 import logging
 LOG = logging.getLogger(__name__)
 
-from pyspectral.config import get_config
-from pyspectral.raw_reader import InstrumentRSR
 
 MSI_BAND_NAMES = {}
 MSI_BAND_NAMES['S2A'] = {'S2A_SR_AV_B1': 'B01',
@@ -145,5 +142,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-    #this = MsiRSR('ch5', 'Sentinel-2A')
