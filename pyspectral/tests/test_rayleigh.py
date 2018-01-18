@@ -42,7 +42,7 @@ from pyspectral.tests.data import (
 
 TEST_RAYLEIGH_RESULT1 = np.array([10.40727436,   8.69775471], dtype='float32')
 TEST_RAYLEIGH_RESULT2 = np.array([9.71695252,  8.51415601], dtype='float32')
-TEST_RAYLEIGH_RESULT3 = np.array([10.03301932,   8.75922375], dtype='float32')
+TEST_RAYLEIGH_RESULT3 = np.array([5.61532271,  8.69267476], dtype='float32')
 
 
 import os
@@ -216,10 +216,10 @@ class TestRayleigh(unittest.TestCase):
             instance.rsr = None
             instance.unit = '1e-6 m'
             instance.si_scale = 1e-6
-            sun_zenith = np.array([60., 20.])
-            sat_zenith = np.array([49., 26.])
-            azidiff = np.array([140., 130.])
-            blueband = np.array([12., 8.])
+            sun_zenith = np.array([50., 10.])
+            sat_zenith = np.array([39., 16.])
+            azidiff = np.array([170., 110.])
+            blueband = np.array([29., 12.])
             ufo = rayleigh.Rayleigh('UFO', 'unknown')
 
             retv = ufo.get_reflectance(sun_zenith, sat_zenith, azidiff, 0.441, blueband)
