@@ -21,8 +21,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Rayleigh correction of shortwave imager bands in the wavelength range 400 to
-800 nm
+"""Atmospheric correction of shortwave imager bands in the wavelength range 400
+to 800 nm
 
 """
 
@@ -61,8 +61,9 @@ class BandFrequencyOutOfRange(Exception):
 
 class Rayleigh(object):
 
-    """Container for the Rayleigh scattering correction of satellite imager short
-    wave bands
+    """Container for the atmospheric correction of satellite imager short
+    wave bands. Removing background contributions of Rayleigh scattering of
+    molecules and Mie scattering and absorption by aerosols.
 
     """
 
@@ -71,12 +72,12 @@ class Rayleigh(object):
         self.sensor = sensor
         self.coeff_filename = None
 
-        atm_type = kwargs.get('atmosphere', 'subarctic summer')
+        atm_type = kwargs.get('atmosphere', 'us-standard')
         if atm_type not in ATMOSPHERES:
             raise AttributeError('Atmosphere type not supported! ' +
                                  'Need to be one of {}'.format(str(ATMOSPHERES)))
 
-        aerosol_type = kwargs.get('aerosol_type', 'rayleigh_only')
+        aerosol_type = kwargs.get('aerosol_type', 'marine_clean_aerosol')
 
         if aerosol_type not in AEROSOL_TYPES:
             raise AttributeError('Aerosol type not supported! ' +
