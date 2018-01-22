@@ -1,6 +1,93 @@
 Changelog
 =========
 
+v0.6.3 (2018-01-22)
+-------------------
+
+- Update changelog. [Adam.Dybbroe]
+
+- Bump version: 0.6.2 → 0.6.3. [Adam.Dybbroe]
+
+- Merge pull request #27 from pytroll/feature-atmcorr-without-rsr. [Adam
+  Dybbroe]
+
+  Feature atmcorr without rsr
+
+- Use us-standard atm and marine-clean aerosol distribution as the
+  default. [Adam.Dybbroe]
+
+- Fix atm correction example - update to use red band instead of blue
+  band for reducing correction over strong reflectors. [Adam.Dybbroe]
+
+- Improve documentation on atm correction. [Adam.Dybbroe]
+
+- Vary the unit test cases a bit more - add greater spread in the indata
+  between tests. [Adam.Dybbroe]
+
+- Add unittest to verify that rayleigh correction can be done without
+  RSR data. [Adam.Dybbroe]
+
+- Merge pull request #25 from pytroll/landsat8. [Adam Dybbroe]
+
+  Landsat-8
+
+- Merge branch 'develop' into landsat8. [Adam.Dybbroe]
+
+- Merge pull request #24 from pytroll/bugfix-olci. [Adam Dybbroe]
+
+  Bugfix OLCI S3A. Add channel 21, rename bands and fix doc pages
+
+- Bugfix OLCI S3A. Add channel 21, rename bands and fix doc pages.
+  [Adam.Dybbroe]
+
+- Fix flak8 issues. [Adam.Dybbroe]
+
+- Merge branch 'develop' into landsat8. [Adam.Dybbroe]
+
+- Merge pull request #23 from pytroll/sentinel2. [Adam Dybbroe]
+
+  Sentinel-2
+
+- Update zenodo link to new RSR archive, and update list of supported
+  platforms. [Adam.Dybbroe]
+
+- Fix flake8 complaints. [Adam.Dybbroe]
+
+- Merge branch 'develop' into sentinel2. [Adam.Dybbroe]
+
+- Add support for Sentinel 2 MSI RSR data. Further,
+  get_bandname_from_wavelength now needs the sensor name as input.
+  [Adam.Dybbroe]
+
+- Add Sentinel-2 RSR. [Adam.Dybbroe]
+
+- Add support for Landsat-8 OLI. [Adam.Dybbroe]
+
+- Use the name PySpectral throughout. Improve documentation.
+  [Adam.Dybbroe]
+
+- Merge pull request #22 from pytroll/appveyor. [Adam Dybbroe]
+
+  Appveyor
+
+- Fixed unused imports and reuse parameters from utils.py.
+  [Adam.Dybbroe]
+
+- Comment out Appveyor tests for Py3.4. [Adam.Dybbroe]
+
+- Fix OS independent file paths for unittests. [Adam.Dybbroe]
+
+- Don't run doc tests in Appveyor. [Adam.Dybbroe]
+
+- Get the system dependent tmp dir via tempfile module. [Adam.Dybbroe]
+
+- Add Appveyor badge. [Adam.Dybbroe]
+
+- Install python-geotiepoints from PyPI instead of with conda.
+  [Adam.Dybbroe]
+
+- Add for Appveyor. [Adam.Dybbroe]
+
 v0.6.2 (2018-01-10)
 -------------------
 
