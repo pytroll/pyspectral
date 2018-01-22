@@ -41,7 +41,7 @@ A simple use case:
   Solar flux over Band: 2.002928
 
 And, here is how to derive the solar reflectance (removing the thermal part) of
-the Aqua MODIS 3.7 micron band::
+the Aqua MODIS 3.7 micron band:
 
   >>> from pyspectral.near_infrared_reflectance import Calculator
   >>> import numpy as np
@@ -53,8 +53,9 @@ the Aqua MODIS 3.7 micron band::
   Reflectance = 0.251249
 
 
-And, here is how to derive the rayleigh (with additional optional aerosol
-absorption) contribution in a short wave band:
+And, here is how to derive the atmospheric (Rayleigh scattering by atmospheric
+molecules and atoms as well as Mie scattering and absorption of aerosols)
+contribution in a short wave band:
 
   >>> from pyspectral import rayleigh
   >>> rcor = rayleigh.Rayleigh('GOES-16', 'abi')
@@ -62,9 +63,10 @@ absorption) contribution in a short wave band:
   >>> sunz = np.array([[50., 60.], [51., 61.]])
   >>> satz = np.array([[40., 50.], [41., 51.]])
   >>> azidiff = np.array([[160, 160], [160, 160]])
-  >>> blueband =  np.array([[0.1, 0.15], [0.11, 0.16]])
-  >>> print(rcor.get_reflectance(sunz, satz, azidiff, 'ch2', blueband))
-  [[ 2.01927932  3.20415785]
-   [ 2.08904394  3.41731944]]
+  >>> redband =  np.array([[0.1, 0.15], [0.11, 0.16]])
+  >>> print(rcor.get_reflectance(sunz, satz, azidiff, 'ch2', redband))
+  [[ 3.25463676  6.48864479]
+   [ 3.4343512   7.12155557]]
+
 
 
