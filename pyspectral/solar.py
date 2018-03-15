@@ -263,7 +263,6 @@ class SolarIrradianceSpectrum(object):
         fig, axl = plt.subplots(figsize=(8, 4))
         plot_title = "Solar Irradiance Spectrum"
         axl.set_title(plot_title)
-        # axl = fig.add_subplot(111)
 
         axl.plot(xwl, yir, '-', color=color)
 
