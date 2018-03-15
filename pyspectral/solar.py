@@ -89,7 +89,7 @@ class SolarIrradianceSpectrum(object):
 
     def convert2wavenumber(self):
         """
-        Convert from wavelengths to wavenumber. 
+        Convert from wavelengths to wavenumber.
 
         Units:
           Wavelength: micro meters (1e-6 m)
@@ -255,25 +255,24 @@ class SolarIrradianceSpectrum(object):
         else:
             raise TypeError('Neither wavelengths nor wavenumbers available!')
 
-        import pylab
+        from matplotlib import pyplot as plt
         from matplotlib import rcParams
         rcParams['text.usetex'] = True
         rcParams['text.latex.unicode'] = True
 
-        fig = pylab.figure(figsize=(8, 4))
+        fig, axl = plt.subplots(figsize=(8, 4))
         plot_title = "Solar Irradiance Spectrum"
-        pylab.title(plot_title)
-        axl = fig.add_subplot(111)
+        axl.set_title(plot_title)
 
         axl.plot(xwl, yir, '-', color=color)
 
-        pylab.xlabel(xlabel)
-        pylab.ylabel(ylabel)
-        pylab.xlim(xlim)
-        pylab.ylim([0, yir.max()])
+        axl.set_xlabel(xlabel)
+        axl.set_ylabel(ylabel)
+        axl.set_xlim(xlim)
+        axl.set_ylim([0, yir.max()])
         axl.grid(True)
 
         if plotname is None:
-            pylab.show()
+            plt.show()
         else:
             fig.savefig(plotname)
