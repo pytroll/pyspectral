@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014, 2015, 2016 Adam.Dybbroe
+# Copyright (c) 2013, 2014, 2015, 2016, 2018 Adam.Dybbroe
 
 # Author(s):
 
@@ -50,37 +50,43 @@ TEST_RSR['det-1']['response'] = np.array([
     0.07141, 0.04151, 0.02925, 0.02085, 0.01414, 0.01], dtype='double')
 
 
+RESULT_IPOL_WVLS = np.array([0.2, 0.201, 0.202, 0.203, 0.204, 0.205, 0.206, 0.207, 0.208,
+                             0.209, 0.21, 0.211, 0.212, 0.213, 0.214, 0.215, 0.216, 0.217,
+                             0.218, 0.219, 0.22, 0.221, 0.222, 0.223, 0.224, 0.225, 0.226,
+                             0.227, 0.228, 0.229, 0.23, 0.231, 0.232, 0.233, 0.234, 0.235,
+                             0.236, 0.237, 0.238, 0.239, 0.24], dtype='double')
+
+
 class TestSolarflux(unittest.TestCase):
 
     """Unit testing the solar flux calculations"""
 
     def setUp(self):
         """Set up"""
-        self.solar_irr = None
+        self.solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM,
+                                                 dlambda=0.005)
         self.rsr = TEST_RSR
         return
 
     def test_read(self):
         """Test that solar irradiance spctrum"""
-        self.solar_irr = \
-            SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM,
-                                    dlambda=0.005)
         self.assertTrue(os.path.exists(self.solar_irr.filename))
-
         self.assertEqual(self.solar_irr.wavelength.shape[0], 1697)
         self.assertEqual(self.solar_irr.irradiance.shape[0], 1697)
 
     def test_solar_flux(self):
         """Calculate the solar-flux"""
-        self.solar_irr = \
-            SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM,
-                                    dlambda=0.005)
 
         # rsr function (se above) is given in micronsm therefore the scale
         # factor is 1.0 and not 1e+6 (default)!
         sflux = self.solar_irr.inband_solarflux(self.rsr, scale=1.0)
-        self.assertAlmostEqual(sflux, 2.0029277645144234)
-        #self.assertAlmostEqual(sflux, 2.5)
+        self.assertAlmostEqual(sflux, 2.002927627)
+        # self.assertAlmostEqual(sflux, 2.5)
+
+    def test_interpolate(self):
+        """Test the interpolate method"""
+        self.solar_irr.interpolate(dlambda=0.001, ival_wavelength=(0.200, 0.240))
+        self.assertTrue(np.allclose(RESULT_IPOL_WVLS, self.solar_irr.ipol_wavelength))
 
     def tearDown(self):
         """Clean up"""

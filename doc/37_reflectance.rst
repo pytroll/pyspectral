@@ -127,9 +127,8 @@ where :math:`S(\lambda)` is the spectral solar irradiance.
   >>> viirs = RelativeSpectralResponse('Suomi-NPP', 'viirs')
   >>> solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, dlambda=0.005)
   >>> sflux = solar_irr.inband_solarflux(viirs.rsr['M12'])
-  >>> sflux
-  2.242817881698326
-
+  >>> print(round(sflux, 7))
+  2.2428119
 
 Derive the reflective part of the observed 3.7 micron radiance
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
