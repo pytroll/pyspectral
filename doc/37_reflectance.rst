@@ -45,9 +45,8 @@ expressed in :math:`W/m^2 sr^{-1} \mu m^{-1}`, or using SI units :math:`W/m^2 sr
   >>> tb37 = np.array([298.07385254, 297.15478516, 294.43276978, 281.67633057, 273.7923584])
   >>> viirs = RadTbConverter('Suomi-NPP', 'viirs', 'M12')
   >>> rad37 = viirs.tb2radiance(tb37)
-  >>> rad37['radiance'].data 
-  array([ 369717.47657257,  355110.5207853 ,  314684.27887262,
-          173143.54248984,  116408.00078766])
+  >>> print([np.round(rad, 7) for rad in rad37['radiance'].data])
+  [369717.4765726, 355110.5207853, 314684.2788726, 173143.5424898, 116408.0007877]
   >>> rad37['unit']
   'W/m^2 sr^-1 m^-1'
 
@@ -59,8 +58,8 @@ In order to get the total radiance over the band one has to multiply with the eq
   >>> tb37 = np.array([298.07385254, 297.15478516, 294.43276978, 281.67633057, 273.7923584])
   >>> viirs = RadTbConverter('Suomi-NPP', 'viirs', 'M12')
   >>> rad37 = viirs.tb2radiance(tb37, normalized=False)
-  >>> rad37['radiance'].data
-  array([ 0.07037968,  0.06759909,  0.05990352,  0.03295972,  0.02215951])
+  >>> print([np.round(rad, 8) for rad in rad37['radiance'].data])
+  [0.07037968, 0.06759909, 0.05990352, 0.03295972, 0.02215951]
   >>> rad37['unit']
   'W/m^2 sr^-1'
 
@@ -71,7 +70,7 @@ units (:math:`m`):
   >>> from pyspectral.radiance_tb_conversion import RadTbConverter
   >>> viirs = RadTbConverter('Suomi-NPP', 'viirs', 'M12')
   >>> viirs.rsr_integral
-  1.9036069e-07
+  1.903607e-07
 
 
 Inserting the Planck radiation:
@@ -199,11 +198,10 @@ In Python this becomes:
   >>> tb37 = np.array([298.07385254, 297.15478516, 294.43276978, 281.67633057, 273.7923584])
   >>> tb11 = np.array([271.38806152, 271.38806152, 271.33453369, 271.98553467, 271.93609619])
   >>> m12r = refl_m12.reflectance_from_tbs(sunz, tb37, tb11)
-  >>> m12r
-  masked_array(data = [ 0.21432927  0.20285153  0.17063976  0.05408903  0.00838111],
-               mask = False,
-         fill_value = 1e+20)
-  <BLANKLINE>
+  >>> print(m12r.mask)
+  False
+  >>> print([round(refl, 8) for refl in m12r.data])
+  [0.21432927, 0.20285153, 0.17063976, 0.05408903, 0.00838111]
   
 We can try decompose equation :eq:`refl37` above using the example of VIIRS M12 band:
 
@@ -218,26 +216,20 @@ We can try decompose equation :eq:`refl37` above using the example of VIIRS M12 
   >>> rad11 = viirs.tb2radiance(tb11, normalized=False)
   >>> sflux = 2.242817881698326
   >>> nomin = rad37['radiance'] - rad11['radiance']
-  >>> nomin
-  masked_array(data = [0.050836774216986104 0.04805618397143852 0.040415704457706314
-   0.012792786724811864 0.0020448525399977963],
-               mask = [False False False False False],
-         fill_value = 1e+20)
-  <BLANKLINE>
+  >>> print(nomin.mask)
+  [False False False False False]
+  >>> print([np.round(val, 8) for val in nomin.data])
+  [0.05083677, 0.04805618, 0.0404157, 0.01279279, 0.00204485]
   >>> denom = np.cos(np.deg2rad(sunz))/np.pi * sflux - rad11['radiance']
-  >>> denom
-  masked_array(data = [0.2364631285385081 0.2364568193006244 0.2365055918405679
-   0.23582014534666546 0.23586610035551708],
-               mask = [False False False False False],
-         fill_value = 1e+20)
-  <BLANKLINE>
-  >>> nomin/denom
-  masked_array(data = [0.21498816551734543 0.2032345022384035 0.17088688746501676
-   0.05424806564344167 0.008669548260286764],
-               mask = [False False False False False],
-         fill_value = 1e+20)
-  <BLANKLINE>
-
+  >>> print(denom.mask)
+  [False False False False False]
+  >>> print([np.round(val, 8) for val in denom.data])
+  [0.23646313, 0.23645682, 0.23650559, 0.23582015, 0.2358661]
+  >>> res = nomin/denom
+  >>> print(res.mask)
+  [False False False False False]
+  >>> print([round(val, 8) for val in res.data])
+  [0.21498817, 0.2032345, 0.17088689, 0.05424807, 0.00866955]
 
 
 Derive the emissive part of the 3.7 micron band

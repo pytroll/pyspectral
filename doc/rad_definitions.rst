@@ -83,7 +83,8 @@ we see that this is indeed true:
   >>> from pyspectral.rsr_reader import RelativeSpectralResponse
   >>> from pyspectral.utils import convert2wavenumber, get_central_wave
   >>> seviri = RelativeSpectralResponse('Meteosat-8', 'seviri')
-  >>> print(get_central_wave(seviri.rsr['VIS0.6']['det-1']['wavelength'], seviri.rsr['VIS0.6']['det-1']['response']))
+  >>> cwl = get_central_wave(seviri.rsr['VIS0.6']['det-1']['wavelength'], seviri.rsr['VIS0.6']['det-1']['response'])
+  >>> print(round(cwl, 6))
   0.640216
   >>> rsr, info = convert2wavenumber(seviri.rsr)
   >>> print("si_scale={scale}, unit={unit}".format(scale=info['si_scale'], unit=info['unit']))
@@ -157,7 +158,7 @@ irradiance in wavenumber space using wavenumbers in units of :math:`cm^{-1}`
 the solar flux is in units of :math:`mW/m^2`:
 
   >>> solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, dlambda=0.0005, wavespace='wavenumber')
-  >>> print(solar_irr.solar_constant())
+  >>> print(round(solar_irr.solar_constant(), 5))
   1366077.16482
   >>> solar_irr.plot('/tmp/solar_irradiance_wnum.png')
 
@@ -265,8 +266,8 @@ In python it may look like this:
    >>> from pyspectral.blackbody import blackbody_wn_rad2temp
    >>> wavenumber = 90909.1
    >>> temp = blackbody_wn_rad2temp(wavenumber, [0.001158354, 0.001175477])
-   >>> print(temp)
-   [ 299.99998562  301.00000518]
+   >>> print([round(t, 8) for t in temp])
+   [299.99998562, 301.00000518]
 
 
 Provided the input is a central wavenumber or wavelength as defined above, this

@@ -64,9 +64,10 @@ contribution in a short wave band:
   >>> satz = np.array([[40., 50.], [41., 51.]])
   >>> azidiff = np.array([[160, 160], [160, 160]])
   >>> redband =  np.array([[0.1, 0.15], [0.11, 0.16]])
-  >>> print(rcor.get_reflectance(sunz, satz, azidiff, 'ch2', redband))
-  [[ 3.25463676  6.48864479]
-   [ 3.4343512   7.12155557]]
+  >>> refl = rcor.get_reflectance(sunz, satz, azidiff, 'ch2', redband)
+  >>> print([np.round(r, 6) for r in refl.ravel()])
+  [3.254637, 6.488645, 3.434351, 7.121556]
+
 
 
 
