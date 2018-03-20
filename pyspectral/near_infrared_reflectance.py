@@ -31,7 +31,7 @@ import numpy as np
 from pyspectral.solar import (SolarIrradianceSpectrum,
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
 from pyspectral.utils import BANDNAMES, get_bandname_from_wavelength
-from pyspectral.utils import TMPDIR
+from pyspectral.utils import TB2RAD_DIR
 from pyspectral.radiance_tb_conversion import RadTbConverter
 from pyspectral.config import get_config
 
@@ -114,14 +114,14 @@ class Calculator(RadTbConverter):
             if self.lutfile and not os.path.exists(os.path.dirname(self.lutfile)):
                 LOG.warning(
                     "Directory %s does not exist! Check config file", os.path.dirname(self.lutfile))
-                self.lutfile = os.path.join(TMPDIR, os.path.basename(self.lutfile))
+                self.lutfile = os.path.join(TB2RAD_DIR, os.path.basename(self.lutfile))
 
         if self.lutfile is None:
             LOG.info("No lut filename available in config file. "
                      "Will generate filename automatically")
             lutname = 'tb2rad_lut_{0}_{1}_{band}'.format(
                 self.platform_name.lower(), self.instrument.lower(), band=self.bandname.lower())
-            self.lutfile = os.path.join(TMPDIR, lutname + '.npz')
+            self.lutfile = os.path.join(TB2RAD_DIR, lutname + '.npz')
 
         LOG.info("lut filename: " + str(self.lutfile))
         if not os.path.exists(self.lutfile):

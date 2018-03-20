@@ -193,8 +193,7 @@ for sub_dir_name in HTTPS_RAYLEIGH_LUTS:
     dirname = os.path.join(LOCAL_RAYLEIGH_DIR, sub_dir_name)
     RAYLEIGH_LUT_DIRS[sub_dir_name] = dirname
 
-
-TMPDIR = tempfile.gettempdir()
+TB2RAD_DIR = CONF.get('tb2rad_dir', tempfile.gettempdir())
 
 
 def convert2wavenumber(rsr):

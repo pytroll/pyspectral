@@ -4,9 +4,18 @@
 #rsr_dir: ~/.local/share/pyspectral/
 #rayleigh_dir: ~/.local/share/pyspectral/
 
-# On default relative spectral responses and Rayleigh (atmospheric) correction
+#tb2rad_dir: /path/to/radiance/tb/lut/data
+
+# On default relative spectral responses and short wave atmospheric correction
 # LUTs are downloaded from internet:
 download_from_internet: True
+
+# Everything below this line should not need to be changed!
+# Changes may be done if you want to change the name of the radiance<->Tb LUT filrnames,
+# or if you want to store those files in different directories dependning on the platform/sensor.
+# Also, if you want to read the original agency specific spectral responses you 
+# can specify their file names and directory paths here.
+# Adam Dybbroe, 2018-03-20
 
 path1: '/home/a000680/data/SpectralResponses/jpss1-viirs/J1_VIIRS_Detector_RSR_V2'
 path2: '/home/a000680/data/SpectralResponses/jpss1-viirs/J1_VIIRS_V1_RSR_used_in_V2'
