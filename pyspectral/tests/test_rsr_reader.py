@@ -57,6 +57,12 @@ TEST_RSR['20']['det-1']['response'] = np.array([
     1., 0.92676, 0.67429, 0.44715, 0.27762, 0.14852,
     0.07141, 0.04151, 0.02925, 0.02085, 0.01414, 0.01], dtype='float32')
 
+TEST_RSR2 = {'20': {}, }
+TEST_RSR2['20']['det-1'] = {}
+TEST_RSR2['20']['det-1']['central_wavelength'] = 3.75
+TEST_RSR2['20']['det-1']['wavelength'] = TEST_RSR['20']['det-1']['wavelength'].copy()
+TEST_RSR2['20']['det-1']['response'] = TEST_RSR['20']['det-1']['response'].copy()
+
 RESULT_WVN_RSR = np.array([2529.38232422,  2533.8840332,  2540.390625,  2546.81494141,
                            2553.30859375,  2559.88378906,  2566.40722656,  2573.02270508,
                            2579.72949219,  2586.37451172,  2593.09375,  2599.87548828,
@@ -87,7 +93,7 @@ class TestRsrReader(unittest.TestCase):
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
     @patch('pyspectral.rsr_reader.download_rsr')
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_rsr_data_version')
-    def test_rsr_reponse(self, get_rsr_version, download_rsr, load, isfile, exists):
+    def test_rsr_response(self, get_rsr_version, download_rsr, load, isfile, exists):
         """Test the RelativeSpectralResponse class initialisation"""
         load.return_code = None
         download_rsr.return_code = None
@@ -144,6 +150,25 @@ class TestRsrReader(unittest.TestCase):
 
             with self.assertRaises(NotImplementedError):
                 test_rsr.convert()
+
+    @patch('os.path.exists')
+    @patch('os.path.isfile')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
+    @patch('pyspectral.rsr_reader.download_rsr')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_rsr_data_version')
+    def test_integral(self, get_rsr_version, download_rsr, load, isfile, exists):
+        """Test the calculation of the integral of the spectral responses"""
+        load.return_code = None
+        download_rsr.return_code = None
+        isfile.return_code = True
+        exists.return_code = True
+        get_rsr_version.return_code = RSR_DATA_VERSION
+
+        with patch('pyspectral.rsr_reader.get_config', return_value=TEST_CONFIG):
+            test_rsr = RelativeSpectralResponse('EOS-Aqua', 'modis')
+            test_rsr.rsr = TEST_RSR2
+            res = test_rsr.integral('20')
+            self.assertAlmostEqual(res['det-1'], 0.185634, 6)
 
     def tearDown(self):
         """Clean up"""
