@@ -140,7 +140,9 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                }
 
 
-HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/1146757/files/pyspectral_rsr_data.tgz"
+HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/1205138/files/pyspectral_rsr_data.tgz"
+RSR_DATA_VERSION_FILENAME = "PYSPECTRAL_RSR_VERSION"
+RSR_DATA_VERSION = "v1.0.1"
 
 AEROSOL_TYPES = ['antarctic_aerosol', 'continental_average_aerosol',
                  'continental_clean_aerosol', 'continental_polluted_aerosol',

@@ -35,6 +35,7 @@ from pyspectral.config import get_config
 from pyspectral.utils import WAVE_NUMBER
 from pyspectral.utils import WAVE_LENGTH
 from pyspectral.utils import (INSTRUMENTS, download_rsr)
+from pyspectral.utils import (RSR_DATA_VERSION_FILENAME, RSR_DATA_VERSION)
 
 
 class RelativeSpectralResponse(object):
@@ -68,9 +69,13 @@ class RelativeSpectralResponse(object):
         options = get_config()
         self.rsr_dir = options['rsr_dir']
         self.do_download = False
+        self._rsr_data_version_uptodate = False
 
         if 'download_from_internet' in options and options['download_from_internet']:
             self.do_download = True
+
+        if self._get_rsr_data_version() == RSR_DATA_VERSION:
+            self._rsr_data_version_uptodate = True
 
         if not self.filename:
             self._get_filename()
@@ -90,6 +95,20 @@ class RelativeSpectralResponse(object):
 
         LOG.debug('Filename: %s', str(self.filename))
         self.load()
+
+    def _get_rsr_data_version(self):
+        """Check the version of the RSR data from the version file in the RSR
+           directory
+
+        """
+
+        rsr_data_version_path = os.path.join(self.rsr_dir, RSR_DATA_VERSION_FILENAME)
+        if not os.path.exists(rsr_data_version_path):
+            return "v0.0.0"
+
+        with open(rsr_data_version_path, 'r') as fpt:
+            # Get the version from the file
+            return fpt.readline().strip()
 
     def _check_instrument(self):
         """Check and try fix instrument name if needed"""
@@ -114,6 +133,12 @@ class RelativeSpectralResponse(object):
         if not os.path.exists(self.filename) or not os.path.isfile(self.filename):
             # Try download from the internet!
             LOG.warning("No rsr file %s on disk", self.filename)
+            if self.do_download:
+                LOG.info("Will download from internet...")
+                download_rsr()
+
+        if not self._rsr_data_version_uptodate:
+            LOG.warning("rsr data may not be up to date: %s", self.filename)
             if self.do_download:
                 LOG.info("Will download from internet...")
                 download_rsr()
