@@ -1,6 +1,48 @@
 Changelog
 =========
 
+v0.6.4 (2018-03-22)
+-------------------
+
+- Update changelog. [Adam.Dybbroe]
+
+- Bump version: 0.6.3 → 0.6.4. [Adam.Dybbroe]
+
+- Slightly improved short and long readme descriptions. [Adam.Dybbroe]
+
+- Increase test coverage. [Adam.Dybbroe]
+
+- Mock unittest so it doesn't try downloading the RSR data.
+  [Adam.Dybbroe]
+
+- Get the updated dataset of atm correction LUTs (all in one zenodo
+  dataset) [Adam.Dybbroe]
+
+- Fix unittests. [Adam.Dybbroe]
+
+- Check the version of the local RSR data, and if old download latest.
+  [Adam.Dybbroe]
+
+- Remove RSR data from git-repo. [Adam.Dybbroe]
+
+  RSR data is donwloaded automagically from Zenodo when need by the user
+
+- Make it possible to specify a custom base-path where radiance-tb LUTs
+  are stored. [Adam.Dybbroe]
+
+- Fix bug - straight wavelength bins in solar interpolation method.
+  [Adam.Dybbroe]
+
+- Fix doc tests for python3. [Adam.Dybbroe]
+
+- Merge pull request #31 from michaelaye/fix_mpl_warning. [Adam Dybbroe]
+
+  change pylab calls to OO pyplot calls. Fixes #30
+
+- Remove obsolete add_subplot line. [K.-Michael Aye]
+
+- Change pylab calls to OO pyplot calls. Fixes #30. [K.-Michael Aye]
+
 v0.6.3 (2018-01-22)
 -------------------
 
