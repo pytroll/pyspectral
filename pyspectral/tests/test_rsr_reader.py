@@ -26,6 +26,8 @@ import sys
 from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.utils import WAVE_NUMBER
 from pyspectral.utils import WAVE_LENGTH
+from pyspectral.utils import RSR_DATA_VERSION
+
 from mock import patch
 if sys.version_info < (2, 7):
     import unittest2 as unittest
@@ -84,12 +86,14 @@ class TestRsrReader(unittest.TestCase):
     @patch('os.path.isfile')
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
     @patch('pyspectral.rsr_reader.download_rsr')
-    def test_rsr_reponse(self, download_rsr, load, isfile, exists):
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_rsr_data_version')
+    def test_rsr_reponse(self, get_rsr_version, download_rsr, load, isfile, exists):
         """Test the RelativeSpectralResponse class initialisation"""
         load.return_code = None
         download_rsr.return_code = None
         isfile.return_code = True
         exists.return_code = True
+        get_rsr_version.return_code = RSR_DATA_VERSION
 
         with patch('pyspectral.rsr_reader.get_config', return_value=TEST_CONFIG):
             with self.assertRaises(AttributeError):
@@ -121,12 +125,14 @@ class TestRsrReader(unittest.TestCase):
     @patch('os.path.isfile')
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
     @patch('pyspectral.rsr_reader.download_rsr')
-    def test_convert(self, download_rsr, load, isfile, exists):
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_rsr_data_version')
+    def test_convert(self, get_rsr_version, download_rsr, load, isfile, exists):
         """Test the conversion method"""
         load.return_code = None
         download_rsr.return_code = None
         isfile.return_code = True
         exists.return_code = True
+        get_rsr_version.return_code = RSR_DATA_VERSION
 
         with patch('pyspectral.rsr_reader.get_config', return_value=TEST_CONFIG):
             test_rsr = RelativeSpectralResponse('EOS-Aqua', 'modis')
