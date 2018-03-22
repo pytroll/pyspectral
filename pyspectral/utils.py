@@ -157,28 +157,27 @@ ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
 
 HTTPS_RAYLEIGH_LUTS = {}
 HTTPS_RAYLEIGH_LUTS[
-    'antarctic_aerosol'] = "https://zenodo.org/record/891952/files/pyspectral_rayleigh_correction_luts.tgz"
+    'antarctic_aerosol'] = "https://zenodo.org/record/1205535/files/pyspectral_atm_correction_luts_antarctic_aerosol.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'continental_average_aerosol'] = "https://zenodo.org/record/892092/files/pyspectral_rayleigh_correction_luts.tgz"
+    'continental_average_aerosol'] = "https://zenodo.org/record/1205535/files/pyspectral_atm_correction_luts_continental_average_aerosol.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'continental_clean_aerosol'] = "https://zenodo.org/record/892178/files/pyspectral_rayleigh_correction_luts.tgz"
+    'continental_clean_aerosol'] = "https://zenodo.org/record/1205535/files/pyspectral_atm_correction_luts_continental_clean_aerosol.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'continental_polluted_aerosol'] = "https://zenodo.org/record/896859/files/pyspectral_rayleigh_correction_luts.tgz"
+    'continental_polluted_aerosol'] = "https://zenodo.org/record/1205535/files/pyspectral_atm_correction_luts_continental_polluted_aerosol.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'desert_aerosol'] = "https://zenodo.org/record/1000414/files/pyspectral_rayleigh_correction_luts.tgz"
+    'desert_aerosol'] = "https://zenodo.org/record/1205535/files/pyspectral_atm_correction_luts_desert_aerosol.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'marine_clean_aerosol'] = "https://zenodo.org/record/896869/files/pyspectral_rayleigh_correction_luts.tgz"
+    'marine_clean_aerosol'] = "https://zenodo.org/record/1205535/files/pyspectral_atm_correction_luts_marine_clean_aerosol.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'marine_polluted_aerosol'] = "https://zenodo.org/record/896875/files/pyspectral_rayleigh_correction_luts.tgz"
+    'marine_polluted_aerosol'] = "https://zenodo.org/record/1205535/files/pyspectral_atm_correction_luts_marine_polluted_aerosol.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'marine_tropical_aerosol'] = "https://zenodo.org/record/896879/files/pyspectral_rayleigh_correction_luts.tgz"
+    'marine_tropical_aerosol'] = "https://zenodo.org/record/1205535/files/pyspectral_atm_correction_luts_marine_tropical_aerosol.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'rural_aerosol'] = "https://zenodo.org/record/896881/files/pyspectral_rayleigh_correction_luts.tgz"
+    'rural_aerosol'] = "https://zenodo.org/record/1205535/files/pyspectral_atm_correction_luts_rural_aerosol.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'urban_aerosol'] = "https://zenodo.org/record/896887/files/pyspectral_rayleigh_correction_luts.tgz"
+    'urban_aerosol'] = "https://zenodo.org/record/1205535/files/pyspectral_atm_correction_luts_urban_aerosol.tgz"
 HTTPS_RAYLEIGH_LUTS[
-    'rayleigh_only'] = "https://zenodo.org/record/888971/files/pyspectral_rayleigh_correction_luts.tgz"
-
+    'rayleigh_only'] = "https://zenodo.org/record/1205535/files/pyspectral_atm_correction_luts_no_aerosol.tgz"
 
 CONF = get_config()
 LOCAL_RSR_DIR = CONF.get('rsr_dir')
