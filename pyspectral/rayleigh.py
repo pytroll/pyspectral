@@ -143,6 +143,7 @@ class Rayleigh(object):
 
         cwvl = get_central_wave(wvl, resp, weight=1. / wvl**4)
         LOG.debug("Band name: %s  Effective wavelength: %f", bandname, cwvl)
+
         return cwvl
 
     def get_reflectance_lut(self):

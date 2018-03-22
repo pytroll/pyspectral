@@ -38,6 +38,7 @@ from pyspectral.tests.data import (
     TEST_RAYLEIGH_SUNZ_COORD,
     TEST_RAYLEIGH_SATZ_COORD,
     TEST_RAYLEIGH_WVL_COORD)
+from pyspectral.utils import RSR_DATA_VERSION
 
 
 TEST_RAYLEIGH_RESULT1 = np.array([10.40727436,   8.69775471], dtype='float32')
@@ -96,6 +97,7 @@ class TestRayleigh(unittest.TestCase):
     def setUp(self):
         """Setup the test"""
 
+        self.cwvl = 0.4440124
         self.rsr = RelativeSpectralResponseTestData()
 
         # mymock:
@@ -165,7 +167,10 @@ class TestRayleigh(unittest.TestCase):
     @patch('os.path.exists')
     @patch('pyspectral.utils.download_luts')
     @patch('pyspectral.rayleigh.get_reflectance_lut')
-    def test_get_reflectance(self, get_reflectance_lut, download_luts, exists):
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_rsr_data_version')
+    @patch('pyspectral.rayleigh.Rayleigh.get_effective_wavelength')
+    def test_get_reflectance(self, get_effective_wvl,
+                             get_rsr_version, get_reflectance_lut, download_luts, exists):
         """Test getting the reflectance correction"""
 
         rayl = TEST_RAYLEIGH_LUT
@@ -178,6 +183,8 @@ class TestRayleigh(unittest.TestCase):
                                             satz_sec_coord, sunz_sec_coord)
         download_luts.return_code = None
         exists.return_code = True
+        get_rsr_version.return_code = RSR_DATA_VERSION
+        get_effective_wvl.return_value = self.cwvl
 
         sun_zenith = np.array([67., 32.])
         sat_zenith = np.array([45., 18.])
