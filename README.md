@@ -14,15 +14,15 @@ PySpectral
 Given a passive sensor on a meteorological satellite PySpectral provides the
 relative spectral response (rsr) function(s) and offer you some basic
 operations like convolution with the solar spectrum to derive the in band solar
-flux for instance. The focus is imaging sensors like AVHRR, VIIRS, MODIS, ABI,
-AHI and SEVIRI. But more sensors are included and if others are needed
-they can be easily added. With PySpectral it is possible to derive the
-reflective and emissive parts of the signal observed in any NIR band around 3-4
-microns where both passive terrestrial emission and solar backscatter mix the
-information received by the satellite. Furthermore PySpectral allows correcting
-true color imagery for background (climatological) rayleigh scattering aerosol
-absorption.
-
+flux, for instance. The focus is on imaging sensors like AVHRR, VIIRS, MODIS, ABI,
+AHI, OLCI and SEVIRI. But more sensors are included and if others are needed they can
+be easily added. With PySpectral it is possible to derive the reflective and
+emissive parts of the signal observed in any NIR band around 3-4 microns where
+both passive terrestrial emission and solar backscatter mix the information
+received by the satellite. Furthermore PySpectral allows correcting true color
+imagery for the background (climatological) atmospheric signal due to Rayleigh
+scattering of molecules, absorption by atmospheric gases and aerosols, and Mie
+scattering of aerosols.
 
 Adam Dybbroe
-January 2018, Norrkoping, Sweden
+March 2018, Norrkoping, Sweden
