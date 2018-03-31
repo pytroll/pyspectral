@@ -32,6 +32,7 @@ from six import integer_types
 
 import h5py
 import numpy as np
+#import dask.array as da
 from scipy.interpolate import interpn
 
 from pyspectral.rsr_reader import RelativeSpectralResponse
@@ -229,11 +230,16 @@ def get_reflectance_lut(filename):
     """
 
     with h5py.File(filename, 'r') as h5f:
-        tab = h5f['reflectance'][:]
-        wvl = h5f['wavelengths'][:]
-        azidiff = h5f['azimuth_difference'][:]
-        satellite_zenith_secant = h5f['satellite_zenith_secant'][:]
-        sun_zenith_secant = h5f['sun_zenith_secant'][:]
+        tab = da.from_array(h5f['reflectance'],  chunks=(1000, 1000))
+        wvl = da.from_array(h5f['wavelengths'],  chunks=(1000, 1000))
+        azidiff = da.from_array(h5f['azimuth_difference'],  chunks=(1000, 1000))
+        satellite_zenith_secant = da.from_array(h5f['satellite_zenith_secant'],  chunks=(1000, 1000))
+        sun_zenith_secant = da.from_array(h5f['sun_zenith_secant'],  chunks=(1000, 1000))
+        # tab = h5f['reflectance'][:]
+        # wvl = h5f['wavelengths'][:]
+        # azidiff = h5f['azimuth_difference'][:]
+        # satellite_zenith_secant = h5f['satellite_zenith_secant'][:]
+        # sun_zenith_secant = h5f['sun_zenith_secant'][:]
 
     return tab, wvl, azidiff, satellite_zenith_secant, sun_zenith_secant
 
