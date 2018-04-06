@@ -32,7 +32,7 @@ from six import integer_types
 
 import h5py
 import numpy as np
-#import dask.array as da
+import dask.array as da
 from scipy.interpolate import interpn
 
 from pyspectral.rsr_reader import RelativeSpectralResponse
@@ -162,12 +162,12 @@ class Rayleigh(object):
         wvl = self.get_effective_wavelength(bandname) * 1000.0
         rayl, wvl_coord, azid_coord, satz_sec_coord, sunz_sec_coord = self.get_reflectance_lut()
 
-        clip_angle = np.rad2deg(np.arccos(1. / sunz_sec_coord.max()))
-        sun_zenith = np.clip(np.asarray(sun_zenith), 0, clip_angle)
-        sunzsec = 1. / np.cos(np.deg2rad(sun_zenith))
-        clip_angle = np.rad2deg(np.arccos(1. / satz_sec_coord.max()))
-        sat_zenith = np.clip(np.asarray(sat_zenith), 0, clip_angle)
-        satzsec = 1. / np.cos(np.deg2rad(np.asarray(sat_zenith)))
+        clip_angle = da.rad2deg(da.arccos(1. / sunz_sec_coord.max()))
+        sun_zenith = da.clip(da.asarray(sun_zenith), 0, clip_angle)
+        sunzsec = 1. / da.cos(da.deg2rad(sun_zenith))
+        clip_angle = da.rad2deg(da.arccos(1. / satz_sec_coord.max()))
+        sat_zenith = da.clip(da.asarray(sat_zenith), 0, clip_angle)
+        satzsec = 1. / da.cos(da.deg2rad(da.asarray(sat_zenith)))
 
         shape = sun_zenith.shape
 
@@ -176,7 +176,7 @@ class Rayleigh(object):
                 "Effective wavelength for band %s outside 400-800 nm range!", str(bandname))
             LOG.info(
                 "Set the rayleigh/aerosol reflectance contribution to zero!")
-            return np.zeros(shape)
+            return da.zeros(shape, chunks=shape)
 
         idx = np.searchsorted(wvl_coord, wvl)
         wvl1 = wvl_coord[idx - 1]
@@ -197,17 +197,17 @@ class Rayleigh(object):
             f_3d_grid = raylwvl
 
             minterp = MultilinearInterpolator(smin, smax, orders)
-            minterp.set_values(np.atleast_2d(f_3d_grid.ravel()))
+            minterp.set_values(da.atleast_2d(f_3d_grid.ravel()))
 
-            interp_points2 = np.vstack((np.asarray(sunzsec).ravel(),
-                                        np.asarray(180 - azidiff).ravel(),
-                                        np.asarray(satzsec).ravel()))
+            interp_points2 = da.vstack((da.asarray(sunzsec).ravel(),
+                                        da.asarray(180 - azidiff).ravel(),
+                                        da.asarray(satzsec).ravel()))
 
             ipn = minterp(interp_points2).reshape(shape)
         else:
-            interp_points = np.dstack((np.asarray(sunzsec),
-                                       np.asarray(180. - azidiff),
-                                       np.asarray(satzsec)))
+            interp_points = da.dstack((da.asarray(sunzsec),
+                                       da.asarray(180. - azidiff),
+                                       da.asarray(satzsec)))
 
             ipn = interpn((sunz_sec_coord, azid_coord, satz_sec_coord),
                           raylwvl[:, :, :], interp_points)
@@ -217,10 +217,10 @@ class Rayleigh(object):
         ipn *= 100
         res = ipn
         if redband is not None:
-            res = np.where(np.less(redband, 20.), res,
+            res = da.where(da.less(redband, 20.), res,
                            (1 - (redband - 20) / 80) * res)
 
-        return np.clip(res, 0, 100)
+        return da.clip(res, 0, 100)
 
 
 def get_reflectance_lut(filename):
@@ -229,28 +229,17 @@ def get_reflectance_lut(filename):
 
     """
 
-    with h5py.File(filename, 'r') as h5f:
-        tab = da.from_array(h5f['reflectance'],  chunks=(1000, 1000))
-        wvl = da.from_array(h5f['wavelengths'],  chunks=(1000, 1000))
-        azidiff = da.from_array(h5f['azimuth_difference'],  chunks=(1000, 1000))
-        satellite_zenith_secant = da.from_array(h5f['satellite_zenith_secant'],  chunks=(1000, 1000))
-        sun_zenith_secant = da.from_array(h5f['sun_zenith_secant'],  chunks=(1000, 1000))
-        # tab = h5f['reflectance'][:]
-        # wvl = h5f['wavelengths'][:]
-        # azidiff = h5f['azimuth_difference'][:]
-        # satellite_zenith_secant = h5f['satellite_zenith_secant'][:]
-        # sun_zenith_secant = h5f['sun_zenith_secant'][:]
+    h5f = h5py.File(filename, 'r')
+
+    tab = da.from_array(h5f['reflectance'],  chunks=(10, 10, 10, 10))
+    wvl = da.from_array(h5f['wavelengths'],  chunks=(100,))
+    azidiff = da.from_array(h5f['azimuth_difference'], chunks=(1000,))
+    satellite_zenith_secant = da.from_array(h5f['satellite_zenith_secant'], chunks=(1000,))
+    sun_zenith_secant = da.from_array(h5f['sun_zenith_secant'], chunks=(1000,))
 
     return tab, wvl, azidiff, satellite_zenith_secant, sun_zenith_secant
 
 if __name__ == "__main__":
-
-    this = Rayleigh('Suomi-NPP', 'viirs')
-    # SUNZ = np.arange(200000).reshape(400, 500) * 0.0004
-    # SATZ = np.arange(200000).reshape(400, 500) * 0.00025
-    # AZIDIFF = np.arange(200000).reshape(400, 500) * 0.0009
-    # rfl = this.get_reflectance(SUNZ, SATZ, AZIDIFF, 'M4')
-
     SHAPE = (1000, 3000)
     NDIM = SHAPE[0] * SHAPE[1]
     SUNZ = np.ma.arange(
