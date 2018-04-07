@@ -166,14 +166,15 @@ class Rayleigh(object):
             self._satz_sec_coord = lut_vars[3]
             self._sunz_sec_coord = lut_vars[4]
         return self._rayl, self._wvl_coord, self._azid_coord,\
-               self._satz_sec_coord, self._sunz_sec_coord
+            self._satz_sec_coord, self._sunz_sec_coord
 
     def get_reflectance(self, sun_zenith, sat_zenith, azidiff, bandname,
                         redband=None):
         """Get the reflectance from the three sun-sat angles."""
         # Get wavelength in nm for band:
         wvl = self.get_effective_wavelength(bandname) * 1000.0
-        rayl, wvl_coord, azid_coord, satz_sec_coord, sunz_sec_coord = self.get_reflectance_lut()
+        rayl, wvl_coord, azid_coord, satz_sec_coord, sunz_sec_coord = \
+            self.get_reflectance_lut()
         wvl_coord = wvl_coord.persist()
 
         clip_angle = da.rad2deg(da.arccos(1. / sunz_sec_coord.max()))
@@ -187,7 +188,8 @@ class Rayleigh(object):
 
         if not(wvl_coord.min() < wvl < wvl_coord.max()):
             LOG.warning(
-                "Effective wavelength for band %s outside 400-800 nm range!", str(bandname))
+                "Effective wavelength for band %s outside 400-800 nm range!",
+                str(bandname))
             LOG.info(
                 "Set the rayleigh/aerosol reflectance contribution to zero!")
             chunks = sun_zenith.chunks if redband is None else redband.chunks
@@ -233,10 +235,12 @@ class Rayleigh(object):
                                            180. - azidiff,
                                            satzsec))
 
-                return interpn((sunz_sec_coord, azid_coord, satz_sec_coord),
-                              raylwvl[:, :, :], interp_points)
-            ipn = da.map_blocks(_do_interp, sunz_sec_coord, azid_coord, satz_sec_coord,
-                                raylwvl[:, :, :], dtype=raylwvl.dtype,
+                return interpn(
+                    (sunz_sec_coord, azid_coord, satz_sec_coord),
+                    raylwvl[:, :, :], interp_points)
+            ipn = da.map_blocks(_do_interp, sunz_sec_coord, azid_coord,
+                                satz_sec_coord, raylwvl[:, :, :],
+                                dtype=raylwvl.dtype,
                                 chunks=azidiff.chunks)
 
         LOG.debug("Time - Interpolation: {0:f}".format(time.time() - tic))
@@ -261,10 +265,13 @@ def get_reflectance_lut(filename):
     tab = da.from_array(h5f['reflectance'],  chunks=(10, 10, 10, 10))
     wvl = da.from_array(h5f['wavelengths'],  chunks=(100,))
     azidiff = da.from_array(h5f['azimuth_difference'], chunks=(1000,))
-    satellite_zenith_secant = da.from_array(h5f['satellite_zenith_secant'], chunks=(1000,))
-    sun_zenith_secant = da.from_array(h5f['sun_zenith_secant'], chunks=(1000,))
+    satellite_zenith_secant = da.from_array(h5f['satellite_zenith_secant'],
+                                            chunks=(1000,))
+    sun_zenith_secant = da.from_array(h5f['sun_zenith_secant'],
+                                      chunks=(1000,))
 
     return tab, wvl, azidiff, satellite_zenith_secant, sun_zenith_secant
+
 
 if __name__ == "__main__":
     SHAPE = (1000, 3000)
