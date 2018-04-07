@@ -116,6 +116,11 @@ class Rayleigh(object):
                           str(self.reflectance_lut_filename))
 
         LOG.debug('LUT filename: %s', str(self.reflectance_lut_filename))
+        self._rayl = None
+        self._wvl_coord = None
+        self._azid_coord = None
+        self._satz_sec_coord = None
+        self._sunz_sec_coord = None
 
     def get_effective_wavelength(self, bandname):
         """Get the effective wavelength with Rayleigh scattering in mind"""
@@ -152,8 +157,16 @@ class Rayleigh(object):
         secant, azimuth difference angle, and sun zenith secant
 
         """
-
-        return get_reflectance_lut(self.reflectance_lut_filename)
+        if self._rayl is None:
+            lut_vars = get_reflectance_lut(self.reflectance_lut_filename)
+            self._rayl = lut_vars[0]
+            # wvl_coord is used in a lot of non-dask functions, keep in memory
+            self._wvl_coord = lut_vars[1].persist()
+            self._azid_coord = lut_vars[2]
+            self._satz_sec_coord = lut_vars[3]
+            self._sunz_sec_coord = lut_vars[4]
+        return self._rayl, self._wvl_coord, self._azid_coord,\
+               self._satz_sec_coord, self._sunz_sec_coord
 
     def get_reflectance(self, sun_zenith, sat_zenith, azidiff, bandname,
                         redband=None):
@@ -161,6 +174,7 @@ class Rayleigh(object):
         # Get wavelength in nm for band:
         wvl = self.get_effective_wavelength(bandname) * 1000.0
         rayl, wvl_coord, azid_coord, satz_sec_coord, sunz_sec_coord = self.get_reflectance_lut()
+        wvl_coord = wvl_coord.persist()
 
         clip_angle = da.rad2deg(da.arccos(1. / sunz_sec_coord.max()))
         sun_zenith = da.clip(da.asarray(sun_zenith), 0, clip_angle)
@@ -176,7 +190,8 @@ class Rayleigh(object):
                 "Effective wavelength for band %s outside 400-800 nm range!", str(bandname))
             LOG.info(
                 "Set the rayleigh/aerosol reflectance contribution to zero!")
-            return da.zeros(shape, chunks=shape)
+            chunks = sun_zenith.chunks if redband is None else redband.chunks
+            return da.zeros(shape, chunks=chunks)
 
         idx = np.searchsorted(wvl_coord, wvl)
         wvl1 = wvl_coord[idx - 1]
@@ -184,6 +199,7 @@ class Rayleigh(object):
 
         fac = (wvl2 - wvl) / (wvl2 - wvl1)
 
+        # FIXME: Can we do this right before interpolating instead?
         raylwvl = fac * rayl[idx - 1, :, :, :] + (1 - fac) * rayl[idx, :, :, :]
 
         import time
@@ -194,23 +210,34 @@ class Rayleigh(object):
             smax = [sunz_sec_coord[-1], azid_coord[-1], satz_sec_coord[-1]]
             orders = [
                 len(sunz_sec_coord), len(azid_coord), len(satz_sec_coord)]
-            f_3d_grid = raylwvl
-
             minterp = MultilinearInterpolator(smin, smax, orders)
+
+            f_3d_grid = raylwvl
             minterp.set_values(da.atleast_2d(f_3d_grid.ravel()))
 
-            interp_points2 = da.vstack((da.asarray(sunzsec).ravel(),
-                                        da.asarray(180 - azidiff).ravel(),
-                                        da.asarray(satzsec).ravel()))
+            def _do_interp(minterp, sunzsec, azidiff, satzsec):
+                interp_points2 = np.vstack((sunzsec.ravel(),
+                                            180 - azidiff.ravel(),
+                                            satzsec.ravel()))
+                res = minterp(interp_points2)
+                return res.reshape(sunzsec.shape)
 
-            ipn = minterp(interp_points2).reshape(shape)
+            ipn = da.map_blocks(_do_interp, minterp, sunzsec, azidiff,
+                                satzsec, dtype=raylwvl.dtype,
+                                chunks=azidiff.chunks)
         else:
-            interp_points = da.dstack((da.asarray(sunzsec),
-                                       da.asarray(180. - azidiff),
-                                       da.asarray(satzsec)))
+            # FIXME: Untested
+            def _do_interp(sunz_sec_coord, azid_coord, satz_sec_coord,
+                           raylwvl):
+                interp_points = np.dstack((sunzsec,
+                                           180. - azidiff,
+                                           satzsec))
 
-            ipn = interpn((sunz_sec_coord, azid_coord, satz_sec_coord),
-                          raylwvl[:, :, :], interp_points)
+                return interpn((sunz_sec_coord, azid_coord, satz_sec_coord),
+                              raylwvl[:, :, :], interp_points)
+            ipn = da.map_blocks(_do_interp, sunz_sec_coord, azid_coord, satz_sec_coord,
+                                raylwvl[:, :, :], dtype=raylwvl.dtype,
+                                chunks=azidiff.chunks)
 
         LOG.debug("Time - Interpolation: {0:f}".format(time.time() - tic))
 
