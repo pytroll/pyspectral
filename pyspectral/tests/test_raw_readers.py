@@ -24,7 +24,6 @@
 
 import sys
 import mock
-from pyspectral.aatsr_reader import AatsrRSR
 
 if sys.version_info < (2, 7):
     import unittest2 as unittest
@@ -44,6 +43,7 @@ class TestAatsrRsrReader(unittest.TestCase):
     @mock.patch('pyspectral.config.get_config')
     def setUp(self, get_config, _load, open_workbook):
         """Setup the natve MSG file handler for testing."""
+        from pyspectral.aatsr_reader import AatsrRSR
         open_workbook.return_code = None
         get_config.return_code = {}
         _load.return_code = None
@@ -67,6 +67,7 @@ def suite():
     mysuite = unittest.TestSuite()
     mysuite.addTest(loader.loadTestsFromTestCase(TestAatsrRsrReader))
     return mysuite
+
 
 if __name__ == "__main__":
     # So you can run tests from this module individually.

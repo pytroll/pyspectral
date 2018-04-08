@@ -26,14 +26,22 @@ to 800 nm
 
 """
 
-import logging
 import os
+import time
+import logging
 from six import integer_types
 
 import h5py
 import numpy as np
-import dask.array as da
-from scipy.interpolate import interpn
+
+try:
+    from dask.array import where, zeros, map_blocks, from_array, clip
+    HAVE_DASK = True
+except ImportError:
+    from numpy import where, zeros, clip
+    map_blocks = None
+    from_array = None
+    HAVE_DASK = False
 
 from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.utils import (INSTRUMENTS, RAYLEIGH_LUT_DIRS,
@@ -44,17 +52,10 @@ from pyspectral.utils import (INSTRUMENTS, RAYLEIGH_LUT_DIRS,
 
 LOG = logging.getLogger(__name__)
 
-WITH_CYTHON = True
-try:
-    from geotiepoints.multilinear import MultilinearInterpolator
-except ImportError:
-    LOG.warning(
-        "Couldn't import fast multilinear interpolation with Cython.")
-    LOG.warning("Check your geotiepoints installation!")
-    WITH_CYTHON = False
+from geotiepoints.multilinear import MultilinearInterpolator
 
 
-class BandFrequencyOutOfRange(Exception):
+class BandFrequencyOutOfRange(ValueError):
 
     """Exception when the band frequency is out of the visible range"""
     pass
@@ -160,8 +161,7 @@ class Rayleigh(object):
         if self._rayl is None:
             lut_vars = get_reflectance_lut(self.reflectance_lut_filename)
             self._rayl = lut_vars[0]
-            # wvl_coord is used in a lot of non-dask functions, keep in memory
-            self._wvl_coord = lut_vars[1].persist()
+            self._wvl_coord = lut_vars[1]
             self._azid_coord = lut_vars[2]
             self._satz_sec_coord = lut_vars[3]
             self._sunz_sec_coord = lut_vars[4]
@@ -175,14 +175,13 @@ class Rayleigh(object):
         wvl = self.get_effective_wavelength(bandname) * 1000.0
         rayl, wvl_coord, azid_coord, satz_sec_coord, sunz_sec_coord = \
             self.get_reflectance_lut()
-        wvl_coord = wvl_coord.persist()
 
-        clip_angle = da.rad2deg(da.arccos(1. / sunz_sec_coord.max()))
-        sun_zenith = da.clip(da.asarray(sun_zenith), 0, clip_angle)
-        sunzsec = 1. / da.cos(da.deg2rad(sun_zenith))
-        clip_angle = da.rad2deg(da.arccos(1. / satz_sec_coord.max()))
-        sat_zenith = da.clip(da.asarray(sat_zenith), 0, clip_angle)
-        satzsec = 1. / da.cos(da.deg2rad(da.asarray(sat_zenith)))
+        clip_angle = np.rad2deg(np.arccos(1. / sunz_sec_coord.max()))
+        sun_zenith = clip(sun_zenith, 0, clip_angle)
+        sunzsec = 1. / np.cos(np.deg2rad(sun_zenith))
+        clip_angle = np.rad2deg(np.arccos(1. / satz_sec_coord.max()))
+        sat_zenith = clip(np.asarray(sat_zenith), 0, clip_angle)
+        satzsec = 1. / np.cos(np.deg2rad(sat_zenith))
 
         shape = sun_zenith.shape
 
@@ -193,65 +192,48 @@ class Rayleigh(object):
             LOG.info(
                 "Set the rayleigh/aerosol reflectance contribution to zero!")
             chunks = sun_zenith.chunks if redband is None else redband.chunks
-            return da.zeros(shape, chunks=chunks)
+            return zeros(shape, chunks=chunks)
 
         idx = np.searchsorted(wvl_coord, wvl)
         wvl1 = wvl_coord[idx - 1]
         wvl2 = wvl_coord[idx]
 
         fac = (wvl2 - wvl) / (wvl2 - wvl1)
-
-        # FIXME: Can we do this right before interpolating instead?
         raylwvl = fac * rayl[idx - 1, :, :, :] + (1 - fac) * rayl[idx, :, :, :]
-
-        import time
         tic = time.time()
 
-        if WITH_CYTHON:
-            smin = [sunz_sec_coord[0], azid_coord[0], satz_sec_coord[0]]
-            smax = [sunz_sec_coord[-1], azid_coord[-1], satz_sec_coord[-1]]
-            orders = [
-                len(sunz_sec_coord), len(azid_coord), len(satz_sec_coord)]
-            minterp = MultilinearInterpolator(smin, smax, orders)
+        smin = [sunz_sec_coord[0], azid_coord[0], satz_sec_coord[0]]
+        smax = [sunz_sec_coord[-1], azid_coord[-1], satz_sec_coord[-1]]
+        orders = [
+            len(sunz_sec_coord), len(azid_coord), len(satz_sec_coord)]
+        minterp = MultilinearInterpolator(smin, smax, orders)
 
-            f_3d_grid = raylwvl
-            minterp.set_values(da.atleast_2d(f_3d_grid.ravel()))
+        f_3d_grid = raylwvl
+        minterp.set_values(np.atleast_2d(f_3d_grid.ravel()))
 
-            def _do_interp(minterp, sunzsec, azidiff, satzsec):
-                interp_points2 = np.vstack((sunzsec.ravel(),
-                                            180 - azidiff.ravel(),
-                                            satzsec.ravel()))
-                res = minterp(interp_points2)
-                return res.reshape(sunzsec.shape)
+        def _do_interp(minterp, sunzsec, azidiff, satzsec):
+            interp_points2 = np.vstack((sunzsec.ravel(),
+                                        180 - azidiff.ravel(),
+                                        satzsec.ravel()))
+            res = minterp(interp_points2)
+            return res.reshape(sunzsec.shape)
 
-            ipn = da.map_blocks(_do_interp, minterp, sunzsec, azidiff,
-                                satzsec, dtype=raylwvl.dtype,
-                                chunks=azidiff.chunks)
+        if HAVE_DASK:
+            ipn = map_blocks(_do_interp, minterp, sunzsec, azidiff,
+                             satzsec, dtype=raylwvl.dtype,
+                             chunks=azidiff.chunks)
         else:
-            # FIXME: Untested
-            def _do_interp(sunz_sec_coord, azid_coord, satz_sec_coord,
-                           raylwvl):
-                interp_points = np.dstack((sunzsec,
-                                           180. - azidiff,
-                                           satzsec))
-
-                return interpn(
-                    (sunz_sec_coord, azid_coord, satz_sec_coord),
-                    raylwvl[:, :, :], interp_points)
-            ipn = da.map_blocks(_do_interp, sunz_sec_coord, azid_coord,
-                                satz_sec_coord, raylwvl[:, :, :],
-                                dtype=raylwvl.dtype,
-                                chunks=azidiff.chunks)
+            ipn = _do_interp(minterp, sunzsec, azidiff, satzsec)
 
         LOG.debug("Time - Interpolation: {0:f}".format(time.time() - tic))
 
         ipn *= 100
         res = ipn
         if redband is not None:
-            res = da.where(da.less(redband, 20.), res,
-                           (1 - (redband - 20) / 80) * res)
+            res = where(redband < 20., res,
+                        (1 - (redband - 20) / 80) * res)
 
-        return da.clip(res, 0, 100)
+        return clip(res, 0, 100)
 
 
 def get_reflectance_lut(filename):
@@ -262,22 +244,37 @@ def get_reflectance_lut(filename):
 
     h5f = h5py.File(filename, 'r')
 
-    tab = da.from_array(h5f['reflectance'],  chunks=(10, 10, 10, 10))
-    wvl = da.from_array(h5f['wavelengths'],  chunks=(100,))
-    azidiff = da.from_array(h5f['azimuth_difference'], chunks=(1000,))
-    satellite_zenith_secant = da.from_array(h5f['satellite_zenith_secant'],
-                                            chunks=(1000,))
-    sun_zenith_secant = da.from_array(h5f['sun_zenith_secant'],
-                                      chunks=(1000,))
+    tab = h5f['reflectance']
+    wvl = h5f['wavelengths']
+    azidiff = h5f['azimuth_difference']
+    satellite_zenith_secant = h5f['satellite_zenith_secant']
+    sun_zenith_secant = h5f['sun_zenith_secant']
+
+    if HAVE_DASK:
+        tab = from_array(tab, chunks=(10, 10, 10, 10))
+        # wvl_coord is used in a lot of non-dask functions, keep in memory
+        wvl = from_array(wvl, chunks=(100,)).persist()
+        azidiff = from_array(azidiff, chunks=(1000,))
+        satellite_zenith_secant = from_array(satellite_zenith_secant,
+                                             chunks=(1000,))
+        sun_zenith_secant = from_array(sun_zenith_secant,
+                                       chunks=(1000,))
+    else:
+        # load all of the data we are going to use in to memory
+        tab = tab[:]
+        wvl = wvl[:]
+        azidiff = azidiff[:]
+        satellite_zenith_secant = satellite_zenith_secant[:]
+        sun_zenith_secant = sun_zenith_secant[:]
 
     return tab, wvl, azidiff, satellite_zenith_secant, sun_zenith_secant
 
 
-if __name__ == "__main__":
-    SHAPE = (1000, 3000)
-    NDIM = SHAPE[0] * SHAPE[1]
-    SUNZ = np.ma.arange(
-        NDIM / 2, NDIM + NDIM / 2).reshape(SHAPE) * 60. / float(NDIM)
-    SATZ = np.ma.arange(NDIM).reshape(SHAPE) * 60. / float(NDIM)
-    AZIDIFF = np.ma.arange(NDIM).reshape(SHAPE) * 179.9 / float(NDIM)
-    rfl = this.get_reflectance(SUNZ, SATZ, AZIDIFF, 'M4')
+# if __name__ == "__main__":
+#     SHAPE = (1000, 3000)
+#     NDIM = SHAPE[0] * SHAPE[1]
+#     SUNZ = np.ma.arange(
+#         NDIM / 2, NDIM + NDIM / 2).reshape(SHAPE) * 60. / float(NDIM)
+#     SATZ = np.ma.arange(NDIM).reshape(SHAPE) * 60. / float(NDIM)
+#     AZIDIFF = np.ma.arange(NDIM).reshape(SHAPE) * 179.9 / float(NDIM)
+#     rfl = this.get_reflectance(SUNZ, SATZ, AZIDIFF, 'M4')

@@ -23,13 +23,11 @@
 """Unittest for the rayleigh correction utilities
 """
 
+import os
 import sys
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
-
+from mock import patch
 import numpy as np
+import dask.array as da
 from pyspectral import rayleigh
 from pyspectral.rayleigh import BandFrequencyOutOfRange
 from pyspectral.tests.data import (
@@ -40,14 +38,16 @@ from pyspectral.tests.data import (
     TEST_RAYLEIGH_WVL_COORD)
 from pyspectral.utils import RSR_DATA_VERSION
 
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
+
 
 TEST_RAYLEIGH_RESULT1 = np.array([10.40727436,   8.69775471], dtype='float32')
 TEST_RAYLEIGH_RESULT2 = np.array([9.71695252,  8.51415601], dtype='float32')
 TEST_RAYLEIGH_RESULT3 = np.array([5.61532271,  8.69267476], dtype='float32')
 
-
-import os
-from mock import patch
 
 # Mock some modules, so we don't need them for tests.
 
@@ -99,6 +99,9 @@ class TestRayleigh(unittest.TestCase):
 
         self.cwvl = 0.4440124
         self.rsr = RelativeSpectralResponseTestData()
+        self._res1 = da.from_array(TEST_RAYLEIGH_RESULT1, chunks=2)
+        self._res2 = da.from_array(TEST_RAYLEIGH_RESULT2, chunks=2)
+        self._res3 = da.from_array(TEST_RAYLEIGH_RESULT3, chunks=2)
 
         # mymock:
         with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
@@ -141,7 +144,7 @@ class TestRayleigh(unittest.TestCase):
     @patch('os.path.exists')
     @patch('pyspectral.utils.download_luts')
     def test_rayleigh_init(self, download_luts, exists):
-        """Test getting the effective wavelength"""
+        """Test creating the Rayleigh object"""
 
         download_luts.return_code = None
         exists.return_code = True
@@ -164,6 +167,7 @@ class TestRayleigh(unittest.TestCase):
             this = rayleigh.Rayleigh('NOAA-19', 'avhrr/3', atmosphere='tropical')
             self.assertTrue(this.sensor == 'avhrr3')
 
+    @patch('pyspectral.rayleigh.HAVE_DASK', False)
     @patch('os.path.exists')
     @patch('pyspectral.utils.download_luts')
     @patch('pyspectral.rayleigh.get_reflectance_lut')
@@ -190,16 +194,63 @@ class TestRayleigh(unittest.TestCase):
         sat_zenith = np.array([45., 18.])
         azidiff = np.array([150., 110.])
         blueband = np.array([14., 5.])
-        retv = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', blueband)
+        retv = self.viirs_rayleigh.get_reflectance(
+            sun_zenith, sat_zenith, azidiff, 'M2', blueband)
         self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT1))
 
         sun_zenith = np.array([60., 20.])
         sat_zenith = np.array([49., 26.])
         azidiff = np.array([140., 130.])
         blueband = np.array([12., 8.])
-        retv = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', blueband)
+        retv = self.viirs_rayleigh.get_reflectance(
+            sun_zenith, sat_zenith, azidiff, 'M2', blueband)
         self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT2))
 
+    @patch('os.path.exists')
+    @patch('pyspectral.utils.download_luts')
+    @patch('pyspectral.rayleigh.get_reflectance_lut')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.'
+           '_get_rsr_data_version')
+    @patch('pyspectral.rayleigh.Rayleigh.get_effective_wavelength')
+    def test_get_reflectance_dask(self, get_effective_wvl,
+                                  get_rsr_version, get_reflectance_lut,
+                                  download_luts, exists):
+        """Test getting the reflectance correction with dask inputs"""
+
+        import dask.array as da
+        rayl = da.from_array(TEST_RAYLEIGH_LUT, chunks=(10, 10, 10, 10))
+        wvl_coord = da.from_array(TEST_RAYLEIGH_WVL_COORD,
+                                  chunks=(100,)).persist()
+        azid_coord = da.from_array(TEST_RAYLEIGH_AZID_COORD, chunks=(1000,))
+        sunz_sec_coord = da.from_array(TEST_RAYLEIGH_SUNZ_COORD,
+                                       chunks=(1000,))
+        satz_sec_coord = da.from_array(TEST_RAYLEIGH_SATZ_COORD,
+                                       chunks=(1000,))
+
+        get_reflectance_lut.return_value = (rayl, wvl_coord, azid_coord,
+                                            satz_sec_coord, sunz_sec_coord)
+        download_luts.return_code = None
+        exists.return_code = True
+        get_rsr_version.return_code = RSR_DATA_VERSION
+        get_effective_wvl.return_value = self.cwvl
+
+        sun_zenith = da.from_array(np.array([67., 32.]), chunks=2)
+        sat_zenith = da.from_array(np.array([45., 18.]), chunks=2)
+        azidiff = da.from_array(np.array([150., 110.]), chunks=2)
+        blueband = da.from_array(np.array([14., 5.]), chunks=2)
+        retv = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', blueband)
+        self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT1))
+        self.assertIsInstance(retv, da.Array)
+
+        sun_zenith = da.from_array(np.array([60., 20.]), chunks=2)
+        sat_zenith = da.from_array(np.array([49., 26.]), chunks=2)
+        azidiff = da.from_array(np.array([140., 130.]), chunks=2)
+        blueband = da.from_array(np.array([12., 8.]), chunks=2)
+        retv = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', blueband)
+        self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT2))
+        self.assertIsInstance(retv, da.Array)
+
+    @patch('pyspectral.rayleigh.HAVE_DASK', False)
     @patch('os.path.exists')
     @patch('pyspectral.utils.download_luts')
     @patch('pyspectral.rayleigh.get_reflectance_lut')
