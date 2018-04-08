@@ -55,12 +55,14 @@ LOG = logging.getLogger(__name__)
 
 
 class BandFrequencyOutOfRange(ValueError):
+
     """Exception when the band frequency is out of the visible range"""
 
     pass
 
 
 class Rayleigh(object):
+
     """Container for the atmospheric correction of satellite imager bands.
 
     This class removes background contributions of Rayleigh scattering of
