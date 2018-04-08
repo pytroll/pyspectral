@@ -62,7 +62,7 @@ install:
   # target Python version and architecture
   - "conda update --yes conda"
   - "conda config --add channels conda-forge"
-  - "conda create -q --yes -n test python=%PYTHON_VERSION% matplotlib tqdm six pyyaml xlrd sphinx h5py scipy pandas requests appdirs"
+  - "conda create -q --yes -n test python=%PYTHON_VERSION% matplotlib tqdm six pyyaml xlrd sphinx h5py scipy pandas requests appdirs dask"
   - "activate test"
   - "pip install coveralls"
   - "pip install mock"
