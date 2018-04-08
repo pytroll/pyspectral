@@ -63,13 +63,15 @@ class BandFrequencyOutOfRange(ValueError):
 
 class Rayleigh(object):
 
-    """Container for the atmospheric correction of satellite imager short
-    wave bands. Removing background contributions of Rayleigh scattering of
+    """Container for the atmospheric correction of satellite imager bands.
+
+    This class removes background contributions of Rayleigh scattering of
     molecules and Mie scattering and absorption by aerosols.
 
     """
 
     def __init__(self, platform_name, sensor, **kwargs):
+        """Initialize class and determine LUT to use."""
         self.platform_name = platform_name
         self.sensor = sensor
         self.coeff_filename = None
@@ -125,7 +127,6 @@ class Rayleigh(object):
 
     def get_effective_wavelength(self, bandname):
         """Get the effective wavelength with Rayleigh scattering in mind"""
-
         try:
             rsr = RelativeSpectralResponse(self.platform_name, self.sensor)
         except IOError:
