@@ -13,7 +13,7 @@ matrix:
 install: 
   - if [[ $TRAVIS_PYTHON_VERSION == "2.7" ]]; then travis_wait mvn; pip install "scipy>=0.14"; fi
   - pip install -r requirements.txt
-  - pip install dask  # optional
+  - pip install dask[array]  # optional
   - pip install .
   - pip install coveralls
 addons:
