@@ -216,8 +216,6 @@ class TestRayleigh(unittest.TestCase):
                                   get_rsr_version, get_reflectance_lut,
                                   download_luts, exists):
         """Test getting the reflectance correction with dask inputs"""
-
-        import dask.array as da
         rayl = da.from_array(TEST_RAYLEIGH_LUT, chunks=(10, 10, 10, 10))
         wvl_coord = da.from_array(TEST_RAYLEIGH_WVL_COORD,
                                   chunks=(100,)).persist()

@@ -43,6 +43,7 @@ except ImportError:
     from_array = None
     HAVE_DASK = False
 
+from geotiepoints.multilinear import MultilinearInterpolator
 from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.utils import (INSTRUMENTS, RAYLEIGH_LUT_DIRS,
                               AEROSOL_TYPES, ATMOSPHERES,
@@ -52,12 +53,11 @@ from pyspectral.utils import (INSTRUMENTS, RAYLEIGH_LUT_DIRS,
 
 LOG = logging.getLogger(__name__)
 
-from geotiepoints.multilinear import MultilinearInterpolator
-
 
 class BandFrequencyOutOfRange(ValueError):
 
     """Exception when the band frequency is out of the visible range"""
+
     pass
 
 
