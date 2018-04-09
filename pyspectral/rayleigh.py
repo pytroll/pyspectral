@@ -35,12 +35,13 @@ import h5py
 import numpy as np
 
 try:
-    from dask.array import where, zeros, map_blocks, from_array, clip
+    from dask.array import where, zeros, map_blocks, from_array, clip, Array
     HAVE_DASK = True
 except ImportError:
     from numpy import where, zeros, clip
     map_blocks = None
     from_array = None
+    Array = None
     HAVE_DASK = False
 
 from geotiepoints.multilinear import MultilinearInterpolator
@@ -177,6 +178,16 @@ class Rayleigh(object):
         rayl, wvl_coord, azid_coord, satz_sec_coord, sunz_sec_coord = \
             self.get_reflectance_lut()
 
+        # force dask arrays
+        compute = False
+        if HAVE_DASK and not isinstance(sun_zenith, Array):
+            compute = True
+            sun_zenith = from_array(sun_zenith, chunks=sun_zenith.shape)
+            sat_zenith = from_array(sat_zenith, chunks=sat_zenith.shape)
+            azidiff = from_array(azidiff, chunks=azidiff.shape)
+            if redband is not None:
+                redband = from_array(redband, chunks=redband.shape)
+
         clip_angle = np.rad2deg(np.arccos(1. / sunz_sec_coord.max()))
         sun_zenith = clip(sun_zenith, 0, clip_angle)
         sunzsec = 1. / np.cos(np.deg2rad(sun_zenith))
@@ -192,8 +203,12 @@ class Rayleigh(object):
                 str(bandname))
             LOG.info(
                 "Set the rayleigh/aerosol reflectance contribution to zero!")
-            chunks = sun_zenith.chunks if redband is None else redband.chunks
-            return zeros(shape, chunks=chunks)
+            if HAVE_DASK:
+                chunks = sun_zenith.chunks if redband is None else redband.chunks
+                res = zeros(shape, chunks=chunks)
+                return res.compute() if compute else res
+            else:
+                return zeros(shape)
 
         idx = np.searchsorted(wvl_coord, wvl)
         wvl1 = wvl_coord[idx - 1]
@@ -234,7 +249,10 @@ class Rayleigh(object):
             res = where(redband < 20., res,
                         (1 - (redband - 20) / 80) * res)
 
-        return clip(res, 0, 100)
+        res = clip(res, 0, 100)
+        if compute:
+            res = res.compute()
+        return res
 
 
 def get_reflectance_lut(filename):
