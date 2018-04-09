@@ -204,7 +204,8 @@ class Rayleigh(object):
             LOG.info(
                 "Set the rayleigh/aerosol reflectance contribution to zero!")
             if HAVE_DASK:
-                chunks = sun_zenith.chunks if redband is None else redband.chunks
+                chunks = sun_zenith.chunks if redband is None \
+                    else redband.chunks
                 res = zeros(shape, chunks=chunks)
                 return res.compute() if compute else res
             else:
