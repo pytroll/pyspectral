@@ -181,7 +181,6 @@ class Rayleigh(object):
         # force dask arrays
         compute = False
         if HAVE_DASK and not isinstance(sun_zenith, Array):
-            print("NO")
             compute = True
             sun_zenith = from_array(sun_zenith, chunks=sun_zenith.shape)
             sat_zenith = from_array(sat_zenith, chunks=sat_zenith.shape)
@@ -229,9 +228,6 @@ class Rayleigh(object):
         minterp.set_values(np.atleast_2d(f_3d_grid.ravel()))
 
         def _do_interp(minterp, sunzsec, azidiff, satzsec):
-            print(sunzsec.shape, sunzsec.size)
-            print(azidiff.shape, azidiff.size)
-            print(satzsec.shape, satzsec.size)
             interp_points2 = np.vstack((sunzsec.ravel(),
                                         180 - azidiff.ravel(),
                                         satzsec.ravel()))
@@ -239,10 +235,6 @@ class Rayleigh(object):
             return res.reshape(sunzsec.shape)
 
         if HAVE_DASK:
-            print("About to map blocks")
-            print(sunzsec.shape, sunzsec.size, sunzsec.chunks)
-            print(azidiff.shape, azidiff.size, azidiff.chunks)
-            print(satzsec.shape, satzsec.size, satzsec.chunks)
             ipn = map_blocks(_do_interp, minterp, sunzsec, azidiff,
                              satzsec, dtype=raylwvl.dtype,
                              chunks=azidiff.chunks)
