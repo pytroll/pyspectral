@@ -35,10 +35,13 @@ import h5py
 import numpy as np
 
 try:
-    from dask.array import where, zeros, map_blocks, from_array, clip, Array
+    from dask.array import (where, zeros, clip, rad2deg, deg2rad, cos, arccos,
+                            atleast_2d, Array, map_blocks, from_array)
     HAVE_DASK = True
+    # use serializable h5py wrapper to make sure files are closed properly
+    import h5pickle as h5py
 except ImportError:
-    from numpy import where, zeros, clip
+    from numpy import where, zeros, clip, rad2deg, deg2rad, cos, arccos, atleast_2d
     map_blocks = None
     from_array = None
     Array = None
@@ -188,13 +191,12 @@ class Rayleigh(object):
             if redband is not None:
                 redband = from_array(redband, chunks=redband.shape)
 
-        clip_angle = np.rad2deg(np.arccos(1. / sunz_sec_coord.max()))
+        clip_angle = rad2deg(arccos(1. / sunz_sec_coord.max()))
         sun_zenith = clip(sun_zenith, 0, clip_angle)
-        sunzsec = 1. / np.cos(np.deg2rad(sun_zenith))
-        clip_angle = np.rad2deg(np.arccos(1. / satz_sec_coord.max()))
+        sunzsec = 1. / cos(deg2rad(sun_zenith))
+        clip_angle = rad2deg(arccos(1. / satz_sec_coord.max()))
         sat_zenith = clip(sat_zenith, 0, clip_angle)
-        satzsec = 1. / np.cos(np.deg2rad(sat_zenith))
-
+        satzsec = 1. / cos(deg2rad(sat_zenith))
         shape = sun_zenith.shape
 
         if not(wvl_coord.min() < wvl < wvl_coord.max()):
@@ -226,7 +228,7 @@ class Rayleigh(object):
         minterp = MultilinearInterpolator(smin, smax, orders)
 
         f_3d_grid = raylwvl
-        minterp.set_values(np.atleast_2d(f_3d_grid.ravel()))
+        minterp.set_values(atleast_2d(f_3d_grid.ravel()))
 
         def _do_interp(minterp, sunzsec, azidiff, satzsec):
             interp_points2 = np.vstack((sunzsec.ravel(),
@@ -286,6 +288,7 @@ def get_reflectance_lut(filename):
         azidiff = azidiff[:]
         satellite_zenith_secant = satellite_zenith_secant[:]
         sun_zenith_secant = sun_zenith_secant[:]
+        h5f.close()
 
     return tab, wvl, azidiff, satellite_zenith_secant, sun_zenith_secant
 
