@@ -37,8 +37,8 @@ dask_extra = ['dask[array]']
 test_requires = ['xlrd', 'pyyaml', 'matplotlib', 'dask[array]']
 if sys.version < '3.0':
     test_requires.append('mock')
-if sys.version >= '3.5':
-    # h5pickle 0.3 only supports 3.5+
+if sys.version >= '3.6':
+    # h5pickle 0.3 only supports 3.6+
     test_requires.append('h5pickle')
     dask_extra.append('h5pickle')
 
