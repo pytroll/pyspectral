@@ -33,9 +33,14 @@ requires = ['docutils>=0.3', 'numpy>=1.5.1', 'scipy>=0.14',
             'h5py>=2.5', 'requests', 'tqdm', 'six', 'pyyaml',
             'appdirs']
 
-test_requires = ['xlrd', 'pyyaml', 'matplotlib']
+dask_extra = ['dask[array]']
+test_requires = ['xlrd', 'pyyaml', 'matplotlib', 'dask[array]']
 if sys.version < '3.0':
     test_requires.append('mock')
+if sys.version >= '3.6':
+    # h5pickle 0.3 only supports 3.6+
+    test_requires.append('h5pickle')
+    dask_extra.append('h5pickle')
 
 from setuptools import setup
 import imp
@@ -77,7 +82,8 @@ setup(name='pyspectral',
       install_requires=requires,
       extras_require={'xlrd': ['xlrd'], 'trollsift': ['trollsift'],
                       'matplotlib': ['matplotlib'],
-                      'pandas': ['pandas']},
+                      'pandas': ['pandas'],
+                      'dask': dask_extra},
       scripts=['plot_rsr.py', 'composite_rsr_plot.py'],
       data_files=[('share', ['pyspectral/data/e490_00a.dat',
                              'pyspectral/data/MSG_SEVIRI_Spectral_Response_Characterisation.XLS'])],
