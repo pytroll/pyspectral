@@ -1,6 +1,71 @@
 Changelog
 =========
 
+v0.7.0 (2018-04-17)
+-------------------
+
+- Update changelog. [Adam.Dybbroe]
+
+- Bump version: 0.6.5 → 0.7.0. [Adam.Dybbroe]
+
+- Fix so that unitests pass silently and successfully at the end.
+  [Adam.Dybbroe]
+
+  On some Pythn systems we have seen that the unittests complain in the end
+  with a "TypeError: 'NoneType' object is not callable" and an "Exception
+  in thread"
+
+- Merge pull request #33 from pytroll/feature_dask_atm_correction. [Adam
+  Dybbroe]
+
+  Fix Rayleigh corrector to work with dask
+
+- Merge branch 'develop' into feature_dask_atm_correction.
+  [Adam.Dybbroe]
+
+- Bugfix OLCI band names. [Adam.Dybbroe]
+
+- Fix h5pickle on 3.5 environments (not supported) [davidh-ssec]
+
+- Add h5pickle if the python version is compatible. [davidh-ssec]
+
+- Add h5pickle for safer HDF5 handling with dask in rayleigh correction.
+  [davidh-ssec]
+
+- Fix dask array requirement for tests. [davidh-ssec]
+
+- Fix line too long. [davidh-ssec]
+
+- Remove leftover print statements. [davidh-ssec]
+
+- Fix rayleigh correction converting dask array to numpy. [davidh-ssec]
+
+- Fix rayleigh correction to work with dask installed and numpy inputs.
+  [davidh-ssec]
+
+- Fix more style issues. [davidh-ssec]
+
+- More style fixes. [davidh-ssec]
+
+- More style fixes. [davidh-ssec]
+
+- Fix a styling issues. [davidh-ssec]
+
+- Add missing toolz dependency on CI environments. [davidh-ssec]
+
+- Add dask to CI environments. [davidh-ssec]
+
+- Fix rayleigh corrector to work with or without dask. [davidh-ssec]
+
+- Fix flake8 style issues. [davidh-ssec]
+
+- Update rayleigh correction to be better about using dask. [davidh-
+  ssec]
+
+- Daskifying: Keep the h5 lut-file open. [Adam.Dybbroe]
+
+- First steps daskifying... [Adam.Dybbroe]
+
 v0.6.5 (2018-03-31)
 -------------------
 
