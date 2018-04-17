@@ -37,6 +37,13 @@ dask_extra = ['dask[array]']
 test_requires = ['xlrd', 'pyyaml', 'matplotlib', 'dask[array]']
 if sys.version < '3.0':
     test_requires.append('mock')
+    try:
+        # This is needed in order to let the unittests pass
+        # without complaining at the end on certain systems
+        import multiprocessing
+    except ImportError:
+        pass
+
 if sys.version >= '3.6':
     # h5pickle 0.3 only supports 3.6+
     test_requires.append('h5pickle')
