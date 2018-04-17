@@ -1,6 +1,15 @@
 Changelog
 =========
 
+v0.6.5 (2018-03-31)
+-------------------
+
+- Update changelog. [Adam.Dybbroe]
+
+- Bump version: 0.6.4 → 0.6.5. [Adam.Dybbroe]
+
+- Remove private test scripts from git. [Adam.Dybbroe]
+
 v0.6.4 (2018-03-22)
 -------------------
 
