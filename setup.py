@@ -30,7 +30,7 @@ except IOError:
 
 requires = ['docutils>=0.3', 'numpy>=1.5.1', 'scipy>=0.14',
             'python-geotiepoints>=1.1.1',
-            'h5py>=2.5', 'requests', 'tqdm', 'six', 'pyyaml',
+            'h5py>=2.5', 'requests', 'six', 'pyyaml',
             'appdirs']
 
 dask_extra = ['dask[array]']
@@ -90,6 +90,7 @@ setup(name='pyspectral',
       extras_require={'xlrd': ['xlrd'], 'trollsift': ['trollsift'],
                       'matplotlib': ['matplotlib'],
                       'pandas': ['pandas'],
+                      'tqdm': ['tqdm'],
                       'dask': dask_extra},
       scripts=['plot_rsr.py', 'composite_rsr_plot.py'],
       data_files=[('share', ['pyspectral/data/e490_00a.dat',

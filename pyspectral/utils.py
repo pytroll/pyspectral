@@ -355,7 +355,11 @@ def download_luts(**kwargs):
     #
     import tarfile
     import requests
-    from tqdm import tqdm
+    TQDM_LOADED = True
+    try:
+        from tqdm import tqdm
+    except ImportError:
+        TQDM_LOADED = False
 
     if 'aerosol_type' in kwargs:
         if isinstance(kwargs['aerosol_type'], (list, tuple, set)):
@@ -364,6 +368,8 @@ def download_luts(**kwargs):
             aerosol_types = [kwargs['aerosol_type'], ]
     else:
         aerosol_types = HTTPS_RAYLEIGH_LUTS.keys()
+
+    chunk_size = 512
 
     for subname in aerosol_types:
 
@@ -376,13 +382,20 @@ def download_luts(**kwargs):
                 raise
 
         response = requests.get(http)
+        total_size = int(response.headers['content-length'])
 
         subdirname = RAYLEIGH_LUT_DIRS[subname]
         filename = os.path.join(
             subdirname, "pyspectral_rayleigh_correction_luts.tgz")
-        with open(filename, "wb") as handle:
-            for data in tqdm(response.iter_content()):
-                handle.write(data)
+        if TQDM_LOADED:
+            with open(filename, "wb") as handle:
+                for data in tqdm(iterable=response.iter_content(chunk_size=chunk_size),
+                                 total=(total_size / chunk_size), unit='kB'):
+                    handle.write(data)
+        else:
+            with open(filename, "wb") as handle:
+                for data in response.iter_content():
+                    handle.write(data)
 
         tar = tarfile.open(filename)
         tar.extractall(subdirname)
