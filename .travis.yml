@@ -34,7 +34,10 @@ deploy:
   password:
     secure: A/DAh5K6A1UzARPWsiNL+qiyLfHd1dS2fhmZlE0SNcS0zN1CalyY2s7znVKTE15fSF0oV/jah/jy1PQIMBFFbAhpc6nmnDx3DxJ3d9RWxGE2hLWKn9tYUHQ07k7oiRFrwQe2bEJlaLBQfBOZ/DIe4Umc3osC65UINX03oOHsPFI=
   on:
-    tags: false
+    tags: true
     repo: pytroll/pyspectral
+    python: 3.6
+    distributions: sdist bdist_wheel
+
 notifications:
   slack: pytroll:LR63XVq1cT8kVc3fnXKIZmYr
