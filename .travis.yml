@@ -1,4 +1,15 @@
 language: python
+env:
+  global:
+  - PYTHON_VERSION=$PYTHON_VERSION
+  - NUMPY_VERSION=stable
+  - MAIN_CMD='python setup.py'
+  - CONDA_DEPENDENCIES='scipy numpy coveralls coverage h5py mock requests six appdirs python-geotiepoints dask'
+  - PIP_DEPENDENCIES=''
+  - SETUP_XVFB=False
+  - EVENT_TYPE='push pull_request'
+  - SETUP_CMD='test'
+  - CONDA_CHANNELS='conda-forge'
 python:
 - 2.7
 - 3.4
