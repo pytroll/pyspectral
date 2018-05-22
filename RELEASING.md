@@ -1,4 +1,4 @@
-# Releasing Pyresample
+# Releasing PySpectral
 
 prerequisites: `pip install bumpversion setuptools twine`
 
@@ -10,7 +10,7 @@ NB! You do not need `mercurial`. `bumpversion` is supposed to function without i
 4. run `loghub` and update the `CHANGELOG.md` file:
 
 ```
-loghub pytroll/pyresample -u <username> -st v0.8.0 -plg bug "Bugs fixed" -plg enhancement "Features added" -plg documentation "Documentation changes"
+loghub pytroll/pyspectral -u <username> -st v0.7.1 -plg bug "Bugs fixed" -plg enhancement "Features added" -plg documentation "Documentation changes"
 ```
 
 Don't forget to commit!
