@@ -1,3 +1,4 @@
 include pyspectral/etc/*
 include pyspectral/data/e490_00a.dat
 include pyspectral/data/MSG_SEVIRI_Spectral_Response_Characterisation.XLS
+include LICENSE.txt
