@@ -38,6 +38,5 @@ deploy:
     on:
       tags: true
       repo: pytroll/pyspectral
-      python: 3.6
 notifications:
   slack: pytroll:LR63XVq1cT8kVc3fnXKIZmYr
