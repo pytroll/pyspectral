@@ -16,6 +16,4 @@ expected output is a better solution.]
 #### Versions of Python, package at hand and relevant dependencies
 
 
-Finally, please try label your issue as either "bug", "enhancement", or "question".
-
 Thank you for reporting an issue !

@@ -10,43 +10,34 @@ env:
   - EVENT_TYPE='push pull_request'
   - SETUP_CMD='test'
   - CONDA_CHANNELS='conda-forge'
-python:
-- 2.7
-- 3.4
-- 3.5
-- 3.6
-os:
-- linux
 matrix:
-  allow_failures:
-  - os: osx
+  include:
+    - env: PYTHON_VERSION=2.7
+      os: linux
+    - env: PYTHON_VERSION=2.7
+      os: osx
+      language: generic
+    - env: PYTHON_VERSION=3.6
+      os: linux
+    - env: PYTHON_VERSION=3.6
+      os: osx
+      language: generic
 install:
-- if [[ $TRAVIS_PYTHON_VERSION == "2.7" ]]; then travis_wait mvn; pip install "scipy>=0.14";
-  fi
-- pip install -r requirements.txt
-- pip install dask[array]
-- pip install .
-- pip install coveralls
-addons:
-  apt_packages:
-  - libhdf5-serial-dev
+- git clone --depth 1 git://github.com/astropy/ci-helpers.git
+- source ci-helpers/travis/setup_conda.sh
 script: coverage run --source=pyspectral setup.py test
-#virtualenv:
-#  system_site_packages: true
-before_install:
-- sudo apt-get install libblas-dev liblapack-dev libatlas-base-dev gfortran
-- sudo apt-get install -qq python-numpy
-after_success: coveralls
+after_success:
+- if [[ $PYTHON_VERSION == 3.6 ]]; then coveralls; fi
 deploy:
-  provider: pypi
-  user: adybbroe
-  password:
-    secure: SY0qo7sZXDjDx0DHvuXrHvL9VTAulgU/T33d6UWXf469jT9DOexuZ2VYLgJbYQen5FSe5JmQE0ZMdId1cb8IPP/77qCgQK6f0lRDa43fSYXhcD+fHzlQskievJrwamkRYx6WBrJbwGAKBNinUgNSaTdbh9XUugziGFiOHUfVppM=
-  on:
-    tags: true
-    repo: pytroll/pyspectral
-    python: 3.6
+  - provider: pypi
+    user: adybbroe
+    password:
+      secure: SY0qo7sZXDjDx0DHvuXrHvL9VTAulgU/T33d6UWXf469jT9DOexuZ2VYLgJbYQen5FSe5JmQE0ZMdId1cb8IPP/77qCgQK6f0lRDa43fSYXhcD+fHzlQskievJrwamkRYx6WBrJbwGAKBNinUgNSaTdbh9XUugziGFiOHUfVppM=
     distributions: sdist bdist_wheel
-
+    skip_existing: true
+    on:
+      tags: true
+      repo: pytroll/pyspectral
+      python: 3.6
 notifications:
   slack: pytroll:LR63XVq1cT8kVc3fnXKIZmYr
