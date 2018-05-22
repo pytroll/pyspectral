@@ -18,8 +18,17 @@ python:
 os:
 - linux
 matrix:
-  allow_failures:
-  - os: osx
+  include:
+    - env: PYTHON_VERSION=2.7
+      os: linux
+    - env: PYTHON_VERSION=2.7
+      os: osx
+      language: generic
+    - env: PYTHON_VERSION=3.6
+      os: linux
+    - env: PYTHON_VERSION=3.6
+      os: osx
+      language: generic
 install:
 - if [[ $TRAVIS_PYTHON_VERSION == "2.7" ]]; then travis_wait mvn; pip install "scipy>=0.14";
   fi
