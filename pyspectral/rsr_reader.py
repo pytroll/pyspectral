@@ -113,12 +113,12 @@ class RelativeSpectralResponse(object):
     def _check_instrument(self):
         """Check and try fix instrument name if needed"""
         instr = INSTRUMENTS.get(self.platform_name, self.instrument.lower())
-        if instr != self.instrument:
+        if instr != self.instrument.lower():
             self.instrument = instr
             LOG.warning("Inconsistent instrument/satellite input - " +
                         "instrument set to %s", self.instrument)
 
-        self.instrument = self.instrument.replace('/', '')
+        self.instrument = self.instrument.lower().replace('/', '')
 
     def _get_filename(self):
         """Get the rsr filname from platform and instrument names, and download if not
