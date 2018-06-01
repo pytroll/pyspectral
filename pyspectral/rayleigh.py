@@ -176,11 +176,17 @@ class Rayleigh(object):
         return self._rayl, self._wvl_coord, self._azid_coord,\
             self._satz_sec_coord, self._sunz_sec_coord
 
-    def get_reflectance(self, sun_zenith, sat_zenith, azidiff, bandname,
-                        redband=None):
-        """Get the reflectance from the three sun-sat angles."""
+    def get_reflectance(self, sun_zenith, sat_zenith, azidiff, bandname, redband=None):
+        """Get the reflectance from the three sun-sat angles"""
         # Get wavelength in nm for band:
-        wvl = self.get_effective_wavelength(bandname) * 1000.0
+        if isinstance(bandname, float):
+            LOG.warning('A wavelength is provided instead of band name - ' +
+                        'disregard the relative spectral responses and assume ' +
+                        'it is the effective wavelength: %f (micro meter)', bandname)
+            wvl = bandname * 1000.0
+        else:
+            wvl = self.get_effective_wavelength(bandname) * 1000.0
+
         rayl, wvl_coord, azid_coord, satz_sec_coord, sunz_sec_coord = \
             self.get_reflectance_lut()
 
