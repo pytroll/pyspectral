@@ -123,6 +123,31 @@ HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/1205138/files/pyspectral_rsr_da
 RSR_DATA_VERSION_FILENAME = "PYSPECTRAL_RSR_VERSION"
 RSR_DATA_VERSION = "v1.0.1"
 
+ATM_CORRECTION_LUT_VERSION = {}
+ATM_CORRECTION_LUT_VERSION['antarctic_aerosol'] = {'version': 'v1.0.0',
+                                                   'filename': 'PYSPECTRAL_ATM_CORR_LUT_AA'}
+ATM_CORRECTION_LUT_VERSION['continental_average_aerosol'] = {'version': 'v1.0.0',
+                                                             'filename': 'PYSPECTRAL_ATM_CORR_LUT_CAA'}
+ATM_CORRECTION_LUT_VERSION['continental_clean_aerosol'] = {'version': 'v1.0.0',
+                                                           'filename': 'PYSPECTRAL_ATM_CORR_LUT_CCA'}
+ATM_CORRECTION_LUT_VERSION['continental_polluted_aerosol'] = {'version': 'v1.0.0',
+                                                              'filename': 'PYSPECTRAL_ATM_CORR_LUT_CPA'}
+ATM_CORRECTION_LUT_VERSION['desert_aerosol'] = {'version': 'v1.0.0',
+                                                           'filename': 'PYSPECTRAL_ATM_CORR_LUT_DA'}
+ATM_CORRECTION_LUT_VERSION['marine_clean_aerosol'] = {'version': 'v1.0.0',
+                                                      'filename': 'PYSPECTRAL_ATM_CORR_LUT_MCA'}
+ATM_CORRECTION_LUT_VERSION['marine_polluted_aerosol'] = {'version': 'v1.0.0',
+                                                         'filename': 'PYSPECTRAL_ATM_CORR_LUT_MPA'}
+ATM_CORRECTION_LUT_VERSION['marine_tropical_aerosol'] = {'version': 'v1.0.0',
+                                                         'filename': 'PYSPECTRAL_ATM_CORR_LUT_MTA'}
+ATM_CORRECTION_LUT_VERSION['rural_aerosol'] = {'version': 'v1.0.0',
+                                               'filename': 'PYSPECTRAL_ATM_CORR_LUT_RA'}
+ATM_CORRECTION_LUT_VERSION['urban_aerosol'] = {'version': 'v1.0.0',
+                                               'filename': 'PYSPECTRAL_ATM_CORR_LUT_UA'}
+ATM_CORRECTION_LUT_VERSION['rayleigh_only'] = {'version': 'v1.0.0',
+                                               'filename': 'PYSPECTRAL_ATM_CORR_LUT_RO'}
+
+
 AEROSOL_TYPES = ['antarctic_aerosol', 'continental_average_aerosol',
                  'continental_clean_aerosol', 'continental_polluted_aerosol',
                  'desert_aerosol', 'marine_clean_aerosol',
