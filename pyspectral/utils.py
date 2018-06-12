@@ -327,7 +327,7 @@ def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06):
             dset[...] = arr
 
 
-def download_rsr():
+def download_rsr(dest_dir=LOCAL_RSR_DIR):
     """Download the pre-compiled hdf5 formatet relative spectral response functions
     from the internet
 
@@ -338,14 +338,16 @@ def download_rsr():
     import requests
     from tqdm import tqdm
 
+    LOG.info("Download RSR files and store in directory %s", dest_dir)
+
     response = requests.get(HTTP_PYSPECTRAL_RSR)
-    filename = os.path.join(LOCAL_RSR_DIR, "pyspectral_rsr_data.tgz")
+    filename = os.path.join(dest_dir, "pyspectral_rsr_data.tgz")
     with open(filename, "wb") as handle:
         for data in tqdm(response.iter_content()):
             handle.write(data)
 
     tar = tarfile.open(filename)
-    tar.extractall(LOCAL_RSR_DIR)
+    tar.extractall(dest_dir)
     tar.close()
     os.remove(filename)
 
