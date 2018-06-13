@@ -152,7 +152,7 @@ class Rayleigh(object):
         """
         basedir = RAYLEIGH_LUT_DIRS[self._aerosol_type]
         lutfiles_version_path = os.path.join(basedir,
-                                             ATM_CORRECTION_LUT_VERSION[self._aerosol_type][filename])
+                                             ATM_CORRECTION_LUT_VERSION[self._aerosol_type]['filename'])
 
         if not os.path.exists(lutfiles_version_path):
             return "v0.0.0"
