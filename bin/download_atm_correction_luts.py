@@ -25,30 +25,33 @@ spectral range
 
 """
 
+import logging
 import argparse
 from pyspectral.utils import download_luts, AEROSOL_TYPES
 from pyspectral.utils import logging_on, logging_off, get_logger
 
+
 if __name__ == "__main__":
-
-    LOG = get_logger(__name__)
-
     parser = argparse.ArgumentParser(
         description='Download the atm correction LUT files')
     parser.add_argument("--aerosol_types", '-a', nargs='*',
                         help="Aerosol types",
                         type=str, default=AEROSOL_TYPES)
     parser.add_argument(
+        "-d", '--dry_run', help=("Dry run - no action"), action='store_true',
+        default=False)
+    parser.add_argument(
         "-v", '--verbose', help=("Turn logging on"), action='store_true')
 
     args = parser.parse_args()
     verbose = args.verbose
+    dry_run = args.dry_run
     aerosol_types = args.aerosol_types
 
     if verbose:
-        logging_on()
+        logging_on(logging.DEBUG)
     else:
         logging_off()
 
     # Download:
-    download_luts(aerosol_type=aerosol_types)
+    download_luts(aerosol_type=aerosol_types, dry_run=dry_run)

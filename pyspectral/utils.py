@@ -363,6 +363,8 @@ def download_luts(**kwargs):
     except ImportError:
         TQDM_LOADED = False
 
+    dry_run = kwargs.get('dry_run', False)
+
     if 'aerosol_type' in kwargs:
         if isinstance(kwargs['aerosol_type'], (list, tuple, set)):
             aerosol_types = kwargs['aerosol_type']
@@ -375,20 +377,27 @@ def download_luts(**kwargs):
 
     for subname in aerosol_types:
 
+        LOG.debug('Aerosol type: %s', subname)
         http = HTTPS_RAYLEIGH_LUTS[subname]
+        LOG.debug('URL = %s', http)
 
+        subdir_path = RAYLEIGH_LUT_DIRS[subname]
         try:
-            os.makedirs(RAYLEIGH_LUT_DIRS[subname])
+            LOG.debug('Create directory: %s', subdir_path)
+            if not dry_run:
+                os.makedirs(subdir_path)
         except OSError:
-            if not os.path.isdir(RAYLEIGH_LUT_DIRS[subname]):
+            if not os.path.isdir(subdir_path):
                 raise
+
+        if dry_run:
+            continue
 
         response = requests.get(http)
         total_size = int(response.headers['content-length'])
 
-        subdirname = RAYLEIGH_LUT_DIRS[subname]
         filename = os.path.join(
-            subdirname, "pyspectral_rayleigh_correction_luts.tgz")
+            subdir_path, "pyspectral_rayleigh_correction_luts.tgz")
         if TQDM_LOADED:
             with open(filename, "wb") as handle:
                 for data in tqdm(iterable=response.iter_content(chunk_size=chunk_size),
@@ -400,7 +409,7 @@ def download_luts(**kwargs):
                     handle.write(data)
 
         tar = tarfile.open(filename)
-        tar.extractall(subdirname)
+        tar.extractall(subdir_path)
         tar.close()
         os.remove(filename)
 
