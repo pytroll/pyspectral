@@ -23,31 +23,34 @@
 """Script to download the RSR files from internet
 """
 
+import logging
 import argparse
 from pyspectral.utils import download_rsr
-from pyspectral.utils import logging_on, logging_off, get_logger
+from pyspectral.utils import logging_on, logging_off
 
 if __name__ == "__main__":
 
-    LOG = get_logger(__name__)
-
     parser = argparse.ArgumentParser(
         description='Download relative spectral response data in hdf5')
-    parser.add_argument("-d", "--destination", help=("Destination path where to store the files"),
+    parser.add_argument("-o", "--destination", help=("Destination path where to store the files"),
                         default=None, type=str)
+    parser.add_argument(
+        "-d", '--dry_run', help=("Dry run - no action"), action='store_true',
+        default=False)
     parser.add_argument(
         "-v", '--verbose', help=("Turn logging on"), action='store_true')
 
     args = parser.parse_args()
     dest_dir = args.destination
     verbose = args.verbose
+    dry_run = args.dry_run
 
     if verbose:
-        logging_on()
+        logging_on(logging.DEBUG)
     else:
         logging_off()
 
     if dest_dir:
-        download_rsr(dest_dir)
+        download_rsr(dest_dir=dest_dir, dry_run=dry_run)
     else:
-        download_rsr()
+        download_rsr(dry_run=dry_run)

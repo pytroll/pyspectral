@@ -327,7 +327,7 @@ def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06):
             dset[...] = arr
 
 
-def download_rsr(dest_dir=LOCAL_RSR_DIR):
+def download_rsr(**kwargs):
     """Download the pre-compiled hdf5 formatet relative spectral response functions
     from the internet
 
@@ -336,15 +336,32 @@ def download_rsr(dest_dir=LOCAL_RSR_DIR):
     #
     import tarfile
     import requests
-    from tqdm import tqdm
+    TQDM_LOADED = True
+    try:
+        from tqdm import tqdm
+    except ImportError:
+        TQDM_LOADED = False
+
+    dest_dir = kwargs.get('dest_dir', LOCAL_RSR_DIR)
+    dry_run = kwargs.get('dry_run', False)
 
     LOG.info("Download RSR files and store in directory %s", dest_dir)
 
-    response = requests.get(HTTP_PYSPECTRAL_RSR)
     filename = os.path.join(dest_dir, "pyspectral_rsr_data.tgz")
-    with open(filename, "wb") as handle:
-        for data in tqdm(response.iter_content()):
-            handle.write(data)
+    LOG.debug("Get data. URL: %s", HTTP_PYSPECTRAL_RSR)
+    LOG.debug("Destination = %s", dest_dir)
+    if dry_run:
+        return
+
+    response = requests.get(HTTP_PYSPECTRAL_RSR)
+    if TQDM_LOADED:
+        with open(filename, "wb") as handle:
+            for data in tqdm(response.iter_content()):
+                handle.write(data)
+    else:
+        with open(filename, "wb") as handle:
+            for data in response.iter_content():
+                handle.write(data)
 
     tar = tarfile.open(filename)
     tar.extractall(dest_dir)
