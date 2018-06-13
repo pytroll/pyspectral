@@ -28,7 +28,7 @@ spectral range
 import logging
 import argparse
 from pyspectral.utils import download_luts, AEROSOL_TYPES
-from pyspectral.utils import logging_on, logging_off, get_logger
+from pyspectral.utils import logging_on, logging_off
 
 
 if __name__ == "__main__":
