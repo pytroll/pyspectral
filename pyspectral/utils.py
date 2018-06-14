@@ -160,28 +160,12 @@ ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
 
 
 HTTPS_RAYLEIGH_LUTS = {}
-HTTPS_RAYLEIGH_LUTS[
-    'antarctic_aerosol'] = "https://zenodo.org/record/1288441/files/pyspectral_atm_correction_luts_antarctic_aerosol.tgz"
-HTTPS_RAYLEIGH_LUTS[
-    'continental_average_aerosol'] = "https://zenodo.org/record/1288441/files/pyspectral_atm_correction_luts_continental_average_aerosol.tgz"
-HTTPS_RAYLEIGH_LUTS[
-    'continental_clean_aerosol'] = "https://zenodo.org/record/1288441/files/pyspectral_atm_correction_luts_continental_clean_aerosol.tgz"
-HTTPS_RAYLEIGH_LUTS[
-    'continental_polluted_aerosol'] = "https://zenodo.org/record/1288441/files/pyspectral_atm_correction_luts_continental_polluted_aerosol.tgz"
-HTTPS_RAYLEIGH_LUTS[
-    'desert_aerosol'] = "https://zenodo.org/record/1288441/files/pyspectral_atm_correction_luts_desert_aerosol.tgz"
-HTTPS_RAYLEIGH_LUTS[
-    'marine_clean_aerosol'] = "https://zenodo.org/record/1288441/files/pyspectral_atm_correction_luts_marine_clean_aerosol.tgz"
-HTTPS_RAYLEIGH_LUTS[
-    'marine_polluted_aerosol'] = "https://zenodo.org/record/1288441/files/pyspectral_atm_correction_luts_marine_polluted_aerosol.tgz"
-HTTPS_RAYLEIGH_LUTS[
-    'marine_tropical_aerosol'] = "https://zenodo.org/record/1288441/files/pyspectral_atm_correction_luts_marine_tropical_aerosol.tgz"
-HTTPS_RAYLEIGH_LUTS[
-    'rural_aerosol'] = "https://zenodo.org/record/1288441/files/pyspectral_atm_correction_luts_rural_aerosol.tgz"
-HTTPS_RAYLEIGH_LUTS[
-    'urban_aerosol'] = "https://zenodo.org/record/1288441/files/pyspectral_atm_correction_luts_urban_aerosol.tgz"
-HTTPS_RAYLEIGH_LUTS[
-    'rayleigh_only'] = "https://zenodo.org/record/1288441/files/pyspectral_atm_correction_luts_no_aerosol.tgz"
+URL_PREFIX = "https://zenodo.org/record/1288441/files/pyspectral_atm_correction_luts"
+for atype in AEROSOL_TYPES:
+    name = {'rayleigh_only': 'no_aerosols'}.get(atype, atype)
+    url = "{prefix}_{name}.tgz".format(prefix=URL_PREFIX, name=name)
+    HTTPS_RAYLEIGH_LUTS[atype] = url
+
 
 CONF = get_config()
 LOCAL_RSR_DIR = CONF.get('rsr_dir')
