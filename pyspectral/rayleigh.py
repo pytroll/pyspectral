@@ -55,8 +55,11 @@ from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.utils import (INSTRUMENTS, RAYLEIGH_LUT_DIRS,
                               AEROSOL_TYPES, ATMOSPHERES,
                               BANDNAMES,
+                              ATM_CORRECTION_LUT_VERSION,
                               download_luts, get_central_wave,
                               get_bandname_from_wavelength)
+
+from pyspectral.config import get_config
 
 LOG = logging.getLogger(__name__)
 
@@ -82,6 +85,9 @@ class Rayleigh(object):
         self.platform_name = platform_name
         self.sensor = sensor
         self.coeff_filename = None
+        options = get_config()
+        self.do_download = False
+        self._lutfiles_version_uptodate = False
 
         atm_type = kwargs.get('atmosphere', 'us-standard')
         if atm_type not in ATMOSPHERES:
@@ -89,6 +95,7 @@ class Rayleigh(object):
                                  'Need to be one of {}'.format(str(ATMOSPHERES)))
 
         aerosol_type = kwargs.get('aerosol_type', 'marine_clean_aerosol')
+        self._aerosol_type = aerosol_type
 
         if aerosol_type not in AEROSOL_TYPES:
             raise AttributeError('Aerosol type not supported! ' +
@@ -110,12 +117,18 @@ class Rayleigh(object):
 
         self.sensor = sensor.replace('/', '')
 
+        if 'download_from_internet' in options and options['download_from_internet']:
+            self.do_download = True
+
+        if (self._aerosol_type in ATM_CORRECTION_LUT_VERSION and
+                self._get_lutfiles_version() == ATM_CORRECTION_LUT_VERSION[self._aerosol_type]['version']):
+            self._lutfiles_version_uptodate = True
+
         ext = atm_type.replace(' ', '_')
         lutname = "rayleigh_lut_{0}.h5".format(ext)
         self.reflectance_lut_filename = os.path.join(rayleigh_dir, lutname)
-        if not os.path.exists(self.reflectance_lut_filename):
-            LOG.warning(
-                "No lut file %s on disk", self.reflectance_lut_filename)
+
+        if not self._lutfiles_version_uptodate and self.do_download:
             LOG.info("Will download from internet...")
             download_luts(aerosol_type=aerosol_type)
 
@@ -131,6 +144,22 @@ class Rayleigh(object):
         self._azid_coord = None
         self._satz_sec_coord = None
         self._sunz_sec_coord = None
+
+    def _get_lutfiles_version(self):
+        """Check the version of the atm correction luts from the version file in the
+           specific aerosol correction directory
+
+        """
+        basedir = RAYLEIGH_LUT_DIRS[self._aerosol_type]
+        lutfiles_version_path = os.path.join(basedir,
+                                             ATM_CORRECTION_LUT_VERSION[self._aerosol_type]['filename'])
+
+        if not os.path.exists(lutfiles_version_path):
+            return "v0.0.0"
+
+        with open(lutfiles_version_path, 'r') as fpt:
+            # Get the version from the file
+            return fpt.readline().strip()
 
     def get_effective_wavelength(self, bandname):
         """Get the effective wavelength with Rayleigh scattering in mind"""

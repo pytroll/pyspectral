@@ -123,6 +123,31 @@ HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/1205138/files/pyspectral_rsr_da
 RSR_DATA_VERSION_FILENAME = "PYSPECTRAL_RSR_VERSION"
 RSR_DATA_VERSION = "v1.0.1"
 
+ATM_CORRECTION_LUT_VERSION = {}
+ATM_CORRECTION_LUT_VERSION['antarctic_aerosol'] = {'version': 'v1.0.1',
+                                                   'filename': 'PYSPECTRAL_ATM_CORR_LUT_AA'}
+ATM_CORRECTION_LUT_VERSION['continental_average_aerosol'] = {'version': 'v1.0.1',
+                                                             'filename': 'PYSPECTRAL_ATM_CORR_LUT_CAA'}
+ATM_CORRECTION_LUT_VERSION['continental_clean_aerosol'] = {'version': 'v1.0.1',
+                                                           'filename': 'PYSPECTRAL_ATM_CORR_LUT_CCA'}
+ATM_CORRECTION_LUT_VERSION['continental_polluted_aerosol'] = {'version': 'v1.0.1',
+                                                              'filename': 'PYSPECTRAL_ATM_CORR_LUT_CPA'}
+ATM_CORRECTION_LUT_VERSION['desert_aerosol'] = {'version': 'v1.0.1',
+                                                           'filename': 'PYSPECTRAL_ATM_CORR_LUT_DA'}
+ATM_CORRECTION_LUT_VERSION['marine_clean_aerosol'] = {'version': 'v1.0.1',
+                                                      'filename': 'PYSPECTRAL_ATM_CORR_LUT_MCA'}
+ATM_CORRECTION_LUT_VERSION['marine_polluted_aerosol'] = {'version': 'v1.0.1',
+                                                         'filename': 'PYSPECTRAL_ATM_CORR_LUT_MPA'}
+ATM_CORRECTION_LUT_VERSION['marine_tropical_aerosol'] = {'version': 'v1.0.1',
+                                                         'filename': 'PYSPECTRAL_ATM_CORR_LUT_MTA'}
+ATM_CORRECTION_LUT_VERSION['rural_aerosol'] = {'version': 'v1.0.1',
+                                               'filename': 'PYSPECTRAL_ATM_CORR_LUT_RA'}
+ATM_CORRECTION_LUT_VERSION['urban_aerosol'] = {'version': 'v1.0.1',
+                                               'filename': 'PYSPECTRAL_ATM_CORR_LUT_UA'}
+ATM_CORRECTION_LUT_VERSION['rayleigh_only'] = {'version': 'v1.0.1',
+                                               'filename': 'PYSPECTRAL_ATM_CORR_LUT_RO'}
+
+
 AEROSOL_TYPES = ['antarctic_aerosol', 'continental_average_aerosol',
                  'continental_clean_aerosol', 'continental_polluted_aerosol',
                  'desert_aerosol', 'marine_clean_aerosol',
@@ -135,28 +160,12 @@ ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
 
 
 HTTPS_RAYLEIGH_LUTS = {}
-HTTPS_RAYLEIGH_LUTS[
-    'antarctic_aerosol'] = "https://zenodo.org/record/1205535/files/pyspectral_atm_correction_luts_antarctic_aerosol.tgz"
-HTTPS_RAYLEIGH_LUTS[
-    'continental_average_aerosol'] = "https://zenodo.org/record/1205535/files/pyspectral_atm_correction_luts_continental_average_aerosol.tgz"
-HTTPS_RAYLEIGH_LUTS[
-    'continental_clean_aerosol'] = "https://zenodo.org/record/1205535/files/pyspectral_atm_correction_luts_continental_clean_aerosol.tgz"
-HTTPS_RAYLEIGH_LUTS[
-    'continental_polluted_aerosol'] = "https://zenodo.org/record/1205535/files/pyspectral_atm_correction_luts_continental_polluted_aerosol.tgz"
-HTTPS_RAYLEIGH_LUTS[
-    'desert_aerosol'] = "https://zenodo.org/record/1205535/files/pyspectral_atm_correction_luts_desert_aerosol.tgz"
-HTTPS_RAYLEIGH_LUTS[
-    'marine_clean_aerosol'] = "https://zenodo.org/record/1205535/files/pyspectral_atm_correction_luts_marine_clean_aerosol.tgz"
-HTTPS_RAYLEIGH_LUTS[
-    'marine_polluted_aerosol'] = "https://zenodo.org/record/1205535/files/pyspectral_atm_correction_luts_marine_polluted_aerosol.tgz"
-HTTPS_RAYLEIGH_LUTS[
-    'marine_tropical_aerosol'] = "https://zenodo.org/record/1205535/files/pyspectral_atm_correction_luts_marine_tropical_aerosol.tgz"
-HTTPS_RAYLEIGH_LUTS[
-    'rural_aerosol'] = "https://zenodo.org/record/1205535/files/pyspectral_atm_correction_luts_rural_aerosol.tgz"
-HTTPS_RAYLEIGH_LUTS[
-    'urban_aerosol'] = "https://zenodo.org/record/1205535/files/pyspectral_atm_correction_luts_urban_aerosol.tgz"
-HTTPS_RAYLEIGH_LUTS[
-    'rayleigh_only'] = "https://zenodo.org/record/1205535/files/pyspectral_atm_correction_luts_no_aerosol.tgz"
+URL_PREFIX = "https://zenodo.org/record/1288441/files/pyspectral_atm_correction_luts"
+for atype in AEROSOL_TYPES:
+    name = {'rayleigh_only': 'no_aerosols'}.get(atype, atype)
+    url = "{prefix}_{name}.tgz".format(prefix=URL_PREFIX, name=name)
+    HTTPS_RAYLEIGH_LUTS[atype] = url
+
 
 CONF = get_config()
 LOCAL_RSR_DIR = CONF.get('rsr_dir')
