@@ -1,51 +1,15 @@
 Installation
 ------------
 
-PySpectral reads relative spectral response functions for various satellite
-sensors. The original agency specific spectral response data are stored in
-various formats (e.g. ascii, excel, or netCDF) and usually not following any
-agreed international standard. These data are usually available at the
-satellite agencies responsible for the instrument in question. That is for
-example EUMETSAT, NOAA, NASA, JMA and CMA. The Global Space-based
-Inter-Calibration System (GSICS_) Coordination Center (GCC_) holds a place with
-links to several relevant `instrument response data`_. But far from all data
-are available through that web-site.
-
-
-The spectral response data 
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-So all these instrument relative spectral response data are stored in different
-formats with varying levels of detailed information available. Therefore, in
-order to make life easier for the *PySpectral* user we have defined one common
-internal hdf5 format. That way it is also easy to add support for new
-instruments. Currently the relative spectral reponses for Suomi-NPP VIIRS, all
-of the NOAA/TIROS-N and Metop AVHRRs, Terra/Aqua MODIS, Meteosat 8-11 SEVIRI,
-Sentinel-3A SLSTR and OLCI, Envisat AATSR, GOES-16 ABI, and Himawari-8 are
-available. The data are automagically downloaded and installed when needed. But
-if you need to specifically retrieve the data independently the data are
-available from the `pyspectral rsr`_ repository. (The md5sum of this gzipped
-tar file is bc36ffad302cdce66c6796b251607d1c).
-
-It is still also possible to download the original spectral responses from the
-various satellite operators instead and generate the internal hdf5 formatet
-files yourself. However, this should normaly never be needed. For SEVIRI on
-Meteosat download the data from eumetsat_ and unzip the Excel file.
-
-
-Installation
-^^^^^^^^^^^^
-
 Installation of the latest stable version is always done using:: 
 
   $>  pip install pyspectral
 
-Some static data are part of the package but both the Rayleigh correction
-coefficients and the spectral responses are downloaded and installed once
-PySpectral is being run the first time. On default these static data will
-reside in the platform specific standard destination for storing user data,
-via the use of the appdirs_ package.
-On Linux this will be under *~/.local/share/pyspectral*. See further down.
+Some static data are part of the package. Downloading of this data is handled
+automagically by the software when data are needed. However, the data can also
+be downloaded manually once and for all by calling dedicated download
+scripts. The latter is helpful when running PySpectral in an operational
+environemnt. See further below on how the static data downloads are handled.
 
 You can also choose to download the PySpectral source code from github_::
 
@@ -60,6 +24,106 @@ or, if you want to hack the package::
   $> python setup.py develop
 
 
+Static data
+-----------
+
+PySpectral make use of and requires the access to two different kinds of static
+ancillary data sets. First, relative spectral responses for a large number of
+satellite imaging sensors are available in a unified hdf5 format. Secondly,
+PySpectral comes with a set of Look-Up-Tables (LUTs) for the atmospheric
+correction in the short wave spectral range.
+
+Both these datasets downloads automagically from `zenodo.org`_ when needed.
+
+On default these static data will reside in the platform specific standard
+destination for storing user data, via the use of the appdirs_ package. On
+Linux this will be under *~/.local/share/pyspectral*. See further down.
+
+
+The spectral response data 
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PySpectral reads relative spectral response functions for various satellite
+sensors. The original agency specific spectral response data are stored in
+various different formats (e.g. ascii, excel, or netCDF), with varying levels of
+detailed information available, and usually not following any agreed
+international standard.
+
+These data are often available at the satellite agencies responsible for the
+instrument in question. That is for example EUMETSAT, NOAA, NASA, JMA and
+CMA. The Global Space-based Inter-Calibration System (GSICS_) Coordination
+Center (GCC_) holds a place with links to several relevant `instrument response
+data`_. But far from all data are available through that web-site.
+
+Therefore, in order to make life easier for the *PySpectral* user we have
+defined one common internal HDF5 format. That way it is also easy to add
+support for new instruments. Currently the relative spectral reponses for the
+following sensors are included:
+
+ * Suomi-NPP and NOAA-20 VIIRS
+ * All of the NOAA/TIROS-N and Metop AVHRRs
+ * Terra/Aqua MODIS
+ * Meteosat 8-11 SEVIRI
+ * Sentinel-3A/3B SLSTR and OLCI
+ * Envisat AATSR
+ * GOES-16 ABI
+ * Himawari-8 AHI
+ * Sentinel-2 A&B MSI
+ * Landsat-8 OLI
+
+The data are automagically downloaded and installed when needed. But if you
+need to specifically retrieve the data independently the data are available
+from the `pyspectral rsr`_ repository and can be downloaded using a script that
+comes with *PySpectral*. For instance, to download the data into the default
+directory:
+
+
+.. code::
+   
+   python ~/.local/bin/download_rsr.py
+
+   
+Instead if you want to download the data to a specific directory and
+using verbose mode (to get some log information on the screen):
+
+.. code::
+   
+   python ~/.local/bin/download_rsr.py -v -o /tmp
+   
+
+It is still also possible to download the original spectral responses from the
+various satellite operators instead and generate the internal HDF5 formatet
+files yourself. However, this should normaly never be needed. (For SEVIRI on
+Meteosat download the data from eumetsat_ and unzip the Excel file.)
+
+
+Look-Up-Tables for atmospheric correction in the SW spectral range
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Look-Up-Tables (LUTs) with simulated black surface top of atmosphere
+reflectances over the :math:`400-600 nm` wavelength spectrum for various
+aerosol distributions and a set of standard atmosdot-heres for varying
+sun-satellite viewing are available in HDF5 on `zenodo.org`_. The LUTs are
+downloaded automagically when needed and placed in the same directory structure
+as the spectral response data (see above). The data can also be downloaded
+manually using a dedicated download script. To download all LUTs you can do
+like this:
+
+  .. code::
+   
+   python ~/.local/bin//download_atm_correction_luts.py
+
+
+If you only need LUTs for a few aerosol distributions, for example *desert
+aerosols* and *marine clean aerosols* (and using verbose mode to get some log
+info on the screen):
+
+  .. code::
+   
+   python ~/.local/bin//download_atm_correction_luts.py -a desert_aerosol marine_clean_aerosol -v
+   
+
+
 Configuration file
 ^^^^^^^^^^^^^^^^^^
 
@@ -71,24 +135,29 @@ this configuration file, as e.g.::
 
   $> PSP_CONFIG_FILE=/home/a000680/pyspectral.yaml; export PSP_CONFIG_FILE
 
-So, in case you want to download the internal PySpectral formatet relative
-spectral responses as well as the rayleigh-correction look-up-tables once and
-for all, and keep them somewhere else, here is what you need to do::
+So, in case you want to download the internal *PySpectral* formatet relative
+spectral responses as well as the atmospheric correction LUTs once and for all,
+and keep them somewhere else. Change the configuration in *pyspectral.yaml* so
+it looks something like this:
 
-  $> cd /path/to/internal/rsr_data
-  $> wget https://zenodo.org/record/1012412/files/pyspectral_rsr_data.tgz
-  $> tar xvzf pyspectral_rsr_data.tgz
+.. code-block:: ini
 
-  $> cd /path/to/rayleigh/correction/luts
-  $> mkdir rural_aerosol rayleigh_only
-  $> cd rayleigh_only/
-  $> wget https://zenodo.org/record/888971/files/pyspectral_rayleigh_correction_luts.tgz
-  $> tar xvzf pyspectral_rayleigh_correction_luts.tgz
-  $> cd ../rural_aerosol
-  $> wget https://zenodo.org/record/896881/files/pyspectral_rayleigh_correction_luts.tgz
-  $> tar xvzf pyspectral_rayleigh_correction_luts.tgz
+   rsr_dir = /path/to/internal/rsr_data
+   rayleigh_dir = /path/to/rayleigh/correction/luts
+   download_from_internet = True
 
-Then adjust the *pyspectral.yaml* so it looks something like this:
+Then download the data:
+
+  .. code::
+   
+   python ~/.local/bin/download_rsr.py
+
+  .. code::
+   
+   python ~/.local/bin//download_atm_correction_luts.py
+
+
+And then adjust the *pyspectral.yaml* so data downloading will not be attempted anymore:
 
 .. code-block:: ini
 
@@ -104,3 +173,4 @@ Then adjust the *pyspectral.yaml* so it looks something like this:
 .. _instrument response data: http://www.star.nesdis.noaa.gov/smcd/GCC/instrInfo-srf.php
 .. _github: http://github.com/pytroll/pyspectral
 .. _appdirs: https://github.com/ActiveState/appdirs
+.. _zenodo.org: https://zenodo.org
