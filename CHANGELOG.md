@@ -1,16 +1,20 @@
-## Version v0.7.2 (2018/05/22)
+## Version <RELEASE_VERSION> (2018/06/14)
 
 ### Issues Closed
 
-* [Issue 32](https://github.com/pytroll/pyspectral/issues/32) - Solar interpolation, straight wavelength bins
-* [Issue 8](https://github.com/pytroll/pyspectral/issues/8) - Conversion from radiance to Tb
+* [Issue 15](https://github.com/pytroll/pyspectral/issues/15) - Adding EO-1 Hyperion Capability
 
-In this release 2 issues were closed.
+In this release 1 issue was closed.
 
 ### Pull Requests Merged
 
+#### Bugs fixed
+
+* [PR 36](https://github.com/pytroll/pyspectral/pull/36) - Bugfix: Consistently checking sensor name in lower case
+
 #### Features added
 
-* [PR 35](https://github.com/pytroll/pyspectral/pull/35) - Update CI tests
+* [PR 40](https://github.com/pytroll/pyspectral/pull/40) - Feature check atmcorr lut version
+* [PR 39](https://github.com/pytroll/pyspectral/pull/39) - Feature download scripts
 
-In this release 1 pull request was closed.
+In this release 3 pull requests were closed.
