@@ -162,7 +162,7 @@ ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
 HTTPS_RAYLEIGH_LUTS = {}
 URL_PREFIX = "https://zenodo.org/record/1288441/files/pyspectral_atm_correction_luts"
 for atype in AEROSOL_TYPES:
-    name = {'rayleigh_only': 'no_aerosols'}.get(atype, atype)
+    name = {'rayleigh_only': 'no_aerosol'}.get(atype, atype)
     url = "{prefix}_{name}.tgz".format(prefix=URL_PREFIX, name=name)
     HTTPS_RAYLEIGH_LUTS[atype] = url
 
