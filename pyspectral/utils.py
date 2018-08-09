@@ -79,6 +79,9 @@ BANDNAMES['generic'] = {'VIS006': 'VIS0.6',
                         'C16': 'ch16',
                         }
 
+BANDNAMES['avhrr-3'] = {'3b': 'ch3b',
+                        '3a': 'ch3a'}
+
 BANDNAMES['ahi'] = {'B01': 'ch1',
                     'B02': 'ch2',
                     'B03': 'ch3',
@@ -444,6 +447,7 @@ def debug_on():
     """Turn debugging logging on.
     """
     logging_on(logging.DEBUG)
+
 
 _is_logging_on = False
 
