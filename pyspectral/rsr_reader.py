@@ -39,7 +39,6 @@ from pyspectral.utils import (RSR_DATA_VERSION_FILENAME, RSR_DATA_VERSION)
 
 
 class RelativeSpectralResponse(object):
-
     """Container for the relative spectral response functions for various
     satellite imagers
     """
@@ -251,6 +250,7 @@ def main():
     """Main"""
     modis = RelativeSpectralResponse('EOS-Terra', 'modis')
     del(modis)
+
 
 if __name__ == "__main__":
     main()
