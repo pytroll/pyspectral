@@ -1,10 +1,12 @@
-## Version <RELEASE_VERSION> (2018/06/14)
+## Version <RELEASE_VERSION> (2018/08/14)
 
 ### Issues Closed
 
+* [Issue 42](https://github.com/pytroll/pyspectral/issues/42) - No RSR data for Metop/AVHRR
+* [Issue 41](https://github.com/pytroll/pyspectral/issues/41) - Failure to get RSR for AVHRR band '3b' via SatPy 'day_microphysical' composite ([PR 43](https://github.com/pytroll/pyspectral/pull/43))
 * [Issue 15](https://github.com/pytroll/pyspectral/issues/15) - Adding EO-1 Hyperion Capability
 
-In this release 1 issue was closed.
+In this release 3 issues were closed.
 
 ### Pull Requests Merged
 
