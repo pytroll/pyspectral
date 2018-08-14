@@ -41,7 +41,7 @@ def plot_band(plt_in, band_name, rsr_obj, **kwargs):
 
     detectors = rsr_obj.rsr[band_name].keys()
     # for det in detectors:
-    det = detectors[0]
+    det = sorted(detectors)[0]
     resp = rsr_obj.rsr[band_name][det]['response']
     wvl = rsr_obj.rsr[band_name][det]['wavelength']
 
@@ -98,6 +98,7 @@ def get_arguments():
                        default=[None, None], type=float)
 
     return parser.parse_args()
+
 
 if __name__ == "__main__":
     import sys
