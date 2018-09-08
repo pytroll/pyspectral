@@ -3,7 +3,7 @@ environment:
     PYTHON: "C:\\conda"
     MINICONDA_VERSION: "latest"
     CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\ci-helpers\\appveyor\\windows_sdk.cmd"
-    CONDA_DEPENDENCIES: "scipy numpy coveralls coverage h5py mock requests six appdirs python-geotiepoints dask xlrd matplotlib"
+    CONDA_DEPENDENCIES: "scipy numpy coveralls coverage h5py mock requests six appdirs python-geotiepoints dask xlrd matplotlib pandas"
     PIP_DEPENDENCIES: ""
     CONDA_CHANNELS: "conda-forge"
 
