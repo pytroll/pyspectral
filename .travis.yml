@@ -4,7 +4,7 @@ env:
   - PYTHON_VERSION=$PYTHON_VERSION
   - NUMPY_VERSION=stable
   - MAIN_CMD='python setup.py'
-  - CONDA_DEPENDENCIES='scipy numpy coveralls coverage h5py mock requests six appdirs python-geotiepoints dask xlrd matplotlib docutils h5pickle'
+  - CONDA_DEPENDENCIES='scipy numpy coveralls coverage h5py mock requests six appdirs python-geotiepoints dask xlrd matplotlib docutils'
   - PIP_DEPENDENCIES=''
   - SETUP_XVFB=False
   - EVENT_TYPE='push pull_request'
@@ -30,6 +30,7 @@ install:
     # See https://github.com/conda/conda/issues/7626#issuecomment-412922028
     - conda config --remove channels defaults
     - conda install -y $CONDA_DEPENDENCIES
+    - if [[ $PYTHON_VERSION == 3.6 ]]; then conda install -y h5pickle; fi
     - conda update -y dask pandas
 script: coverage run --source=pyspectral setup.py test
 after_success:
