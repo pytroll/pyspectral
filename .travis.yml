@@ -10,6 +10,8 @@ env:
   - EVENT_TYPE='push pull_request'
   - SETUP_CMD='test'
   - CONDA_CHANNELS='conda-forge'
+  - LC_ALL='en_US.UTF-8'
+  - LANG='en_US.UTF-8'
 matrix:
   include:
     - env: PYTHON_VERSION=2.7
