@@ -3,7 +3,7 @@ env:
   global:
   - NUMPY_VERSION=stable
   - MAIN_CMD='python setup.py'
-  - CONDA_DEPENDENCIES='scipy numpy coveralls coverage h5py mock requests six appdirs python-geotiepoints dask docutils matplotlib pyyaml xlrd'
+  - CONDA_DEPENDENCIES='scipy numpy coveralls coverage h5py mock requests six appdirs python-geotiepoints dask docutils pyyaml xlrd'
   - PIP_DEPENDENCIES=''
   - SETUP_XVFB=False
   - EVENT_TYPE='push pull_request'

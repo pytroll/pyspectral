@@ -34,7 +34,7 @@ requires = ['docutils>=0.3', 'numpy>=1.5.1', 'scipy>=0.14',
             'appdirs']
 
 dask_extra = ['dask[array]']
-test_requires = ['pyyaml', 'matplotlib', 'dask[array]']  # 'xlrd']
+test_requires = ['pyyaml', 'dask[array]']  # 'xlrd', 'matplotlib']
 if sys.version < '3.0':
     test_requires.append('mock')
     try:
