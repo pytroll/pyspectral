@@ -28,6 +28,7 @@ install:
     # See https://github.com/conda/conda/issues/7626#issuecomment-412922028
     - conda config --remove channels defaults
     - conda install -y $CONDA_DEPENDENCIES
+    - conda update -y dask pandas
 script: coverage run --source=pyspectral setup.py test
 after_success:
 - if [[ $PYTHON_VERSION == 3.6 ]]; then coveralls; fi
