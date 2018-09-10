@@ -4,7 +4,7 @@ env:
   - PYTHON_VERSION=$PYTHON_VERSION
   - NUMPY_VERSION=stable
   - MAIN_CMD='python setup.py'
-  - CONDA_DEPENDENCIES='scipy numpy coveralls coverage h5py mock requests six appdirs python-geotiepoints dask xlrd matplotlib pandas'
+  - CONDA_DEPENDENCIES='scipy numpy coveralls coverage h5py mock requests six appdirs python-geotiepoints dask xlrd matplotlib docutils h5pickle'
   - PIP_DEPENDENCIES=''
   - SETUP_XVFB=False
   - EVENT_TYPE='push pull_request'
