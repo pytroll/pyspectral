@@ -3,7 +3,7 @@ env:
   global:
   - NUMPY_VERSION=stable
   - MAIN_CMD='python setup.py'
-  - CONDA_DEPENDENCIES='scipy numpy coveralls coverage h5py mock requests six appdirs python-geotiepoints dask docutils matplotlib pyyaml "pandas<0.23" xlrd'
+  - CONDA_DEPENDENCIES='scipy numpy coveralls coverage h5py mock requests six appdirs python-geotiepoints dask docutils matplotlib pyyaml xlrd'
   - PIP_DEPENDENCIES=''
   - SETUP_XVFB=False
   - EVENT_TYPE='push pull_request'
@@ -26,7 +26,7 @@ install:
     - source ci-helpers/travis/setup_conda.sh
     # See https://github.com/conda/conda/issues/7626#issuecomment-412922028
     - conda config --remove channels defaults
-    - conda install -y $CONDA_DEPENDENCIES
+    - conda install -y $CONDA_DEPENDENCIES "pandas<0.23"
 script: coverage run --source=pyspectral setup.py test
 after_success:
 - if [[ $PYTHON_VERSION == 3.6 ]]; then coveralls; fi
