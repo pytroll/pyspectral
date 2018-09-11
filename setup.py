@@ -21,6 +21,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+from setuptools import setup
+import imp
+import os.path
 
 try:
     with open('./README', 'r') as fd:
@@ -48,10 +51,6 @@ if sys.version < '3.0':
 #     # h5pickle 0.3 only supports 3.6+
 #     test_requires.append('h5pickle')
 #     dask_extra.append('h5pickle')
-
-from setuptools import setup
-import imp
-import os.path
 
 version = imp.load_source('pyspectral.version', 'pyspectral/version.py')
 
