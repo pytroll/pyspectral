@@ -21,6 +21,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+from setuptools import setup
+import imp
+import os.path
 
 try:
     with open('./README', 'r') as fd:
@@ -34,7 +37,7 @@ requires = ['docutils>=0.3', 'numpy>=1.5.1', 'scipy>=0.14',
             'appdirs']
 
 dask_extra = ['dask[array]']
-test_requires = ['xlrd', 'pyyaml', 'matplotlib', 'dask[array]']
+test_requires = ['pyyaml', 'dask[array]', 'xlrd']  # , 'matplotlib']
 if sys.version < '3.0':
     test_requires.append('mock')
     try:
@@ -44,14 +47,10 @@ if sys.version < '3.0':
     except ImportError:
         pass
 
-if sys.version >= '3.6':
-    # h5pickle 0.3 only supports 3.6+
-    test_requires.append('h5pickle')
-    dask_extra.append('h5pickle')
-
-from setuptools import setup
-import imp
-import os.path
+# if sys.version >= '3.6':
+#     # h5pickle 0.3 only supports 3.6+
+#     test_requires.append('h5pickle')
+#     dask_extra.append('h5pickle')
 
 version = imp.load_source('pyspectral.version', 'pyspectral/version.py')
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016 Adam.Dybbroe
+# Copyright (c) 2016 - 2018 PyTroll community
 
 # Author(s):
 
@@ -23,7 +23,7 @@
 """Reading the original raw GOES-R ABI spectral responses and generating the
 internal pyspectral formatet hdf5.
 
-http://ncc.nesdis.noaa.gov/GOESR/docs/GOES-R_ABI_PFM_SRF_CWG_v3.zip
+https://ncc.nesdis.noaa.gov/GOESR/ABI.php
 
 """
 
@@ -91,7 +91,7 @@ class AbiRSR(InstrumentRSR):
 
 def main():
     """Main"""
-    for platform_name in ['GOES-16', ]:
+    for platform_name in ['GOES-16', 'GOES-17', ]:
         tohdf5(AbiRSR, platform_name, ABI_BAND_NAMES)
 
 
