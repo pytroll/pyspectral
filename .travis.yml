@@ -6,7 +6,7 @@ env:
   - CONDA_DEPENDENCIES='scipy numpy coveralls coverage h5py mock requests six appdirs python-geotiepoints dask docutils pyyaml xlrd'
   - PIP_DEPENDENCIES=''
   - SETUP_XVFB=False
-  - EVENT_TYPE='push pull_request'
+  - EVENT_TYPE='push pull_request cron'
   - SETUP_CMD='test'
   - CONDA_CHANNELS='conda-forge'
 matrix:
