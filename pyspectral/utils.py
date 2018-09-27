@@ -118,7 +118,9 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'Metop-B': 'avhrr/3',
                'Metop-C': 'avhrr/3',
                'Suomi-NPP': 'viirs',
-               'NOAA-20': 'viirs'
+               'NOAA-20': 'viirs',
+               'FY-3D': 'mersi-2',
+               'Feng-Yun 3D': 'mersi-2'
                }
 
 HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/1409621/files/pyspectral_rsr_data.tgz"
