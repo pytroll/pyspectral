@@ -83,6 +83,10 @@ def get_arguments():
                         action='store_true')
     parser.add_argument("--title", help=("Plot title"),
                         default=None, type=str)
+    parser.add_argument("--wavelength_resolution",
+                        help=("The step in wavelength (nanometers) when scanning\n" +
+                              " the spectral range trying to find bands"),
+                        default=0.005, type=float)
     parser.add_argument("-o", "--filename", help=("Output plot file name"),
                         default=None, type=str)
     parser.add_argument(
@@ -116,6 +120,7 @@ if __name__ == "__main__":
         title = 'Relative Spectral Responses'
     filename = args.filename
     no_platform_name_in_legend = args.no_platform_name_in_legend
+    wavel_res = args.wavelength_resolution
     verbose = args.verbose
 
     if verbose:
@@ -176,7 +181,7 @@ if __name__ == "__main__":
             wvlx = wvlmin
             prev_band = None
             while wvlx < wvlmax:
-                bands = get_bandname_from_wavelength(sensor, wvlx, rsr.rsr, 0.05, multiple_bands=True)
+                bands = get_bandname_from_wavelength(sensor, wvlx, rsr.rsr, wavel_res, multiple_bands=True)
 
                 if isinstance(bands, list):
                     b__ = bands[0]
@@ -185,7 +190,7 @@ if __name__ == "__main__":
                 else:
                     b__ = bands
 
-                wvlx = wvlx + 0.05
+                wvlx = wvlx + wavel_res / 5.
                 if not b__:
                     continue
                 if b__ != prev_band:

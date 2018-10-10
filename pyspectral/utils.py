@@ -190,16 +190,16 @@ TB2RAD_DIR = CONF.get('tb2rad_dir', tempfile.gettempdir())
 
 
 def convert2wavenumber(rsr):
-    """Take rsr data set with all channels and detectors for an instrument
+    """
+    Take rsr data set with all channels and detectors for an instrument
     each with a set of wavelengths and normalised responses and
     convert to wavenumbers and responses
-    rsr:
-      Relative Spectral Response function (all bands)
+
+    :rsr: Relative Spectral Response function (all bands)
     Returns:
-      retv:
-        Relative Spectral Responses in wave number space
-      info:
-        Dictionary with scale (to go convert to SI units) and unit
+      :retv: Relative Spectral Responses in wave number space
+      :info: Dictionary with scale (to go convert to SI units) and unit
+
     """
 
     retv = {}
