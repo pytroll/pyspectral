@@ -27,11 +27,10 @@ import os
 import numpy as np
 from pyspectral.utils import INSTRUMENTS
 from pyspectral.utils import convert2hdf5 as tohdf5
+from pyspectral.raw_reader import InstrumentRSR
 
 import logging
 LOG = logging.getLogger(__name__)
-
-from pyspectral.raw_reader import InstrumentRSR
 
 MERSI2_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'ch7', 'ch8',
                      'ch9', 'ch10', 'ch11', 'ch12', 'ch13', 'ch14', 'ch15', 'ch16',
@@ -45,8 +44,7 @@ class Mersi2RSR(InstrumentRSR):
 
     def __init__(self, bandname, platform_name):
 
-        super(Mersi2RSR, self).__init__(bandname, platform_name,
-                                        MERSI2_BAND_NAMES)
+        super(Mersi2RSR, self).__init__(bandname, platform_name, MERSI2_BAND_NAMES)
 
         self.instrument = INSTRUMENTS.get(platform_name, 'mersi-2')
 
