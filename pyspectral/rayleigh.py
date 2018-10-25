@@ -163,14 +163,13 @@ class Rayleigh(object):
         """Get the effective wavelength with Rayleigh scattering in mind"""
         try:
             rsr = RelativeSpectralResponse(self.platform_name, self.sensor)
-        except (IOError, OSError) as error:
+        except (IOError, OSError) as dummy:
             LOG.exception(
                 "No spectral responses for this platform and sensor: %s %s", self.platform_name, self.sensor)
             if isinstance(bandname, (float, integer_types)):
                 LOG.warning(
                     "Effective wavelength is set to the requested band wavelength = %f", bandname)
                 return bandname
-            #raise error
             return None
 
         if isinstance(bandname, str):
