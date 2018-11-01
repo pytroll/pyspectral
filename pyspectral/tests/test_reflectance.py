@@ -23,7 +23,10 @@
 """Unit testing the 3.7 micron reflectance calculations"""
 
 from pyspectral.near_infrared_reflectance import Calculator
-from mock import patch
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
 
 import unittest
 import numpy as np

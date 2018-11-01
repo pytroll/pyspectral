@@ -23,7 +23,10 @@
 """Test the raw satellite instrument rsr readers."""
 
 import sys
-import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 if sys.version_info < (2, 7):
     import unittest2 as unittest
