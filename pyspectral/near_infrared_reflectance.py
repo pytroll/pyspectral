@@ -256,13 +256,14 @@ class Calculator(RadTbConverter):
         else:
             self._rad3x_correction = 1.0
 
-        mask = (self._solar_radiance - thermal_emiss_one *
-                self._rad3x_correction) < EPSILON
-        newmask = np.logical_or(sunzmask, mask)
-
         nomin = l_nir - thermal_emiss_one * self._rad3x_correction
         denom = self._solar_radiance - thermal_emiss_one * self._rad3x_correction
-        self._r3x = np.ma.masked_where(newmask, nomin / denom)
+        data = nomin / denom
+        mask = (self._solar_radiance - thermal_emiss_one *
+                self._rad3x_correction) < EPSILON
+        newmask = np.logical_or(np.logical_or(sunzmask, mask), data == 0.0)
+
+        self._r3x = np.ma.masked_where(newmask, data)
 
         # Reflectances should be between 0 and 1, but values above 1 is
         # perfectly possible and okay! (Multiply by 100 to get reflectances
