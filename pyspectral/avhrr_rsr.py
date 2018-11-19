@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014, 2015, 2016, 2017 Adam.Dybbroe
+# Copyright (c) 2014, 2015, 2016, 2017, 2018 Adam.Dybbroe
 
 # Author(s):
 
@@ -88,12 +88,14 @@ class AvhrrRSR(InstrumentRSR):
 
 def main():
     """Main"""
-    for platform_name in ["NOAA-17", "NOAA-16", "NOAA-14", "NOAA-12",
-                          "NOAA-11", "NOAA-9", "NOAA-7",
-                          "NOAA-10", "NOAA-8", "NOAA-6", "TIROS-N",
-                          "NOAA-15"]:
+    # for platform_name in ["NOAA-17", "NOAA-16", "NOAA-14", "NOAA-12",
+    #                       "NOAA-11", "NOAA-9", "NOAA-7",
+    #                       "NOAA-10", "NOAA-8", "NOAA-6", "TIROS-N",
+    #                       "NOAA-15"]:
+    for platform_name in ["Metop-C", ]:
         tohdf5(AvhrrRSR, platform_name, AVHRR_BAND_NAMES[
                INSTRUMENTS[platform_name]])
+
 
 if __name__ == "__main__":
     main()
