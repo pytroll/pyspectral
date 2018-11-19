@@ -261,6 +261,7 @@ class Calculator(RadTbConverter):
         data = nomin / denom
         mask = (self._solar_radiance - thermal_emiss_one *
                 self._rad3x_correction) < EPSILON
+
         np.logical_or(sunzmask, mask, out=mask)
         np.logical_or(mask, data == 0.0, out=mask)
 
