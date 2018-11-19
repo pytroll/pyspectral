@@ -1,7 +1,9 @@
 language: python
 env:
   global:
-  - NUMPY_VERSION=stable
+  # Set defaults to avoid repeating in most cases
+  - PYTHON_VERSION=$TRAVIS_PYTHON_VERSION
+  #- NUMPY_VERSION=stable
   - MAIN_CMD='python setup.py'
   - CONDA_DEPENDENCIES='scipy numpy coveralls coverage h5py mock requests six appdirs python-geotiepoints dask docutils pyyaml xlrd'
   - PIP_DEPENDENCIES=''
