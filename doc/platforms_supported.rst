@@ -43,6 +43,9 @@ have been included in PySpectral.
     * - Metop-B avhrr
       - `rsr_avhrr3_Metop-B.h5`
       - GSICS_
+    * - Metop-C avhrr
+      - `rsr_avhrr3_Metop-C.h5`
+      - GSICS_ (Acquired via personal contact)
     * - EOS-Terra modis
       - `rsr_modis_EOS-Terra.h5`
       - GSICS_
