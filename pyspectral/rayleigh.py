@@ -263,14 +263,14 @@ class Rayleigh(object):
         smax = [sunz_sec_coord[-1], azid_coord[-1], satz_sec_coord[-1]]
         orders = [
             len(sunz_sec_coord), len(azid_coord), len(satz_sec_coord)]
+        f_3d_grid = atleast_2d(raylwvl.ravel())
 
-        if HAVE_DASK and isinstance(smin, Array):
+        if HAVE_DASK and isinstance(smin[0], Array):
             # compute all of these at the same time before passing to the interpolator
-            smin, smax, orders = da.compute(smin, smax, orders)
+            # otherwise they are computed separately
+            smin, smax, orders, f_3d_grid = da.compute(smin, smax, orders, f_3d_grid)
         minterp = MultilinearInterpolator(smin, smax, orders)
-
-        f_3d_grid = raylwvl
-        minterp.set_values(atleast_2d(f_3d_grid.ravel()))
+        minterp.set_values(f_3d_grid)
 
         def _do_interp(minterp, sunzsec, azidiff, satzsec):
             interp_points2 = np.vstack((sunzsec.ravel(),
