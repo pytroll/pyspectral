@@ -37,10 +37,10 @@ have been included in PySpectral.
     * - TIROS-N to NOAA-19 avhrr
       - e.g. `rsr_avhrr3_NOAA-19.h5`
       - GSICS_
-    * - Metop-A avhrr
+    * - Metop-A avhrr/3
       - `rsr_avhrr3_Metop-A.h5`
       - GSICS_
-    * - Metop-B avhrr
+    * - Metop-B avhrr/3
       - `rsr_avhrr3_Metop-B.h5`
       - GSICS_
     * - EOS-Terra modis
@@ -70,6 +70,9 @@ have been included in PySpectral.
     * - Landsat-8 oli
       - `rsr_oli_Landsat-8.h5`
       - NASA-Landsat-OLI_
+    * - FY-3D mersi-2
+      - `rsr_mersi-2_FY-3D.h5`
+      - CMA_ (Acquired via personal contact)
 
 
 .. _Eumetsat: https://www.eumetsat.int/website/home/Data/Products/Calibration/MSGCalibration/index.html
@@ -82,3 +85,5 @@ have been included in PySpectral.
 .. _ESA-Sentinel-MSI: https://earth.esa.int/documents/247904/685211/S2-SRF_COPE-GSEG-EOPG-TN-15-0007_3.0.xlsx
 .. _NASA-Landsat-OLI: https://landsat.gsfc.nasa.gov/wp-content/uploads/2013/06/Ball_BA_RSR.v1.1-1.xlsx
 .. _NESDIS: https://ncc.nesdis.noaa.gov/J1VIIRS/J1VIIRSSpectralResponseFunctions.php
+.. _CMA: http://www.cma.gov.cn/en2014/
+
