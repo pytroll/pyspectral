@@ -3,14 +3,15 @@ env:
   global:
   # Set defaults to avoid repeating in most cases
   - PYTHON_VERSION=$TRAVIS_PYTHON_VERSION
-  #- NUMPY_VERSION=stable
+  - NUMPY_VERSION=stable
   - MAIN_CMD='python setup.py'
-  - CONDA_DEPENDENCIES='scipy numpy coveralls coverage h5py mock requests six appdirs python-geotiepoints dask docutils pyyaml xlrd'
+  - CONDA_DEPENDENCIES='scipy coveralls coverage h5py mock requests six appdirs python-geotiepoints dask docutils pyyaml xlrd'
   - PIP_DEPENDENCIES=''
   - SETUP_XVFB=False
   - EVENT_TYPE='push pull_request cron'
   - SETUP_CMD='test'
   - CONDA_CHANNELS='conda-forge'
+  - CONDA_CHANNEL_PRIORITY='True'
 matrix:
   include:
     - env: PYTHON_VERSION=2.7
