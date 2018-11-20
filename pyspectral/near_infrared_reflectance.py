@@ -263,7 +263,7 @@ class Calculator(RadTbConverter):
                 self._rad3x_correction) < EPSILON
 
         np.logical_or(sunzmask, mask, out=mask)
-        np.logical_or(mask, data == 0.0, out=mask)
+        np.logical_or(mask, np.isnan(tb_nir), out=mask)
 
         self._r3x = np.ma.masked_where(mask, data)
 
