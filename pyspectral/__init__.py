@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2015, 2016, 2017 Adam.Dybbroe
+# Copyright (c) 2013 - 2018 PyTroll
 
 # Author(s):
 
@@ -23,5 +23,6 @@
 
 """Pyspectral package init"""
 
-from pyspectral.version import __version__
-#from pyspectral.config import get_config
+from .version import get_versions
+__version__ = get_versions()['version']
+del get_versions
