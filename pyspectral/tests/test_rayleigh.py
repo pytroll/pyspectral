@@ -25,7 +25,10 @@
 
 import os
 import sys
-from mock import patch
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
 import numpy as np
 import dask.array as da
 from pyspectral import rayleigh

@@ -27,7 +27,10 @@ from pyspectral.radiance_tb_conversion import SeviriRadTbConverter
 from pyspectral.utils import get_central_wave
 import unittest
 import numpy as np
-from mock import patch
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
 
 TEST_TBS = np.array([200., 270., 300., 302., 350.], dtype='float32')
 
