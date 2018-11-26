@@ -37,6 +37,7 @@ import numpy as np
 try:
     from dask.array import (where, zeros, clip, rad2deg, deg2rad, cos, arccos,
                             atleast_2d, Array, map_blocks, from_array)
+    import dask.array as da
     HAVE_DASK = True
     try:
         # use serializable h5py wrapper to make sure files are closed properly
@@ -45,6 +46,7 @@ try:
         pass
 except ImportError:
     from numpy import where, zeros, clip, rad2deg, deg2rad, cos, arccos, atleast_2d
+    da = None
     map_blocks = None
     from_array = None
     Array = None
@@ -261,10 +263,14 @@ class Rayleigh(object):
         smax = [sunz_sec_coord[-1], azid_coord[-1], satz_sec_coord[-1]]
         orders = [
             len(sunz_sec_coord), len(azid_coord), len(satz_sec_coord)]
-        minterp = MultilinearInterpolator(smin, smax, orders)
+        f_3d_grid = atleast_2d(raylwvl.ravel())
 
-        f_3d_grid = raylwvl
-        minterp.set_values(atleast_2d(f_3d_grid.ravel()))
+        if HAVE_DASK and isinstance(smin[0], Array):
+            # compute all of these at the same time before passing to the interpolator
+            # otherwise they are computed separately
+            smin, smax, orders, f_3d_grid = da.compute(smin, smax, orders, f_3d_grid)
+        minterp = MultilinearInterpolator(smin, smax, orders)
+        minterp.set_values(f_3d_grid)
 
         def _do_interp(minterp, sunzsec, azidiff, satzsec):
             interp_points2 = np.vstack((sunzsec.ravel(),
@@ -310,8 +316,7 @@ def get_reflectance_lut(filename):
 
     if HAVE_DASK:
         tab = from_array(tab, chunks=(10, 10, 10, 10))
-        # wvl_coord is used in a lot of non-dask functions, keep in memory
-        wvl = from_array(wvl, chunks=(100,)).persist()
+        wvl = wvl[:]  # no benefit to dask-ifying this
         azidiff = from_array(azidiff, chunks=(1000,))
         satellite_zenith_secant = from_array(satellite_zenith_secant,
                                              chunks=(1000,))
@@ -327,13 +332,3 @@ def get_reflectance_lut(filename):
         h5f.close()
 
     return tab, wvl, azidiff, satellite_zenith_secant, sun_zenith_secant
-
-
-# if __name__ == "__main__":
-#     SHAPE = (1000, 3000)
-#     NDIM = SHAPE[0] * SHAPE[1]
-#     SUNZ = np.ma.arange(
-#         NDIM / 2, NDIM + NDIM / 2).reshape(SHAPE) * 60. / float(NDIM)
-#     SATZ = np.ma.arange(NDIM).reshape(SHAPE) * 60. / float(NDIM)
-#     AZIDIFF = np.ma.arange(NDIM).reshape(SHAPE) * 179.9 / float(NDIM)
-#     rfl = this.get_reflectance(SUNZ, SATZ, AZIDIFF, 'M4')

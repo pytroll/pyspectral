@@ -118,12 +118,14 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'Metop-B': 'avhrr/3',
                'Metop-C': 'avhrr/3',
                'Suomi-NPP': 'viirs',
-               'NOAA-20': 'viirs'
+               'NOAA-20': 'viirs',
+               'FY-3D': 'mersi-2',
+               'Feng-Yun 3D': 'mersi-2'
                }
 
-HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/1409621/files/pyspectral_rsr_data.tgz"
+HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/1491277/files/pyspectral_rsr_data.tgz"
 RSR_DATA_VERSION_FILENAME = "PYSPECTRAL_RSR_VERSION"
-RSR_DATA_VERSION = "v1.0.2"
+RSR_DATA_VERSION = "v1.0.3"
 
 ATM_CORRECTION_LUT_VERSION = {}
 ATM_CORRECTION_LUT_VERSION['antarctic_aerosol'] = {'version': 'v1.0.1',
@@ -188,16 +190,16 @@ TB2RAD_DIR = CONF.get('tb2rad_dir', tempfile.gettempdir())
 
 
 def convert2wavenumber(rsr):
-    """Take rsr data set with all channels and detectors for an instrument
+    """
+    Take rsr data set with all channels and detectors for an instrument
     each with a set of wavelengths and normalised responses and
     convert to wavenumbers and responses
-    rsr:
-      Relative Spectral Response function (all bands)
+
+    :rsr: Relative Spectral Response function (all bands)
     Returns:
-      retv:
-        Relative Spectral Responses in wave number space
-      info:
-        Dictionary with scale (to go convert to SI units) and unit
+      :retv: Relative Spectral Responses in wave number space
+      :info: Dictionary with scale (to go convert to SI units) and unit
+
     """
 
     retv = {}
