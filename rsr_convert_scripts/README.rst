@@ -2,7 +2,7 @@ Convert from original RSR data to pyspectral hdf5 format
 ========================================================
 
 The python modules in this directory contain code to convert from the original
-agecy specific relative spectral responses to the internal unified pyspectral
+agency specific relative spectral responses to the internal unified pyspectral
 format in HDF5.
 
 This conversion should normally never be done by the user. It will only be
