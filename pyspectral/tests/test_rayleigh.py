@@ -25,7 +25,6 @@
 
 import os
 import sys
-from mock import patch
 import numpy as np
 import dask.array as da
 from pyspectral import rayleigh
@@ -40,9 +39,10 @@ from pyspectral.utils import RSR_DATA_VERSION
 
 if sys.version_info < (2, 7):
     import unittest2 as unittest
+    from mock import patch
 else:
     import unittest
-
+    from unittest.mock import patch
 
 TEST_RAYLEIGH_RESULT1 = np.array([10.40727436,   8.69775471], dtype='float32')
 TEST_RAYLEIGH_RESULT2 = np.array([9.71695252,  8.51415601], dtype='float32')

@@ -28,11 +28,13 @@ from pyspectral.utils import WAVE_NUMBER
 from pyspectral.utils import WAVE_LENGTH
 from pyspectral.utils import RSR_DATA_VERSION
 
-from mock import patch
 if sys.version_info < (2, 7):
     import unittest2 as unittest
+    from mock import patch
 else:
     import unittest
+    from unittest.mock import patch
+
 
 import numpy as np
 
