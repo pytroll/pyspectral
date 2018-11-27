@@ -24,6 +24,7 @@ import sys
 from setuptools import setup
 import imp
 import os.path
+import versioneer
 
 try:
     with open('./README', 'r') as fd:
@@ -55,7 +56,8 @@ if sys.version < '3.0':
 version = imp.load_source('pyspectral.version', 'pyspectral/version.py')
 
 setup(name='pyspectral',
-      version=version.__version__,
+      version=versioneer.get_version(),
+      cmdclass=versioneer.get_cmdclass(),
       description='Reading and manipulaing satellite sensor spectral responses and the solar spectrum, to perfom various corrections to VIS and NIR band data',
       author='Adam Dybbroe',
       author_email='adam.dybbroe@smhi.se',

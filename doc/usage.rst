@@ -45,11 +45,11 @@ the Aqua MODIS 3.7 micron band:
 
   >>> from pyspectral.near_infrared_reflectance import Calculator
   >>> import numpy as np
-  >>> sunz = 80.
-  >>> tb3 = 290.0
-  >>> tb4 = 282.0
+  >>> sunz = np.array([80.])
+  >>> tb3 = np.array([290.0])
+  >>> tb4 = np.array([282.0])
   >>> refl37 = Calculator('EOS-Aqua', 'modis', '20', detector='det-1', solar_flux=2.0029281634299041)
-  >>> print("Reflectance = {r:7.6f}".format(r=np.ma.round(refl37.reflectance_from_tbs(sunz, tb3, tb4), 6)))
+  >>> print("Reflectance = {r:7.6f}".format(r=np.ma.round(refl37.reflectance_from_tbs(sunz, tb3, tb4), 6)[0]))
   Reflectance = 0.251249
 
 

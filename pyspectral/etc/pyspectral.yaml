@@ -185,6 +185,54 @@ GOES-16-abi:
   ch15: GOES-R_ABI_PFM_SRF_CWG_ch15.txt
   ch16: GOES-R_ABI_PFM_SRF_CWG_ch16.txt
 
+GOES-17-abi:
+  path: /path/to/original/goes17/abi/data
+  ch1: GOES-R_ABI_FM2_SRF_CWG_ch1.txt
+  ch2: GOES-R_ABI_FM2_SRF_CWG_ch2.txt
+  ch3: GOES-R_ABI_FM2_SRF_CWG_ch3.txt
+  ch4: GOES-R_ABI_FM2_SRF_CWG_ch4.txt
+  ch5: GOES-R_ABI_FM2_SRF_CWG_ch5.txt
+  ch6: GOES-R_ABI_FM2_SRF_CWG_ch6.txt
+  ch7: GOES-R_ABI_FM2_SRF_CWG_ch7.txt
+  ch8: GOES-R_ABI_FM2_SRF_CWG_ch8.txt
+  ch9: GOES-R_ABI_FM2_SRF_CWG_ch9.txt
+  ch10: GOES-R_ABI_FM2_SRF_CWG_ch10.txt
+  ch11: GOES-R_ABI_FM2_SRF_CWG_ch11.txt
+  ch12: GOES-R_ABI_FM2_SRF_CWG_ch12.txt
+  ch13: GOES-R_ABI_FM2_SRF_CWG_ch13.txt
+  ch14: GOES-R_ABI_FM2_SRF_CWG_ch14.txt
+  ch15: GOES-R_ABI_FM2_SRF_CWG_ch15.txt
+  ch16: GOES-R_ABI_FM2_SRF_CWG_ch16.txt
+
+FY-3D-mersi-2:
+  path: /path/to/original/fy3d/mersi2/data
+  ch1:  FY3D_MERSI_SRF_CH01_Pub.txt
+  ch2:  FY3D_MERSI_SRF_CH02_Pub.txt
+  ch3:  FY3D_MERSI_SRF_CH03_Pub.txt
+  ch4:  FY3D_MERSI_SRF_CH04_Pub.txt
+  ch5:  FY3D_MERSI_SRF_CH05_Pub.txt
+  ch6:  FY3D_MERSI_SRF_CH06_Pub.txt
+  ch7:  FY3D_MERSI_SRF_CH07_Pub.txt
+  ch8:  FY3D_MERSI_SRF_CH08_Pub.txt
+  ch9:  FY3D_MERSI_SRF_CH09_Pub.txt
+  ch10: FY3D_MERSI_SRF_CH10_Pub.txt
+  ch11: FY3D_MERSI_SRF_CH11_Pub.txt
+  ch12: FY3D_MERSI_SRF_CH12_Pub.txt
+  ch13: FY3D_MERSI_SRF_CH13_Pub.txt
+  ch14: FY3D_MERSI_SRF_CH14_Pub.txt
+  ch15: FY3D_MERSI_SRF_CH15_Pub.txt
+  ch16: FY3D_MERSI_SRF_CH16_Pub.txt
+  ch17: FY3D_MERSI_SRF_CH17_Pub.txt
+  ch18: FY3D_MERSI_SRF_CH18_Pub.txt
+  ch19: FY3D_MERSI_SRF_CH19_Pub.txt
+  ch20: FY3D_MERSI_SRF_CH20_Pub.txt
+  ch21: FY3D_MERSI_SRF_CH21_Pub.txt
+  ch22: FY3D_MERSI_SRF_CH22_Pub.txt
+  ch23: FY3D_MERSI_SRF_CH23_Pub.txt
+  ch24: FY3D_MERSI_SRF_CH24_Pub.txt
+  ch25: FY3D_MERSI_SRF_CH25_Pub.txt
+
+
 NOAA-19-avhrr/3:
   path: /path/to/original/noaa19/avhrr/data
   ch1: NOAA_19_A308C001.txt

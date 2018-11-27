@@ -246,7 +246,7 @@ class Calculator(RadTbConverter):
         mu0 = np.cos(np.deg2rad(sunz))
         # mu0 = np.where(np.less(mu0, 0.1), 0.1, mu0)
         self._rad3x = l_nir
-        self._solar_radiance = 1. / np.pi * self.solar_flux * mu0
+        self._solar_radiance = self.solar_flux * mu0 / np.pi
 
         # CO2 correction to the 3.9 radiance, only if tbs of a co2 band around
         # 13.4 micron is provided:
@@ -256,13 +256,16 @@ class Calculator(RadTbConverter):
         else:
             self._rad3x_correction = 1.0
 
-        mask = (self._solar_radiance - thermal_emiss_one *
-                self._rad3x_correction) < EPSILON
-        newmask = np.logical_or(sunzmask, mask)
-
         nomin = l_nir - thermal_emiss_one * self._rad3x_correction
         denom = self._solar_radiance - thermal_emiss_one * self._rad3x_correction
-        self._r3x = np.ma.masked_where(newmask, nomin / denom)
+        data = nomin / denom
+        mask = (self._solar_radiance - thermal_emiss_one *
+                self._rad3x_correction) < EPSILON
+
+        np.logical_or(sunzmask, mask, out=mask)
+        np.logical_or(mask, np.isnan(tb_nir), out=mask)
+
+        self._r3x = np.ma.masked_where(mask, data)
 
         # Reflectances should be between 0 and 1, but values above 1 is
         # perfectly possible and okay! (Multiply by 100 to get reflectances

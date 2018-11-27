@@ -1,14 +1,17 @@
 language: python
 env:
   global:
+  # Set defaults to avoid repeating in most cases
+  - PYTHON_VERSION=$TRAVIS_PYTHON_VERSION
   - NUMPY_VERSION=stable
   - MAIN_CMD='python setup.py'
-  - CONDA_DEPENDENCIES='scipy numpy coveralls coverage h5py mock requests six appdirs python-geotiepoints dask docutils pyyaml xlrd'
+  - CONDA_DEPENDENCIES='scipy coveralls coverage h5py mock requests six appdirs python-geotiepoints dask docutils pyyaml xlrd'
   - PIP_DEPENDENCIES=''
   - SETUP_XVFB=False
   - EVENT_TYPE='push pull_request cron'
   - SETUP_CMD='test'
   - CONDA_CHANNELS='conda-forge'
+  - CONDA_CHANNEL_PRIORITY='True'
 matrix:
   include:
     - env: PYTHON_VERSION=2.7
@@ -24,9 +27,6 @@ matrix:
 install:
     - git clone --depth 1 git://github.com/astropy/ci-helpers.git
     - source ci-helpers/travis/setup_conda.sh
-    # See https://github.com/conda/conda/issues/7626#issuecomment-412922028
-    - conda config --remove channels defaults
-    - conda install -y $CONDA_DEPENDENCIES
 script: coverage run --source=pyspectral setup.py test
 after_success:
 - if [[ $PYTHON_VERSION == 3.6 ]]; then coveralls; fi
