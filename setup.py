@@ -54,9 +54,12 @@ if sys.version < '3.0':
 
 version = imp.load_source('pyspectral.version', 'pyspectral/version.py')
 
+description = ('Reading and manipulaing satellite sensor spectral responses and the ' +
+               'solar spectrum, to perfom various corrections to VIS and NIR band data')
+
 setup(name='pyspectral',
       version=version.__version__,
-      description='Reading and manipulaing satellite sensor spectral responses and the solar spectrum, to perfom various corrections to VIS and NIR band data',
+      description=description,
       author='Adam Dybbroe',
       author_email='adam.dybbroe@smhi.se',
       classifiers=['Development Status :: 4 - Beta',

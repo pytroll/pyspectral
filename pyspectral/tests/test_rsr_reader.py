@@ -25,18 +25,18 @@
 import sys
 from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.utils import WAVE_NUMBER
-from pyspectral.utils import WAVE_LENGTH
 from pyspectral.utils import RSR_DATA_VERSION
+import numpy as np
 
 if sys.version_info < (2, 7):
     import unittest2 as unittest
-    from mock import patch
 else:
     import unittest
+
+if sys.version_info < (3,):
+    from mock import patch
+else:
     from unittest.mock import patch
-
-
-import numpy as np
 
 TEST_RSR = {'20': {}, }
 TEST_RSR['20']['det-1'] = {}

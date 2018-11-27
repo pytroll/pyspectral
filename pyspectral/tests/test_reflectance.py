@@ -27,9 +27,11 @@ import numpy as np
 import sys
 if sys.version_info < (2, 7):
     import unittest2 as unittest
-    from mock import patch
 else:
     import unittest
+if sys.version_info < (3,):
+    from mock import patch
+else:
     from unittest.mock import patch
 
 

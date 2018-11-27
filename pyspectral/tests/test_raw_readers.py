@@ -25,9 +25,11 @@
 import sys
 if sys.version_info < (2, 7):
     import unittest2 as unittest
-    import mock
 else:
     import unittest
+if sys.version_info < (3,):
+    import mock
+else:
     from unittest import mock
 
 AATSR_PATH = '/home/a000680/data/SpectralResponses/aatsr/consolidatedsrfs.xls'

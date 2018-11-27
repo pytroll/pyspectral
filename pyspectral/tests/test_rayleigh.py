@@ -39,9 +39,12 @@ from pyspectral.utils import RSR_DATA_VERSION
 
 if sys.version_info < (2, 7):
     import unittest2 as unittest
-    from mock import patch
 else:
     import unittest
+
+if sys.version_info < (3,):
+    from mock import patch
+else:
     from unittest.mock import patch
 
 TEST_RAYLEIGH_RESULT1 = np.array([10.40727436,   8.69775471], dtype='float32')
