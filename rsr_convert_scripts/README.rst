@@ -78,7 +78,7 @@ rsr.1.oobd.det
 
 %> python olci_rsr.py
 
-Converting the Sentinel 3 (A&B) OLCI RSR data to hdf5. The original OLCI
+Converting the Sentinel 3A OLCI RSR data to hdf5. The original OLCI
 responses comes in a single netCDF4 file:
 
 OLCISRFNetCDF.nc4

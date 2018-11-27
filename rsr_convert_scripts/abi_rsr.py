@@ -30,17 +30,15 @@ https://ncc.nesdis.noaa.gov/GOESR/ABI.php
 import os
 import numpy as np
 from pyspectral.utils import convert2hdf5 as tohdf5
-
+from pyspectral.raw_reader import InstrumentRSR
 import logging
-LOG = logging.getLogger(__name__)
 
+LOG = logging.getLogger(__name__)
 
 ABI_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4',
                   'ch5', 'ch6', 'ch7', 'ch8',
                   'ch9', 'ch10', 'ch11', 'ch12',
                   'ch13', 'ch14', 'ch15', 'ch16']
-
-from pyspectral.raw_reader import InstrumentRSR
 
 
 class AbiRSR(InstrumentRSR):

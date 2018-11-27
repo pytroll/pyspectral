@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016 Adam.Dybbroe
+# Copyright (c) 2016, 2018 Adam.Dybbroe
 
 # Author(s):
 
@@ -29,17 +29,14 @@ https://sentinel.esa.int/documents/247904/322305/SLSTR_FM02_Spectral_Responses_N
 
 import os
 from netCDF4 import Dataset
-
 from pyspectral.utils import convert2hdf5 as tohdf5
-
+from pyspectral.raw_reader import InstrumentRSR
 import logging
-LOG = logging.getLogger(__name__)
 
+LOG = logging.getLogger(__name__)
 
 SLSTR_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4',
                     'ch5', 'ch6', 'ch7', 'ch8', 'ch9']
-
-from pyspectral.raw_reader import InstrumentRSR
 
 
 class SlstrRSR(InstrumentRSR):
