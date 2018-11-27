@@ -26,6 +26,9 @@ import imp
 import os.path
 import versioneer
 
+description = ('Reading and manipulaing satellite sensor spectral responses and the '
+               'solar spectrum, to perfom various corrections to VIS and NIR band data')
+
 try:
     with open('./README', 'r') as fd:
         long_description = fd.read()
@@ -54,9 +57,6 @@ if sys.version < '3.0':
 #     dask_extra.append('h5pickle')
 
 version = imp.load_source('pyspectral.version', 'pyspectral/version.py')
-
-description = ('Reading and manipulaing satellite sensor spectral responses and the ' +
-               'solar spectrum, to perfom various corrections to VIS and NIR band data')
 
 setup(name='pyspectral',
       version=versioneer.get_version(),
