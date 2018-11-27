@@ -24,6 +24,7 @@ import sys
 from setuptools import setup
 import imp
 import os.path
+import versioneer
 
 try:
     with open('./README', 'r') as fd:
@@ -58,7 +59,8 @@ description = ('Reading and manipulaing satellite sensor spectral responses and 
                'solar spectrum, to perfom various corrections to VIS and NIR band data')
 
 setup(name='pyspectral',
-      version=version.__version__,
+      version=versioneer.get_version(),
+      cmdclass=versioneer.get_cmdclass(),
       description=description,
       author='Adam Dybbroe',
       author_email='adam.dybbroe@smhi.se',

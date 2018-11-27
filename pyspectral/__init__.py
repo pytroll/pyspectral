@@ -3,6 +3,7 @@
 
 # Copyright (c) 2013 - 2018 PyTroll Community
 
+
 # Author(s):
 
 #   Adam.Dybbroe <adam.dybbroe@smhi.se>
@@ -23,4 +24,6 @@
 
 """Pyspectral package init"""
 
-# from pyspectral.version import __version__
+from .version import get_versions
+__version__ = get_versions()['version']
+del get_versions
