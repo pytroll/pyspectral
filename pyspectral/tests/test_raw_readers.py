@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2017 Adam.Dybbroe
+# Copyright (c) 2017, 2018 Adam.Dybbroe
 
 # Author(s):
 
@@ -23,15 +23,14 @@
 """Test the raw satellite instrument rsr readers."""
 
 import sys
-try:
-    from unittest import mock
-except ImportError:
-    import mock
-
 if sys.version_info < (2, 7):
     import unittest2 as unittest
 else:
     import unittest
+if sys.version_info < (3,):
+    import mock
+else:
+    from unittest import mock
 
 AATSR_PATH = '/home/a000680/data/SpectralResponses/aatsr/consolidatedsrfs.xls'
 RSR_DIR = '/home/a000680/data/pyspectral'
