@@ -23,6 +23,7 @@
 import sys
 from setuptools import setup
 import os.path
+import versioneer
 
 try:
     with open('./README', 'r') as fd:
