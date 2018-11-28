@@ -23,6 +23,7 @@
 
 """Planck radiation equation"""
 import numpy as np
+import dask.array as da
 
 import logging
 LOG = logging.getLogger(__name__)
@@ -41,25 +42,21 @@ def blackbody_rad2temp(wavelength, radiance):
 
     """
 
-    mask = False
     if np.isscalar(radiance):
-        rad = np.array([radiance, ], dtype='float64')
+        rad = da.array([radiance, ], dtype='float64')
     else:
-        rad = np.array(radiance, dtype='float64')
-        if np.ma.is_masked(radiance):
-            mask = radiance.mask
+        rad = da.array(radiance, dtype='float64')
 
-    rad = np.ma.masked_array(rad, mask=mask)
-    rad = np.ma.masked_less_equal(rad, 0)
+    rad = da.where(rad < 0, np.nan, rad)
 
     if np.isscalar(wavelength):
-        wvl = np.array([wavelength, ], dtype='float64')
+        wvl = da.array([wavelength, ], dtype='float64')
     else:
-        wvl = np.array(wavelength, dtype='float64')
+        wvl = da.array(wavelength, dtype='float64')
 
     const1 = H_PLANCK * C_SPEED / K_BOLTZMANN
     const2 = 2 * H_PLANCK * C_SPEED**2
-    res = const1 / (wvl * np.log(np.divide(const2, rad * wvl**5) + 1.0))
+    res = const1 / (wvl * da.log(da.divide(const2, rad * wvl**5) + 1.0))
 
     shape = rad.shape
     resshape = res.shape
@@ -68,15 +65,15 @@ def blackbody_rad2temp(wavelength, radiance):
         if rad.shape[0] == 1:
             return res[0]
         else:
-            return res[::].reshape(shape)
+            return da.reshape(res[::], shape)
     else:
         if rad.shape[0] == 1:
             return res[0, :]
         else:
             if len(shape) == 1:
-                return np.reshape(res, (shape[0], resshape[1]))
+                return da.reshape(res, (shape[0], resshape[1]))
             else:
-                return np.reshape(res, (shape[0], shape[1], resshape[1]))
+                return da.reshape(res, (shape[0], shape[1], resshape[1]))
 
 
 def blackbody_wn_rad2temp(wavenumber, radiance):
@@ -84,17 +81,17 @@ def blackbody_wn_rad2temp(wavenumber, radiance):
     function. Wavenumber space"""
 
     if np.isscalar(radiance):
-        rad = np.array([radiance, ], dtype='float64')
+        rad = da.array([radiance, ], dtype='float64')
     else:
-        rad = np.array(radiance, dtype='float64')
+        rad = da.array(radiance, dtype='float64')
     if np.isscalar(wavenumber):
-        wavnum = np.array([wavenumber, ], dtype='float64')
+        wavnum = da.array([wavenumber, ], dtype='float64')
     else:
-        wavnum = np.array(wavenumber, dtype='float64')
+        wavnum = da.array(wavenumber, dtype='float64')
 
     const1 = H_PLANCK * C_SPEED / K_BOLTZMANN
     const2 = 2 * H_PLANCK * C_SPEED**2
-    res = const1 * wavnum / np.log(np.divide(const2 * wavnum**3, rad) + 1.0)
+    res = const1 * wavnum / da.log(da.divide(const2 * wavnum**3, rad) + 1.0)
 
     shape = rad.shape
     resshape = res.shape
@@ -103,15 +100,15 @@ def blackbody_wn_rad2temp(wavenumber, radiance):
         if rad.shape[0] == 1:
             return res[0]
         else:
-            return res[::].reshape(shape)
+            return da.reshape(res[::], shape)
     else:
         if rad.shape[0] == 1:
             return res[0, :]
         else:
             if len(shape) == 1:
-                return np.reshape(res, (shape[0], resshape[1]))
+                return da.reshape(res, (shape[0], resshape[1]))
             else:
-                return np.reshape(res, (shape[0], shape[1], resshape[1]))
+                return da.reshape(res, (shape[0], shape[1], resshape[1]))
 
 
 def planck(wave, temp, wavelength=True):
@@ -139,15 +136,15 @@ def planck(wave, temp, wavelength=True):
             units[(wavelength == True) - 1]))
 
     if np.isscalar(temp):
-        temperature = np.array([temp, ], dtype='float64')
+        temperature = da.array([temp, ], dtype='float64')
     else:
-        temperature = np.array(temp, dtype='float64')
+        temperature = da.array(temp, dtype='float64')
 
     shape = temperature.shape
     if np.isscalar(wave):
-        wln = np.array([wave, ], dtype='float64')
+        wln = da.array([wave, ], dtype='float64')
     else:
-        wln = np.array(wave, dtype='float64')
+        wln = da.array(wave, dtype='float64')
 
     if wavelength:
         const = 2 * H_PLANCK * C_SPEED ** 2
@@ -157,13 +154,14 @@ def planck(wave, temp, wavelength=True):
         nom = 2 * H_PLANCK * (C_SPEED ** 2) * (wln ** 3)
         arg1 = H_PLANCK * C_SPEED * wln / K_BOLTZMANN
 
-    arg2 = np.where(np.greater(np.abs(temperature), EPSILON),
-                    np.array(1. / temperature), -9).reshape(-1, 1)
-    arg2 = np.ma.masked_array(arg2, mask=arg2 == -9)
+    arg2 = da.reshape(da.where(da.greater(da.absolute(temperature), EPSILON),
+                               da.array(1. / temperature), np.nan),
+                      (-1, 1))
     LOG.debug("Max and min - arg1: %s  %s", str(arg1.max()), str(arg1.min()))
-    LOG.debug("Max and min - arg2: %s  %s", str(arg2.max()), str(arg2.min()))
+    # LOG.debug("Max and min - arg2: %s  %s", str(arg2.max()), str(arg2.min()))
     try:
-        exp_arg = np.multiply(arg1.astype('float32'), arg2.astype('float32'))
+        # exp_arg = da.multiply(arg1.astype('float32'), arg2.astype('float32'))
+        exp_arg = da.multiply(arg1, arg2)
     except MemoryError:
         LOG.warning(("Dimensions used in numpy.multiply probably reached "
                      "limit!\n"
@@ -171,16 +169,16 @@ def planck(wave, temp, wavelength=True):
                      "and try running again"))
         raise
 
-    LOG.debug("Max and min before exp: %s  %s", str(exp_arg.max()),
-              str(exp_arg.min()))
-    if exp_arg.min() < 0:
+    # LOG.debug("Max and min before exp: %s  %s", str(exp_arg.max()),
+    #           str(exp_arg.min()))
+    if da.min(exp_arg) < 0:
         LOG.warning("Something is fishy: \n" +
                     "\tDenominator might be zero or negative in radiance derivation:")
-        dubious = np.where(exp_arg < 0)[0]
+        dubious = da.where(exp_arg < 0)[0]
         LOG.warning(
-            "Number of items having dubious values: " + str(dubious.shape[0]))
+            "Number of items having dubious values: %d", dubious.shape[0])
 
-    denom = np.exp(exp_arg) - 1
+    denom = da.exp(exp_arg) - 1
     rad = nom / denom
     radshape = rad.shape
     if wln.shape[0] == 1:
@@ -193,9 +191,9 @@ def planck(wave, temp, wavelength=True):
             return rad[0, :]
         else:
             if len(shape) == 1:
-                return np.reshape(rad, (shape[0], radshape[1]))
+                return da.reshape(rad, (shape[0], radshape[1]))
             else:
-                return np.reshape(rad, (shape[0], shape[1], radshape[1]))
+                return da.reshape(rad, (shape[0], shape[1], radshape[1]))
 
 
 def blackbody_wn(wavenumber, temp):

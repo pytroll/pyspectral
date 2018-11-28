@@ -28,6 +28,7 @@ window channel (usually around 11-12 microns).
 
 import os
 import numpy as np
+import dask.array as da
 from pyspectral.solar import (SolarIrradianceSpectrum,
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
 from pyspectral.utils import BANDNAMES, get_bandname_from_wavelength
@@ -239,9 +240,11 @@ class Calculator(RadTbConverter):
         if l_nir.ravel().shape[0] < 10:
             LOG.info('l_nir = %s', str(l_nir))
 
-        sunz = np.ma.masked_outside(sun_zenith, 0.0, 88.0)
-        sunzmask = sunz.mask
-        sunz = sunz.filled(88.)
+        sunzmask = (sun_zenith < 0.0) | (sun_zenith > 88.0)
+        sunz = da.where(sunzmask, 88.0, sun_zenith)
+        # sunz = np.ma.masked_outside(sun_zenith, 0.0, 88.0)
+        # sunzmask = sunz.mask
+        # sunz = sunz.filled(88.)
 
         mu0 = np.cos(np.deg2rad(sunz))
         # mu0 = np.where(np.less(mu0, 0.1), 0.1, mu0)
@@ -262,10 +265,10 @@ class Calculator(RadTbConverter):
         mask = (self._solar_radiance - thermal_emiss_one *
                 self._rad3x_correction) < EPSILON
 
-        np.logical_or(sunzmask, mask, out=mask)
-        np.logical_or(mask, np.isnan(tb_nir), out=mask)
+        da.logical_or(sunzmask, mask, out=mask)
+        da.logical_or(mask, np.isnan(tb_nir), out=mask)
 
-        self._r3x = np.ma.masked_where(mask, data)
+        self._r3x = da.where(mask, np.nan, data)
 
         # Reflectances should be between 0 and 1, but values above 1 is
         # perfectly possible and okay! (Multiply by 100 to get reflectances

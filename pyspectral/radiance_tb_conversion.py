@@ -26,6 +26,7 @@ various satellite sensors
 """
 
 import numpy as np
+import dask.array as da
 from pyspectral.blackbody import blackbody, blackbody_wn
 from pyspectral.utils import BANDNAMES
 from pyspectral.utils import get_bandname_from_wavelength
@@ -228,7 +229,7 @@ class RadTbConverter(object):
         tb_ = np.arange(TB_MIN, TB_MAX, self.tb_resolution)
         retv = self.tb2radiance(tb_, normalized=normalized)
         rad = retv['radiance']
-        np.savez(filepath, tb=tb_, radiance=rad.compressed())
+        np.savez(filepath, tb=tb_, radiance=rad)  #.compressed())
 
     @staticmethod
     def read_tb2rad_lut(filepath):
@@ -308,7 +309,7 @@ class SeviriRadTbConverter(RadTbConverter):
         beta = SEVIRI[self.bandname][self.platform_name][2]
 
         tb_ = c_2 * vc_ / \
-            (alpha * np.log(c_1 * vc_ ** 3 / rad + 1)) - beta / alpha
+            (alpha * da.log(c_1 * vc_ ** 3 / rad + 1)) - beta / alpha
 
         return tb_
 
@@ -338,7 +339,7 @@ class SeviriRadTbConverter(RadTbConverter):
         beta = SEVIRI[self.bandname][self.platform_name][2]
 
         radiance = c_1 * vc_ ** 3 / \
-            (np.exp(c_2 * vc_ / (alpha * tb_ + beta)) - 1)
+            (da.exp(c_2 * vc_ / (alpha * tb_ + beta)) - 1)
 
         unit = 'W/m^2 sr^-1 (m^-1)^-1'
         scale = 1.0
