@@ -45,7 +45,7 @@ expressed in :math:`W/m^2 sr^{-1} \mu m^{-1}`, or using SI units :math:`W/m^2 sr
   >>> tb37 = np.array([298.07385254, 297.15478516, 294.43276978, 281.67633057, 273.7923584])
   >>> viirs = RadTbConverter('Suomi-NPP', 'viirs', 'M12')
   >>> rad37 = viirs.tb2radiance(tb37)
-  >>> print([np.round(rad, 7) for rad in rad37['radiance'].data])
+  >>> print([np.round(rad, 7) for rad in rad37['radiance']])
   [369717.4765726, 355110.5207853, 314684.2788726, 173143.5424898, 116408.0007877]
   >>> rad37['unit']
   'W/m^2 sr^-1 m^-1'
@@ -58,7 +58,7 @@ In order to get the total radiance over the band one has to multiply with the eq
   >>> tb37 = np.array([298.07385254, 297.15478516, 294.43276978, 281.67633057, 273.7923584])
   >>> viirs = RadTbConverter('Suomi-NPP', 'viirs', 'M12')
   >>> rad37 = viirs.tb2radiance(tb37, normalized=False)
-  >>> print([np.round(rad, 8) for rad in rad37['radiance'].data])
+  >>> print([np.round(rad, 8) for rad in rad37['radiance']])
   [0.07037968, 0.06759909, 0.05990352, 0.03295972, 0.02215951]
   >>> rad37['unit']
   'W/m^2 sr^-1'
@@ -127,7 +127,7 @@ where :math:`S(\lambda)` is the spectral solar irradiance.
   >>> viirs = RelativeSpectralResponse('Suomi-NPP', 'viirs')
   >>> solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, dlambda=0.005)
   >>> sflux = solar_irr.inband_solarflux(viirs.rsr['M12'])
-  >>> print(round(sflux, 7))
+  >>> print(np.round(sflux, 7))
   2.2428119
 
 Derive the reflective part of the observed 3.7 micron radiance
@@ -197,9 +197,9 @@ In Python this becomes:
   >>> tb37 = np.array([298.07385254, 297.15478516, 294.43276978, 281.67633057, 273.7923584])
   >>> tb11 = np.array([271.38806152, 271.38806152, 271.33453369, 271.98553467, 271.93609619])
   >>> m12r = refl_m12.reflectance_from_tbs(sunz, tb37, tb11)
-  >>> print(m12r.mask)
+  >>> print(np.any(np.isnan(m12r)).compute())
   False
-  >>> print([round(refl, 8) for refl in m12r.data])
+  >>> print([np.round(refl, 8) for refl in m12r])
   [0.21432927, 0.20285153, 0.17063976, 0.05408903, 0.00838111]
   
 We can try decompose equation :eq:`refl37` above using the example of VIIRS M12 band:
@@ -215,19 +215,19 @@ We can try decompose equation :eq:`refl37` above using the example of VIIRS M12 
   >>> rad11 = viirs.tb2radiance(tb11, normalized=False)
   >>> sflux = 2.242817881698326
   >>> nomin = rad37['radiance'] - rad11['radiance']
-  >>> print(nomin.mask)
+  >>> print(np.isnan(nomin))
   [False False False False False]
-  >>> print([np.round(val, 8) for val in nomin.data])
+  >>> print([np.round(val, 8) for val in nomin])
   [0.05083677, 0.04805618, 0.0404157, 0.01279279, 0.00204485]
   >>> denom = np.cos(np.deg2rad(sunz))/np.pi * sflux - rad11['radiance']
-  >>> print(denom.mask)
+  >>> print(np.isnan(denom))
   [False False False False False]
-  >>> print([np.round(val, 8) for val in denom.data])
+  >>> print([np.round(val, 8) for val in denom])
   [0.23646313, 0.23645682, 0.23650559, 0.23582015, 0.2358661]
   >>> res = nomin/denom
-  >>> print(res.mask)
+  >>> print(np.isnan(res))
   [False False False False False]
-  >>> print([round(val, 8) for val in res.data])
+  >>> print([np.round(val, 8) for val in res])
   [0.21498817, 0.2032345, 0.17088689, 0.05424807, 0.00866955]
 
 
@@ -252,8 +252,8 @@ Using the example of the VIIRS M12 band from above this gives the following spec
   >>> tb11 = np.array([271.38806152, 271.38806152, 271.33453369, 271.98553467, 271.93609619])
   >>> m12r = refl_m12.reflectance_from_tbs(sunz, tb37, tb11)
   >>> tb = refl_m12.emissive_part_3x()
-  >>> ['{tb:6.3f}'.format(tb=round(t, 4)) for t in tb.data]
+  >>> ['{tb:6.3f}'.format(tb=np.round(t, 4)) for t in tb]
   ['266.996', '267.262', '267.991', '271.033', '271.927']
   >>> rad = refl_m12.emissive_part_3x(tb=False)
-  >>> ['{rad:6.3f}'.format(rad=round(r, 4)) for r in rad.data]
+  >>> ['{rad:6.3f}'.format(rad=np.round(r, 4)) for r in rad]
   ['80285.149', '81458.022', '84749.639', '99761.400', '104582.030']
