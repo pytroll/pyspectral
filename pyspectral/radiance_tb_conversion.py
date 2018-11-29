@@ -229,7 +229,7 @@ class RadTbConverter(object):
         tb_ = np.arange(TB_MIN, TB_MAX, self.tb_resolution)
         retv = self.tb2radiance(tb_, normalized=normalized)
         rad = retv['radiance']
-        np.savez(filepath, tb=tb_, radiance=rad)  #.compressed())
+        np.savez(filepath, tb=tb_, radiance=rad)
 
     @staticmethod
     def read_tb2rad_lut(filepath):

@@ -242,9 +242,6 @@ class Calculator(RadTbConverter):
 
         sunzmask = (sun_zenith < 0.0) | (sun_zenith > 88.0)
         sunz = da.where(sunzmask, 88.0, sun_zenith)
-        # sunz = np.ma.masked_outside(sun_zenith, 0.0, 88.0)
-        # sunzmask = sunz.mask
-        # sunz = sunz.filled(88.)
 
         mu0 = np.cos(np.deg2rad(sunz))
         # mu0 = np.where(np.less(mu0, 0.1), 0.1, mu0)
