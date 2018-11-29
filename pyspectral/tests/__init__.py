@@ -32,7 +32,6 @@ from pyspectral.tests import (test_rayleigh,
                               test_solarflux,
                               test_utils,
                               test_rad_tb_conversions,
-                              test_raw_readers,
                               test_rsr_reader,
                               test_atm_correction_ir)
 
@@ -70,9 +69,9 @@ def suite():
     mysuite.addTests(test_reflectance.suite())
     mysuite.addTests(test_utils.suite())
     mysuite.addTests(test_rayleigh.suite())
-    mysuite.addTests(test_raw_readers.suite())
     mysuite.addTests(test_rsr_reader.suite())
     return mysuite
+
 
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())
