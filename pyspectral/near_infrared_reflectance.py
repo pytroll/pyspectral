@@ -200,6 +200,12 @@ class Calculator(RadTbConverter):
                      absorption correction will be applied.
 
         """
+        # Check for dask arrays
+        if hasattr(tb_near_ir, 'compute') or hasattr(tb_thermal, 'compute'):
+            compute = False
+        else:
+            compute = True
+
         if np.isscalar(tb_near_ir):
             tb_nir = np.array([tb_near_ir, ])
         else:
@@ -274,4 +280,7 @@ class Calculator(RadTbConverter):
         # Reflectances should be between 0 and 1, but values above 1 is
         # perfectly possible and okay! (Multiply by 100 to get reflectances
         # in percent)
-        return self._r3x
+        if hasattr(self._r3x, 'compute') and compute:
+            return self._r3x.compute()
+        else:
+            return self._r3x

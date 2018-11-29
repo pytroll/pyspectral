@@ -197,7 +197,7 @@ In Python this becomes:
   >>> tb37 = np.array([298.07385254, 297.15478516, 294.43276978, 281.67633057, 273.7923584])
   >>> tb11 = np.array([271.38806152, 271.38806152, 271.33453369, 271.98553467, 271.93609619])
   >>> m12r = refl_m12.reflectance_from_tbs(sunz, tb37, tb11)
-  >>> print(np.any(np.isnan(m12r)).compute())
+  >>> print(np.any(np.isnan(m12r)))
   False
   >>> print([np.round(refl, 8) for refl in m12r])
   [0.21432927, 0.20285153, 0.17063976, 0.05408903, 0.00838111]
