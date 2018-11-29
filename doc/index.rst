@@ -50,6 +50,7 @@ color imagery.
    rad_definitions
    37_reflectance
    rayleigh_correction
+   rsr_formatting
    api
 
 Indices and tables

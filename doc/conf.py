@@ -90,7 +90,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Pyspectral'
-copyright = u'2013-2017, Adam Dybbroe'
+copyright = u'2013-2018, PyTroll'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -99,7 +99,8 @@ copyright = u'2013-2017, Adam Dybbroe'
 import pyspectral.version as current_version
 
 # The full version, including alpha/beta/rc tags.
-release = current_version.__version__
+#release = current_version.__version__
+release = current_version.get_versions()['version']
 # The short X.Y version.
 version = ".".join(release.split(".")[: 2])
 

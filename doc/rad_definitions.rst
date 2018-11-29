@@ -95,19 +95,13 @@ we see that this is indeed true:
   >>> print(round(1./wvc*1e4, 6))
   0.637648
 
-This was using the PySpectral unified HDF5 formated spectral response data. If
-you want to use the original spectral response data from EUMETSAT the code may
-look like this:
- 
-  >>> from pyspectral.seviri_rsr import Seviri
-  >>> seviri = Seviri()
-  >>> print("Central wavelength = {cwl}".format(cwl=round(seviri.central_wavelength['VIS0.6']['Meteosat-8'], 6)))
+
+In the PySpectral unified HDF5 formated spectral response data we also store
+the central wavelength, so you actually don't have to calculate them yourself:
+
+  >>> from pyspectral.rsr_reader import RelativeSpectralResponse
+  >>> print("Central wavelength = {cwl}".format(cwl=round(seviri.rsr['VIS0.6']['det-1']['central_wavelength'], 6)))
   Central wavelength = 0.640216
-  >>> seviri = Seviri(wavespace='wavenumber')
-  >>> print("Central wavenumber = {wvn}".format(wvn=round(seviri.central_wavenumber['VIS0.6']['Meteosat-8'], 6)))
-  Central wavenumber = 15682.623379
-  >>> print(round(1./seviri.central_wavenumber['VIS0.6']['Meteosat-8']*1e4, 6))
-  0.637648
 
 
 Spectral Irradiance

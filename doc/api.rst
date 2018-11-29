@@ -22,31 +22,6 @@ Spectral responses
     :undoc-members:
     :show-inheritance:
        
-SEVIRI
-^^^^^^
-
-.. automodule:: pyspectral.seviri_rsr
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-VIIRS
-^^^^^
-
-.. automodule:: pyspectral.viirs_rsr
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-AVHRR
-^^^^^
-
-.. automodule:: pyspectral.avhrr_rsr
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 
 Solar irradiance
 ----------------
