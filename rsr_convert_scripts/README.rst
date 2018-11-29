@@ -71,6 +71,12 @@ specific files to be consistent with the other AVHRRs. The original file we got
 from EUMETSAT: ``AVHRR_A309_METOPC_SRF_PRELIMINARY.TXT``
 
 .. code::
+
+   %> python convert_avhrr_old2star.py
+
+Convert the NOAA 15 Spectral responses to new NOAA STAR format.
+
+.. code::
    
    %> python mersi2_rsr.py
 

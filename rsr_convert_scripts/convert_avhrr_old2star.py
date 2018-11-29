@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016 Adam.Dybbroe
+# Copyright (c) 2016 - 2018 Pytroll
 
 # Author(s):
 
@@ -64,6 +64,7 @@ def unpack_data(filename, fields):
                    header=hdline, newline='\n')
 
     return
+
 
 if __name__ == "__main__":
 
