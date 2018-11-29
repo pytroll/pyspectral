@@ -199,12 +199,12 @@ class Calculator(RadTbConverter):
         if np.isscalar(tb_near_ir):
             tb_nir = np.array([tb_near_ir, ])
         else:
-            tb_nir = np.array(tb_near_ir)
+            tb_nir = np.asanyarray(tb_near_ir)
 
         if np.isscalar(tb_thermal):
             tb_therm = np.array([tb_thermal, ])
         else:
-            tb_therm = np.array(tb_thermal)
+            tb_therm = np.asanyarray(tb_thermal)
 
         if tb_therm.shape != tb_nir.shape:
             errmsg = 'Dimensions do not match! {0} and {1}'.format(
@@ -222,7 +222,7 @@ class Calculator(RadTbConverter):
             if np.isscalar(tb_ir_co2):
                 tbco2 = np.array([tb_ir_co2, ])
             else:
-                tbco2 = np.array(tb_ir_co2)
+                tbco2 = np.asanyarray(tb_ir_co2)
 
         if not self.rsr:
             raise NotImplementedError("Reflectance calculations without "
