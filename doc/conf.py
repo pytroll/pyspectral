@@ -99,7 +99,6 @@ copyright = u'2013-2018, PyTroll'
 import pyspectral.version as current_version
 
 # The full version, including alpha/beta/rc tags.
-#release = current_version.__version__
 release = current_version.get_versions()['version']
 # The short X.Y version.
 version = ".".join(release.split(".")[: 2])
