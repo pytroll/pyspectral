@@ -26,7 +26,6 @@ various satellite sensors
 """
 
 import numpy as np
-import dask.array as da
 from pyspectral.blackbody import blackbody, blackbody_wn
 from pyspectral.utils import BANDNAMES
 from pyspectral.utils import get_bandname_from_wavelength
