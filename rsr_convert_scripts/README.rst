@@ -39,10 +39,25 @@ Conversion scripts
 ^^^^^^^^^^^^^^^^^^
 
 .. code::
+
+   %> aatsr_reader.py
+
+Converting the original ENVISAT AATSR responses. The data are stored i MS Excel
+format and the file name look like this: ``consolidatedsrfs.xls``
+
+.. code::
    
    %> python abi_rsr.py
 
 Converting from original GOES-16&17 ABI responses. The file names look like this: ``GOES-R_ABI_PFM_SRF_CWG_ch1.txt``
+
+
+.. code::
+   
+   %> python ahi_rsr.py
+
+Converting the original Himawari-8&9 AHI spectral responses. The data are stored i MS Excel
+format and the file names look like this: ``AHI-9_SpectralResponsivity_Data.xlsx``
 
 
 .. code::
@@ -66,16 +81,29 @@ personal contact has names like this: ``FY3D_MERSI_SRF_CH01_Pub.txt``
 
    %> python modis_rsr.py
 
-Converting the Terra/Aqua MODIS spectral responses to hdf5. Original Aqua MODIS files have names like this: ``01.amb.1pct.det``
-
+Converting the Terra/Aqua MODIS spectral responses to hdf5.
+Original Aqua MODIS files have names like this: ``01.amb.1pct.det``
 Terra files have names like this: ``rsr.1.oobd.det``
 
+.. code::
+
+   %> python msi_reader.py
+
+The original Sentinel-2 A&B MSI spectral responses. Filenames look like this
+``S2-SRF_COPE-GSEG-EOPG-TN-15-0007_3.0.xlsx``
+   
 .. code::
 
    %> python olci_rsr.py
 
 Converting the Sentinel 3A OLCI RSR data to hdf5. The original OLCI
 responses comes in a single netCDF4 file: ``OLCISRFNetCDF.nc4``
+
+.. code::
+
+   %> python oli_reader.py
+
+Conversion of the original Landsat-8 OLI data. File names look like this: ``Ball_BA_RSR.v1.1-1.xlsx``
 
 .. code::
 
@@ -140,4 +168,4 @@ the pyspectral.yaml file:
 
 
 Adam Dybbroe
-Thu Nov 29 13:36:01 2018
+Thu Nov 29 15:23:30 2018
