@@ -181,6 +181,22 @@ class TestReflectance(unittest.TestCase):
         tb3x = refl37.emissive_part_3x()
         np.testing.assert_allclose(tb3x, 282.455426, 6)
 
+        sunz = np.array([50.])
+        tb3 = np.ma.masked_array([300.], mask=False)
+        tb4 = np.ma.masked_array([285.], mask=False)
+        refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
+        self.assertTrue(hasattr(refl, 'mask'))
+
+        try:
+            import dask.array as da
+            sunz = da.from_array([50.], chunks=10)
+            tb3 = da.from_array([300.], chunks=10)
+            tb4 = da.from_array([285.], chunks=10)
+            refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
+            self.assertTrue(hasattr(refl, 'compute'))
+        except ImportError:
+            pass
+
     def tearDown(self):
         """Clean up"""
         pass
