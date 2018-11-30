@@ -20,17 +20,21 @@ import os
 sys.path.insert(0, os.path.abspath('../'))
 sys.path.insert(0, os.path.abspath('../pyspectral'))
 
-# this is quite dirty approach but we're not working at NASA and nobody can die
-# because of that. Am I right?
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-if on_rtd:
-    render_examples = False
-    # hack for lacking git-lfs support on rtd
-    from git_lfs import fetch
-    fetch(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-else:
-    render_examples = True
+# PYTHONPATH = docs/source
+DOC_SOURCES_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT_DIR = os.path.dirname(os.path.dirname(DOC_SOURCES_DIR))
+sys.path.insert(0, DOC_SOURCES_DIR)
+print('PROJECT_ROOT_DIR', PROJECT_ROOT_DIR)
+
+# If runs on ReadTheDocs environment
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+
+# Hack for lacking git-lfs support ReadTheDocs
+if on_rtd:
+    print('Fetching files with git_lfs')
+    from git_lfs import fetch
+    fetch(PROJECT_ROOT_DIR)
 
 
 class Mock(object):
