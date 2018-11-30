@@ -205,6 +205,10 @@ class Calculator(RadTbConverter):
             compute = False
         else:
             compute = True
+        if hasattr(tb_near_ir, 'mask') or hasattr(tb_thermal, 'mask'):
+            is_masked = True
+        else:
+            is_masked = False
 
         if np.isscalar(tb_near_ir):
             tb_nir = np.array([tb_near_ir, ])
@@ -281,6 +285,9 @@ class Calculator(RadTbConverter):
         # perfectly possible and okay! (Multiply by 100 to get reflectances
         # in percent)
         if hasattr(self._r3x, 'compute') and compute:
-            return self._r3x.compute()
+            res = self._r3x.compute()
         else:
-            return self._r3x
+            res = self._r3x
+        if is_masked:
+            res = np.ma.masked_array(res, mask=np.isnan(res))
+        return res
