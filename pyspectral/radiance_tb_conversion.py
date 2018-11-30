@@ -308,7 +308,7 @@ class SeviriRadTbConverter(RadTbConverter):
         beta = SEVIRI[self.bandname][self.platform_name][2]
 
         tb_ = c_2 * vc_ / \
-            (alpha * da.log(c_1 * vc_ ** 3 / rad + 1)) - beta / alpha
+            (alpha * np.log(c_1 * vc_ ** 3 / rad + 1)) - beta / alpha
 
         return tb_
 
@@ -338,7 +338,7 @@ class SeviriRadTbConverter(RadTbConverter):
         beta = SEVIRI[self.bandname][self.platform_name][2]
 
         radiance = c_1 * vc_ ** 3 / \
-            (da.exp(c_2 * vc_ / (alpha * tb_ + beta)) - 1)
+            (np.exp(c_2 * vc_ / (alpha * tb_ + beta)) - 1)
 
         unit = 'W/m^2 sr^-1 (m^-1)^-1'
         scale = 1.0
