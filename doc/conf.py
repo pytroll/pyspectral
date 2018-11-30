@@ -14,18 +14,13 @@
 import sys
 import os
 
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath('../'))
-sys.path.insert(0, os.path.abspath('../pyspectral'))
-
-
 # PYTHONPATH = docs/source
 DOC_SOURCES_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT_DIR = os.path.dirname(os.path.dirname(DOC_SOURCES_DIR))
+PROJECT_ROOT_DIR = os.path.dirname(DOC_SOURCES_DIR)
 sys.path.insert(0, DOC_SOURCES_DIR)
 print('PROJECT_ROOT_DIR', PROJECT_ROOT_DIR)
+from glob import glob
+print(glob(os.path.join(PROJECT_ROOT_DIR, '*')))
 
 # If runs on ReadTheDocs environment
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
@@ -35,6 +30,12 @@ if on_rtd:
     print('Fetching files with git_lfs')
     from git_lfs import fetch
     fetch(PROJECT_ROOT_DIR)
+
+# If extensions (or modules to document with autodoc) are in another directory,
+# add these directories to sys.path here. If the directory is relative to the
+# documentation root, use os.path.abspath to make it absolute, like shown here.
+sys.path.insert(0, os.path.abspath('../'))
+sys.path.insert(0, os.path.abspath('../pyspectral'))
 
 
 class Mock(object):
