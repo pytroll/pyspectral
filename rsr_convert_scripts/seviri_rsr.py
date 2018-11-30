@@ -29,13 +29,11 @@ satellites
 import os
 from xlrd import open_workbook
 import numpy as np
-
-import logging
-LOG = logging.getLogger(__name__)
-
 from pyspectral.config import get_config
-
 import pkg_resources
+import logging
+
+LOG = logging.getLogger(__name__)
 DATA_PATH = pkg_resources.resource_filename('pyspectral', 'data/')
 
 
@@ -268,6 +266,7 @@ def main():
     for satnum in [8, 9, 10, 11]:
         generate_seviri_file(sev_obj, 'Meteosat-{0:d}'.format(satnum))
         print("Meteosat-{0:d} done...".format(satnum))
+
 
 if __name__ == "__main__":
     main()

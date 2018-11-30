@@ -22,7 +22,6 @@
 
 import sys
 from setuptools import setup
-import imp
 import os.path
 import versioneer
 
@@ -56,7 +55,6 @@ if sys.version < '3.0':
 #     test_requires.append('h5pickle')
 #     dask_extra.append('h5pickle')
 
-version = imp.load_source('pyspectral.version', 'pyspectral/version.py')
 
 setup(name='pyspectral',
       version=versioneer.get_version(),

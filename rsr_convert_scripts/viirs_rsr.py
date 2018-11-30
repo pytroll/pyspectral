@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013-2017 Adam.Dybbroe
+# Copyright (c) 2013-2018 Adam.Dybbroe
 
 # Author(s):
 
@@ -28,7 +28,6 @@ import numpy as np
 from pyspectral.utils import get_central_wave
 from pyspectral.config import get_config
 from trollsift.parser import compose
-
 import logging
 LOG = logging.getLogger(__name__)
 
@@ -140,12 +139,11 @@ class ViirsRSR(object):
 
     def _get_bandfile(self, **options):
         """Get the VIIRS rsr filename"""
-        band_file = None
 
         # Need to understand why there are A&B files for band M16. FIXME!
         # Anyway, the absolute response differences are small, below 0.05
 
-        #LOG.debug("paths = %s", str(self.bandfilenames))
+        # LOG.debug("paths = %s", str(self.bandfilenames))
 
         path = self.bandfilenames[self.bandname]
         if not os.path.exists(path):
@@ -204,7 +202,7 @@ def main():
     LOG.addHandler(handler)
 
     platform_name = "NOAA-20"
-    #platform_name = "Suomi-NPP"
+    # platform_name = "Suomi-NPP"
     viirs = ViirsRSR('M1', platform_name)
     filename = os.path.join(viirs.output_dir,
                             "rsr_viirs_{0}.h5".format(platform_name))
@@ -262,6 +260,7 @@ def main():
 
                 dset = det_grp.create_dataset('response', rsp.shape, dtype='f')
                 dset[...] = rsp
+
 
 if __name__ == "__main__":
     LOG = logging.getLogger('viirs_rsr')
