@@ -37,7 +37,7 @@ except IOError:
 requires = ['docutils>=0.3', 'numpy>=1.5.1', 'scipy>=0.14',
             'python-geotiepoints>=1.1.1',
             'h5py>=2.5', 'requests', 'six', 'pyyaml',
-            'appdirs', 'git-lfs']
+            'appdirs']
 
 dask_extra = ['dask[array]']
 test_requires = ['pyyaml', 'dask[array]', 'xlrd']  # , 'matplotlib']
