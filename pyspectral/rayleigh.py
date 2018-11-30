@@ -25,7 +25,6 @@
 to 800 nm
 
 """
-
 import os
 import time
 import logging
@@ -39,11 +38,11 @@ try:
                             atleast_2d, Array, map_blocks, from_array)
     import dask.array as da
     HAVE_DASK = True
-    try:
-        # use serializable h5py wrapper to make sure files are closed properly
-        import h5pickle as h5py
-    except ImportError:
-        pass
+    # try:
+    #     # use serializable h5py wrapper to make sure files are closed properly
+    #     import h5pickle as h5py
+    # except ImportError:
+    #     pass
 except ImportError:
     from numpy import where, zeros, clip, rad2deg, deg2rad, cos, arccos, atleast_2d
     da = None
