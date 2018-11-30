@@ -130,11 +130,17 @@ class RelativeSpectralResponse(object):
 
         LOG.debug('Filename: %s', str(self.filename))
         if not os.path.exists(self.filename) or not os.path.isfile(self.filename):
-            # Try download from the internet!
             LOG.warning("No rsr file %s on disk", self.filename)
-            if self.do_download:
-                LOG.info("Will download from internet...")
-                download_rsr()
+
+            if self._rsr_data_version_uptodate:
+                LOG.info("RSR data up to date, so seems there is no support for this platform and sensor")
+            else:
+                # Try download from the internet!
+                if self.do_download:
+                    LOG.info("Will download from internet...")
+                    download_rsr()
+                    if self._get_rsr_data_version() == RSR_DATA_VERSION:
+                        self._rsr_data_version_uptodate = True
 
         if not self._rsr_data_version_uptodate:
             LOG.warning("rsr data may not be up to date: %s", self.filename)

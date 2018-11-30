@@ -25,10 +25,6 @@
 
 import os
 import sys
-try:
-    from unittest.mock import patch
-except ImportError:
-    from mock import patch
 import numpy as np
 import dask.array as da
 from pyspectral import rayleigh
@@ -46,6 +42,10 @@ if sys.version_info < (2, 7):
 else:
     import unittest
 
+if sys.version_info < (3,):
+    from mock import patch
+else:
+    from unittest.mock import patch
 
 TEST_RAYLEIGH_RESULT1 = np.array([10.40727436,   8.69775471], dtype='float32')
 TEST_RAYLEIGH_RESULT2 = np.array([9.71695252,  8.51415601], dtype='float32')
