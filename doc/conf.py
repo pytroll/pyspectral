@@ -14,6 +14,20 @@
 import sys
 import os
 
+# PYTHONPATH = docs/source
+DOC_SOURCES_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT_DIR = os.path.dirname(DOC_SOURCES_DIR)
+sys.path.insert(0, DOC_SOURCES_DIR)
+
+# If runs on ReadTheDocs environment
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+
+# Hack for lacking git-lfs support ReadTheDocs
+if on_rtd:
+    # print('Fetching files with git_lfs')
+    from git_lfs import fetch
+    fetch(PROJECT_ROOT_DIR)
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -49,9 +63,11 @@ class Mock(object):
 
 MOCK_MODULES = ['numpy', 'numpy.core',
                 'numpy.distutils.core', 'numpy.core.multiarray',
+                'dask',
                 'scipy', 'scipy.integrate', 'scipy.interpolate',
                 'scipy.interpolate.InterpolatedUnivariateSpline',
-                'geotiepoints', 'trollsift', 'trollsift.parser',
+                'geotiepoints', 'geotiepoints.multilinear',
+                'trollsift', 'trollsift.parser',
                 'h5py', 'tqdm', 'xlrd']
 
 for mod_name in MOCK_MODULES:
@@ -74,7 +90,7 @@ sys.path.insert(0, os.path.abspath('../pyspectral'))
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest',
               'sphinx.ext.todo', 'sphinx.ext.coverage',
               'sphinx.ext.intersphinx', 'sphinx.ext.napoleon',
-              'sphinx.ext.pngmath']
+              'sphinx.ext.imgmath']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

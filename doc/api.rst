@@ -43,10 +43,10 @@ Near-Infrared reflectance
 Rayleigh scattering
 -------------------
 
-.. automodule:: pyspectral.rayleigh
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   .. automodule:: pyspectral.rayleigh
+       :members:
+       :undoc-members:
+       :show-inheritance:
 
 
 Utils

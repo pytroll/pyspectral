@@ -130,7 +130,7 @@ from ESA comes as a set of netCDF files. One file per band. Band 1:
 
    %> python viirs_rsr.py
 
-Converting the NOAA-20 Suomi-NPP VIIRS original responses to hdf5. File names
+Converting the NOAA-20 and Suomi-NPP VIIRS original responses to hdf5. File names
 follow 9 different naming conventions depending on the band, here as given in
 the pyspectral.yaml file:
 
@@ -174,4 +174,5 @@ the pyspectral.yaml file:
 
 
 Adam Dybbroe
-Thu Nov 29 15:23:30 2018
+Sat Dec  1 17:39:48 2018
+
