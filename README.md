@@ -7,7 +7,6 @@ PySpectral
 [![Coverage Status](https://coveralls.io/repos/github/pytroll/pyspectral/badge.svg?branch=master)](https://coveralls.io/github/pytroll/pyspectral?branch=master)
 [![Code Health](https://landscape.io/github/pytroll/pyspectral/master/landscape.png)](https://landscape.io/github/pytroll/pyspectral/master)
 [![PyPI version](https://badge.fury.io/py/pyspectral.svg)](https://badge.fury.io/py/pyspectral)
-[![Research software impact](http://depsy.org/api/package/pypi/pyspectral/badge.svg)](http://depsy.org/package/python/pyspectral)
 [![Code Climate](https://codeclimate.com/github/pytroll/pyspectral/badges/gpa.svg)](https://codeclimate.com/github/pytroll/pyspectral)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/pytroll/pyspectral/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/pytroll/pyspectral/?branch=master)
 
