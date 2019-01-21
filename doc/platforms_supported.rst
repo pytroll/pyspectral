@@ -76,6 +76,9 @@ have been included in PySpectral.
     * - FY-3D mersi-2
       - `rsr_mersi-2_FY-3D.h5`
       - CMA_ (Acquired via personal contact)
+    * - HY-1C cocts
+      - `rsr_cocts_HY-1C.h5`
+      - (Acquired via personal contact)
 
 
 .. _Eumetsat: https://www.eumetsat.int/website/home/Data/Products/Calibration/MSGCalibration/index.html
@@ -89,4 +92,5 @@ have been included in PySpectral.
 .. _NASA-Landsat-OLI: https://landsat.gsfc.nasa.gov/wp-content/uploads/2013/06/Ball_BA_RSR.v1.1-1.xlsx
 .. _NESDIS: https://ncc.nesdis.noaa.gov/J1VIIRS/J1VIIRSSpectralResponseFunctions.php
 .. _CMA: http://www.cma.gov.cn/en2014/
+
 
