@@ -79,7 +79,9 @@ have been included in PySpectral.
     * - HY-1C cocts
       - `rsr_cocts_HY-1C.h5`
       - (Acquired via personal contact)
-
+    * - Metop-SG-A1 MetImage
+      - `rsr_metimage_Metop-SG-A1.h5`
+      - NWPSAF-MetImage_
 
 .. _Eumetsat: https://www.eumetsat.int/website/home/Data/Products/Calibration/MSGCalibration/index.html
 .. _GSICS: https://www.star.nesdis.noaa.gov/smcd/GCC/instrInfo-srf.php
@@ -92,5 +94,5 @@ have been included in PySpectral.
 .. _NASA-Landsat-OLI: https://landsat.gsfc.nasa.gov/wp-content/uploads/2013/06/Ball_BA_RSR.v1.1-1.xlsx
 .. _NESDIS: https://ncc.nesdis.noaa.gov/J1VIIRS/J1VIIRSSpectralResponseFunctions.php
 .. _CMA: http://www.cma.gov.cn/en2014/
-
+.. _NWPSAF-MetImage: https://nwpsaf.eu/downloads/rtcoef_rttov12/ir_srf/rtcoef_metopsg_1_metimage_srf.html
 
