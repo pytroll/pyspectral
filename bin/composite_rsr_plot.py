@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016-2018 Adam.Dybbroe
+# Copyright (c) 2016-2019 Adam.Dybbroe
 
 # Author(s):
 
@@ -74,6 +74,9 @@ def get_arguments():
     parser.add_argument("-x", "--xlimits", nargs=2,
                         help=("x-axis boundaries for plot"),
                         default=None, type=float)
+    parser.add_argument("-y", "--ylimits", nargs=2,
+                        help=("y-axis boundaries for plot"),
+                        default=None, type=float)
     parser.add_argument("-t", "--minimum_response",
                         help=("Minimum response: Any response lower than " +
                               "this will be ignored when plotting"),
@@ -115,6 +118,7 @@ if __name__ == "__main__":
     sensors = args.sensor
     minimum_response = args.minimum_response
     xlimits = args.xlimits
+    ylimits = args.ylimits
     title = args.title
     if not title:
         title = 'Relative Spectral Responses'
@@ -210,6 +214,13 @@ if __name__ == "__main__":
         wmax = xlimits[1]
 
     plt.xlim((wmin, wmax))
+
+    wmin, wmax = plt.ylim()
+    if ylimits:
+        wmin = ylimits[0]
+        wmax = ylimits[1]
+
+    plt.ylim((wmin, wmax))
 
     plt.title(title)
     plt.legend(loc='lower right')
