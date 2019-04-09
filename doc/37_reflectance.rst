@@ -199,8 +199,8 @@ In Python this becomes:
   >>> m12r = refl_m12.reflectance_from_tbs(sunz, tb37, tb11)
   >>> print(np.any(np.isnan(m12r)))
   False
-  >>> print([np.round(refl, 8) for refl in m12r])
-  [0.21432927, 0.20285153, 0.17063976, 0.05408903, 0.00838111]
+  >>> print([np.round(refl, 7) for refl in m12r])
+  [0.2143293, 0.2028515, 0.1706398, 0.054089, 0.0083811]
   
 We can try decompose equation :eq:`refl37` above using the example of VIIRS M12 band:
 
@@ -256,4 +256,4 @@ Using the example of the VIIRS M12 band from above this gives the following spec
   ['266.996', '267.262', '267.991', '271.033', '271.927']
   >>> rad = refl_m12.emissive_part_3x(tb=False)
   >>> ['{rad:6.3f}'.format(rad=np.round(r, 4)) for r in rad]
-  ['80285.149', '81458.022', '84749.639', '99761.400', '104582.030']
+  ['80285.149', '81458.022', '84749.639', '99761.401', '104582.030']
