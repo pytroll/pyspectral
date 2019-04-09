@@ -182,6 +182,7 @@ def planck(wave, temp, wavelength=True):
 
     denom = np.exp(exp_arg) - 1
     rad = nom / denom
+    rad = np.where(rad.mask, np.nan, rad.data)
     radshape = rad.shape
     if wln.shape[0] == 1:
         if temperature.shape[0] == 1:
