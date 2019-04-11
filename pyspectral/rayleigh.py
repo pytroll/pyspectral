@@ -204,6 +204,12 @@ class Rayleigh(object):
         return self._rayl, self._wvl_coord, self._azid_coord,\
             self._satz_sec_coord, self._sunz_sec_coord
 
+    @staticmethod
+    def _do_interp(minterp, sunzsec, azidiff, satzsec):
+        interp_points2 = np.vstack((sunzsec.ravel(), 180 - azidiff.ravel(), satzsec.ravel()))
+        res = minterp(interp_points2)
+        return res.reshape(sunzsec.shape)
+
     def get_reflectance(self, sun_zenith, sat_zenith, azidiff, bandname, redband=None):
         """Get the reflectance from the three sun-sat angles"""
         # Get wavelength in nm for band:
@@ -277,19 +283,11 @@ class Rayleigh(object):
         minterp = MultilinearInterpolator(smin, smax, orders)
         minterp.set_values(f_3d_grid)
 
-        def _do_interp(minterp, sunzsec, azidiff, satzsec):
-            interp_points2 = np.vstack((sunzsec.ravel(),
-                                        180 - azidiff.ravel(),
-                                        satzsec.ravel()))
-            res = minterp(interp_points2)
-            return res.reshape(sunzsec.shape)
-
         if HAVE_DASK:
-            ipn = map_blocks(_do_interp, minterp, sunzsec, azidiff,
-                             satzsec, dtype=raylwvl.dtype,
-                             chunks=azidiff.chunks)
+            ipn = map_blocks(self._do_interp, minterp, sunzsec, azidiff,
+                             satzsec, dtype=raylwvl.dtype, chunks=azidiff.chunks)
         else:
-            ipn = _do_interp(minterp, sunzsec, azidiff, satzsec)
+            ipn = self._do_interp(minterp, sunzsec, azidiff, satzsec)
 
         LOG.debug("Time - Interpolation: {0:f}".format(time.time() - tic))
 

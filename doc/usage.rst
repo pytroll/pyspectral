@@ -22,9 +22,11 @@ Now, you can work with the data as you wish, make some simple plot for instance:
   >>> import matplotlib.pyplot as plt
   >>> dummy = plt.figure(figsize=(10, 5))
   >>> import numpy as np
-  >>> resp = np.ma.masked_less_equal(olci.rsr['Oa01']['det-1']['response'], 0.015)
-  >>> wvl = np.ma.masked_array(olci.rsr['Oa01']['det-1']['wavelength'], resp.mask)
-  >>> dummy = plt.plot(wvl.compressed(), resp.compressed())
+  >>> rsr = olci.rsr['Oa01']['det-1']['response']
+  >>> resp = np.where(rsr < 0.015, np.nan, rsr)
+  >>> wl_ = olci.rsr['Oa01']['det-1']['wavelength']
+  >>> wvl = np.where(np.isnan(resp), np.nan, wl_)
+  >>> dummy = plt.plot(wvl, resp)
   >>> plt.show() # doctest: +SKIP
 
   .. image:: _static/olci_ch1.png

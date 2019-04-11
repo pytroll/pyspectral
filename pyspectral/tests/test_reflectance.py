@@ -120,7 +120,7 @@ class TestReflectance(unittest.TestCase):
             refl37 = Calculator('EOS-Aqua', 'modis', '20')
 
         expected = 1.8563451e-07  # unit = 'm' (meter)
-        self.assertAlmostEqual(refl37.rsr_integral, expected)
+        np.testing.assert_allclose(refl37.rsr_integral, expected)
 
         with patch('pyspectral.radiance_tb_conversion.RelativeSpectralResponse') as mymock:
             instance = mymock.return_value
@@ -132,7 +132,7 @@ class TestReflectance(unittest.TestCase):
 
         expected = 13000.385  # SI units = 'm-1' (1/meter)
         res = refl37.rsr_integral
-        self.assertAlmostEqual(res / expected, 1.0, 6)
+        np.testing.assert_allclose(res / expected, 1.0, 6)
 
     def test_reflectance(self):
         """Test the derivation of the reflective part of a 3.7 micron band"""
@@ -162,28 +162,44 @@ class TestReflectance(unittest.TestCase):
         tb3 = np.array([290.])
         tb4 = np.array([282.])
         refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
-        self.assertAlmostEqual(refl.data[0], 0.251245010648, 6)
+        np.testing.assert_allclose(refl[0], 0.251245010648, 6)
 
         tb3x = refl37.emissive_part_3x()
-        self.assertAlmostEqual(tb3x, 276.213054, 6)
+        np.testing.assert_allclose(tb3x, 276.213054, 6)
 
         sunz = np.array([80.])
         tb3 = np.array([295.])
         tb4 = np.array([282.])
         refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
-        self.assertAlmostEqual(refl.data[0], 0.452497961, 6)
+        np.testing.assert_allclose(refl[0], 0.452497961, 6)
 
         tb3x = refl37.emissive_part_3x()
-        self.assertAlmostEqual(tb3x, 270.077268, 6)
+        np.testing.assert_allclose(tb3x, 270.077268, 6)
 
         sunz = np.array([50.])
         tb3 = np.array([300.])
         tb4 = np.array([285.])
         refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
-        self.assertAlmostEqual(refl.data[0], 0.1189217, 6)
+        np.testing.assert_allclose(refl[0], 0.1189217, 6)
 
         tb3x = refl37.emissive_part_3x()
-        self.assertAlmostEqual(tb3x, 282.455426, 6)
+        np.testing.assert_allclose(tb3x, 282.455426, 6)
+
+        sunz = np.array([50.])
+        tb3 = np.ma.masked_array([300.], mask=False)
+        tb4 = np.ma.masked_array([285.], mask=False)
+        refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
+        self.assertTrue(hasattr(refl, 'mask'))
+
+        try:
+            import dask.array as da
+            sunz = da.from_array([50.], chunks=10)
+            tb3 = da.from_array([300.], chunks=10)
+            tb4 = da.from_array([285.], chunks=10)
+            refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
+            self.assertTrue(hasattr(refl, 'compute'))
+        except ImportError:
+            pass
 
     def tearDown(self):
         """Clean up"""
