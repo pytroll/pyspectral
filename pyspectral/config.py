@@ -31,6 +31,11 @@ import yaml
 from collections import Mapping
 import pkg_resources
 
+try:
+    from yaml import UnsafeLoader
+except ImportError:
+    from yaml import Loader as UnsafeLoader
+
 
 LOG = logging.getLogger(__name__)
 
@@ -72,7 +77,7 @@ def get_config():
 
     config = {}
     with open(configfile, 'r') as fp_:
-        config = recursive_dict_update(config, yaml.load(fp_))
+        config = recursive_dict_update(config, yaml.load(fp_, Loader=UnsafeLoader))
 
     app_dirs = AppDirs('pyspectral', 'pytroll')
     user_datadir = app_dirs.user_data_dir
