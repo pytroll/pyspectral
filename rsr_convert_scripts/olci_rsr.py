@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016, 2017, 2018 Adam.Dybbroe
+# Copyright (c) 2016 - 2019 Adam.Dybbroe
 
 # Author(s):
 
@@ -23,7 +23,10 @@
 """
 Reading the Sentinel-3 OLCI relative spectral responses
 
-https://sentinel.esa.int/documents/247904/322304/OLCI+SRF+%28NetCDF%29/15cfd7a6-b7bc-4051-87f8-c35d765ae43a
+https://sentinel.esa.int/documents/247904/322304/OLCI+SRF+%28NetCDF%29/
+
+https://sentinel.esa.int/web/sentinel/technical-guides/sentinel-3-olci/olci-instrument/spectral-response-function-data
+
 """
 
 from netCDF4 import Dataset
@@ -34,7 +37,8 @@ import logging
 
 LOG = logging.getLogger(__name__)
 
-RSRFILE = '/home/a000680/data/SpectralResponses/olci/OLCISRFNetCDF.nc4'
+RSRFILE = {'Sentinel-3A': '/home/a000680/data/SpectralResponses/olci/S3A_OL_SRF_20160713_mean_rsr.nc4',
+           'Sentinel-3B': '/home/a000680/data/SpectralResponses/olciB/S3B_OL_SRF_0_20180109_mean_rsr.nc4'}
 
 
 OLCI_BAND_NAMES = ['Oa01', 'Oa02', 'Oa03', 'Oa04',
@@ -73,18 +77,24 @@ class OlciRSR(InstrumentRSR):
         ncf = Dataset(self.path, 'r')
 
         bandnum = OLCI_BAND_NAMES.index(self.bandname)
-        cam = 0
-        view = 0
+        # cam = 0
+        # view = 0
+        # resp = ncf.variables[
+        #     'spectral_response_function'][bandnum, cam, view, :]
+        # wvl = ncf.variables[
+        #     'spectral_response_function_wavelength'][bandnum, cam, view, :] * scale
         resp = ncf.variables[
-            'spectral_response_function'][bandnum, cam, view, :]
+            'mean_spectral_response_function'][bandnum, :]
         wvl = ncf.variables[
-            'spectral_response_function_wavelength'][bandnum, cam, view, :] * scale
+            'mean_spectral_response_function_wavelength'][bandnum, :] * scale
+
         self.rsr = {'wavelength': wvl, 'response': resp}
 
 
 def main():
     """Main"""
-    for platform_name in ['Sentinel-3A', ]:
+    # for platform_name in ['Sentinel-3A', 'Sentinel-3B']:
+    for platform_name in ['Sentinel-3B', ]:
         tohdf5(OlciRSR, platform_name, OLCI_BAND_NAMES)
 
 
@@ -118,6 +128,7 @@ def testplot():
     ax.legend()
     fig.savefig('olci_band1.png')
     # pylab.show()
+
 
 if __name__ == "__main__":
     main()
