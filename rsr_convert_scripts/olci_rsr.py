@@ -37,7 +37,6 @@ import logging
 
 LOG = logging.getLogger(__name__)
 
-#RSRFILE = '/home/a000680/data/SpectralResponses/olci/OLCISRFNetCDF.nc4'
 RSRFILE = {'Sentinel-3A': '/home/a000680/data/SpectralResponses/olci/S3A_OL_SRF_20160713_mean_rsr.nc4',
            'Sentinel-3B': '/home/a000680/data/SpectralResponses/olciB/S3B_OL_SRF_0_20180109_mean_rsr.nc4'}
 
