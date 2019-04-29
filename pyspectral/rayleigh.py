@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016-2018 Pytroll
+# Copyright (c) 2016-2019 Pytroll
 
 # Author(s):
 
@@ -171,7 +171,10 @@ class Rayleigh(object):
                 LOG.warning(
                     "Effective wavelength is set to the requested band wavelength = %f", bandname)
                 return bandname
-            return None
+
+            msg = ("Can't get effective wavelength for band %s on platform %s and sensor %s" %
+                   (str(bandname), self.platform_name, self.sensor))
+            raise KeyError(msg)
 
         if isinstance(bandname, str):
             bandname = BANDNAMES.get(self.sensor, BANDNAMES['generic']).get(bandname, bandname)
@@ -220,15 +223,9 @@ class Rayleigh(object):
             wvl = bandname * 1000.0
         else:
             wvl = self.get_effective_wavelength(bandname)
-            if wvl is None:
-                LOG.error("Can't get effective wavelength for band %s on platform %s and sensor %s",
-                          str(bandname), self.platform_name, self.sensor)
-                return None
-            else:
-                wvl = wvl * 1000.0
+            wvl = wvl * 1000.0
 
-        rayl, wvl_coord, azid_coord, satz_sec_coord, sunz_sec_coord = \
-            self.get_reflectance_lut()
+        rayl, wvl_coord, azid_coord, satz_sec_coord, sunz_sec_coord = self.get_reflectance_lut()
 
         # force dask arrays
         compute = False
@@ -255,8 +252,7 @@ class Rayleigh(object):
             LOG.info(
                 "Set the rayleigh/aerosol reflectance contribution to zero!")
             if HAVE_DASK:
-                chunks = sun_zenith.chunks if redband is None \
-                    else redband.chunks
+                chunks = sun_zenith.chunks if redband is None else redband.chunks
                 res = zeros(shape, chunks=chunks)
                 return res.compute() if compute else res
             else:

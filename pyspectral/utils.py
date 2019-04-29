@@ -127,7 +127,6 @@ HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/2653487/files/pyspectral_rsr_da
 RSR_DATA_VERSION_FILENAME = "PYSPECTRAL_RSR_VERSION"
 RSR_DATA_VERSION = "v1.0.6"
 
-
 ATM_CORRECTION_LUT_VERSION = {}
 ATM_CORRECTION_LUT_VERSION['antarctic_aerosol'] = {'version': 'v1.0.1',
                                                    'filename': 'PYSPECTRAL_ATM_CORR_LUT_AA'}
