@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2018 Adam.Dybbroe
+# Copyright (c) 2018, 2019 Adam.Dybbroe
 
 # Author(s):
 
@@ -28,6 +28,11 @@ import argparse
 from pyspectral.utils import download_rsr
 from pyspectral.utils import logging_on, logging_off
 
+from pyspectral.rsr_reader import RSRDataBaseClass
+
+LOG = logging.getLogger(__name__)
+
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
@@ -45,12 +50,18 @@ if __name__ == "__main__":
     verbose = args.verbose
     dry_run = args.dry_run
 
+    rsr = RSRDataBaseClass()
+
     if verbose:
         logging_on(logging.DEBUG)
     else:
-        logging_off()
+        # logging_off()
+        logging_on(logging.INFO)
 
-    if dest_dir:
-        download_rsr(dest_dir=dest_dir, dry_run=dry_run)
+    if rsr.rsr_data_version_uptodate:
+        LOG.info("RSR data already the latest!")
     else:
-        download_rsr(dry_run=dry_run)
+        if dest_dir:
+            download_rsr(dest_dir=dest_dir, dry_run=dry_run)
+        else:
+            download_rsr(dry_run=dry_run)

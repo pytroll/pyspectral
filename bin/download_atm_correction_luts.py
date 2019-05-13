@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2018 Adam.Dybbroe
+# Copyright (c) 2018, 2019 Adam.Dybbroe
 
 # Author(s):
 
@@ -27,9 +27,11 @@ spectral range
 
 import logging
 import argparse
+from pyspectral.rayleigh import RayleighConfigBaseClass
 from pyspectral.utils import download_luts, AEROSOL_TYPES
 from pyspectral.utils import logging_on, logging_off
 
+LOG = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -51,7 +53,13 @@ if __name__ == "__main__":
     if verbose:
         logging_on(logging.DEBUG)
     else:
-        logging_off()
+        # logging_off()
+        logging_on(logging.INFO)
 
-    # Download:
-    download_luts(aerosol_type=aerosol_types, dry_run=dry_run)
+    for aerosol_type in aerosol_types:
+        atmcorr = RayleighConfigBaseClass(aerosol_type)
+        if atmcorr.lutfiles_version_uptodate:
+            LOG.info("Atm correction LUT files already the latest!")
+        else:
+            # Download
+            download_luts(aerosol_type=aerosol_type, dry_run=dry_run)
