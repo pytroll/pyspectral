@@ -266,6 +266,19 @@ class RelativeSpectralResponse(RSRDataBaseClass):
             raise NotImplementedError(errmsg)
 
 
+def check_and_download(dest_dir=None):
+    """Do a check for the version and attempt downloading only if needed"""
+
+    rsr = RSRDataBaseClass()
+    if rsr.rsr_data_version_uptodate:
+        LOG.info("RSR data already the latest!")
+    else:
+        if dest_dir:
+            download_rsr(dest_dir=dest_dir)
+        else:
+            download_rsr()
+
+
 def main():
     """Main"""
     modis = RelativeSpectralResponse('EOS-Terra', 'modis')
