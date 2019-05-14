@@ -349,3 +349,21 @@ def get_reflectance_lut(filename):
         h5f.close()
 
     return tab, wvl, azidiff, satellite_zenith_secant, sun_zenith_secant
+
+
+def check_and_download(**kwargs):
+    """Do a check for the version of the atmospheric correction LUTs and attempt
+       downloading only if needed
+
+    """
+
+    aerosol_types = kwargs.get('aerosol_types', AEROSOL_TYPES)
+    dry_run = kwargs.get('dry_run', False)
+
+    for aerosol_type in aerosol_types:
+        atmcorr = RayleighConfigBaseClass(aerosol_type)
+        if atmcorr.lutfiles_version_uptodate:
+            LOG.info("Atm correction LUT files already the latest!")
+        else:
+            # Download
+            download_luts(aerosol_type=aerosol_type, dry_run=dry_run)

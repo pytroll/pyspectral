@@ -266,17 +266,20 @@ class RelativeSpectralResponse(RSRDataBaseClass):
             raise NotImplementedError(errmsg)
 
 
-def check_and_download(dest_dir=None):
+def check_and_download(**kwargs):
     """Do a check for the version and attempt downloading only if needed"""
+
+    dry_run = kwargs.get('dry_run', False)
+    dest_dir = kwargs.get('dest_dir', None)
 
     rsr = RSRDataBaseClass()
     if rsr.rsr_data_version_uptodate:
         LOG.info("RSR data already the latest!")
     else:
         if dest_dir:
-            download_rsr(dest_dir=dest_dir)
+            download_rsr(dest_dir=dest_dir, dry_run=dry_run)
         else:
-            download_rsr()
+            download_rsr(dry_run=dry_run)
 
 
 def main():

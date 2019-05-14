@@ -25,10 +25,8 @@
 
 import logging
 import argparse
-from pyspectral.utils import download_rsr
 from pyspectral.utils import logging_on, logging_off
-
-from pyspectral.rsr_reader import RSRDataBaseClass
+from pyspectral.rsr_reader import check_and_download
 
 LOG = logging.getLogger(__name__)
 
@@ -50,18 +48,12 @@ if __name__ == "__main__":
     verbose = args.verbose
     dry_run = args.dry_run
 
-    rsr = RSRDataBaseClass()
-
     if verbose:
         logging_on(logging.DEBUG)
     else:
-        # logging_off()
-        logging_on(logging.INFO)
+        logging_off()
 
-    if rsr.rsr_data_version_uptodate:
-        LOG.info("RSR data already the latest!")
+    if dest_dir:
+        check_and_download(dest_dir=dest_dir, dry_run=dry_run)
     else:
-        if dest_dir:
-            download_rsr(dest_dir=dest_dir, dry_run=dry_run)
-        else:
-            download_rsr(dry_run=dry_run)
+        check_and_download(dry_run=dry_run)
