@@ -363,7 +363,8 @@ def check_and_download(**kwargs):
     for aerosol_type in aerosol_types:
         atmcorr = RayleighConfigBaseClass(aerosol_type)
         if atmcorr.lutfiles_version_uptodate:
-            LOG.info("Atm correction LUT files already the latest!")
+            LOG.info("Atm correction LUTs, for aerosol distribution %s, already the latest!",
+                     aerosol_type)
         else:
             # Download
             download_luts(aerosol_type=aerosol_type, dry_run=dry_run)
