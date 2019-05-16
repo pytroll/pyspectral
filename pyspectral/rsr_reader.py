@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014-2018 Adam.Dybbroe
+# Copyright (c) 2014-2019 Adam.Dybbroe
 
 # Author(s):
 
@@ -38,25 +38,11 @@ from pyspectral.utils import (INSTRUMENTS, download_rsr)
 from pyspectral.utils import (RSR_DATA_VERSION_FILENAME, RSR_DATA_VERSION)
 
 
-class RelativeSpectralResponse(object):
-    """Container for the relative spectral response functions for various
-    satellite imagers
-    """
+class RSRDataBaseClass(object):
 
-    def __init__(self, platform_name=None, instrument=None, **kwargs):
+    def __init__(self):
         """Create the instance either from platform name and instrument or from
         filename and load the data"""
-        self.platform_name = platform_name
-        self.instrument = instrument
-        self.filename = None
-        if not self.instrument or not self.platform_name:
-            if 'filename' in kwargs:
-                self.filename = kwargs['filename']
-            else:
-                raise AttributeError(
-                    "platform name and sensor or filename must be specified")
-        else:
-            self._check_instrument()
 
         self.rsr = {}
         self.description = "Unknown"
@@ -76,6 +62,48 @@ class RelativeSpectralResponse(object):
         if self._get_rsr_data_version() == RSR_DATA_VERSION:
             self._rsr_data_version_uptodate = True
 
+    def _get_rsr_data_version(self):
+        """Check the version of the RSR data from the version file in the RSR
+           directory
+
+        """
+
+        rsr_data_version_path = os.path.join(self.rsr_dir, RSR_DATA_VERSION_FILENAME)
+        if not os.path.exists(rsr_data_version_path):
+            return "v0.0.0"
+
+        with open(rsr_data_version_path, 'r') as fpt:
+            # Get the version from the file
+            return fpt.readline().strip()
+
+    @property
+    def rsr_data_version_uptodate(self):
+        return self._rsr_data_version_uptodate
+
+
+class RelativeSpectralResponse(RSRDataBaseClass):
+    """Container for the relative spectral response functions for various
+    satellite imagers
+    """
+
+    def __init__(self, platform_name=None, instrument=None, **kwargs):
+        """Create the instance either from platform name and instrument or from
+        filename and load the data"""
+
+        super(RelativeSpectralResponse, self).__init__()
+
+        self.platform_name = platform_name
+        self.instrument = instrument
+        self.filename = None
+        if not self.instrument or not self.platform_name:
+            if 'filename' in kwargs:
+                self.filename = kwargs['filename']
+            else:
+                raise AttributeError(
+                    "platform name and sensor or filename must be specified")
+        else:
+            self._check_instrument()
+
         if not self.filename:
             self._get_filename()
 
@@ -94,20 +122,6 @@ class RelativeSpectralResponse(object):
 
         LOG.debug('Filename: %s', str(self.filename))
         self.load()
-
-    def _get_rsr_data_version(self):
-        """Check the version of the RSR data from the version file in the RSR
-           directory
-
-        """
-
-        rsr_data_version_path = os.path.join(self.rsr_dir, RSR_DATA_VERSION_FILENAME)
-        if not os.path.exists(rsr_data_version_path):
-            return "v0.0.0"
-
-        with open(rsr_data_version_path, 'r') as fpt:
-            # Get the version from the file
-            return fpt.readline().strip()
 
     def _check_instrument(self):
         """Check and try fix instrument name if needed"""
@@ -250,6 +264,22 @@ class RelativeSpectralResponse(object):
         else:
             errmsg = "Conversion from {wn} to {wl} not supported yet".format(wn=WAVE_NUMBER, wl=WAVE_LENGTH)
             raise NotImplementedError(errmsg)
+
+
+def check_and_download(**kwargs):
+    """Do a check for the version and attempt downloading only if needed"""
+
+    dry_run = kwargs.get('dry_run', False)
+    dest_dir = kwargs.get('dest_dir', None)
+
+    rsr = RSRDataBaseClass()
+    if rsr.rsr_data_version_uptodate:
+        LOG.info("RSR data already the latest!")
+    else:
+        if dest_dir:
+            download_rsr(dest_dir=dest_dir, dry_run=dry_run)
+        else:
+            download_rsr(dry_run=dry_run)
 
 
 def main():

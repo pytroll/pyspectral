@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2018 Adam.Dybbroe
+# Copyright (c) 2018, 2019 Adam.Dybbroe
 
 # Author(s):
 
@@ -25,8 +25,11 @@
 
 import logging
 import argparse
-from pyspectral.utils import download_rsr
 from pyspectral.utils import logging_on, logging_off
+from pyspectral.rsr_reader import check_and_download
+
+LOG = logging.getLogger(__name__)
+
 
 if __name__ == "__main__":
 
@@ -51,6 +54,6 @@ if __name__ == "__main__":
         logging_off()
 
     if dest_dir:
-        download_rsr(dest_dir=dest_dir, dry_run=dry_run)
+        check_and_download(dest_dir=dest_dir, dry_run=dry_run)
     else:
-        download_rsr(dry_run=dry_run)
+        check_and_download(dry_run=dry_run)

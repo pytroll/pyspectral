@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2018 Adam.Dybbroe
+# Copyright (c) 2018, 2019 Adam.Dybbroe
 
 # Author(s):
 
@@ -27,9 +27,11 @@ spectral range
 
 import logging
 import argparse
-from pyspectral.utils import download_luts, AEROSOL_TYPES
+from pyspectral.utils import AEROSOL_TYPES
 from pyspectral.utils import logging_on, logging_off
+from pyspectral.rayleigh import check_and_download
 
+LOG = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -53,5 +55,4 @@ if __name__ == "__main__":
     else:
         logging_off()
 
-    # Download:
-    download_luts(aerosol_type=aerosol_types, dry_run=dry_run)
+    check_and_download(aerosol_type=aerosol_types, dry_run=dry_run)
