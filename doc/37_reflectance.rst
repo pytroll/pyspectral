@@ -255,5 +255,5 @@ Using the example of the VIIRS M12 band from above this gives the following spec
   >>> ['{tb:6.3f}'.format(tb=np.round(t, 4)) for t in tb]
   ['266.996', '267.262', '267.991', '271.033', '271.927']
   >>> rad = refl_m12.emissive_part_3x(tb=False)
-  >>> ['{rad:6.3f}'.format(rad=np.round(r, 4)) for r in rad]
-  ['80285.149', '81458.022', '84749.639', '99761.401', '104582.030']
+  >>> ['{rad:6.3f}'.format(rad=np.round(r, 3)) for r in rad]
+  ['80285.149', '81458.022', '84749.639', '99761.400', '104582.030']
