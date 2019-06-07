@@ -1,3 +1,19 @@
+## Version <RELEASE_VERSION> (2019/06/07)
+
+### Issues Closed
+
+* [Issue 75](https://github.com/pytroll/pyspectral/issues/75) - 'download_luts' and 'download_rsr' functions always download files ([PR 76](https://github.com/pytroll/pyspectral/pull/76))
+
+In this release 1 issue was closed.
+
+### Pull Requests Merged
+
+#### Features added
+
+* [PR 76](https://github.com/pytroll/pyspectral/pull/76) - Feature download LUT files only if outdated ([75](https://github.com/pytroll/pyspectral/issues/75))
+
+In this release 1 pull request was closed.
+
 ## Version <RELEASE_VERSION> (2019/04/29)
 
 ### Issues Closed
