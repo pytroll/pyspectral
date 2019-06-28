@@ -23,8 +23,13 @@
 
 """Planck radiation equation"""
 import numpy as np
-
 import logging
+
+try:
+    import dask.array as da
+except ImportError:
+    da = np
+
 LOG = logging.getLogger(__name__)
 
 H_PLANCK = 6.62606957 * 1e-34  # SI-unit = [J*s]
@@ -84,37 +89,38 @@ def blackbody_wn_rad2temp(wavenumber, radiance):
     function. Wavenumber space"""
 
     if np.isscalar(radiance):
-        rad = np.array([radiance, ], dtype='float64')
-    else:
-        rad = np.array(radiance, dtype='float64')
+        radiance = np.array([radiance], dtype='float64')
+    elif isinstance(radiance, (list, tuple)):
+        radiance = np.array(radiance, dtype='float64')
     if np.isscalar(wavenumber):
-        wavnum = np.array([wavenumber, ], dtype='float64')
-    else:
+        wavnum = np.array([wavenumber], dtype='float64')
+    elif isinstance(wavenumber, (list, tuple)):
         wavnum = np.array(wavenumber, dtype='float64')
 
     const1 = H_PLANCK * C_SPEED / K_BOLTZMANN
     const2 = 2 * H_PLANCK * C_SPEED**2
-    res = const1 * wavnum / np.log(np.divide(const2 * wavnum**3, rad) + 1.0)
+    res = const1 * wavnum / np.log(
+        np.divide(const2 * wavnum**3, radiance) + 1.0)
 
-    shape = rad.shape
+    shape = radiance.shape
     resshape = res.shape
 
     if wavnum.shape[0] == 1:
-        if rad.shape[0] == 1:
+        if radiance.shape[0] == 1:
             return res[0]
         else:
             return res[::].reshape(shape)
     else:
-        if rad.shape[0] == 1:
+        if radiance.shape[0] == 1:
             return res[0, :]
         else:
             if len(shape) == 1:
-                return np.reshape(res, (shape[0], resshape[1]))
+                return res.reshape((shape[0], resshape[1]))
             else:
-                return np.reshape(res, (shape[0], shape[1], resshape[1]))
+                return res.reshape((shape[0], shape[1], resshape[1]))
 
 
-def planck(wave, temp, wavelength=True):
+def planck(wave, temperature, wavelength=True):
     """The Planck radiation or Blackbody radiation as a function of wavelength 
     or wavenumber. SI units.
     _planck(wave, temperature, wavelength=True)
@@ -136,12 +142,12 @@ def planck(wave, temp, wavelength=True):
     units = ['wavelengths', 'wavenumbers']
     if wavelength:
         LOG.debug("Using {0} when calculating the Blackbody radiance".format(
-            units[(wavelength == True) - 1]))
+            units[(wavelength is True) - 1]))
 
-    if np.isscalar(temp):
-        temperature = np.array([temp, ], dtype='float64')
-    else:
-        temperature = np.array(temp, dtype='float64')
+    if np.isscalar(temperature):
+        temperature = np.array([temperature, ], dtype='float64')
+    elif isinstance(temperature, (list, tuple)):
+        temperature = np.array(temperature, dtype='float64')
 
     shape = temperature.shape
     if np.isscalar(wave):
@@ -157,11 +163,17 @@ def planck(wave, temp, wavelength=True):
         nom = 2 * H_PLANCK * (C_SPEED ** 2) * (wln ** 3)
         arg1 = H_PLANCK * C_SPEED * wln / K_BOLTZMANN
 
-    arg2 = np.where(np.greater(np.abs(temperature), EPSILON),
-                    np.array(1. / temperature), -9).reshape(-1, 1)
-    arg2 = np.ma.masked_array(arg2, mask=arg2 == -9)
-    LOG.debug("Max and min - arg1: %s  %s", str(arg1.max()), str(arg1.min()))
-    LOG.debug("Max and min - arg2: %s  %s", str(arg2.max()), str(arg2.min()))
+    # use dask functions when needed
+    np_ = np if isinstance(temperature, np.ndarray) else da
+    arg2 = np_.where(np.greater(np.abs(temperature), EPSILON),
+                     (1. / temperature), np.nan).reshape(-1, 1)
+    if isinstance(arg2, np.ndarray):
+        # don't compute min/max if we have dask arrays
+        LOG.debug("Max and min - arg1: %s  %s",
+                  str(np.nanmax(arg1)), str(np.nanmin(arg1)))
+        LOG.debug("Max and min - arg2: %s  %s",
+                  str(np.nanmax(arg2)), str(np.nanmin(arg2)))
+
     try:
         exp_arg = np.multiply(arg1.astype('float32'), arg2.astype('float32'))
     except MemoryError:
@@ -171,9 +183,9 @@ def planck(wave, temp, wavelength=True):
                      "and try running again"))
         raise
 
-    LOG.debug("Max and min before exp: %s  %s", str(exp_arg.max()),
-              str(exp_arg.min()))
-    if exp_arg.min() < 0:
+    if isinstance(exp_arg, np.ndarray) and exp_arg.min() < 0:
+        LOG.debug("Max and min before exp: %s  %s",
+                  str(exp_arg.max()), str(exp_arg.min()))
         LOG.warning("Something is fishy: \n" +
                     "\tDenominator might be zero or negative in radiance derivation:")
         dubious = np.where(exp_arg < 0)[0]
@@ -182,7 +194,6 @@ def planck(wave, temp, wavelength=True):
 
     denom = np.exp(exp_arg) - 1
     rad = nom / denom
-    rad = np.where(rad.mask, np.nan, rad.data)
     radshape = rad.shape
     if wln.shape[0] == 1:
         if temperature.shape[0] == 1:
@@ -194,9 +205,9 @@ def planck(wave, temp, wavelength=True):
             return rad[0, :]
         else:
             if len(shape) == 1:
-                return np.reshape(rad, (shape[0], radshape[1]))
+                return rad.reshape((shape[0], radshape[1]))
             else:
-                return np.reshape(rad, (shape[0], shape[1], radshape[1]))
+                return rad.reshape((shape[0], shape[1], radshape[1]))
 
 
 def blackbody_wn(wavenumber, temp):
