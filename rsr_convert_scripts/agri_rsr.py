@@ -33,7 +33,7 @@ import logging
 LOG = logging.getLogger(__name__)
 
 FY4A_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'ch7', 'ch8',
-                     'ch9', 'ch10', 'ch11', 'ch12', 'ch13', 'ch14']
+                   'ch9', 'ch10', 'ch11', 'ch12', 'ch13', 'ch14']
 
 
 class AGRIRSR(InstrumentRSR):
