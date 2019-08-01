@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2018 Adam.Dybbroe
+# Copyright (c) 2018, 2019 Pytroll
 
 # Author(s):
 
 #   Xin.Zhang <xinzhang1215@gmail.com>
+#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,12 +29,24 @@ import numpy as np
 from pyspectral.utils import INSTRUMENTS
 from pyspectral.utils import convert2hdf5 as tohdf5
 from pyspectral.raw_reader import InstrumentRSR
-
-import logging
-LOG = logging.getLogger(__name__)
+from pyspectral.utils import logging_on, get_logger
 
 FY4A_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'ch7', 'ch8',
                    'ch9', 'ch10', 'ch11', 'ch12', 'ch13', 'ch14']
+BANDNAME_SCALE2MICROMETERS = {'ch1': 0.001,
+                              'ch2': 0.001,
+                              'ch3': 0.001,
+                              'ch4': 1.0,
+                              'ch5': 1.0,
+                              'ch6': 1.0,
+                              'ch7': 1.0,
+                              'ch8': 1.0,
+                              'ch9': 1.0,
+                              'ch10': 1.0,
+                              'ch11': 1.0,
+                              'ch12': 1.0,
+                              'ch13': 1.0,
+                              'ch14': 1.0}
 
 
 class AGRIRSR(InstrumentRSR):
@@ -52,7 +65,13 @@ class AGRIRSR(InstrumentRSR):
         LOG.debug("Filenames: %s", str(self.filenames))
         if self.filenames[bandname] and os.path.exists(self.filenames[bandname]):
             self.requested_band_filename = self.filenames[bandname]
-            self._load()
+            scale = BANDNAME_SCALE2MICROMETERS.get(bandname)
+            if scale:
+                self._load(scale=scale)
+            else:
+                LOG.error(
+                    "Failed determine the scale used to convert to wavelength in micrometers - channel = %s", bandname)
+                raise AttributeError('no scale for bandname %s', bandname)
 
         else:
             LOG.warning("Couldn't find an existing file for this band: %s",
@@ -83,4 +102,7 @@ def main():
 
 
 if __name__ == "__main__":
+    LOG = get_logger(__name__)
+    logging_on()
+
     main()
