@@ -50,11 +50,10 @@ BANDNAME_SCALE2MICROMETERS = {'ch1': 0.001,
 
 
 class AGRIRSR(InstrumentRSR):
-
-    """Container for the FY4A AGRI RSR data"""
+    """Container for the FY-4 AGRI RSR data"""
 
     def __init__(self, bandname, platform_name):
-
+        """Initialise the FY-4 AGRI relative spectral response data"""
         super(AGRIRSR, self).__init__(bandname, platform_name, FY4A_BAND_NAMES)
 
         self.instrument = INSTRUMENTS.get(platform_name, 'agri')
@@ -80,7 +79,8 @@ class AGRIRSR(InstrumentRSR):
         self.filename = self.requested_band_filename
 
     def _load(self, scale=0.001):
-        """Load the AGRI RSR data for the band requested.
+        """Load the AGRI RSR data for the band requested
+
            Wavelength is given in nanometers.
         """
         data = np.genfromtxt(self.requested_band_filename,
