@@ -78,6 +78,10 @@ BANDNAMES['generic'] = {'VIS006': 'VIS0.6',
                         'C15': 'ch15',
                         'C16': 'ch16',
                         }
+# handle arbitrary channel numbers
+for chan_num in range(35):
+    BANDNAMES['generic'][str(chan_num)] = 'ch{:d}'.format(chan_num)
+
 
 BANDNAMES['avhrr-3'] = {'3b': 'ch3b',
                         '3a': 'ch3a'}
