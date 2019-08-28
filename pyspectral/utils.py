@@ -124,6 +124,8 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'Suomi-NPP': 'viirs',
                'NOAA-20': 'viirs',
                'FY-3D': 'mersi-2',
+               'FY-3C': 'virr',
+               'FY-3B': 'virr',
                'Feng-Yun 3D': 'mersi-2'
                }
 
