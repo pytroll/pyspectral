@@ -123,7 +123,7 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'Feng-Yun 3D': 'mersi-2'
                }
 
-HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/2653487/files/pyspectral_rsr_data.tgz"
+HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/3358843/files/pyspectral_rsr_data.tgz"
 RSR_DATA_VERSION_FILENAME = "PYSPECTRAL_RSR_VERSION"
 RSR_DATA_VERSION = "v1.0.7"
 
