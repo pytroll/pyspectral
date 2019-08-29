@@ -120,12 +120,15 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'Suomi-NPP': 'viirs',
                'NOAA-20': 'viirs',
                'FY-3D': 'mersi-2',
-               'Feng-Yun 3D': 'mersi-2'
+               'Feng-Yun 3D': 'mersi-2',
+               'FY-4A': 'agri'
                }
 
-HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/2653487/files/pyspectral_rsr_data.tgz"
+
+HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/3358843/files/pyspectral_rsr_data.tgz"
+    "https://zenodo.org/record/3381083/files/pyspectral_rsr_data.tgz"
 RSR_DATA_VERSION_FILENAME = "PYSPECTRAL_RSR_VERSION"
-RSR_DATA_VERSION = "v1.0.7"
+RSR_DATA_VERSION = "v1.0.8"
 
 ATM_CORRECTION_LUT_VERSION = {}
 ATM_CORRECTION_LUT_VERSION['antarctic_aerosol'] = {'version': 'v1.0.1',
