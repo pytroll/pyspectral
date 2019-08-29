@@ -28,7 +28,12 @@ import os
 from os.path import expanduser
 from appdirs import AppDirs
 import yaml
-from collections import Mapping
+try:
+    # python 3.3+
+    from collections.abc import Mapping
+except ImportError:
+    # deprecated (above can't be done in 2.7)
+    from collections import Mapping
 import pkg_resources
 
 try:

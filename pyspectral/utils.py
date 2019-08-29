@@ -79,12 +79,18 @@ BANDNAMES['generic'] = {'VIS006': 'VIS0.6',
                         'C16': 'ch16',
                         }
 # handle arbitrary channel numbers
-for chan_num in range(35):
+for chan_num in range(1, 37):
     BANDNAMES['generic'][str(chan_num)] = 'ch{:d}'.format(chan_num)
 
+# MODIS RSR files were made before 'chX' became standard in pyspectral
+BANDNAMES['modis'] = {str(chan_num): str(chan_num) for chan_num in range(1, 37)}
 
-BANDNAMES['avhrr-3'] = {'3b': 'ch3b',
-                        '3a': 'ch3a'}
+BANDNAMES['avhrr-3'] = {'1': 'ch1',
+                        '2': 'ch2',
+                        '3b': 'ch3b',
+                        '3a': 'ch3a',
+                        '4': 'ch4',
+                        '5': 'ch5'}
 
 BANDNAMES['ahi'] = {'B01': 'ch1',
                     'B02': 'ch2',
