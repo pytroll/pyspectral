@@ -27,15 +27,14 @@ import os
 import numpy as np
 from glob import glob
 from os.path import expanduser
-
-import logging
-LOG = logging.getLogger(__name__)
-
 from pyspectral.config import get_config
 from pyspectral.utils import WAVE_NUMBER
 from pyspectral.utils import WAVE_LENGTH
 from pyspectral.utils import (INSTRUMENTS, download_rsr)
 from pyspectral.utils import (RSR_DATA_VERSION_FILENAME, RSR_DATA_VERSION)
+
+import logging
+LOG = logging.getLogger(__name__)
 
 
 class RSRDataBaseClass(object):

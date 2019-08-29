@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013-2018 Adam.Dybbroe
+# Copyright (c) 2013-2019 Adam.Dybbroe
 
 # Author(s):
 
@@ -121,7 +121,7 @@ def blackbody_wn_rad2temp(wavenumber, radiance):
 
 
 def planck(wave, temperature, wavelength=True):
-    """The Planck radiation or Blackbody radiation as a function of wavelength 
+    """The Planck radiation or Blackbody radiation as a function of wavelength
     or wavenumber. SI units.
     _planck(wave, temperature, wavelength=True)
     wave = Wavelength/wavenumber or a sequence of wavelengths/wavenumbers (m or m^-1)
