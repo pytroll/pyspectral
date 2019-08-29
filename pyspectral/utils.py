@@ -131,9 +131,9 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                }
 
 
-HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/3381083/files/pyspectral_rsr_data.tgz"
+HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/3381130/files/pyspectral_rsr_data.tgz"
 RSR_DATA_VERSION_FILENAME = "PYSPECTRAL_RSR_VERSION"
-RSR_DATA_VERSION = "v1.0.8"
+RSR_DATA_VERSION = "v1.0.9"
 
 ATM_CORRECTION_LUT_VERSION = {}
 ATM_CORRECTION_LUT_VERSION['antarctic_aerosol'] = {'version': 'v1.0.1',
