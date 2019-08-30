@@ -229,7 +229,7 @@ And using wavelength representation:
    >>> wvl = 1./wavenumber
    >>> rad = blackbody(wvl, [300., 301])
    >>> print("{0:10.3f} {1:10.3f}".format(rad[0], rad[1]))
-   9573178.886 9714689.259
+   9573177.494 9714687.157
 
 Which are the spectral radiances in SI units around :math:`11 \mu m` at
 temperatures 300 and 301 Kelvin. In units of :math:`mW/m^2\ m^{-1} sr^{-1}` this becomes:

@@ -175,7 +175,7 @@ def planck(wave, temperature, wavelength=True):
                   str(np.nanmax(arg2)), str(np.nanmin(arg2)))
 
     try:
-        exp_arg = np.multiply(arg1.astype('float32'), arg2.astype('float32'))
+        exp_arg = np.multiply(arg1.astype('float64'), arg2.astype('float64'))
     except MemoryError:
         LOG.warning(("Dimensions used in numpy.multiply probably reached "
                      "limit!\n"
