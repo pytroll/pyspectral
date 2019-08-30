@@ -31,9 +31,7 @@ from pyspectral.tests.unittest_helpers import assertNumpyArraysEqual
 import unittest
 import numpy as np
 
-#RAD_11MICRON_300KELVIN = 9573177.8811719529
 RAD_11MICRON_300KELVIN = 9573176.935507433
-#RAD_11MICRON_301KELVIN = 9714688.2959563732
 RAD_11MICRON_301KELVIN = 9714686.576498277
 
 # Radiances in wavenumber space (SI-units)
