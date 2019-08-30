@@ -1,3 +1,27 @@
+## Version <RELEASE_VERSION> (2019/08/30)
+
+### Issues Closed
+
+* [Issue 73](https://github.com/pytroll/pyspectral/issues/73) - Fix blackbody code to work with dask arrays ([PR 74](https://github.com/pytroll/pyspectral/pull/74))
+
+In this release 1 issue was closed.
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 80](https://github.com/pytroll/pyspectral/pull/80) - Fix doc tests for python 2&3
+* [PR 79](https://github.com/pytroll/pyspectral/pull/79) - Fix rsr zenodo version
+* [PR 74](https://github.com/pytroll/pyspectral/pull/74) - Fix dask compatibility in blackbody functions ([73](https://github.com/pytroll/pyspectral/issues/73))
+
+#### Features added
+
+* [PR 78](https://github.com/pytroll/pyspectral/pull/78) - Add FY-3B VIRR and FY-3C VIRR RSRs
+* [PR 77](https://github.com/pytroll/pyspectral/pull/77) - Add FY-4A AGRI support
+
+In this release 5 pull requests were closed.
+
+
 ## Version <RELEASE_VERSION> (2019/06/07)
 
 ### Issues Closed
