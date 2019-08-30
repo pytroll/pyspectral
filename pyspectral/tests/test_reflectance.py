@@ -139,7 +139,10 @@ class TestReflectance(unittest.TestCase):
 
         with patch('pyspectral.radiance_tb_conversion.RelativeSpectralResponse') as mymock:
             instance = mymock.return_value
-            instance.rsr = TEST_RSR
+            # VIIRS doesn't have a channel '20' like MODIS so the generic
+            # mapping this test will end up using will find 'ch20' for VIIRS
+            viirs_rsr = {'ch20': TEST_RSR['20'], '99': TEST_RSR['99']}
+            instance.rsr = viirs_rsr
             instance.unit = '1e-6 m'
             instance.si_scale = 1e-6
 
@@ -148,7 +151,7 @@ class TestReflectance(unittest.TestCase):
 
             refl37 = Calculator('Suomi-NPP', 'viirs', 3.7)
             self.assertEqual(refl37.bandwavelength, 3.7)
-            self.assertEqual(refl37.bandname, '20')
+            self.assertEqual(refl37.bandname, 'ch20')
 
         with patch('pyspectral.radiance_tb_conversion.RelativeSpectralResponse') as mymock:
             instance = mymock.return_value

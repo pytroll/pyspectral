@@ -226,6 +226,29 @@ download_from_internet: True
 #     ch13: FY4A_AGRI_SRF_CH13.txt
 #     ch14: FY4A_AGRI_SRF_CH14.txt
 
+#FY-3B-virr:
+#  path: /Users/davidh/repos/git/pyspectral/virr_srf/FY3B-VIRR
+#  ch1: ch1.prn
+#  ch2: ch2.prn
+#  ch3: ch3.prn
+#  ch4: ch4.prn
+#  ch5: ch5.prn
+#  ch6: ch6.prn
+#  ch7: ch7.prn
+#  ch8: ch8.prn
+#  ch9: ch9.prn
+#  ch10: ch10.prn
+
+#FY-3C-virr:
+#  path: /Users/davidh/repos/git/pyspectral/virr_srf/FY3C_VIRR_SRF
+#  ch1: FY3C_VIRR_CH01.txt
+#  ch2: FY3C_VIRR_CH02.txt
+#  ch6: FY3C_VIRR_CH06.txt
+#  ch7: FY3C_VIRR_CH07.txt
+#  ch8: FY3C_VIRR_CH08.txt
+#  ch9: FY3C_VIRR_CH09.txt
+#  ch10: FY3C_VIRR_CH10.txt
+
 # FY-3D-mersi-2:
 #   path: /path/to/original/fy3d/mersi2/data
 #   ch1:  FY3D_MERSI_SRF_CH01_Pub.txt

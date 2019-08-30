@@ -78,9 +78,19 @@ BANDNAMES['generic'] = {'VIS006': 'VIS0.6',
                         'C15': 'ch15',
                         'C16': 'ch16',
                         }
+# handle arbitrary channel numbers
+for chan_num in range(1, 37):
+    BANDNAMES['generic'][str(chan_num)] = 'ch{:d}'.format(chan_num)
 
-BANDNAMES['avhrr-3'] = {'3b': 'ch3b',
-                        '3a': 'ch3a'}
+# MODIS RSR files were made before 'chX' became standard in pyspectral
+BANDNAMES['modis'] = {str(chan_num): str(chan_num) for chan_num in range(1, 37)}
+
+BANDNAMES['avhrr-3'] = {'1': 'ch1',
+                        '2': 'ch2',
+                        '3b': 'ch3b',
+                        '3a': 'ch3a',
+                        '4': 'ch4',
+                        '5': 'ch5'}
 
 BANDNAMES['ahi'] = {'B01': 'ch1',
                     'B02': 'ch2',
@@ -120,14 +130,16 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'Suomi-NPP': 'viirs',
                'NOAA-20': 'viirs',
                'FY-3D': 'mersi-2',
+               'FY-3C': 'virr',
+               'FY-3B': 'virr',
                'Feng-Yun 3D': 'mersi-2',
                'FY-4A': 'agri'
                }
 
 
-HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/3381083/files/pyspectral_rsr_data.tgz"
+HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/3381130/files/pyspectral_rsr_data.tgz"
 RSR_DATA_VERSION_FILENAME = "PYSPECTRAL_RSR_VERSION"
-RSR_DATA_VERSION = "v1.0.8"
+RSR_DATA_VERSION = "v1.0.9"
 
 ATM_CORRECTION_LUT_VERSION = {}
 ATM_CORRECTION_LUT_VERSION['antarctic_aerosol'] = {'version': 'v1.0.1',

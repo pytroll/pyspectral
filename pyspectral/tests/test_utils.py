@@ -115,8 +115,7 @@ class TestUtils(unittest.TestCase):
         self.rsr = RsrTestData()
 
     def test_convert2wavenumber(self):
-        """Testing the conversion of rsr from wavelength to wavenumber
-        """
+        """Testing the conversion of rsr from wavelength to wavenumber."""
         newrsr, info = utils.convert2wavenumber(TEST_RSR)
         unit = info['unit']
         self.assertEqual(unit, 'cm-1')
@@ -127,11 +126,7 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(np.allclose(wvn_res, wvn))
 
     def test_get_bandname_from_wavelength(self):
-        """Test that it is possible to get the right bandname provided the wavelength
-        in micro meters
-
-        """
-
+        """Test the right bandname is found provided the wavelength in micro meters."""
         x = utils.get_bandname_from_wavelength('abi', 0.4, self.rsr.rsr)
         self.assertEqual(x, 'ch1')
         with self.assertRaises(AttributeError):
@@ -146,19 +141,16 @@ class TestUtils(unittest.TestCase):
         x = utils.get_bandname_from_wavelength('abi', 1.0, self.rsr.rsr)
         self.assertEqual(x, None)
 
+        # uses generic channel mapping where '20' -> 'ch20'
         bandname = utils.get_bandname_from_wavelength('abi', 3.7, TEST_RSR)
-        self.assertEqual(bandname, '20')
+        self.assertEqual(bandname, 'ch20')
 
         bandname = utils.get_bandname_from_wavelength('abi', 3.0, TEST_RSR)
         self.assertIsNone(bandname)
 
-    def tearDown(self):
-        """Clean up"""
-        pass
-
 
 def suite():
-    """The suite for test_utils."""
+    """Create the suite for test_utils."""
     loader = unittest.TestLoader()
     mysuite = unittest.TestSuite()
     mysuite.addTest(loader.loadTestsFromTestCase(TestUtils))

@@ -176,3 +176,12 @@ the pyspectral.yaml file:
 Adam Dybbroe
 Sat Dec  1 17:39:48 2018
 
+.. code::
+
+    %> python virr_rsr.py
+
+Converting the FY-3B or FY-3C VIRR spectral responses to HDF5. Original files
+for FY-3B come as ``.prn`` text files for each channel (ex. ``ch1.prn``). For
+FY-3C they come as ``.txt`` text files for channels 1, 2, 6, 7, 8, 9, and 10
+only with names like ``FY3C_VIRR_CH01.txt``.
+
