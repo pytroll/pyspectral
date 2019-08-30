@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014-2018 Adam.Dybbroe
+# Copyright (c) 2014-2019 Adam.Dybbroe
 
 # Author(s):
 
@@ -347,10 +347,10 @@ class TestRadTbConversions(unittest.TestCase):
         self.assertTrue(np.allclose(TRUE_RADS * integral, res['radiance']))
 
         res = self.modis.tb2radiance(237., lut=False)
-        self.assertAlmostEqual(16570.592171157, res['radiance'])
+        self.assertAlmostEqual(16570.579551068, res['radiance'])
 
         res = self.modis.tb2radiance(277., lut=False)
-        self.assertAlmostEqual(167544.3823631, res['radiance'])
+        self.assertAlmostEqual(167544.39368663222, res['radiance'])
 
         res = self.modis.tb2radiance(1.1, lut=False)
         self.assertAlmostEqual(0.0, res['radiance'])
@@ -362,7 +362,7 @@ class TestRadTbConversions(unittest.TestCase):
         self.assertAlmostEqual(5.3940515573e-06, res['radiance'])
 
         res = self.modis.tb2radiance(200.1, lut=False)
-        self.assertAlmostEqual(865.09776189, res['radiance'])
+        self.assertAlmostEqual(865.09759706, res['radiance'])
 
     def tearDown(self):
         """Clean up"""

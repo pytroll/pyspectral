@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2017 Adam.Dybbroe
+# Copyright (c) 2017 - 2019 Pytroll
 
 # Author(s):
 
-#   Adam.Dybbroe <a000680@c20671.ad.smhi.se>
+#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,14 +22,13 @@
 """Unit tests of the atmospherical correction in the ir spectral range."""
 
 
+import numpy as np
+from pyspectral.atm_correction_ir import AtmosphericalCorrection
 import sys
 if sys.version_info < (2, 7):
     import unittest2 as unittest
 else:
     import unittest
-
-import numpy as np
-from pyspectral.atm_correction_ir import AtmosphericalCorrection
 
 SATZ = np.ma.array([[48.03,  48.03002,  48.03004,  48.03006,  48.03008,  48.0301,
                      48.03012,  48.03014,  48.03016,  48.03018],

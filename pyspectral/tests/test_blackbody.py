@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014, 2015, 2016, 2017 Adam.Dybbroe
+# Copyright (c) 2013 - 2019 Pytroll
 
 # Author(s):
 
-#   Adam.Dybbroe <a000680@c14526.ad.smhi.se>
+#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,10 +31,8 @@ from pyspectral.tests.unittest_helpers import assertNumpyArraysEqual
 import unittest
 import numpy as np
 
-#RAD_11MICRON_300KELVIN = 9572498.1141643394
-RAD_11MICRON_300KELVIN = 9573177.8811719529
-#RAD_11MICRON_301KELVIN = 9713997.9623772576
-RAD_11MICRON_301KELVIN = 9714688.2959563732
+RAD_11MICRON_300KELVIN = 9573176.935507433
+RAD_11MICRON_301KELVIN = 9714686.576498277
 
 # Radiances in wavenumber space (SI-units)
 WN_RAD_11MICRON_300KELVIN = 0.00115835441353

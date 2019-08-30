@@ -46,7 +46,7 @@ expressed in :math:`W/m^2 sr^{-1} \mu m^{-1}`, or using SI units :math:`W/m^2 sr
   >>> viirs = RadTbConverter('Suomi-NPP', 'viirs', 'M12')
   >>> rad37 = viirs.tb2radiance(tb37)
   >>> print([np.round(rad, 7) for rad in rad37['radiance']])
-  [369717.4765726, 355110.5207853, 314684.2788726, 173143.5424898, 116408.0007877]
+  [369717.4972296, 355110.6414922, 314684.3507084, 173143.4836477, 116408.0022674]
   >>> rad37['unit']
   'W/m^2 sr^-1 m^-1'
 
@@ -59,7 +59,7 @@ In order to get the total radiance over the band one has to multiply with the eq
   >>> viirs = RadTbConverter('Suomi-NPP', 'viirs', 'M12')
   >>> rad37 = viirs.tb2radiance(tb37, normalized=False)
   >>> print([np.round(rad, 8) for rad in rad37['radiance']])
-  [0.07037968, 0.06759909, 0.05990352, 0.03295972, 0.02215951]
+  [0.07037968, 0.06759911, 0.05990353, 0.03295971, 0.02215951]
   >>> rad37['unit']
   'W/m^2 sr^-1'
 
@@ -218,17 +218,17 @@ We can try decompose equation :eq:`refl37` above using the example of VIIRS M12 
   >>> print(np.isnan(nomin))
   [False False False False False]
   >>> print([np.round(val, 8) for val in nomin])
-  [0.05083677, 0.04805618, 0.0404157, 0.01279279, 0.00204485]
+  [0.05083677, 0.0480562, 0.04041571, 0.01279277, 0.00204485]
   >>> denom = np.cos(np.deg2rad(sunz))/np.pi * sflux - rad11['radiance']
   >>> print(np.isnan(denom))
   [False False False False False]
   >>> print([np.round(val, 8) for val in denom])
-  [0.23646313, 0.23645682, 0.23650559, 0.23582015, 0.2358661]
+  [0.23646312, 0.23645681, 0.23650559, 0.23582014, 0.23586609]
   >>> res = nomin/denom
   >>> print(np.isnan(res))
   [False False False False False]
   >>> print([np.round(val, 8) for val in res])
-  [0.21498817, 0.2032345, 0.17088689, 0.05424807, 0.00866955]
+  [0.21498817, 0.20323458, 0.17088693, 0.05424801, 0.00866952]
 
 
 Derive the emissive part of the 3.7 micron band
@@ -255,5 +255,5 @@ Using the example of the VIIRS M12 band from above this gives the following spec
   >>> ['{tb:6.3f}'.format(tb=np.round(t, 4)) for t in tb]
   ['266.996', '267.262', '267.991', '271.033', '271.927']
   >>> rad = refl_m12.emissive_part_3x(tb=False)
-  >>> ['{rad:6.3f}'.format(rad=np.round(r, 3)) for r in rad]
-  ['80285.149', '81458.022', '84749.639', '99761.400', '104582.030']
+  >>> ['{rad:6.3f}'.format(rad=np.round(r, 3)) for r in rad.compute()]
+  ['80285.150', '81458.022', '84749.638', '99761.401', '104582.031']
