@@ -31,6 +31,12 @@ have been included in PySpectral.
     * - Himawari-9 ahi
       - `rsr_ahi_Himawari-9.h5`
       - JMA_
+    * - GEO-KOMPSAT-2A ami
+      - `rsr_ami_GEO-KOMPSAT-2A.h5`
+      - NWPSAF-GeoKompsat-2A-ami_
+    * - FY-4A agri
+      - `rsr_agri_FY-4A.h5`
+      - NSMC-fy4a_
     * - Envisat aatsr
       - `rsr_aatsr_Envisat.h5`
       - ESA-Envisat_
@@ -95,4 +101,5 @@ have been included in PySpectral.
 .. _NESDIS: https://ncc.nesdis.noaa.gov/J1VIIRS/J1VIIRSSpectralResponseFunctions.php
 .. _CMA: http://www.cma.gov.cn/en2014/
 .. _NWPSAF-MetImage: https://nwpsaf.eu/downloads/rtcoef_rttov12/ir_srf/rtcoef_metopsg_1_metimage_srf.html
-
+.. _NWPSAF-GeoKompsat-2A-ami: https://nwpsaf.eu/downloads/rtcoef_rttov12/ir_srf/rtcoef_gkompsat2_1_ami_srf.html
+.. _NSMC-fy4a: http://fy4.nsmc.org.cn/portal/cn/fycv/srf.html
