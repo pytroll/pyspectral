@@ -133,13 +133,14 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'FY-3C': 'virr',
                'FY-3B': 'virr',
                'Feng-Yun 3D': 'mersi-2',
-               'FY-4A': 'agri'
+               'FY-4A': 'agri',
+               'GEO-KOMPSAT-2A': 'ami'
                }
 
 
-HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/3381130/files/pyspectral_rsr_data.tgz"
+HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/3461164/files/pyspectral_rsr_data.tgz"
 RSR_DATA_VERSION_FILENAME = "PYSPECTRAL_RSR_VERSION"
-RSR_DATA_VERSION = "v1.0.9"
+RSR_DATA_VERSION = "v1.0.10"
 
 ATM_CORRECTION_LUT_VERSION = {}
 ATM_CORRECTION_LUT_VERSION['antarctic_aerosol'] = {'version': 'v1.0.1',
