@@ -11,7 +11,8 @@ env:
   - EVENT_TYPE='push pull_request cron'
   - SETUP_CMD='test'
   - CONDA_CHANNELS='conda-forge'
-  - CONDA_CHANNEL_PRIORITY='True'
+  - CONDA_CHANNEL_PRIORITY="strict"
+
 matrix:
   include:
     - env: PYTHON_VERSION=2.7
@@ -25,7 +26,8 @@ matrix:
       os: osx
       language: generic
 install:
-    - git clone --depth 1 git://github.com/astropy/ci-helpers.git
+#    - git clone --depth 1 git://github.com/astropy/ci-helpers.git
+    - git clone --depth 1 -b all-the-fixes git://github.com/djhoese/ci-helpers.git    
     - source ci-helpers/travis/setup_conda.sh
 script: coverage run --source=pyspectral setup.py test
 after_success:
