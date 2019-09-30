@@ -1,3 +1,17 @@
+## Version <RELEASE_VERSION> (2019/09/30)
+
+### Issues Closed
+
+### Pull Requests Merged
+
+#### Features added
+
+* [PR 83](https://github.com/pytroll/pyspectral/pull/83) - Fix for appveyor, using Daves custom branch&fork of ci-helpers
+* [PR 82](https://github.com/pytroll/pyspectral/pull/82) - Add support for AMI on GEO-KOMPSAT-2A
+
+In this release 2 pull requests were closed.
+
+
 ## Version <RELEASE_VERSION> (2019/08/30)
 
 ### Issues Closed
