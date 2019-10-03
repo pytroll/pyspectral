@@ -1,3 +1,15 @@
+## Version <RELEASE_VERSION> (2019/10/03)
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 85](https://github.com/pytroll/pyspectral/pull/85) - Fix doc tests for r37 derivations
+* [PR 84](https://github.com/pytroll/pyspectral/pull/84) - Add AMI channel aliases from Satpy
+
+In this release 2 pull requests were closed.
+
+
 ## Version <RELEASE_VERSION> (2019/09/30)
 
 ### Issues Closed
