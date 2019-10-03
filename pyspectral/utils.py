@@ -110,6 +110,24 @@ BANDNAMES['ahi'] = {'B01': 'ch1',
                     'B16': 'ch16'
                     }
 
+BANDNAMES['ami'] = {'VI004': 'ch1',
+                    'VI005': 'ch2',
+                    'VI006': 'ch3',
+                    'VI008': 'ch4',
+                    'NR013': 'ch5',
+                    'NR016': 'ch6',
+                    'SW038': 'ch7',
+                    'WV063': 'ch8',
+                    'WV069': 'ch9',
+                    'WV073': 'ch10',
+                    'IR087': 'ch11',
+                    'IR096': 'ch12',
+                    'IR105': 'ch13',
+                    'IR112': 'ch14',
+                    'IR123': 'ch15',
+                    'IR133': 'ch16'
+                    }
+
 INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'NOAA-18': 'avhrr/3',
                'NOAA-17': 'avhrr/3',
