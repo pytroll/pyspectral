@@ -85,7 +85,7 @@ def blackbody_rad2temp(wavelength, radiance):
 
 
 def blackbody_wn_rad2temp(wavenumber, radiance):
-    """Derive brightness temperatures from radiance using the Planck 
+    """Derive brightness temperatures from radiance using the Planck
     function. Wavenumber space"""
 
     if np.isscalar(radiance):

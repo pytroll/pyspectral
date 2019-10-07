@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2017, 2018 Adam.Dybbroe
+# Copyright (c) 2017, 2018, 2019 Adam.Dybbroe
 
 # Author(s):
 
@@ -23,6 +23,7 @@
 """Unit testing the generic rsr hdf5 reader
 """
 import sys
+import os.path
 from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.utils import WAVE_NUMBER
 from pyspectral.utils import RSR_DATA_VERSION
@@ -77,7 +78,7 @@ RESULT_WVN_RSR = np.array([2529.38232422,  2533.8840332,  2540.390625,  2546.814
 
 DIR_PATH_ITEMS = ['test', 'path', 'to', 'rsr', 'data']
 TEST_CONFIG = {}
-import os.path
+
 TEST_RSR_DIR = os.path.join(*DIR_PATH_ITEMS)
 TEST_CONFIG['rsr_dir'] = TEST_RSR_DIR
 

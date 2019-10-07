@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013-2018 Adam.Dybbroe
+# Copyright (c) 2013-2019 Adam.Dybbroe
 
 # Author(s):
 
@@ -109,7 +109,7 @@ class TestReflectance(unittest.TestCase):
 
     def test_rsr_integral(self):
         """Test calculating the integral of the relative spectral response
-        function. 
+        function.
         """
         with patch('pyspectral.radiance_tb_conversion.RelativeSpectralResponse') as mymock:
             instance = mymock.return_value
@@ -148,6 +148,7 @@ class TestReflectance(unittest.TestCase):
 
             with self.assertRaises(NotImplementedError):
                 dummy = Calculator('Suomi-NPP', 'viirs', 10.8)
+                del dummy
 
             refl37 = Calculator('Suomi-NPP', 'viirs', 3.7)
             self.assertEqual(refl37.bandwavelength, 3.7)
