@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014-2018 Adam.Dybbroe
+# Copyright (c) 2014-2019 Adam.Dybbroe
 
 # Author(s):
 
@@ -33,7 +33,7 @@ from pyspectral.config import get_config
 LOG = logging.getLogger(__name__)
 
 MODIS_BAND_NAMES = [str(i) for i in range(1, 37)]
-SHORTWAVE_BANDS = [str(i) for i in range(1, 20) + [26]]
+SHORTWAVE_BANDS = [str(i) for i in list(range(1, 20)) + [26]]
 
 
 class ModisRSR(object):
@@ -81,7 +81,7 @@ class ModisRSR(object):
                 filename = os.path.join(path,
                                         "rsr.{0:d}.inb.final".format(bnum))
             else:
-                if bnum in [5, 6, 7] + range(20, 37):
+                if bnum in [5, 6, 7] + list(range(20, 37)):
                     filename = os.path.join(
                         path, "{0:>02d}.tv.1pct.det".format(bnum))
                 else:
@@ -169,11 +169,14 @@ def convert2hdf5(platform_name):
             grp.attrs['number_of_detectors'] = len(modis.rsr.keys())
             # Loop over each detector to check if the sampling wavelengths are
             # identical:
-            det_names = modis.rsr.keys()
+            det_names = [detector_name for detector_name in modis.rsr.keys()]
             wvl = modis.rsr[det_names[0]]['wavelength']
             wvl_is_constant = True
             for det in det_names[1:]:
-                if not np.alltrue(wvl == modis.rsr[det]['wavelength']):
+                if wvl.shape != modis.rsr[det]['wavelength'].shape:
+                    wvl_is_constant = False
+                    break
+                elif not np.allclose(wvl, modis.rsr[det]['wavelength']):
                     wvl_is_constant = False
                     break
 
