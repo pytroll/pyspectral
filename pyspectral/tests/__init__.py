@@ -22,6 +22,8 @@
 
 """The tests package"""
 
+import doctest
+import os
 from pyspectral import (blackbody,
                         near_infrared_reflectance,
                         solar)
@@ -32,8 +34,7 @@ from pyspectral.tests import (test_rayleigh,
                               test_solarflux,
                               test_utils,
                               test_rad_tb_conversions,
-                              test_rsr_reader,
-                              test_atm_correction_ir)
+                              test_rsr_reader)
 
 import sys
 if sys.version_info < (2, 7):
@@ -41,8 +42,6 @@ if sys.version_info < (2, 7):
 else:
     import unittest
 
-import doctest
-import os
 TRAVIS = os.environ.get("TRAVIS", False)
 APPVEYOR = os.environ.get("APPVEYOR", False)
 

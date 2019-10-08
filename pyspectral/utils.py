@@ -320,6 +320,7 @@ def sort_data(x_vals, y_vals):
     no duplicates.
     """
     # Sort data
+    # (This is needed in particular for EOS-Terra responses, as there are duplicates)
     idxs = np.argsort(x_vals)
     x_vals = x_vals[idxs]
     y_vals = y_vals[idxs]
@@ -327,9 +328,9 @@ def sort_data(x_vals, y_vals):
     # De-duplicate data
     mask = np.r_[True, (np.diff(x_vals) > 0)]
     if not mask.all():
-        # what is this for?
         numof_duplicates = np.repeat(mask, np.equal(mask, False)).shape[0]
-        del numof_duplicates
+        LOG.debug("Number of duplicates in the response function: %d - removing them",
+                  numof_duplicates)
     x_vals = x_vals[mask]
     y_vals = y_vals[mask]
 
