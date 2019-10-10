@@ -167,10 +167,12 @@ def planck(wave, temperature, wavelength=True):
         nom = 2 * H_PLANCK * (C_SPEED ** 2) * (wln ** 3)
         arg1 = H_PLANCK * C_SPEED * wln / K_BOLTZMANN
 
-    # use dask functions when needed
-    np_ = np if isinstance(temperature, np.ndarray) else da
-    arg2 = np_.where(np.greater(np.abs(temperature), EPSILON),
-                     (1. / temperature), np.nan).reshape(-1, 1)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        # use dask functions when needed
+        np_ = np if isinstance(temperature, np.ndarray) else da
+        arg2 = np_.where(np_.greater(np.abs(temperature), EPSILON),
+                         np_.divide(1., temperature), np.nan).reshape(-1, 1)
+
     if isinstance(arg2, np.ndarray):
         # don't compute min/max if we have dask arrays
         LOG.debug("Max and min - arg1: %s  %s",
@@ -196,22 +198,23 @@ def planck(wave, temperature, wavelength=True):
         LOG.warning(
             "Number of items having dubious values: " + str(dubious.shape[0]))
 
-    denom = np.exp(exp_arg) - 1
-    rad = nom / denom
-    radshape = rad.shape
-    if wln.shape[0] == 1:
-        if temperature.shape[0] == 1:
-            return rad[0, 0]
-        else:
-            return rad[:, 0].reshape(shape)
-    else:
-        if temperature.shape[0] == 1:
-            return rad[0, :]
-        else:
-            if len(shape) == 1:
-                return rad.reshape((shape[0], radshape[1]))
+    with np.errstate(over='ignore'):
+        denom = np.exp(exp_arg) - 1
+        rad = nom / denom
+        radshape = rad.shape
+        if wln.shape[0] == 1:
+            if temperature.shape[0] == 1:
+                return rad[0, 0]
             else:
-                return rad.reshape((shape[0], shape[1], radshape[1]))
+                return rad[:, 0].reshape(shape)
+        else:
+            if temperature.shape[0] == 1:
+                return rad[0, :]
+            else:
+                if len(shape) == 1:
+                    return rad.reshape((shape[0], radshape[1]))
+                else:
+                    return rad.reshape((shape[0], shape[1], radshape[1]))
 
 
 def blackbody_wn(wavenumber, temp):
