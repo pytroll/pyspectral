@@ -20,7 +20,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Unit testing the Blackbody/Plack radiation derivation"""
+"""Unit testing the Blackbody/Plack radiation derivation."""
 
 from pyspectral.blackbody import (blackbody, blackbody_wn,
                                   blackbody_wn_rad2temp,
@@ -59,7 +59,7 @@ class CustomScheduler(object):
 
 
 class TestBlackbody(unittest.TestCase):
-    """Unit testing the blackbody function"""
+    """Unit testing the blackbody function."""
 
     def test_blackbody(self):
         """Calculate the blackbody radiation from wavelengths and temperatures."""
@@ -149,7 +149,7 @@ class TestBlackbody(unittest.TestCase):
 
 
 def suite():
-    """The suite for test_blackbody."""
+    """Perform the unit testing of the blackbody/planck calculations."""
     loader = unittest.TestLoader()
     mysuite = unittest.TestSuite()
     mysuite.addTest(loader.loadTestsFromTestCase(TestBlackbody))

@@ -20,7 +20,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""The tests package"""
+"""The tests package."""
 
 import doctest
 import os
@@ -34,7 +34,8 @@ from pyspectral.tests import (test_rayleigh,
                               test_solarflux,
                               test_utils,
                               test_rad_tb_conversions,
-                              test_rsr_reader)
+                              test_rsr_reader,
+                              test_atm_correction_ir)
 
 import sys
 if sys.version_info < (2, 7):
@@ -47,8 +48,7 @@ APPVEYOR = os.environ.get("APPVEYOR", False)
 
 
 def suite():
-    """The global test suite.
-    """
+    """Perform the unit testing."""
     mysuite = unittest.TestSuite()
     if not TRAVIS and not APPVEYOR:
         # Test sphinx documentation pages:
@@ -69,6 +69,7 @@ def suite():
     mysuite.addTests(test_utils.suite())
     mysuite.addTests(test_rayleigh.suite())
     mysuite.addTests(test_rsr_reader.suite())
+    mysuite.addTests(test_atm_correction_ir.suite())
     return mysuite
 
 

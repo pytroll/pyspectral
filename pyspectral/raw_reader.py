@@ -20,8 +20,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Base class for reading raw instrument spectral responses
-"""
+"""Base class for reading raw instrument spectral responses."""
 
 import os
 import logging
@@ -31,10 +30,10 @@ LOG = logging.getLogger(__name__)
 
 
 class InstrumentRSR(object):
-
-    """Base class for the raw (agency dependent) instrument response functions"""
+    """Base class for the raw (agency dependent) instrument response functions."""
 
     def __init__(self, bandname, platform_name, bandnames=None):
+        """Initialize the class instance."""
         self.platform_name = platform_name
         self.bandname = bandname
         self.instrument = None
@@ -53,15 +52,14 @@ class InstrumentRSR(object):
         self.requested_band_filename = None
 
     def _get_options_from_config(self):
-        """Get configuration settings from configuration file"""
-
+        """Get configuration settings from configuration file."""
         options = get_config()
         self.output_dir = options.get('rsr_dir', './')
         self.path = options[self.platform_name + '-' + self.instrument]['path']
         self.options = options
 
     def _get_bandfilenames(self):
-        """Get the instrument rsr filenames"""
+        """Get the instrument rsr filenames."""
         for band in self.bandnames:
             LOG.debug("Band = %s", str(band))
             self.filenames[band] = os.path.join(self.path,
@@ -73,7 +71,6 @@ class InstrumentRSR(object):
                             str(self.filenames[band]))
 
     def _load(self, scale=1.0):
-        """Load the instrument RSR from file(s)"""
-
+        """Load the instrument RSR from file(s)."""
         raise NotImplementedError(
             "Instrument rsr loader needs to be defined in the subclass")

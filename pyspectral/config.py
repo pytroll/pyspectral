@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2017, 2018 Adam.Dybbroe
+# Copyright (c) 2017, 2018, 2019 Adam.Dybbroe
 
 # Author(s):
 
@@ -20,8 +20,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""PySpectral configuration directory and file handling
-"""
+"""PySpectral configuration directory and file handling."""
 
 import logging
 import os
@@ -57,7 +56,7 @@ if CONFIG_FILE is not None and (not os.path.exists(CONFIG_FILE) or
 
 
 def recursive_dict_update(d, u):
-    """Recursive dictionary update using
+    """Recursive dictionary update.
 
     Copied from:
 
@@ -74,7 +73,7 @@ def recursive_dict_update(d, u):
 
 
 def get_config():
-    """Get the configuration from file"""
+    """Get the configuration from file."""
     if CONFIG_FILE is not None:
         configfile = CONFIG_FILE
     else:

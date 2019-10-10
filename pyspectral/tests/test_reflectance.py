@@ -20,7 +20,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Unit testing the 3.7 micron reflectance calculations"""
+"""Unit testing the 3.7 micron reflectance calculations."""
 
 from pyspectral.near_infrared_reflectance import Calculator
 import numpy as np
@@ -100,17 +100,14 @@ TEST_RSR_WN['20']['det-1']['response'] = RESP
 
 
 class TestReflectance(unittest.TestCase):
-
-    """Unit testing the reflectance calculations"""
+    """Unit testing the reflectance calculations."""
 
     def setUp(self):
-        """Set up"""
+        """Set up."""
         pass
 
     def test_rsr_integral(self):
-        """Test calculating the integral of the relative spectral response
-        function.
-        """
+        """Test calculating the integral of the relative spectral response function."""
         with patch('pyspectral.radiance_tb_conversion.RelativeSpectralResponse') as mymock:
             instance = mymock.return_value
             instance.rsr = TEST_RSR
@@ -135,8 +132,7 @@ class TestReflectance(unittest.TestCase):
         np.testing.assert_allclose(res / expected, 1.0, 6)
 
     def test_reflectance(self):
-        """Test the derivation of the reflective part of a 3.7 micron band"""
-
+        """Test the derivation of the reflective part of a 3.7 micron band."""
         with patch('pyspectral.radiance_tb_conversion.RelativeSpectralResponse') as mymock:
             instance = mymock.return_value
             # VIIRS doesn't have a channel '20' like MODIS so the generic
@@ -206,12 +202,12 @@ class TestReflectance(unittest.TestCase):
             pass
 
     def tearDown(self):
-        """Clean up"""
+        """Clean up."""
         pass
 
 
 def suite():
-    """The suite for test_reflectance."""
+    """Perform the unit testing the reflectance calculations."""
     loader = unittest.TestLoader()
     mysuite = unittest.TestSuite()
     mysuite.addTest(loader.loadTestsFromTestCase(TestReflectance))
