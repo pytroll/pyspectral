@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2017 Adam.Dybbroe
+# Copyright (c) 2017, 2019 Adam.Dybbroe
 
 # Author(s):
 
@@ -20,13 +20,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Helper functions for unit testing
-"""
+"""Helper functions for unit testing."""
 
 import numpy as np
 
 
 def assertNumpyArraysEqual(self, other):
+    """Assert if two numpy arrays are equal."""
     if self.shape != other.shape:
         raise AssertionError("Shapes don't match")
     if not np.allclose(self, other):

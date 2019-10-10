@@ -20,8 +20,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Unit testing the generic rsr hdf5 reader
-"""
+"""Unit testing the generic rsr hdf5 reader."""
+
 import sys
 import os.path
 from pyspectral.rsr_reader import RelativeSpectralResponse
@@ -84,11 +84,10 @@ TEST_CONFIG['rsr_dir'] = TEST_RSR_DIR
 
 
 class TestRsrReader(unittest.TestCase):
-
-    """Class for testing pyspectral.rsr_reader"""
+    """Class for testing pyspectral.rsr_reader."""
 
     def setUp(self):
-        """Setup the test"""
+        """Set up the tests."""
         pass
 
     @patch('os.path.exists')
@@ -97,7 +96,7 @@ class TestRsrReader(unittest.TestCase):
     @patch('pyspectral.rsr_reader.download_rsr')
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_rsr_data_version')
     def test_rsr_response(self, get_rsr_version, download_rsr, load, isfile, exists):
-        """Test the RelativeSpectralResponse class initialisation"""
+        """Test the RelativeSpectralResponse class initialisation."""
         load.return_code = None
         download_rsr.return_code = None
         isfile.return_code = True
@@ -136,7 +135,7 @@ class TestRsrReader(unittest.TestCase):
     @patch('pyspectral.rsr_reader.download_rsr')
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_rsr_data_version')
     def test_convert(self, get_rsr_version, download_rsr, load, isfile, exists):
-        """Test the conversion method"""
+        """Test the conversion method."""
         load.return_code = None
         download_rsr.return_code = None
         isfile.return_code = True
@@ -160,7 +159,7 @@ class TestRsrReader(unittest.TestCase):
     @patch('pyspectral.rsr_reader.download_rsr')
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_rsr_data_version')
     def test_integral(self, get_rsr_version, download_rsr, load, isfile, exists):
-        """Test the calculation of the integral of the spectral responses"""
+        """Test the calculation of the integral of the spectral responses."""
         load.return_code = None
         download_rsr.return_code = None
         isfile.return_code = True
@@ -174,13 +173,12 @@ class TestRsrReader(unittest.TestCase):
             self.assertAlmostEqual(res['det-1'], 0.185634, 6)
 
     def tearDown(self):
-        """Clean up"""
+        """Clean up."""
         pass
 
 
 def suite():
-    """The test suite for test_rsr_reader.
-    """
+    """Perform the unit testing for the rsr_reader."""
     loader = unittest.TestLoader()
     mysuite = unittest.TestSuite()
     mysuite.addTest(loader.loadTestsFromTestCase(TestRsrReader))

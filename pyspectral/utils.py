@@ -21,7 +21,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Utility functions"""
+"""Utility functions."""
 
 import os
 import logging
@@ -223,7 +223,8 @@ TB2RAD_DIR = CONF.get('tb2rad_dir', tempfile.gettempdir())
 
 
 def convert2wavenumber(rsr):
-    """
+    """Convert Spectral Responses from wavelength to wavenumber space.
+
     Take rsr data set with all channels and detectors for an instrument
     each with a set of wavelengths and normalised responses and
     convert to wavenumbers and responses
@@ -234,7 +235,6 @@ def convert2wavenumber(rsr):
       :info: Dictionary with scale (to go convert to SI units) and unit
 
     """
-
     retv = {}
     for chname in rsr.keys():  # Go through bands/channels
         retv[chname] = {}
@@ -268,13 +268,14 @@ def convert2wavenumber(rsr):
 
 
 def get_central_wave(wav, resp, weight=1.0):
-    """Calculate the central wavelength or the central wavenumber, depending on
+    """Calculate the central wavelength or the central wavenumber.
+
+    Calculate the central wavelength or the central wavenumber, depending on
     which parameters is input.  On default the weighting funcion is
     f(lambda)=1.0, but it is possible to add a custom weight, e.g. f(lambda) =
     1./lambda**4 for Rayleigh scattering calculations
 
     """
-
     # info: {'unit': unit, 'si_scale': si_scale}
     # To get the wavelenght/wavenumber in SI units (m or m-1):
     # wav = wav * info['si_scale']
@@ -285,7 +286,6 @@ def get_central_wave(wav, resp, weight=1.0):
     # if info['unit'].find('-1') > 0:
     # Wavenumber:
     #     res *=
-
     return np.trapz(resp * wav * weight, wav) / np.trapz(resp * weight, wav)
 
 
@@ -293,7 +293,6 @@ def get_bandname_from_wavelength(sensor, wavelength, rsr, epsilon=0.1, multiple_
     """Get the bandname from h5 rsr provided the approximate wavelength."""
     # channel_list = [channel for channel in rsr.rsr if abs(
     # rsr.rsr[channel]['det-1']['central_wavelength'] - wavelength) < epsilon]
-
     chdist_min = 2.0
     chfound = []
     for channel in rsr:
@@ -316,9 +315,7 @@ def get_bandname_from_wavelength(sensor, wavelength, rsr, epsilon=0.1, multiple_
 
 
 def sort_data(x_vals, y_vals):
-    """Sort the data so that x is monotonically increasing and contains
-    no duplicates.
-    """
+    """Sort the data so that x is monotonically increasing and contains no duplicates."""
     # Sort data
     # (This is needed in particular for EOS-Terra responses, as there are duplicates)
     idxs = np.argsort(x_vals)
@@ -375,12 +372,12 @@ def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06):
 
 
 def download_rsr(**kwargs):
-    """Download the pre-compiled hdf5 formatet relative spectral response functions
+    """Download the relative spectral response functions.
+
+    Download the pre-compiled hdf5 formatet relative spectral response functions
     from the internet
 
     """
-
-    #
     import tarfile
     import requests
     TQDM_LOADED = True
@@ -418,7 +415,6 @@ def download_rsr(**kwargs):
 
 def download_luts(**kwargs):
     """Download the luts from internet."""
-    #
     import tarfile
     import requests
     TQDM_LOADED = True
@@ -479,8 +475,7 @@ def download_luts(**kwargs):
 
 
 def debug_on():
-    """Turn debugging logging on.
-    """
+    """Turn debugging logging on."""
     logging_on(logging.DEBUG)
 
 
@@ -488,8 +483,7 @@ _is_logging_on = False
 
 
 def logging_on(level=logging.WARNING):
-    """Turn logging on.
-    """
+    """Turn logging on."""
     global _is_logging_on
 
     if not _is_logging_on:
@@ -508,25 +502,20 @@ def logging_on(level=logging.WARNING):
 
 
 class NullHandler(logging.Handler):
-
-    """Empty handler"""
+    """Empty handler."""
 
     def emit(self, record):
-        """Record a message.
-        """
+        """Record a message."""
         pass
 
 
 def logging_off():
-    """Turn logging off.
-    """
+    """Turn logging off."""
     logging.getLogger('').handlers = [NullHandler()]
 
 
 def get_logger(name):
-    """Return logger with null handle
-    """
-
+    """Return logger with null handle."""
     log = logging.getLogger(name)
     if not log.handlers:
         log.addHandler(NullHandler())

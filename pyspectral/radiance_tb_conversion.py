@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014-2018 Adam.Dybbroe
+# Copyright (c) 2014-2019 Adam.Dybbroe
 
 # Author(s):
 
@@ -21,19 +21,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Conversion between radiances and brightness temperatures for the IR bands of
+"""
+Converting between radiance and Tb.
+
+Conversion between radiances and brightness temperatures for the IR bands of
 various satellite sensors
 """
 
 import numpy as np
-from pyspectral.blackbody import blackbody, blackbody_wn
-from pyspectral.utils import BANDNAMES
-from pyspectral.utils import get_bandname_from_wavelength
 from pyspectral.blackbody import (H_PLANCK, K_BOLTZMANN, C_SPEED)
-from pyspectral.utils import convert2wavenumber
-from pyspectral.rsr_reader import RelativeSpectralResponse
+from pyspectral.blackbody import blackbody, blackbody_wn
 from pyspectral.utils import WAVE_NUMBER
 from pyspectral.utils import WAVE_LENGTH
+from pyspectral.utils import BANDNAMES
+from pyspectral.utils import get_bandname_from_wavelength
+from pyspectral.utils import convert2wavenumber
+from pyspectral.rsr_reader import RelativeSpectralResponse
 
 from numbers import Number
 from scipy import integrate
@@ -89,18 +92,21 @@ SEVIRI = {'IR3.9': {'Meteosat-8': [2567.330, 0.9956, 3.410],
 
 
 class RadTbConverter(object):
-
     """A radiance to brightness temperature calculator.
 
     It does the conversion based on direct use of the band relative
     spectral response functions.
+
     """
 
     def __init__(self, platform_name, instrument, band, **options):
-        """E.g.:
+        """Initialize the Class instance.
+
+        E.g.:
         platform_name = 'Meteosat-9'
         instrument = 'seviri'
         band = 3.75
+
         """
         self.platform_name = platform_name
         self.instrument = instrument
@@ -128,7 +134,8 @@ class RadTbConverter(object):
         self._get_rsr()
 
     def _get_rsr(self):
-        """
+        """Get the relative spectral responses.
+
         Get the relative spectral responses from file, find the bandname, and
         convert to the requested wave-spave (wavelength or wave number)
 
@@ -158,11 +165,7 @@ class RadTbConverter(object):
         self.rsr_integral = np.trapz(self.response, self.wavelength_or_wavenumber)
 
     def _getsatname(self):
-        """
-        Get the satellite name used in the rsr-reader, from the platform
-        and number
-
-        """
+        """Get the satellite name used in the rsr-reader, from the platform and number."""
         if self.platform_name.startswith("Meteosat"):
             return self.platform_name
         else:
@@ -170,8 +173,7 @@ class RadTbConverter(object):
                 'Platform {0} not yet supported...'.format(self.platform_name))
 
     def tb2radiance(self, tb_, **kwargs):
-        """Get the radiance from the brightness temperature (Tb) given the
-        band name.
+        """Get the radiance from the brightness temperature (Tb) given the band name.
 
         Input:
           tb_: Brightness temperature of the band (self.band)
@@ -224,7 +226,7 @@ class RadTbConverter(object):
                 'scale': scale}
 
     def make_tb2rad_lut(self, filepath, normalized=True):
-        """Generate a Tb to radiance look-up table"""
+        """Generate a Tb to radiance look-up table."""
         tb_ = np.arange(TB_MIN, TB_MAX, self.tb_resolution)
         retv = self.tb2radiance(tb_, normalized=normalized)
         rad = retv['radiance']
@@ -232,13 +234,12 @@ class RadTbConverter(object):
 
     @staticmethod
     def read_tb2rad_lut(filepath):
-        """Read the Tb to radiance look-up table"""
+        """Read the Tb to radiance look-up table."""
         retv = np.load(filepath, 'r')
         return retv
 
     def radiance2tb(self, rad):
-        """
-        Get the Tb from the radiance using the Planck function and the central wavelength of the band
+        """Get the Tb from the radiance using the Planck function and the central wavelength of the band.
 
         rad:
             Radiance in SI units
@@ -247,8 +248,7 @@ class RadTbConverter(object):
 
 
 def radiance2tb(rad, wavelength):
-    """
-    Get the Tb from the radiance using the Planck function
+    """Get the Tb from the radiance using the Planck function.
 
     rad:
         Radiance in SI units
@@ -260,15 +260,17 @@ def radiance2tb(rad, wavelength):
 
 
 class SeviriRadTbConverter(RadTbConverter):
+    """
+    Radiance<->Tb converter for SEVIRI.
 
-    """A radiance to brightness temperature calculator for SEVIRI based on
-     tabulated standard values using non-linear regression methods, and thus no
-     use of off line relative spectral response functions
-
+    A radiance to brightness temperature calculator for SEVIRI based on
+    tabulated standard values using non-linear regression methods, and thus no
+    use of off line relative spectral response functions
     """
 
     def __init__(self, platform_name, band, **kwargs):
-        """
+        """Initialize the Class instance.
+
         E.g.:
         platform_name = Meteosat-9
         band = 3.75
@@ -283,12 +285,11 @@ class SeviriRadTbConverter(RadTbConverter):
             raise AttributeError('Band name provided as a string is required')
 
     def _get_rsr(self):
-        """Overload the _get_rsr method, since RSR data are ignored here"""
+        """Overload the _get_rsr method, since RSR data are ignored here."""
         pass
 
     def radiance2tb(self, rad):
-        """Get the Tb from the radiance using the simple non-linear regression
-        method.
+        """Get the Tb from the radiance using the simple non-linear regression method.
 
         rad: Radiance in units = 'mW/m^2 sr^-1 (cm^-1)^-1'
 
@@ -313,8 +314,9 @@ class SeviriRadTbConverter(RadTbConverter):
         return tb_
 
     def tb2radiance(self, tb_, **kwargs):
-        """Get the radiance from the Tb using the simple non-linear regression
-        method. SI units of course!
+        """Get the radiance from the Tb using the simple non-linear regression method.
+
+        SI units of course!
         """
         # L = C1 * νc**3 / (exp (C2 νc / [αTb + β]) − 1)
         #

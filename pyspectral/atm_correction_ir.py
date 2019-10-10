@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2017 Adam.Dybbroe
+# Copyright (c) 2017, 2019 Adam.Dybbroe
 
 # Author(s):
 
@@ -21,7 +21,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Depending on the satellite sensor spectral band the upwelling infrared
+"""
+Draft limb-cooling correction methods - work in progress.
+
+Depending on the satellite sensor spectral band the upwelling infrared
 radiation in a cloudfree atmosphere will be subject to absorption by
 atmospherical molecules, mainly water vapour, Ozone, CO2 and other trace
 gases. This absorption is depending on the observational path length. Usually
@@ -62,13 +65,15 @@ LOG = logging.getLogger(__name__)
 
 
 class AtmosphericalCorrection(object):
+    """IR atmospherical correction.
 
-    """Container for the IR atmospherical correction of satellite imager IR (dirty)
+    Container for the IR atmospherical correction of satellite imager IR (dirty)
     window bands
 
     """
 
     def __init__(self, platform_name, sensor, **kwargs):
+        """Atmosphere correction in the infrared."""
         self.platform_name = platform_name
         self.sensor = sensor
         self.coeff_filename = None
@@ -84,23 +89,22 @@ class AtmosphericalCorrection(object):
         LOG.info("Atmospherical correction by old DWD parametric method...")
 
     def get_correction(self, sat_zenith, bandname, data):
-        """
-        Get the correction depending on satellite zenith angle and band
-        """
-
+        """Get the correction depending on satellite zenith angle and band."""
         # From band name we will eventually need the effective wavelength
         # and then use that to find the atm contribution depending on zenith
         # angle from a LUT
-
         return viewzen_corr(data.copy(), sat_zenith)
 
 
 def viewzen_corr(data, view_zen):
-    """Apply atmospheric correction on the given *data* using the
+    """Apply satellite-zenith angle dependent correction.
+
+    Apply atmospheric correction on the given *data* using the
     specified satellite zenith angles (*view_zen*). Both input data
     are given as 2-dimensional Numpy (masked) arrays, and they should
     have equal shapes.
     The *data* array will be changed in place and has to be copied before.
+
     """
     def ratio(value, v_null, v_ref):
         return (value - v_null) / (v_ref - v_null)
@@ -133,7 +137,6 @@ def viewzen_corr(data, view_zen):
 
 
 if __name__ == "__main__":
-
     this = AtmosphericalCorrection('Suomi-NPP', 'viirs')
     SHAPE = (1000, 3000)
     NDIM = SHAPE[0] * SHAPE[1]

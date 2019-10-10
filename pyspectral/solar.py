@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013-2018 Adam.Dybbroe
+# Copyright (c) 2013-2019 Adam.Dybbroe
 
 # Author(s):
 
@@ -23,6 +23,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+Read solar irradiances and calculate solar flux.
+
 Module to read solar irradiance spectra and calculate the solar flux over
 various instrument bands given their relative spectral response functions
 """
@@ -41,20 +43,23 @@ TOTAL_IRRADIANCE_SPECTRUM_2000ASTM = resource_filename(__name__,
 
 
 class SolarIrradianceSpectrum(object):
+    """
+    Total Top of Atmosphere (TOA) Solar Irradiance Spectrum.
 
-    """Total Top of Atmosphere (TOA) Solar Irradiance Spectrum
     Wavelength is in units of microns (10^-6 m).
     The spectral Irradiance in the file TOTAL_IRRADIANCE_SPECTRUM_2000ASTM is
     in units of W/m^2/micron
     """
 
     def __init__(self, filename, **options):
-        """
+        """Initialize the top of atmosphere solar irradiance spectrum object from file.
+
         Input:
         filename: Filename of the solar irradiance spectrum
         dlambda:
         Delta wavelength: the step in wavelength defining the resolution on
         which to integrate/convolute.
+
         """
         self.wavelength = None
         self.wavenumber = None
@@ -88,12 +93,12 @@ class SolarIrradianceSpectrum(object):
                           'flux': 'W/m^2'}
 
     def convert2wavenumber(self):
-        """
-        Convert from wavelengths to wavenumber.
+        """Convert from wavelengths to wavenumber.
 
         Units:
           Wavelength: micro meters (1e-6 m)
           Wavenumber: cm-1
+
         """
         self.wavenumber = 1. / (1e-4 * self.wavelength[::-1])
         self.irradiance = (self.irradiance[::-1] *
@@ -101,12 +106,12 @@ class SolarIrradianceSpectrum(object):
         self.wavelength = None
 
     def _load(self):
-        """Read the tabulated spectral irradiance data from file"""
+        """Read the tabulated spectral irradiance data from file."""
         self.wavelength, self.irradiance = \
             np.genfromtxt(self.filename, unpack=True)
 
     def solar_constant(self):
-        """Calculate the solar constant"""
+        """Calculate the solar constant."""
         if self.wavenumber is not None:
             return np.trapz(self.irradiance, self.wavenumber)
         elif self.wavelength is not None:
@@ -115,19 +120,27 @@ class SolarIrradianceSpectrum(object):
             raise TypeError('Neither wavelengths nor wavenumbers available!')
 
     def inband_solarflux(self, rsr, scale=1.0, **options):
-        """Derive the inband solar flux for a given instrument relative
+        """Get the in band solar flux.
+
+        Derive the inband solar flux for a given instrument relative
         spectral response valid for an earth-sun distance of one AU.
         """
         return self._band_calculations(rsr, True, scale, **options)
 
     def inband_solarirradiance(self, rsr, scale=1.0, **options):
-        """Derive the inband solar irradiance for a given instrument relative
-        spectral response valid for an earth-sun distance of one AU."""
+        """Get the in band solar irradiance.
 
+        Derive the inband solar irradiance for a given instrument relative
+        spectral response valid for an earth-sun distance of one AU.
+
+        (Same as the in band solar flux).
+        """
         return self._band_calculations(rsr, False, scale, **options)
 
     def _band_calculations(self, rsr, flux, scale, **options):
-        """Derive the inband solar flux or inband solar irradiance for a given
+        """Derive in band solar flux.
+
+        Derive the in band solar flux or in band solar irradiance for a given
         instrument relative spectral response valid for an earth-sun distance
         of one AU.
 
@@ -136,6 +149,7 @@ class SolarIrradianceSpectrum(object):
         options:
         detector: Detector number (between 1 and N - N=number of detectors
         for channel)
+
         """
         from scipy.interpolate import InterpolatedUnivariateSpline
 
@@ -188,7 +202,8 @@ class SolarIrradianceSpectrum(object):
             return np.trapz(irr * resp_ipol, wvl) / np.trapz(resp_ipol, wvl)
 
     def interpolate(self, **options):
-        """Interpolate Irradiance to a specified evenly spaced resolution/grid
+        """Interpolate Irradiance to a specified evenly spaced resolution/grid.
+
         This is necessary to make integration and folding (with a channel
         relative spectral response) straightforward.
 
@@ -200,6 +215,7 @@ class SolarIrradianceSpectrum(object):
         ival_wavelength: Tuple. The start and end interval in wavelength
         space, defining where to integrate/convolute the spectral response
         curve on the spectral irradiance data.
+
         """
         from scipy.interpolate import InterpolatedUnivariateSpline
 
@@ -236,7 +252,7 @@ class SolarIrradianceSpectrum(object):
         self.ipol_irradiance = yspl
 
     def plot(self, plotname=None, **options):
-        """Plot the data"""
+        """Plot the data."""
         if 'color' in options:
             color = options['color']
         else:

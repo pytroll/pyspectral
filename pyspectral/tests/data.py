@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2018 Adam.Dybbroe
+# Copyright (c) 2018, 2019 Adam.Dybbroe
 
 # Author(s):
 
@@ -20,8 +20,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-"""
+"""Data definitions used in the unit testing."""
 
 import numpy as np
 
