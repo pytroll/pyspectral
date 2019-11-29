@@ -316,16 +316,3 @@ class TestRayleigh(unittest.TestCase):
 
             retv = ufo.get_reflectance(sun_zenith, sat_zenith, azidiff, 0.441, blueband)
             self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT3))
-
-    def tearDown(self):
-        """Clean up."""
-        pass
-
-
-def suite():
-    """Perform the unit testing for the rayleigh/atm correction functions."""
-    loader = unittest.TestLoader()
-    mysuite = unittest.TestSuite()
-    mysuite.addTest(loader.loadTestsFromTestCase(TestRayleigh))
-
-    return mysuite

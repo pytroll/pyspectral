@@ -102,10 +102,6 @@ TEST_RSR_WN['20']['det-1']['response'] = RESP
 class TestReflectance(unittest.TestCase):
     """Unit testing the reflectance calculations."""
 
-    def setUp(self):
-        """Set up."""
-        pass
-
     def test_rsr_integral(self):
         """Test calculating the integral of the relative spectral response function."""
         with patch('pyspectral.radiance_tb_conversion.RelativeSpectralResponse') as mymock:
@@ -200,16 +196,3 @@ class TestReflectance(unittest.TestCase):
             self.assertTrue(hasattr(refl, 'compute'))
         except ImportError:
             pass
-
-    def tearDown(self):
-        """Clean up."""
-        pass
-
-
-def suite():
-    """Perform the unit testing the reflectance calculations."""
-    loader = unittest.TestLoader()
-    mysuite = unittest.TestSuite()
-    mysuite.addTest(loader.loadTestsFromTestCase(TestReflectance))
-
-    return mysuite

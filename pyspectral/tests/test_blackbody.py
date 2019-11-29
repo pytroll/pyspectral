@@ -146,12 +146,3 @@ class TestBlackbody(unittest.TestCase):
         self.assertAlmostEqual(t__[1, 0], expected[1, 0], 5)
 
         assertNumpyArraysEqual(t__, expected)
-
-
-def suite():
-    """Perform the unit testing of the blackbody/planck calculations."""
-    loader = unittest.TestLoader()
-    mysuite = unittest.TestSuite()
-    mysuite.addTest(loader.loadTestsFromTestCase(TestBlackbody))
-
-    return mysuite

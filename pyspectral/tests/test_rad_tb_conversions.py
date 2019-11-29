@@ -366,13 +366,3 @@ class TestRadTbConversions(unittest.TestCase):
     def tearDown(self):
         """Clean up."""
         pass
-
-
-def suite():
-    """Perform the unit testing for the reflectance derivations."""
-    loader = unittest.TestLoader()
-    mysuite = unittest.TestSuite()
-    mysuite.addTest(loader.loadTestsFromTestCase(TestRadTbConversions))
-    mysuite.addTest(loader.loadTestsFromTestCase(TestSeviriConversions))
-
-    return mysuite

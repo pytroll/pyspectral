@@ -28,15 +28,6 @@ from pyspectral import (blackbody,
                         near_infrared_reflectance,
                         solar)
 
-from pyspectral.tests import (test_rayleigh,
-                              test_blackbody,
-                              test_reflectance,
-                              test_solarflux,
-                              test_utils,
-                              test_rad_tb_conversions,
-                              test_rsr_reader,
-                              test_atm_correction_ir)
-
 import sys
 if sys.version_info < (2, 7):
     import unittest2 as unittest
@@ -61,15 +52,6 @@ def suite():
         mysuite.addTests(doctest.DocTestSuite(near_infrared_reflectance))
         mysuite.addTests(doctest.DocTestSuite(blackbody))
 
-    # Use the unittests also
-    mysuite.addTests(test_blackbody.suite())
-    mysuite.addTests(test_rad_tb_conversions.suite())
-    mysuite.addTests(test_solarflux.suite())
-    mysuite.addTests(test_reflectance.suite())
-    mysuite.addTests(test_utils.suite())
-    mysuite.addTests(test_rayleigh.suite())
-    mysuite.addTests(test_rsr_reader.suite())
-    mysuite.addTests(test_atm_correction_ir.suite())
     return mysuite
 
 

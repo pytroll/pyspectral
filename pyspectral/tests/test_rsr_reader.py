@@ -86,10 +86,6 @@ TEST_CONFIG['rsr_dir'] = TEST_RSR_DIR
 class TestRsrReader(unittest.TestCase):
     """Class for testing pyspectral.rsr_reader."""
 
-    def setUp(self):
-        """Set up the tests."""
-        pass
-
     @patch('os.path.exists')
     @patch('os.path.isfile')
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
@@ -171,16 +167,3 @@ class TestRsrReader(unittest.TestCase):
             test_rsr.rsr = TEST_RSR2
             res = test_rsr.integral('20')
             self.assertAlmostEqual(res['det-1'], 0.185634, 6)
-
-    def tearDown(self):
-        """Clean up."""
-        pass
-
-
-def suite():
-    """Perform the unit testing for the rsr_reader."""
-    loader = unittest.TestLoader()
-    mysuite = unittest.TestSuite()
-    mysuite.addTest(loader.loadTestsFromTestCase(TestRsrReader))
-
-    return mysuite

@@ -65,7 +65,6 @@ class TestSolarflux(unittest.TestCase):
         self.solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM,
                                                  dlambda=0.005)
         self.rsr = TEST_RSR
-        return
 
     def test_read(self):
         """Test that solar irradiance spctrum."""
@@ -85,16 +84,3 @@ class TestSolarflux(unittest.TestCase):
         """Test the interpolate method."""
         self.solar_irr.interpolate(dlambda=0.001, ival_wavelength=(0.200, 0.240))
         self.assertTrue(np.allclose(RESULT_IPOL_WVLS, self.solar_irr.ipol_wavelength))
-
-    def tearDown(self):
-        """Clean up."""
-        return
-
-
-def suite():
-    """Perform the unit testing of the utilities to derive the solar flux."""
-    loader = unittest.TestLoader()
-    mysuite = unittest.TestSuite()
-    mysuite.addTest(loader.loadTestsFromTestCase(TestSolarflux))
-
-    return mysuite
