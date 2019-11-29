@@ -21,7 +21,7 @@ lib
 lib64
 __pycache__
 doc/_build
-*png
+rsr*.png
 
 # Installer logs
 pip-log.txt
