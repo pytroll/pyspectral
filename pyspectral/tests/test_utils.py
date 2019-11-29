@@ -146,12 +146,3 @@ class TestUtils(unittest.TestCase):
 
         bandname = utils.get_bandname_from_wavelength('abi', 3.0, TEST_RSR)
         self.assertIsNone(bandname)
-
-
-def suite():
-    """Create the unit test suite for test_utils."""
-    loader = unittest.TestLoader()
-    mysuite = unittest.TestSuite()
-    mysuite.addTest(loader.loadTestsFromTestCase(TestUtils))
-
-    return mysuite

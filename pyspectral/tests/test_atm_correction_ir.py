@@ -123,12 +123,3 @@ class TestAtmCorrection(unittest.TestCase):
         this = AtmosphericalCorrection('EOS-Terra', 'modis')
         atm_corr = this.get_correction(SATZ, None, TBS)
         np.testing.assert_almost_equal(RES, atm_corr)
-
-
-def suite():
-    """Create the test suite for test_atm_correction_ir."""
-    loader = unittest.TestLoader()
-    mysuite = unittest.TestSuite()
-    mysuite.addTest(loader.loadTestsFromTestCase(TestAtmCorrection))
-
-    return mysuite
