@@ -6,13 +6,14 @@ Atmospherioc correction in the visible spectrum
 
 
 In particular at the shorter wavelengths around :math:`400-600 nm`, which
-include the region used e.g. for ocean color products or true color imagery,
-in particular the Rayleigh scattering due to atmospheric molecules or atoms,
-and Mie scattering and absorption of aerosols, becomes significant.
-As this atmospheric scattering and absorption is obscuring the retrieval of
-surface parameters and since it is strongly dependent on observation geometry,
-it is custom to try to correct or subtract this unwanted signal from the data
-before performing the geophysical retrieval.
+include the region used e.g. for ocean color products or true color imagery, in
+particular the Rayleigh scattering due to atmospheric molecules or atoms, and
+Mie scattering and absorption of aerosols, becomes significant.  As this
+atmospheric scattering and absorption is obscuring the retrieval of surface
+parameters and since it is strongly dependent on observation geometry, it is
+custom to try to correct or subtract this unwanted signal from the data before
+performing the geophysical retrieval or generating useful and nice looking
+imagery.
 
 In order to correct for this atmospheric effect we have simulated the solar
 reflectance under various sun-satellite viewing conditions for a set of
@@ -34,6 +35,7 @@ in the figure below:
    :scale: 70%
    :align: center
 
+The method is descriped in detail in a scientific paper_.
 
 To apply the atmospheric correction for a given satellite sensor band, the
 procedure involves the following three steps:
@@ -42,7 +44,9 @@ procedure involves the following three steps:
  * Derive the atmospheric absorption and scattering contribution
  * Subtract that from the observations
 
-As the Rayleigh scattering is proportional to :math:`\frac{1}{{\lambda}^4}` the
+As the Rayleigh scattering, which is the dominating part we are correcting for
+under normal situations (when there is no excessive pollution or aerosols in
+the line of sight) is proportional to :math:`\frac{1}{{\lambda}^4}` the
 effective wavelength is derived by convolving the spectral response with
 :math:`\frac{1}{{\lambda}^4}`. 
 
@@ -106,12 +110,9 @@ if you want another setup, e.g.:
   [[ 10.01281363   9.65488615]
    [  9.78070046   9.70335278]]
 
-..
-   A few words on the radiative transfer simulations and LUTs
-   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. _Satpy: http://www.github.com/pytroll/satpy
+.. _zenodo: https://doi.org/10.5281/zenodo.1288441
+.. _paper: https://doi.org/10.3390/rs10040560
 
-     .. image:: _static/refl_subarctic_winter_lambda_0400_ssa_000.png
-
-     .. image:: _static/refl_subarctic_winter_lambda_0500_ssa_090.png
 
