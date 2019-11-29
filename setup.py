@@ -21,7 +21,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-from setuptools import setup
+from setuptools import setup, find_packages
 import os.path
 
 
@@ -76,8 +76,7 @@ setup(name=NAME,
       long_description=long_description,
       license='GPLv3',
 
-      packages=['pyspectral'],
-
+      packages=find_packages(),
       include_package_data=True,
       package_data={
           # If any package contains *.txt files, include them:

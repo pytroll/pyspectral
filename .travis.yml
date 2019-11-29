@@ -29,8 +29,10 @@ install:
 #    - git clone --depth 1 git://github.com/astropy/ci-helpers.git
     - git clone --depth 1 -b all-the-fixes git://github.com/djhoese/ci-helpers.git    
     - source ci-helpers/travis/setup_conda.sh
+    - pip install -e .
 script:
   - pytest --cov=./
+  - py.test  --cov-report term --cov=./
 after_success:
 - if [[ $PYTHON_VERSION == 3.6 ]]; then coveralls; fi
 deploy:
