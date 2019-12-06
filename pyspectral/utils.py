@@ -433,7 +433,7 @@ def download_luts(**kwargs):
     else:
         aerosol_types = HTTPS_RAYLEIGH_LUTS.keys()
 
-    chunk_size = 4096
+    chunk_size = 1024*1024  # 1 MB
 
     for subname in aerosol_types:
 
