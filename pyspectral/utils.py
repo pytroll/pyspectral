@@ -433,7 +433,7 @@ def download_luts(**kwargs):
     else:
         aerosol_types = HTTPS_RAYLEIGH_LUTS.keys()
 
-    chunk_size = 10124
+    chunk_size = 1024*1024  # 1 MB
 
     for subname in aerosol_types:
 
@@ -461,7 +461,7 @@ def download_luts(**kwargs):
         if TQDM_LOADED:
             with open(filename, "wb") as handle:
                 for data in tqdm(iterable=response.iter_content(chunk_size=chunk_size),
-                                 total=(total_size / chunk_size), unit='kB'):
+                                 total=(int(total_size / chunk_size + 0.5)), unit='kB'):
                     handle.write(data)
         else:
             with open(filename, "wb") as handle:
