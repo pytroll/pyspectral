@@ -29,9 +29,9 @@ window channel (usually around 11-12 microns).
 import os
 import numpy as np
 try:
-    from dask.array import where, logical_or
+    from dask.array import where, logical_or, asanyarray, array
 except ImportError:
-    from numpy import where, logical_or
+    from numpy import where, logical_or, asanyarray, array
 
 from pyspectral.solar import (SolarIrradianceSpectrum,
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
@@ -211,14 +211,14 @@ class Calculator(RadTbConverter):
             is_masked = False
 
         if np.isscalar(tb_near_ir):
-            tb_nir = np.array([tb_near_ir, ])
+            tb_nir = array([tb_near_ir, ])
         else:
-            tb_nir = np.asanyarray(tb_near_ir)
+            tb_nir = asanyarray(tb_near_ir)
 
         if np.isscalar(tb_thermal):
-            tb_therm = np.array([tb_thermal, ])
+            tb_therm = array([tb_thermal, ])
         else:
-            tb_therm = np.asanyarray(tb_thermal)
+            tb_therm = asanyarray(tb_thermal)
 
         if tb_therm.shape != tb_nir.shape:
             errmsg = 'Dimensions do not match! {0} and {1}'.format(
@@ -234,9 +234,9 @@ class Calculator(RadTbConverter):
         else:
             co2corr = True
             if np.isscalar(tb_ir_co2):
-                tbco2 = np.array([tb_ir_co2, ])
+                tbco2 = array([tb_ir_co2, ])
             else:
-                tbco2 = np.asanyarray(tb_ir_co2)
+                tbco2 = asanyarray(tb_ir_co2)
 
         if not self.rsr:
             raise NotImplementedError("Reflectance calculations without "
@@ -255,7 +255,7 @@ class Calculator(RadTbConverter):
             LOG.info('l_nir = %s', str(l_nir))
 
         sunzmask = (sun_zenith < 0.0) | (sun_zenith > 88.0)
-        sunz = where(sunzmask, 88.0, sun_zenith)
+        sunz = sun_zenith.clip(0, 88.0)
 
         mu0 = np.cos(np.deg2rad(sunz))
         # mu0 = np.where(np.less(mu0, 0.1), 0.1, mu0)
@@ -270,11 +270,11 @@ class Calculator(RadTbConverter):
         else:
             self._rad3x_correction = 1.0
 
-        nomin = l_nir - thermal_emiss_one * self._rad3x_correction
-        denom = self._solar_radiance - thermal_emiss_one * self._rad3x_correction
+        corrected_thermal_emiss_one = thermal_emiss_one * self._rad3x_correction
+        nomin = l_nir - corrected_thermal_emiss_one
+        denom = self._solar_radiance - corrected_thermal_emiss_one
         data = nomin / denom
-        mask = (self._solar_radiance - thermal_emiss_one *
-                self._rad3x_correction) < EPSILON
+        mask = denom < EPSILON
 
         logical_or(sunzmask, mask, out=mask)
         logical_or(mask, np.isnan(tb_nir), out=mask)
@@ -289,5 +289,5 @@ class Calculator(RadTbConverter):
         else:
             res = self._r3x
         if is_masked:
-            res = np.ma.masked_array(res, mask=np.isnan(res))
+            res = np.ma.masked_invalid(res)
         return res
