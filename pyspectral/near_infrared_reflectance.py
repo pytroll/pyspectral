@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014-2018 Adam.Dybbroe
+# Copyright (c) 2014-2019 Adam.Dybbroe
 
 # Author(s):
 
@@ -21,7 +21,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Derive the Near-Infrared reflectance of a given band in the solar and
+"""
+Derive NIR reflectances of a a band in the 3-4 micron window region.
+
+Derive the Near-Infrared reflectance of a given band in the solar and
 thermal range (usually the 3.7-3.9 micron band) using a thermal atmospheric
 window channel (usually around 11-12 microns).
 """
@@ -50,8 +53,8 @@ TB_MAX = 360.
 
 
 class Calculator(RadTbConverter):
-
-    """A thermal near-infrared (~3.7 micron) band reflectance calculator.
+    """
+    A thermal near-infrared (~3.7 micron) band reflectance calculator.
 
     Given the relative spectral response of the NIR band, the solar zenith
     angle, and the brightness temperatures of the NIR and the Thermal bands,
@@ -63,6 +66,7 @@ class Calculator(RadTbConverter):
     """
 
     def __init__(self, platform_name, instrument, band, **kwargs):
+        """Initialize the Class instance."""
         super(Calculator, self).__init__(platform_name, instrument, band, **kwargs)
 
         from numbers import Number
@@ -138,13 +142,15 @@ class Calculator(RadTbConverter):
             LOG.info("File was there and has been read!")
 
     def derive_rad39_corr(self, bt11, bt13, method='rosenfeld'):
-        """Derive the 3.9 radiance correction factor to account for the
+        """Derive the CO2 correction to be applied to the 3.9 channel.
+
+        Derive the 3.9 radiance correction factor to account for the
         attenuation of the emitted 3.9 radiance by CO2
         absorption. Requires the 11 micron window band and the 13.4
         CO2 absorption band, as e.g. available on SEVIRI. Currently
         only supports the Rosenfeld method
-        """
 
+        """
         if method != 'rosenfeld':
             raise AttributeError("Only CO2 correction for SEVIRI using "
                                  "the Rosenfeld equation is supported!")
@@ -153,9 +159,7 @@ class Calculator(RadTbConverter):
         self._rad3x_correction = (bt11 - 0.25 * (bt11 - bt13)) ** 4 / bt11 ** 4
 
     def _get_solarflux(self):
-        """Derive the in-band solar flux from rsr over the Near IR band (3.7
-        or 3.9 microns)
-        """
+        """Derive the in-band solar flux from rsr over the Near IR band (3.7 or 3.9 microns)."""
         solar_spectrum = \
             SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM,
                                     dlambda=0.0005,
@@ -163,7 +167,7 @@ class Calculator(RadTbConverter):
         self.solar_flux = solar_spectrum.inband_solarflux(self.rsr[self.bandname])
 
     def emissive_part_3x(self, tb=True):
-        """Get the emissive part of the 3.x band"""
+        """Get the emissive part of the 3.x band."""
         try:
             # Emissive part:
             self._e3x = self._rad3x_t11 * (1 - self._r3x)
@@ -182,7 +186,8 @@ class Calculator(RadTbConverter):
             return self._e3x
 
     def reflectance_from_tbs(self, sun_zenith, tb_near_ir, tb_thermal, **kwargs):
-        """
+        """Derive reflectances from Tb's in the 3.x band.
+
         The relfectance calculated is without units and should be between 0 and 1.
 
         Inputs:

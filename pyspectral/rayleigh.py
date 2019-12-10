@@ -21,10 +21,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Atmospheric correction of shortwave imager bands in the wavelength range 400
-to 800 nm
+"""Atmospheric correction of shortwave imager bands in the wavelength range 400 to 800 nm."""
 
-"""
 import os
 import time
 import logging
@@ -66,13 +64,13 @@ LOG = logging.getLogger(__name__)
 
 
 class BandFrequencyOutOfRange(ValueError):
-    """Exception when the band frequency is out of the visible range"""
+    """Exception when the band frequency is out of the visible range."""
 
     pass
 
 
 class RayleighConfigBaseClass(object):
-    """A base class for the Atmospheric correction, handling the configuration and LUT download"""
+    """A base class for the Atmospheric correction, handling the configuration and LUT download."""
 
     def __init__(self, aerosol_type, atm_type='us-standard'):
         """Initialize class and determine LUT to use."""
@@ -102,8 +100,11 @@ class RayleighConfigBaseClass(object):
             self.lutfiles_version_uptodate = True
 
     def _get_lutfiles_version(self):
-        """Check the version of the atm correction luts from the version file in the
-           specific aerosol correction directory
+        """
+        Get LUT file version.
+
+        Check the version of the atm correction luts from the version file in the
+        specific aerosol correction directory.
 
         """
         basedir = RAYLEIGH_LUT_DIRS[self._aerosol_type]
@@ -119,15 +120,18 @@ class RayleighConfigBaseClass(object):
 
     @property
     def lutfiles_version_uptodate(self):
+        """Tell whether LUT file is up to date or not."""
         return self._lutfiles_version_uptodate
 
     @lutfiles_version_uptodate.setter
     def lutfiles_version_uptodate(self, value):
+        """Store whether LUT file is up to date or not."""
         self._lutfiles_version_uptodate = value
 
 
 class Rayleigh(RayleighConfigBaseClass):
-    """Container for the atmospheric correction of satellite imager bands.
+    """
+    Container for the atmospheric correction of satellite imager bands.
 
     This class removes background contributions of Rayleigh scattering of
     molecules and Mie scattering and absorption by aerosols.
@@ -136,7 +140,6 @@ class Rayleigh(RayleighConfigBaseClass):
 
     def __init__(self, platform_name, sensor, **kwargs):
         """Initialize class and determine LUT to use."""
-
         atm_type = kwargs.get('atmosphere', 'us-standard')
         aerosol_type = kwargs.get('aerosol_type', 'marine_clean_aerosol')
 
@@ -179,7 +182,7 @@ class Rayleigh(RayleighConfigBaseClass):
         self._sunz_sec_coord = None
 
     def get_effective_wavelength(self, bandname):
-        """Get the effective wavelength with Rayleigh scattering in mind"""
+        """Get the effective wavelength with Rayleigh scattering in mind."""
         try:
             rsr = RelativeSpectralResponse(self.platform_name, self.sensor)
         except(IOError, OSError):
@@ -211,8 +214,10 @@ class Rayleigh(RayleighConfigBaseClass):
         return cwvl
 
     def get_reflectance_lut(self):
-        """Read the LUT with reflectances as a function of wavelength, satellite zenith
-        secant, azimuth difference angle, and sun zenith secant
+        """Get reflectance LUT.
+
+        Read the LUT with reflectances as a function of wavelength, satellite zenith
+        secant, azimuth difference angle, and sun zenith secant.
 
         """
         if self._rayl is None:
@@ -232,7 +237,7 @@ class Rayleigh(RayleighConfigBaseClass):
         return res.reshape(sunzsec.shape)
 
     def get_reflectance(self, sun_zenith, sat_zenith, azidiff, bandname, redband=None):
-        """Get the reflectance from the three sun-sat angles"""
+        """Get the reflectance from the three sun-sat angles."""
         # Get wavelength in nm for band:
         if isinstance(bandname, float):
             LOG.warning('A wavelength is provided instead of band name - ' +
@@ -318,11 +323,13 @@ class Rayleigh(RayleighConfigBaseClass):
 
 
 def get_reflectance_lut(filename):
-    """Read the LUT with reflectances as a function of wavelength, satellite
+    """
+    Get reflectance LUT.
+
+    Read the LUT with reflectances as a function of wavelength, satellite
     zenith secant, azimuth difference angle, and sun zenith secant
 
     """
-
     h5f = h5py.File(filename, 'r')
 
     tab = h5f['reflectance']
@@ -352,11 +359,13 @@ def get_reflectance_lut(filename):
 
 
 def check_and_download(**kwargs):
-    """Do a check for the version of the atmospheric correction LUTs and attempt
-       downloading only if needed
+    """
+    Download atm correction LUT tables if they are not up to date already.
+
+    Do a check for the version of the atmospheric correction LUTs and attempt
+    downloading only if needed.
 
     """
-
     aerosol_types = kwargs.get('aerosol_types', AEROSOL_TYPES)
     dry_run = kwargs.get('dry_run', False)
 

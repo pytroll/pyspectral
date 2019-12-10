@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016, 2017, 2018 Adam.Dybbroe
+# Copyright (c) 2016, 2017, 2018, 2019 Adam.Dybbroe
 
 # Author(s):
 
@@ -20,8 +20,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Unittest for the rayleigh correction utilities
-"""
+"""Unittest for the rayleigh correction utilities."""
 
 import os
 import sys
@@ -58,12 +57,10 @@ TEST_RAYLEIGH_RESULT3 = np.array([5.61532271,  8.69267476], dtype='float32')
 
 
 class RelativeSpectralResponseTestData(object):
-
-    """RSR test data"""
+    """Create the class instance to hold the RSR test data."""
 
     def __init__(self):
-        """Making a testdata set of relative spectral responses"""
-
+        """Make a test data set of relative spectral responses."""
         self.rsr = {}
         channel_names = ['ch12', 'ch13', 'ch10', 'ch11', 'ch16', 'ch14',
                          'ch15', 'ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6',
@@ -94,12 +91,10 @@ class RelativeSpectralResponseTestData(object):
 
 
 class TestRayleigh(unittest.TestCase):
-
-    """Class for testing pyspectral.rayleigh"""
+    """Class for testing pyspectral.rayleigh."""
 
     def setUp(self):
-        """Setup the test"""
-
+        """Set up the test."""
         self.cwvl = 0.4440124
         self.rsr = RelativeSpectralResponseTestData()
         self._res1 = da.from_array(TEST_RAYLEIGH_RESULT1, chunks=2)
@@ -116,8 +111,7 @@ class TestRayleigh(unittest.TestCase):
             self.viirs_rayleigh = rayleigh.Rayleigh('NOAA-20', 'viirs', atmosphere='midlatitude summer')
 
     def test_get_effective_wavelength(self):
-        """Test getting the effective wavelength"""
-
+        """Test getting the effective wavelength."""
         # mymock:
         with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
             instance = mymock.return_value
@@ -147,8 +141,7 @@ class TestRayleigh(unittest.TestCase):
     @patch('os.path.exists')
     @patch('pyspectral.utils.download_luts')
     def test_rayleigh_init(self, download_luts, exists):
-        """Test creating the Rayleigh object"""
-
+        """Test creating the Rayleigh object."""
         download_luts.return_code = None
         exists.return_code = True
 
@@ -178,8 +171,7 @@ class TestRayleigh(unittest.TestCase):
     @patch('pyspectral.rayleigh.Rayleigh.get_effective_wavelength')
     def test_get_reflectance(self, get_effective_wvl,
                              get_rsr_version, get_reflectance_lut, download_luts, exists):
-        """Test getting the reflectance correction"""
-
+        """Test getting the reflectance correction."""
         rayl = TEST_RAYLEIGH_LUT
         wvl_coord = TEST_RAYLEIGH_WVL_COORD
         azid_coord = TEST_RAYLEIGH_AZID_COORD
@@ -218,7 +210,7 @@ class TestRayleigh(unittest.TestCase):
     def test_get_reflectance_dask(self, get_effective_wvl,
                                   get_rsr_version, get_reflectance_lut,
                                   download_luts, exists):
-        """Test getting the reflectance correction with dask inputs"""
+        """Test getting the reflectance correction with dask inputs."""
         rayl = da.from_array(TEST_RAYLEIGH_LUT, chunks=(10, 10, 10, 10))
         wvl_coord = da.from_array(TEST_RAYLEIGH_WVL_COORD,
                                   chunks=(100,)).persist()
@@ -260,7 +252,7 @@ class TestRayleigh(unittest.TestCase):
     def test_get_reflectance_numpy_dask(self, get_effective_wvl,
                                         get_rsr_version, get_reflectance_lut,
                                         download_luts, exists):
-        """Test getting the reflectance correction with dask inputs"""
+        """Test getting the reflectance correction with dask inputs."""
         rayl = da.from_array(TEST_RAYLEIGH_LUT, chunks=(10, 10, 10, 10))
         wvl_coord = da.from_array(TEST_RAYLEIGH_WVL_COORD,
                                   chunks=(100,)).persist()
@@ -298,8 +290,7 @@ class TestRayleigh(unittest.TestCase):
     @patch('pyspectral.utils.download_luts')
     @patch('pyspectral.rayleigh.get_reflectance_lut')
     def test_get_reflectance_no_rsr(self, get_reflectance_lut, download_luts, exists):
-        """Test getting the reflectance correction, simulating that we have no RSR data"""
-
+        """Test getting the reflectance correction, simulating that we have no RSR data."""
         rayl = TEST_RAYLEIGH_LUT
         wvl_coord = TEST_RAYLEIGH_WVL_COORD
         azid_coord = TEST_RAYLEIGH_AZID_COORD
@@ -325,17 +316,3 @@ class TestRayleigh(unittest.TestCase):
 
             retv = ufo.get_reflectance(sun_zenith, sat_zenith, azidiff, 0.441, blueband)
             self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT3))
-
-    def tearDown(self):
-        """Clean up"""
-        pass
-
-
-def suite():
-    """The test suite for test_rayleigh.
-    """
-    loader = unittest.TestLoader()
-    mysuite = unittest.TestSuite()
-    mysuite.addTest(loader.loadTestsFromTestCase(TestRayleigh))
-
-    return mysuite

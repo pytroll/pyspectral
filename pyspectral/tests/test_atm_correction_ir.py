@@ -19,6 +19,7 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 """Unit tests of the atmospherical correction in the ir spectral range."""
 
 
@@ -118,17 +119,7 @@ class TestAtmCorrection(unittest.TestCase):
     """Class for testing pyspectral.atm_correction_ir."""
 
     def test_get_correction(self):
-        """Test getting the atm correction"""
-
+        """Test getting the atm correction."""
         this = AtmosphericalCorrection('EOS-Terra', 'modis')
         atm_corr = this.get_correction(SATZ, None, TBS)
-        np.testing.assert_almost_equal(TBS, atm_corr)
-
-
-def suite():
-    """Create the test suite for test_atm_correction_ir."""
-    loader = unittest.TestLoader()
-    mysuite = unittest.TestSuite()
-    mysuite.addTest(loader.loadTestsFromTestCase(TestAtmCorrection))
-
-    return mysuite
+        np.testing.assert_almost_equal(RES, atm_corr)

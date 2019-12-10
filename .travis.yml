@@ -5,7 +5,7 @@ env:
   - PYTHON_VERSION=$TRAVIS_PYTHON_VERSION
   - NUMPY_VERSION=stable
   - MAIN_CMD='python setup.py'
-  - CONDA_DEPENDENCIES='scipy coveralls coverage h5py mock requests six appdirs python-geotiepoints dask docutils pyyaml xlrd'
+  - CONDA_DEPENDENCIES='scipy coveralls coverage h5py mock requests six appdirs python-geotiepoints dask docutils pyyaml xlrd codecov pytest pytest-cov'
   - PIP_DEPENDENCIES=''
   - SETUP_XVFB=False
   - EVENT_TYPE='push pull_request cron'
@@ -29,7 +29,9 @@ install:
 #    - git clone --depth 1 git://github.com/astropy/ci-helpers.git
     - git clone --depth 1 -b all-the-fixes git://github.com/djhoese/ci-helpers.git    
     - source ci-helpers/travis/setup_conda.sh
-script: coverage run --source=pyspectral setup.py test
+    - pip install -e .
+script:
+  - py.test  --cov-report term --cov=./
 after_success:
 - if [[ $PYTHON_VERSION == 3.6 ]]; then coveralls; fi
 deploy:

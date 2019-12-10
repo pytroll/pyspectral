@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013, 2014, 2015, 2016, 2018 Adam.Dybbroe
+# Copyright (c) 2013, 2014, 2015, 2016, 2018, 2019 Adam.Dybbroe
 
 # Author(s):
 
@@ -20,7 +20,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Unit testing the solar_flux calculations"""
+"""Unit testing the solar_flux calculations."""
 
 from pyspectral.solar import (SolarIrradianceSpectrum,
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
@@ -58,25 +58,22 @@ RESULT_IPOL_WVLS = np.array([0.2, 0.201, 0.202, 0.203, 0.204, 0.205, 0.206, 0.20
 
 
 class TestSolarflux(unittest.TestCase):
-
-    """Unit testing the solar flux calculations"""
+    """Unit testing the solar flux calculations."""
 
     def setUp(self):
-        """Set up"""
+        """Set up."""
         self.solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM,
                                                  dlambda=0.005)
         self.rsr = TEST_RSR
-        return
 
     def test_read(self):
-        """Test that solar irradiance spctrum"""
+        """Test that solar irradiance spctrum."""
         self.assertTrue(os.path.exists(self.solar_irr.filename))
         self.assertEqual(self.solar_irr.wavelength.shape[0], 1697)
         self.assertEqual(self.solar_irr.irradiance.shape[0], 1697)
 
     def test_solar_flux(self):
-        """Calculate the solar-flux"""
-
+        """Calculate the solar-flux."""
         # rsr function (se above) is given in micronsm therefore the scale
         # factor is 1.0 and not 1e+6 (default)!
         sflux = self.solar_irr.inband_solarflux(self.rsr, scale=1.0)
@@ -84,19 +81,6 @@ class TestSolarflux(unittest.TestCase):
         # self.assertAlmostEqual(sflux, 2.5)
 
     def test_interpolate(self):
-        """Test the interpolate method"""
+        """Test the interpolate method."""
         self.solar_irr.interpolate(dlambda=0.001, ival_wavelength=(0.200, 0.240))
         self.assertTrue(np.allclose(RESULT_IPOL_WVLS, self.solar_irr.ipol_wavelength))
-
-    def tearDown(self):
-        """Clean up"""
-        return
-
-
-def suite():
-    """The suite for test_solarflux."""
-    loader = unittest.TestLoader()
-    mysuite = unittest.TestSuite()
-    mysuite.addTest(loader.loadTestsFromTestCase(TestSolarflux))
-
-    return mysuite

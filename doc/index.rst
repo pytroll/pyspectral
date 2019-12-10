@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 
-Welcome to PySpectral's documentation!
+Welcome to Pyspectral's documentation!
 ======================================
 
 .. figure:: _static/pyspectral_header_montage.png

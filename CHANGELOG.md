@@ -1,4 +1,36 @@
-## Version <RELEASE_VERSION> (2019/10/03)
+## Version v0.9.3 (2019/12/06)
+
+### Issues Closed
+
+* [Issue 92](https://github.com/pytroll/pyspectral/issues/92) - Fails to pull from Github because of a git-lfs quota limit ([PR 93](https://github.com/pytroll/pyspectral/pull/93))
+* [Issue 90](https://github.com/pytroll/pyspectral/issues/90) - CREFL rayleigh Goes-16 ABI L1B 
+
+In this release 2 issues were closed.
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 95](https://github.com/pytroll/pyspectral/pull/95) - Adapt for later versions of TQDM
+* [PR 93](https://github.com/pytroll/pyspectral/pull/93) - Abandon gitlfs ([92](https://github.com/pytroll/pyspectral/issues/92))
+* [PR 87](https://github.com/pytroll/pyspectral/pull/87) - Fix doc strings (flake8 complaints).
+
+#### Features added
+
+* [PR 95](https://github.com/pytroll/pyspectral/pull/95) - Adapt for later versions of TQDM
+* [PR 88](https://github.com/pytroll/pyspectral/pull/88) - Feature pytest
+* [PR 87](https://github.com/pytroll/pyspectral/pull/87) - Fix doc strings (flake8 complaints).
+* [PR 86](https://github.com/pytroll/pyspectral/pull/86) - Switch from versioneer
+
+#### Documentation changes
+
+* [PR 94](https://github.com/pytroll/pyspectral/pull/94) - Add the atm correction paper reference
+* [PR 87](https://github.com/pytroll/pyspectral/pull/87) - Fix doc strings (flake8 complaints).
+
+In this release 9 pull requests were closed.
+
+
+## Version v0.9.2 (2019/10/03)
 
 ### Pull Requests Merged
 
