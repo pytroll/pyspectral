@@ -172,6 +172,11 @@ class RadTbConverter(object):
             raise NotImplementedError(
                 'Platform {0} not yet supported...'.format(self.platform_name))
 
+    @staticmethod
+    def _getitem(block, lut):
+        """Index the lut, numpy style."""
+        return lut[block]
+
     def tb2radiance(self, tb_, **kwargs):
         """Get the radiance from the brightness temperature (Tb) given the band name.
 
@@ -207,10 +212,15 @@ class RadTbConverter(object):
             start = int(lut['tb'][0] * self.tb_scale)
             retv = {}
             bounds = 0, lut['radiance'].shape[0] - 1
-            index = np.clip(ntb - start, bounds[0], bounds[1])
-            retv['radiance'] = lut['radiance'][index]
-            if retv['radiance'].ravel().shape[0] == 1:
-                retv['radiance'] = retv['radiance'][0]
+            index = (ntb - start).clip(bounds[0], bounds[1])
+            try:
+                retv['radiance'] = index.map_blocks(self._getitem, lut['radiance'], dtype=lut['radiance'].dtype)
+            except AttributeError:
+                retv['radiance'] = lut['radiance'][index]
+            try:
+                retv['radiance'] = retv['radiance'].item()
+            except (ValueError, AttributeError):
+                pass
             retv['unit'] = unit
             retv['scale'] = scale
             return retv
