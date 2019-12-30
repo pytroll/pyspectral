@@ -27,7 +27,7 @@ The source code can be found on the github_ page.
 With PySpectral and SatPy_ (or previously mpop_) it is possible to make RGB colour
 composites like the SEVIRI `day solar`_ or the `day microphysical`_ RGB
 composites according to the `MSG Interpretation Guide`_ (EUMETSAT_). Also with
-SatPy_ (and mpop_) integration it is possible to make atmosphere corrected true
+SatPy_ integration it is possible to make atmosphere corrected true
 color imagery.
 
 .. _`EUMETSAT`: http://www.eumetsat.int/

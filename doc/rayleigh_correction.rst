@@ -35,7 +35,7 @@ in the figure below:
    :scale: 70%
    :align: center
 
-The method is descriped in detail in a scientific paper_.
+The method is descriped in detail in a `scientific paper`_.
 
 To apply the atmospheric correction for a given satellite sensor band, the
 procedure involves the following three steps:
@@ -113,6 +113,6 @@ if you want another setup, e.g.:
 
 .. _Satpy: http://www.github.com/pytroll/satpy
 .. _zenodo: https://doi.org/10.5281/zenodo.1288441
-.. _paper: https://doi.org/10.3390/rs10040560
+.. _`scientific paper`: https://doi.org/10.3390/rs10040560
 
 
