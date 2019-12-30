@@ -1,3 +1,23 @@
+## Version v0.9.4 (2019/12/30)
+
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 99](https://github.com/pytroll/pyspectral/pull/99) - Fix Read The Doc pages - does not build at the moment
+
+#### Features added
+
+* [PR 97](https://github.com/pytroll/pyspectral/pull/97) - Fix NIR computations to be more lenient towards dask arrays
+
+#### Documentation changes
+
+* [PR 99](https://github.com/pytroll/pyspectral/pull/99) - Fix Read The Doc pages - does not build at the moment
+
+In this release 3 pull requests were closed.
+
+
 ## Version v0.9.3 (2019/12/06)
 
 ### Issues Closed
