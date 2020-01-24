@@ -265,7 +265,8 @@ In python it may look like this:
 
 This approach only works for monochromatic or very narrow bands for which the 
 spectral response function is assumed to be constant. In reality, typical imager
-chanel are not that narrow and the spectral response function variies. Here it 
+channels are not that narrow and the spectral response function is not contstant 
+over the band. Here it 
 is not possible to un-concatenate planck and spectral response function. That 
 makes the derivation of brightness temperature from radiance more complicated
 and more time consuming - in preparation or in execution.
