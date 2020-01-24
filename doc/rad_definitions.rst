@@ -263,6 +263,17 @@ In python it may look like this:
    >>> print([round(t, 8) for t in temp])
    [299.99998562, 301.00000518]
 
+This approach only works for monochromatic or very narrow bands for which the 
+spectral response function is assumed to be constant. In reality, typical imager
+chanel are not that narrow and the spectral response function variies. Here it 
+is not possible to un-concatenate planck and spectral response function. That 
+makes the derivation of brightness temperature from radiance more complicated
+and more time consuming - in preparation or in execution.
+Depending on individual requirements, there is a bunch of feasible solutions:
+
+
+
+the following should be commented out...
 
 Provided the input is a central wavenumber or wavelength as defined above, this
 gives the brightness temperature calculation under the assumption of a linear
