@@ -273,24 +273,71 @@ Depending on individual requirements, there is a bunch of feasible solutions:
 
 
 
-the following should be commented out...
+Iterative Method
+++++++++++++++++
 
-Provided the input is a central wavenumber or wavelength as defined above, this
-gives the brightness temperature calculation under the assumption of a linear
-planck function as a function of wavelength or wavenumber over the spectral
-band width and provided a constant relative spectral response. To get a more
-precise derivation of the brightness temperature given a measured radiance one
-needs to convolve the inverse Planck function with the relative spectral
-response function for the band in question:
+A stepwise approach, which starts with a guess (most common temperature), calculate
+the radiance that would correspond to that temperature and compare it with the measured 
+radiance. If the difference lies above a certain threshold, adjust the temperature 
+accordingly and start over again:
 
-.. math::
 
-   T_B = \frac{\int_0^\infty \Phi_{i}(\lambda) T(B_{\lambda}) \mathrm{d}\lambda}
-   {\int_0^\infty \Phi_{i}(\lambda) \mathrm{d}\lambda}
+   (i)   set uncertainty parameter :math:`\Delta L`
+   (ii)  set :math:`T_j = T_{first guess}`
+   (iii) calculate :math:`B(T_j)`
+   (iv)  if :math:`(B(T_j) - L_{measure}) > \Delta L` then adjust :math:`T_j` and go back to :math:`iii`
+   (v)   :math:`T_j` matches the measurement within the defined uncertainty
 
-or
+Advantages
+   * no pre-computations
+   * accuracy easily adaptable to purpose
+   * memory friendly
+   * independent of band
+   * independent of spectral response function
 
-.. math::
+Disadvantages
+   * slow, especially when applying to wide bands and high accuracy requirements
+   * redundant calculations when applying to images with many pixels
 
-   T_B = T(B_{\nu}) = \frac{\int_0^\infty \Phi_{i}(\nu) T(B_{\nu}) \mathrm{d}\nu}
-   {\int_0^\infty \Phi_{i}(\nu) \mathrm{d}\nu}
+
+Function Fit
+++++++++++++
+
+Another feasible approach is to fit a function :math:`\Phi` in a way that 
+:math:`|T - \Phi(L_{measure})|` minimizes. This requires pre-calculations
+of data pairs :math:`T` and :math:`L(T)`. Finally an adequate function :math:`\Phi`
+(dependent on the shape of :math:`T(L(T))`) is assigned and used to calculate the 
+brightnesss temperature for one channel.
+
+Advantages
+   * fast approach
+   * minor memory request (one function per channel)
+
+Disadvantages
+   * accuracy determined in the beginning of the process
+   * complexity of :math:`\Phi` depends on :math:`T(L(T))`
+
+
+Look-Up Table
++++++++++++++
+
+If the number of possible pairs :math:`T` and :math:`L(T)` is limited (e.g. due to
+limited bit size) or if the setting for a function fit is too complex or does not
+fit into a processing environment, it is possible to just expand the number of
+pre-calculated pairs to a look-up table. In an optimal case, the table cover every
+possible value or is dense enough to allow for linear interpolation. 
+
+Advantages
+   * fast approach (but depends on table size)
+   * (almost) independent of function
+
+Disadvantages
+   * accuracy dependent on value density (size of look-up table)
+   * can become a memory issue
+
+
+
+
+
+
+
