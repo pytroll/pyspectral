@@ -266,8 +266,11 @@ In python it may look like this:
 This approach only works for monochromatic or very narrow bands for which the 
 spectral response function is assumed to be constant. In reality, typical imager
 chanel are not that narrow and the spectral response function variies. Here it 
-is not possible to un-concatenate planck and spectral response function. That 
-makes the derivation of brightness temperature from radiance more complicated
+is not possible to de-convolve planck function and spectral response function
+without knowing both, the spectral radiance and spectral response function in
+high spectral resolution. While this information is usually available for 
+the spectral response function, there is only one integrated radiance per channel. 
+That makes the derivation of brightness temperature from radiance more complicated
 and more time consuming - in preparation or in execution.
 Depending on individual requirements, there is a bunch of feasible solutions:
 
@@ -310,7 +313,7 @@ of data pairs :math:`T` and :math:`L(T)`. Finally an adequate function :math:`\P
 brightnesss temperature for one channel.
 
 Advantages
-   * fast approach
+   * fast approach (especially in execution)
    * minor memory request (one function per channel)
 
 Disadvantages
