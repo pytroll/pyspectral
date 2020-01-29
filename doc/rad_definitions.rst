@@ -265,8 +265,8 @@ In python it may look like this:
 
 This approach only works for monochromatic or very narrow bands for which the 
 spectral response function is assumed to be constant. In reality, typical imager
-chanel are not that narrow and the spectral response function variies. Here it 
-is not possible to de-convolve planck function and spectral response function
+channel are not that narrow and the spectral response function is not constant over the band. Here it 
+is not possible to de-convolve the planck function and the spectral response function
 without knowing both, the spectral radiance and spectral response function in
 high spectral resolution. While this information is usually available for 
 the spectral response function, there is only one integrated radiance per channel. 
