@@ -179,7 +179,7 @@ class SolarIrradianceSpectrum(object):
         # print "Start and end: ", start, end
         LOG.debug("Begin and end wavelength/wavenumber: %f %f ", start, end)
         dlambda = self._dlambda
-        xspl = np.linspace(start, end, round((end - start) / self._dlambda) + 1)
+        xspl = np.linspace(start, end, int(round((end - start) / self._dlambda)) + 1)
 
         ius = InterpolatedUnivariateSpline(wvl, resp)
         resp_ipol = ius(xspl)
@@ -239,7 +239,7 @@ class SolarIrradianceSpectrum(object):
         else:
             start, end = ival_wavelength
 
-        xspl = np.linspace(start, end, round((end - start) / self._dlambda) + 1)
+        xspl = np.linspace(start, end, int(round((end - start) / self._dlambda)) + 1)
         if self.wavespace == 'wavelength':
             ius = InterpolatedUnivariateSpline(
                 self.wavelength, self.irradiance)
