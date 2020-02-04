@@ -1,3 +1,26 @@
+## Version v0.9.5 (2020/02/04)
+
+### Issues Closed
+
+* [Issue 101](https://github.com/pytroll/pyspectral/issues/101) - Getting the near infrared reflectance of a viirs scene crashes. ([PR 102](https://github.com/pytroll/pyspectral/pull/102))
+
+In this release 1 issue was closed.
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 103](https://github.com/pytroll/pyspectral/pull/103) - Fix '-' (minus) sign in math string
+* [PR 102](https://github.com/pytroll/pyspectral/pull/102) - Fix round returning a float ([101](https://github.com/pytroll/pyspectral/issues/101), [101](https://github.com/pytroll/pyspectral/issues/101))
+
+#### Documentation changes
+
+* [PR 103](https://github.com/pytroll/pyspectral/pull/103) - Fix '-' (minus) sign in math string
+* [PR 100](https://github.com/pytroll/pyspectral/pull/100) - Updated the documentation of inverse Planck function for broad channels
+
+In this release 4 pull requests were closed.
+
+
 ## Version v0.9.4 (2019/12/30)
 
 
