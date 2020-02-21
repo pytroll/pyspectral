@@ -23,7 +23,7 @@
 """
 Sentinel-3 SLSTR spectral response function interface
 
-https://sentinel.esa.int/documents/247904/322305/SLSTR_FM02_Spectral_Responses_Necdf_zip/3a4482b8-6e44-47f3-a8f2-79c000663976
+https://sentinel.esa.int/web/sentinel/technical-guides/sentinel-3-slstr/instrument/measured-spectral-response-function-data
 
 """
 
@@ -81,7 +81,7 @@ class SlstrRSR(InstrumentRSR):
 
 def main():
     """Main"""
-    for platform_name in ['Sentinel-3A', ]:
+    for platform_name in ['Sentinel-3B', ]:
         tohdf5(SlstrRSR, platform_name, SLSTR_BAND_NAMES)
 
 
