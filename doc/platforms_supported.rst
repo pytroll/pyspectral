@@ -88,6 +88,10 @@ have been included in PySpectral.
     * - Metop-SG-A1 MetImage
       - `rsr_metimage_Metop-SG-A1.h5`
       - NWPSAF-MetImage_
+    * - Meteosat-12 fci
+      - `rsr_fci_Meteosat-12.h5`
+      - NWPSAF-Meteosat-12-fci_
+
 
 .. _Eumetsat: https://www.eumetsat.int/website/home/Data/Products/Calibration/MSGCalibration/index.html
 .. _GSICS: https://www.star.nesdis.noaa.gov/smcd/GCC/instrInfo-srf.php
@@ -102,4 +106,5 @@ have been included in PySpectral.
 .. _CMA: http://www.cma.gov.cn/en2014/
 .. _NWPSAF-MetImage: https://nwpsaf.eu/downloads/rtcoef_rttov12/ir_srf/rtcoef_metopsg_1_metimage_srf.html
 .. _NWPSAF-GeoKompsat-2A-ami: https://nwpsaf.eu/downloads/rtcoef_rttov12/ir_srf/rtcoef_gkompsat2_1_ami_srf.html
+.. _NWPSAF-Meteosat-12-fci: https://nwpsaf.eu/downloads/rtcoef_rttov12/ir_srf/rtcoef_mtg_1_fci_srf.html
 .. _NSMC-fy4a: http://fy4.nsmc.org.cn/portal/cn/fycv/srf.html

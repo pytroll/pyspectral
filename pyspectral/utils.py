@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014-2019 Pytroll
+# Copyright (c) 2014-2020 Pytroll
 
 # Author(s):
 
@@ -156,9 +156,9 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                }
 
 
-HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/3667766/files/pyspectral_rsr_data.tgz"
+HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/3786824/files/pyspectral_rsr_data.tgz"
 RSR_DATA_VERSION_FILENAME = "PYSPECTRAL_RSR_VERSION"
-RSR_DATA_VERSION = "v1.0.11"
+RSR_DATA_VERSION = "v1.0.12"
 
 ATM_CORRECTION_LUT_VERSION = {}
 ATM_CORRECTION_LUT_VERSION['antarctic_aerosol'] = {'version': 'v1.0.1',
