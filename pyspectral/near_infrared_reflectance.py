@@ -32,9 +32,9 @@ window channel (usually around 11-12 microns).
 import os
 import numpy as np
 try:
-    from dask.array import where, logical_or, asanyarray, array
+    from dask.array import where, logical_or, asanyarray, array, isnan
 except ImportError:
-    from numpy import where, logical_or, asanyarray, array
+    from numpy import where, logical_or, asanyarray, array, isnan
 
 from pyspectral.solar import (SolarIrradianceSpectrum,
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
@@ -171,6 +171,8 @@ class Calculator(RadTbConverter):
         try:
             # Emissive part:
             self._e3x = self._rad3x_t11 * (1 - self._r3x)
+            # Use the original channel data on the night side
+            self._e3x = where(isnan(self._e3x), self._rad3x, self._e3x)
             # Unsure how much sense it makes to apply the co2 correction term here!?
             # FIXME!
             # self._e3x *= self._rad3x_correction
@@ -252,7 +254,9 @@ class Calculator(RadTbConverter):
         self._rad3x_t11 = self.tb2radiance(tb_therm, lut=lut)['radiance']
         thermal_emiss_one = self._rad3x_t11 * self.rsr_integral
 
-        l_nir = self.tb2radiance(tb_nir, lut=lut)['radiance'] * self.rsr_integral
+        l_nir = self.tb2radiance(tb_nir, lut=lut)['radiance']
+        self._rad3x = l_nir.copy()
+        l_nir *= self.rsr_integral
 
         if thermal_emiss_one.ravel().shape[0] < 10:
             LOG.info('thermal_emiss_one = %s', str(thermal_emiss_one))
@@ -264,7 +268,6 @@ class Calculator(RadTbConverter):
 
         mu0 = np.cos(np.deg2rad(sunz))
         # mu0 = np.where(np.less(mu0, 0.1), 0.1, mu0)
-        self._rad3x = l_nir
         self._solar_radiance = self.solar_flux * mu0 / np.pi
 
         # CO2 correction to the 3.9 radiance, only if tbs of a co2 band around
