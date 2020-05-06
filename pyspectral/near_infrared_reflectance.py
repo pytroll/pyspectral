@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014-2019 Adam.Dybbroe
+# Copyright (c) 2014-2020 Adam.Dybbroe
 
 # Author(s):
 
@@ -42,14 +42,13 @@ from pyspectral.utils import BANDNAMES, get_bandname_from_wavelength
 from pyspectral.utils import TB2RAD_DIR
 from pyspectral.radiance_tb_conversion import RadTbConverter
 from pyspectral.config import get_config
-
 import logging
 LOG = logging.getLogger(__name__)
-
 
 EPSILON = 0.005
 TB_MIN = 150.
 TB_MAX = 360.
+TERMINATOR_LIMIT = 85.0
 
 
 class Calculator(RadTbConverter):
@@ -91,6 +90,9 @@ class Calculator(RadTbConverter):
         if self.solar_flux is None:
             self._get_solarflux()
 
+        # The sun-zenith angle limit in degrees defining how far towards the
+        # terminator we try derive a
+        self.sunz_threshold = kwargs.get('sunz_threshold', TERMINATOR_LIMIT)
         self._rad3x = None
         self._rad3x_t11 = None
         self._solar_radiance = None
@@ -263,10 +265,13 @@ class Calculator(RadTbConverter):
         if l_nir.ravel().shape[0] < 10:
             LOG.info('l_nir = %s', str(l_nir))
 
-        sunzmask = (sun_zenith < 0.0) | (sun_zenith > 88.0)
-        sunz = sun_zenith.clip(0, 88.0)
-
+        LOG.debug("Apply sun-zenith angle clipping between 0 and %5.2f", self.sunz_threshold)
+        sunzmask = (sun_zenith < 0.0) | (sun_zenith > self.sunz_threshold)
+        # Could do a more smooth transition here:§
+        # FIXME!
+        sunz = sun_zenith.clip(0, self.sunz_threshold)
         mu0 = np.cos(np.deg2rad(sunz))
+
         # mu0 = np.where(np.less(mu0, 0.1), 0.1, mu0)
         self._solar_radiance = self.solar_flux * mu0 / np.pi
 
