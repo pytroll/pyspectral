@@ -75,9 +75,7 @@ class FciRSR(InstrumentRSR):
         wavelength = 1. / data['wavenumber'] * scale
         response = data['response']
 
-        # The real AMI has more than one detectors I assume. However, for now
-        # we store the single rsr available in the NWPSAF coefficient files:
-        self.rsr = {'wavelength': wavelength, 'response': response}
+        self.rsr = {'wavelength': wavelength[::-1], 'response': response[::-1]}
 
 
 def main():
