@@ -91,6 +91,9 @@ have been included in PySpectral.
     * - Meteosat-12 fci
       - `rsr_fci_Meteosat-12.h5`
       - NWPSAF-Meteosat-12-fci_
+    * - MTG-I1 fci (NB! Identical to Meteosat-12 fci)
+      - `rsr_fci_MTG-I1.h5`
+      - NWPSAF-Meteosat-12-fci_
 
 
 .. _Eumetsat: https://www.eumetsat.int/website/home/Data/Products/Calibration/MSGCalibration/index.html

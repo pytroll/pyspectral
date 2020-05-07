@@ -82,7 +82,7 @@ class FciRSR(InstrumentRSR):
 
 def main():
     """Main"""
-    for platform_name in ["Meteosat-12", ]:
+    for platform_name in ["Meteosat-12", 'MTG-I1']:
         tohdf5(FciRSR, platform_name, FCI_BAND_NAMES)
 
 
