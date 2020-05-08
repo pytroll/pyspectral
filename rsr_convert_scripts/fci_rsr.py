@@ -21,16 +21,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Read the MTG FCI relative spectral response functions.
+
 Data from EUMETSAT NWP-SAF:
 https://nwpsaf.eu/downloads/rtcoef_rttov12/ir_srf/rtcoef_mtg_1_fci_srf.html
 """
 
 import os
+import logging
 import numpy as np
-from pyspectral.utils import INSTRUMENTS
 from pyspectral.utils import convert2hdf5 as tohdf5
 from pyspectral.raw_reader import InstrumentRSR
-import logging
 
 LOG = logging.getLogger(__name__)
 
@@ -40,10 +40,10 @@ FCI_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'ch7', 'ch8', 'ch9',
 
 class FciRSR(InstrumentRSR):
 
-    """Container for the MTG FCI RSR data"""
+    """Container for the MTG FCI RSR data."""
 
     def __init__(self, bandname, platform_name):
-
+        """Setup the MTG FCI RSR data container."""
         super(FciRSR, self).__init__(bandname, platform_name, FCI_BAND_NAMES)
 
         self.instrument = 'fci'
@@ -64,7 +64,7 @@ class FciRSR(InstrumentRSR):
         self.filename = self.requested_band_filename
 
     def _load(self, scale=10000.0):
-        """Load the FCI RSR data for the band requested"""
+        """Load the FCI RSR data for the band requested."""
         data = np.genfromtxt(self.requested_band_filename,
                              unpack=True,
                              names=['wavenumber',
@@ -79,7 +79,7 @@ class FciRSR(InstrumentRSR):
 
 
 def main():
-    """Main"""
+    """Main function creating the internal Pyspectral hdf5 output for FCI."""
     for platform_name in ["Meteosat-12", 'MTG-I1']:
         tohdf5(FciRSR, platform_name, FCI_BAND_NAMES)
 
