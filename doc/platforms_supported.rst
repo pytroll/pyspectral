@@ -61,6 +61,9 @@ have been included in PySpectral.
     * - Sentinel-3A slstr
       - `rsr_slstr_Sentinel-3A.h5`
       - ESA-Sentinel-SLSTR_
+    * - Sentinel-3B slstr
+      - `rsr_slstr_Sentinel-3B.h5`
+      - ESA-Sentinel-SLSTR_
     * - Sentinel-3A olci
       - `rsr_olci_Sentinel-3A.h5`
       - ESA-Sentinel-OLCI_
@@ -102,7 +105,7 @@ have been included in PySpectral.
 .. _JMA: http://www.data.jma.go.jp/mscweb/en/himawari89/space_segment/spsg_ahi.html#srf
 .. _ESA-Envisat: http://envisat.esa.int/handbooks/aatsr/aux-files/consolidatedsrfs.xls
 .. _ESA-Sentinel-OLCI: https://sentinel.esa.int/documents/247904/322304/OLCI+SRF+%28NetCDF%29/15cfd7a6-b7bc-4051-87f8-c35d765ae43a
-.. _ESA-Sentinel-SLSTR: https://sentinel.esa.int/documents/247904/322305/SLSTR_FM02_Spectral_Responses_Necdf_zip/3a4482b8-6e44-47f3-a8f2-79c000663976
+.. _ESA-Sentinel-SLSTR: https://sentinel.esa.int/web/sentinel/technical-guides/sentinel-3-slstr/instrument/measured-spectral-response-function-data
 .. _ESA-Sentinel-MSI: https://earth.esa.int/documents/247904/685211/S2-SRF_COPE-GSEG-EOPG-TN-15-0007_3.0.xlsx
 .. _NASA-Landsat-OLI: https://landsat.gsfc.nasa.gov/wp-content/uploads/2013/06/Ball_BA_RSR.v1.1-1.xlsx
 .. _NESDIS: https://ncc.nesdis.noaa.gov/J1VIIRS/J1VIIRSSpectralResponseFunctions.php
