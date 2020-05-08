@@ -66,7 +66,7 @@ class Calculator(RadTbConverter):
     """
 
     def __init__(self, platform_name, instrument, band,
-                 detector='det-1', wavespace='wavelength',
+                 detector='det-1', wavespace=WAVE_LENGTH,
                  solar_flux=None, sunz_threshold=TERMINATOR_LIMIT):
         """Initialize the Class instance."""
         super(Calculator, self).__init__(platform_name, instrument, band, detector=detector, wavespace=wavespace)
