@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014-2019 Pytroll
+# Copyright (c) 2014-2020 Pytroll
 
 # Author(s):
 
@@ -128,6 +128,24 @@ BANDNAMES['ami'] = {'VI004': 'ch1',
                     'IR133': 'ch16'
                     }
 
+BANDNAMES['fci'] = {'vis_04': 'ch1',
+                    'vis_05': 'ch2',
+                    'vis_06': 'ch3',
+                    'vis_08': 'ch4',
+                    'vis_09': 'ch5',
+                    'nir_13': 'ch6',
+                    'nir_16': 'ch7',
+                    'nir_22': 'ch8',
+                    'ir_38': 'ch9',
+                    'wv_63': 'ch10',
+                    'wv_73': 'ch11',
+                    'ir_87': 'ch12',
+                    'ir_97': 'ch13',
+                    'ir_105': 'ch14',
+                    'ir_123': 'ch15',
+                    'ir_133': 'ch16'
+                    }
+
 INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'NOAA-18': 'avhrr/3',
                'NOAA-17': 'avhrr/3',
@@ -152,13 +170,16 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'FY-3B': 'virr',
                'Feng-Yun 3D': 'mersi-2',
                'FY-4A': 'agri',
-               'GEO-KOMPSAT-2A': 'ami'
+               'GEO-KOMPSAT-2A': 'ami',
+               'MTG-I1': 'fci'
                }
 
 
-HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/3667766/files/pyspectral_rsr_data.tgz"
+HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/3813522/files/pyspectral_rsr_data.tgz"
+
+
 RSR_DATA_VERSION_FILENAME = "PYSPECTRAL_RSR_VERSION"
-RSR_DATA_VERSION = "v1.0.11"
+RSR_DATA_VERSION = "v1.0.14"
 
 ATM_CORRECTION_LUT_VERSION = {}
 ATM_CORRECTION_LUT_VERSION['antarctic_aerosol'] = {'version': 'v1.0.1',

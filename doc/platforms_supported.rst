@@ -61,6 +61,9 @@ have been included in PySpectral.
     * - Sentinel-3A slstr
       - `rsr_slstr_Sentinel-3A.h5`
       - ESA-Sentinel-SLSTR_
+    * - Sentinel-3B slstr
+      - `rsr_slstr_Sentinel-3B.h5`
+      - ESA-Sentinel-SLSTR_
     * - Sentinel-3A olci
       - `rsr_olci_Sentinel-3A.h5`
       - ESA-Sentinel-OLCI_
@@ -88,6 +91,13 @@ have been included in PySpectral.
     * - Metop-SG-A1 MetImage
       - `rsr_metimage_Metop-SG-A1.h5`
       - NWPSAF-MetImage_
+    * - Meteosat-12 fci
+      - `rsr_fci_Meteosat-12.h5`
+      - NWPSAF-Meteosat-12-fci_
+    * - MTG-I1 fci (NB! Identical to Meteosat-12 fci)
+      - `rsr_fci_MTG-I1.h5`
+      - NWPSAF-Meteosat-12-fci_
+
 
 .. _Eumetsat: https://www.eumetsat.int/website/home/Data/Products/Calibration/MSGCalibration/index.html
 .. _GSICS: https://www.star.nesdis.noaa.gov/smcd/GCC/instrInfo-srf.php
@@ -95,11 +105,12 @@ have been included in PySpectral.
 .. _JMA: http://www.data.jma.go.jp/mscweb/en/himawari89/space_segment/spsg_ahi.html#srf
 .. _ESA-Envisat: http://envisat.esa.int/handbooks/aatsr/aux-files/consolidatedsrfs.xls
 .. _ESA-Sentinel-OLCI: https://sentinel.esa.int/documents/247904/322304/OLCI+SRF+%28NetCDF%29/15cfd7a6-b7bc-4051-87f8-c35d765ae43a
-.. _ESA-Sentinel-SLSTR: https://sentinel.esa.int/documents/247904/322305/SLSTR_FM02_Spectral_Responses_Necdf_zip/3a4482b8-6e44-47f3-a8f2-79c000663976
+.. _ESA-Sentinel-SLSTR: https://sentinel.esa.int/web/sentinel/technical-guides/sentinel-3-slstr/instrument/measured-spectral-response-function-data
 .. _ESA-Sentinel-MSI: https://earth.esa.int/documents/247904/685211/S2-SRF_COPE-GSEG-EOPG-TN-15-0007_3.0.xlsx
 .. _NASA-Landsat-OLI: https://landsat.gsfc.nasa.gov/wp-content/uploads/2013/06/Ball_BA_RSR.v1.1-1.xlsx
 .. _NESDIS: https://ncc.nesdis.noaa.gov/J1VIIRS/J1VIIRSSpectralResponseFunctions.php
 .. _CMA: http://www.cma.gov.cn/en2014/
 .. _NWPSAF-MetImage: https://nwpsaf.eu/downloads/rtcoef_rttov12/ir_srf/rtcoef_metopsg_1_metimage_srf.html
 .. _NWPSAF-GeoKompsat-2A-ami: https://nwpsaf.eu/downloads/rtcoef_rttov12/ir_srf/rtcoef_gkompsat2_1_ami_srf.html
+.. _NWPSAF-Meteosat-12-fci: https://nwpsaf.eu/downloads/rtcoef_rttov12/ir_srf/rtcoef_mtg_1_fci_srf.html
 .. _NSMC-fy4a: http://fy4.nsmc.org.cn/portal/cn/fycv/srf.html

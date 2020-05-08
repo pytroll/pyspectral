@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013-2018 Adam.Dybbroe
+# Copyright (c) 2013-2018, 2020 Pytroll Community
 
 # Author(s):
 
