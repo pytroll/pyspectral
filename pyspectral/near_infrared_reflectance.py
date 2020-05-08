@@ -40,6 +40,7 @@ from pyspectral.solar import (SolarIrradianceSpectrum,
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
 from pyspectral.utils import BANDNAMES, get_bandname_from_wavelength
 from pyspectral.utils import TB2RAD_DIR
+from pyspectral.utils import WAVE_LENGTH
 from pyspectral.radiance_tb_conversion import RadTbConverter
 from pyspectral.config import get_config
 import logging
@@ -64,9 +65,11 @@ class Calculator(RadTbConverter):
     The relfectance calculated is without units and should be between 0 and 1.
     """
 
-    def __init__(self, platform_name, instrument, band, **kwargs):
+    def __init__(self, platform_name, instrument, band,
+                 detector='det-1', wavespace='wavelength',
+                 solar_flux=None, sunz_threshold=TERMINATOR_LIMIT):
         """Initialize the Class instance."""
-        super(Calculator, self).__init__(platform_name, instrument, band, **kwargs)
+        super(Calculator, self).__init__(platform_name, instrument, band, detector=detector, wavespace=wavespace)
 
         from numbers import Number
         self.bandname = None
@@ -86,13 +89,14 @@ class Calculator(RadTbConverter):
 
         options = get_config()
 
-        self.solar_flux = kwargs.get('solar_flux', None)
+        self.solar_flux = solar_flux
         if self.solar_flux is None:
             self._get_solarflux()
 
         # The sun-zenith angle limit in degrees defining how far towards the
         # terminator we try derive a
-        self.sunz_threshold = kwargs.get('sunz_threshold', TERMINATOR_LIMIT)
+        self.detector = detector
+        self.sunz_threshold = sunz_threshold
         self._rad3x = None
         self._rad3x_t11 = None
         self._solar_radiance = None
@@ -100,11 +104,6 @@ class Calculator(RadTbConverter):
         self._r3x = None
         self._e3x = None
         self.lutfile = None
-
-        if 'detector' in kwargs:
-            self.detector = kwargs['detector']
-        else:
-            self.detector = 'det-1'
 
         platform_sensor = platform_name + '-' + instrument
         if platform_sensor in options and 'tb2rad_lut_filename' in options[platform_sensor]:
