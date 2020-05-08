@@ -20,8 +20,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-Read the MTG FCI relative spectral response functions.
+"""Read the MTG FCI relative spectral response functions.
 
 Data from EUMETSAT NWP-SAF:
 https://nwpsaf.eu/downloads/rtcoef_rttov12/ir_srf/rtcoef_mtg_1_fci_srf.html
