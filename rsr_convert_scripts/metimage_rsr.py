@@ -21,8 +21,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Read the preliminary MetImage relative spectral response functions.
-Data from the NWPSAF, These are very early theoretical and idealized versions,
-derived from specifications I assume.
+Data from the NWPSAF, These are simulated function.
 
 """
 
@@ -68,16 +67,17 @@ class MetImageRSR(InstrumentRSR):
         self.unit = 'micrometer'
         self.wavespace = 'wavelength'
 
-    def _load(self, scale=1.0):
+    def _load(self, scale=0.001):
         """Load the MetImage RSR data for the band requested"""
         data = np.genfromtxt(self.requested_band_filename,
                              unpack=True,
-                             names=['wavenumber',
+                             names=['wavelength',
                                     'response'],
-                             skip_header=4)
+                             skip_header=0,
+                             delimiter=',')
 
-        # Data are wavenumbers in cm-1:
-        wavelength = 1. / data['wavenumber'] * 10000.
+        # Data are in nanometer and need to transform to microns:
+        wavelength = data['wavelength'] * scale
         response = data['response']
 
         # The real MetImage has 24 detectors. However, for now we store the
