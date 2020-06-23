@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013-2019 Adam.Dybbroe
+# Copyright (c) 2013-2020 Pytroll
 
 # Author(s):
 
-#   Adam.Dybbroe <a000680@c14526.ad.smhi.se>
+#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -145,6 +145,8 @@ class TestReflectance(unittest.TestCase):
             refl37 = Calculator('Suomi-NPP', 'viirs', 3.7)
             self.assertEqual(refl37.bandwavelength, 3.7)
             self.assertEqual(refl37.bandname, 'ch20')
+            # Default sunz-threshold used to stay on day side and away from terminator:
+            self.assertEqual(refl37.sunz_threshold, 85.0)
 
         with patch('pyspectral.radiance_tb_conversion.RelativeSpectralResponse') as mymock:
             instance = mymock.return_value
@@ -154,11 +156,31 @@ class TestReflectance(unittest.TestCase):
 
             refl37 = Calculator('EOS-Aqua', 'modis', '20')
 
+            refl37_sz88 = Calculator('EOS-Aqua', 'modis', '20', sunz_threshold=88.0)
+            self.assertEqual(refl37_sz88.sunz_threshold, 88.0)
+            self.assertAlmostEqual(refl37_sz88.bandwavelength, 3.780282, 5)
+            self.assertEqual(refl37_sz88.bandname, '20')
+
         sunz = np.array([80.])
         tb3 = np.array([290.])
         tb4 = np.array([282.])
         refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
         np.testing.assert_allclose(refl[0], 0.251245010648, 6)
+
+        sunz = np.array([85.])
+        tb3 = np.array([290.])
+        tb4 = np.array([282.])
+        refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
+        np.testing.assert_allclose(refl[0], 1.12236884, 6)
+
+        sunz = np.array([85.1])
+        refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
+        self.assertTrue(np.isnan(refl[0]))
+
+        refl_sz88 = refl37_sz88.reflectance_from_tbs(sunz, tb3, tb4)
+        np.testing.assert_allclose(refl_sz88[0], 1.2064644, 6)
+        sunz = np.array([86.0])
+        self.assertTrue(np.isnan(refl[0]))
 
         tb3x = refl37.emissive_part_3x()
         np.testing.assert_allclose(tb3x, 276.213054, 6)
