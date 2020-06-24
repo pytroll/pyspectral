@@ -9,7 +9,7 @@ prerequisites: `pip install setuptools twine`
 4. run `loghub` and update the `CHANGELOG.md` file:
 
 ```
-loghub pytroll/pyspectral -u <username> -st v0.8.3 -plg bug "Bugs fixed" -plg enhancement "Features added" -plg documentation "Documentation changes"
+loghub pytroll/pyspectral --token <personal access token (see https://github.com/settings/tokens)>  -st v<previous version> -plg bug "Bugs fixed" -plg enhancement "Features added" -plg documentation "Documentation changes"
 ```
 
 Don't forget to commit!
