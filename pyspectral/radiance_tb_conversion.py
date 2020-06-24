@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014-2019 Adam.Dybbroe
+# Copyright (c) 2014-2020 Adam.Dybbroe
 
 # Author(s):
 
@@ -99,7 +99,8 @@ class RadTbConverter(object):
 
     """
 
-    def __init__(self, platform_name, instrument, band, **options):
+    def __init__(self, platform_name, instrument, band, detector='det-1', wavespace=WAVE_LENGTH,
+                 tb_resolution=0.1):
         """Initialize the Class instance.
 
         E.g.:
@@ -116,7 +117,7 @@ class RadTbConverter(object):
         self.bandwavelength = None
         self.band = band
 
-        self.wavespace = options.get('wavespace', WAVE_LENGTH)
+        self.wavespace = wavespace
         if self.wavespace not in [WAVE_LENGTH, WAVE_NUMBER]:
             raise AttributeError('Wave space not {0} or {1}!'.format(WAVE_LENGTH,
                                                                      WAVE_NUMBER))
@@ -124,8 +125,8 @@ class RadTbConverter(object):
         self._wave_unit = 'm'
         self._wave_si_scale = 1.0
 
-        self.detector = options.get('detector', 'det-1')
-        self.tb_resolution = options.get('tb_resolution', 0.1)
+        self.detector = detector
+        self.tb_resolution = tb_resolution
         self.tb_scale = 1. / self.tb_resolution
 
         self.blackbody_function = BLACKBODY_FUNC[self.wavespace]
