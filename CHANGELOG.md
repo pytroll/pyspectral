@@ -1,3 +1,27 @@
+## Version v0.10.0 (2020/06/24)
+
+### Issues Closed
+
+* [Issue 96](https://github.com/pytroll/pyspectral/issues/96) - Spectral response function for SLSTR on Sentinel 3B ([PR 104](https://github.com/pytroll/pyspectral/pull/104))
+
+In this release 1 issue was closed.
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 105](https://github.com/pytroll/pyspectral/pull/105) - Use original channel data on the night side for NIR emissive
+
+#### Features added
+
+* [PR 108](https://github.com/pytroll/pyspectral/pull/108) - Add option to specify sun-zenith angle threshold applied
+* [PR 107](https://github.com/pytroll/pyspectral/pull/107) - Add support for FCI
+* [PR 105](https://github.com/pytroll/pyspectral/pull/105) - Use original channel data on the night side for NIR emissive
+
+In this release 4 pull requests were closed.
+
+
+
 ## Version v0.9.5 (2020/02/04)
 
 ### Issues Closed
