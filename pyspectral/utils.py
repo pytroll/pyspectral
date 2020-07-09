@@ -146,6 +146,19 @@ BANDNAMES['fci'] = {'vis_04': 'ch1',
                     'ir_133': 'ch16'
                     }
 
+BANDNAMES['slstr'] = {'S1': 'ch1',
+                      'S2': 'ch2',
+                      'S3': 'ch3',
+                      'S4': 'ch4',
+                      'S5': 'ch5',
+                      'S6': 'ch6',
+                      'S7': 'ch7',
+                      'S8': 'ch8',
+                      'S9': 'ch9',
+                      'F1': 'ch7',
+                      'F2': 'ch8',
+                      }
+
 INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'NOAA-18': 'avhrr/3',
                'NOAA-17': 'avhrr/3',
