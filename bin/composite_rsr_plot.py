@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016-2019 Adam.Dybbroe
+# Copyright (c) 2016-2020 Adam.Dybbroe
 
 # Author(s):
 
@@ -154,7 +154,7 @@ if __name__ == "__main__":
                 rsr = RelativeSpectralResponse(platform, sensor)
             except IOError:
                 # LOG.exception('Failed getting the rsr data for platform %s ' +
-                #               'and sensor %s', platform, sensor)
+                #              'and sensor %s', platform, sensor)
                 rsr = None
             else:
                 break

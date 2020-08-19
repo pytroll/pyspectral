@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013-2019 Pytroll
+# Copyright (c) 2013-2020 Pytroll
 
 # Author(s):
 
@@ -103,7 +103,7 @@ setup(name=NAME,
                              'pyspectral/data/MSG_SEVIRI_Spectral_Response_Characterisation.XLS'])],
       test_suite='pyspectral.tests.suite',
       tests_require=test_requires,
-      python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*',
+      python_requires='>=3.4',
       zip_safe=False,
       use_scm_version=True
       )
