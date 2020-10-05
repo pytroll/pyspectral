@@ -67,7 +67,7 @@ class Calculator(RadTbConverter):
 
     def __init__(self, platform_name, instrument, band,
                  detector='det-1', wavespace=WAVE_LENGTH,
-                 solar_flux=None, sunz_threshold=TERMINATOR_LIMIT):
+                 solar_flux=None, sunz_threshold=TERMINATOR_LIMIT, masking_limit=TERMINATOR_LIMIT):
         """Initialize the Class instance."""
         super(Calculator, self).__init__(platform_name, instrument, band, detector=detector, wavespace=wavespace)
 
@@ -97,6 +97,7 @@ class Calculator(RadTbConverter):
         # terminator we try derive a
         self.detector = detector
         self.sunz_threshold = sunz_threshold
+        self.masking_limit = masking_limit
         self._rad3x = None
         self._rad3x_t11 = None
         self._solar_radiance = None
@@ -264,10 +265,7 @@ class Calculator(RadTbConverter):
         if l_nir.ravel().shape[0] < 10:
             LOG.info('l_nir = %s', str(l_nir))
 
-        LOG.debug("Apply sun-zenith angle clipping between 0 and %5.2f", self.sunz_threshold)
-        sunzmask = (sun_zenith < 0.0) | (sun_zenith > self.sunz_threshold)
-        # Could do a more smooth transition here:§
-        # FIXME!
+        LOG.debug("Apply sun-zenith angle clipping between 0 and %5.2f", self.masking_limit)
         sunz = sun_zenith.clip(0, self.sunz_threshold)
         mu0 = np.cos(np.deg2rad(sunz))
 
@@ -288,7 +286,9 @@ class Calculator(RadTbConverter):
         data = nomin / denom
         mask = denom < EPSILON
 
-        logical_or(sunzmask, mask, out=mask)
+        if self.masking_limit is not None:
+            sunzmask = (sun_zenith < 0.0) | (sun_zenith > self.masking_limit)
+            logical_or(sunzmask, mask, out=mask)
         logical_or(mask, np.isnan(tb_nir), out=mask)
 
         self._r3x = where(mask, np.nan, data)
