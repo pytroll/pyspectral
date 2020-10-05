@@ -156,8 +156,9 @@ class TestReflectance(unittest.TestCase):
 
             refl37 = Calculator('EOS-Aqua', 'modis', '20')
 
-            refl37_sz88 = Calculator('EOS-Aqua', 'modis', '20', sunz_threshold=88.0)
+            refl37_sz88 = Calculator('EOS-Aqua', 'modis', '20', sunz_threshold=88.0, masking_limit=None)
             self.assertEqual(refl37_sz88.sunz_threshold, 88.0)
+            self.assertIsNone(refl37_sz88.masking_limit)
             self.assertAlmostEqual(refl37_sz88.bandwavelength, 3.780282, 5)
             self.assertEqual(refl37_sz88.bandname, '20')
 
