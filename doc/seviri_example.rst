@@ -25,6 +25,10 @@ reflectance, saving a few milliseconds per call::
   >>> print('%4.3f' %refl39.reflectance_from_tbs(sunz, tb3, tb4))
   0.555
 
+By default the data are masked outside the default Sun zenith-angle (SZA) correction limit (85.0 degrees).
+The masking can be adjusted via `masking_limit` keyword argument to `Calculator`, and turned of by
+defining `Calculator(..., masking_limit=None)`.  The SZA limit can be adjusted via `sunz_threshold` keyword argument:
+`Calculator(..., sunz_threshold=88.0)`.
 
 Integration with SatPy
 ^^^^^^^^^^^^^^^^^^^^^^
