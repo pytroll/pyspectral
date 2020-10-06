@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013-2019 Adam.Dybbroe
+# Copyright (c) 2013-2020 Adam.Dybbroe
 
 # Author(s):
 
@@ -140,7 +140,7 @@ def planck(wave, temperature, wavelength=True):
             Unit = W/m^2 sr^-1 (m^-1)^-1 = W/m sr^-1
 
             Converting from SI units to mW/m^2 sr^-1 (cm^-1)^-1:
-            1.0 W/m^2 sr^-1 (m^-1)^-1 = 0.1 mW/m^2 sr^-1 (cm^-1)^-1
+            1.0 W/m^2 sr^-1 (m^-1)^-1 = 1.0e5 mW/m^2 sr^-1 (cm^-1)^-1
 
     """
     units = ['wavelengths', 'wavenumbers']
