@@ -230,7 +230,7 @@ def blackbody_wn(wavenumber, temp):
             Unit = W/m^2 sr^-1 (m^-1)^-1 = W/m sr^-1
 
             Converting from SI units to mW/m^2 sr^-1 (cm^-1)^-1:
-            1.0 W/m^2 sr^-1 (m^-1)^-1 = 0.1 mW/m^2 sr^-1 (cm^-1)^-1
+            1.0 W/m^2 sr^-1 (m^-1)^-1 = 1.0e5 mW/m^2 sr^-1 (cm^-1)^-1
 
     """
     return planck(wavenumber, temp, wavelength=False)
@@ -249,3 +249,20 @@ def blackbody(wavel, temp):
 
     """
     return planck(wavel, temp, wavelength=True)
+
+
+def ratio_planck_vs_planck_first_derivative(wavel, temp):
+    """Derive the ratio of the Planck radiation over the first derivative (in T)  of the Planck radiation.
+
+    SI units.
+
+    wavel = Wavelength or a sequence of wavelengths (m)
+    temp = Temperature (scalar) or a sequence of temperatures (K)
+
+    Output: Temperature in Kelvin
+            Unit = K
+
+    """
+
+    const = H_PLANCK * C_SPEED / (K_BOLTZMANN * wavel)
+    return temp**2 / const * (1. - 1./np.exp(const/temp))

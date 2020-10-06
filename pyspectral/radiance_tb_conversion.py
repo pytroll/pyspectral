@@ -31,6 +31,7 @@ various satellite sensors
 import numpy as np
 from pyspectral.blackbody import (H_PLANCK, K_BOLTZMANN, C_SPEED)
 from pyspectral.blackbody import blackbody, blackbody_wn
+from pyspectral.blackbody import ratio_planck_vs_planck_first_derivative
 from pyspectral.utils import WAVE_NUMBER
 from pyspectral.utils import WAVE_LENGTH
 from pyspectral.utils import BANDNAMES
@@ -256,6 +257,51 @@ class RadTbConverter(object):
             Radiance in SI units
         """
         return radiance2tb(rad, self.rsr[self.bandname][self.detector]['central_wavelength'] * 1e-6)
+
+    def band_radiance2tb(self, rad):
+        """Get the Tb given the observed (band integrated) radiance and the spectral response function.
+
+        Using an iterative approach:
+
+        1) set uncertainty parameter delta-L
+
+        2) set T_j = T_{first guess}
+
+        3) Calculate B(T_j)
+
+        4) if (B(T_j) - L_{measure}) > delta-L then adjust T_j and go back to 3)
+
+        5) T_j matches the measurement within the defined uncertainty
+
+        rad:
+            Radiance in SI units
+        """
+        if self.wavespace == WAVE_NUMBER:
+            raise NotImplementedError(
+                'Getting the band Tb from the band radiance is not supported in wavenumber space yet!')
+
+        delta_rad = 1000.0
+        first_guess_temp = self.radiance2tb(rad)
+        temp_i = first_guess_temp
+        rad_dev = 10000.0
+
+        import ipdb
+        while(rad_dev > delta_rad):
+
+            ratio_ = ratio_planck_vs_planck_first_derivative(
+                self.wavelength_or_wavenumber, temp_i) * self.response
+            ratio_ = integrate.trapz(ratio_, self.wavelength_or_wavenumber) / self.rsr_integral
+
+            ipdb.set_trace()
+
+            temp_i = temp_i - ratio_
+
+            #ratio_ = ratio_planck_vs_planck_first_derivative(self.wavelength_or_wavenumber, temp_i)
+
+            temp_i = temp_i - ratio_
+            rad_dev = abs(rad - self.tb2radiance(temp_i)['radiance'])
+
+        return temp_i
 
 
 def radiance2tb(rad, wavelength):
