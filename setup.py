@@ -103,7 +103,7 @@ setup(name=NAME,
                              'pyspectral/data/MSG_SEVIRI_Spectral_Response_Characterisation.XLS'])],
       test_suite='pyspectral.tests.suite',
       tests_require=test_requires,
-      python_requires='>=3.4',
+      python_requires='>=3.7',
       zip_safe=False,
       use_scm_version=True
       )
