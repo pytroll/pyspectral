@@ -1,3 +1,33 @@
+
+## Version <v0.10.1> (2020/10/06)
+
+### Issues Closed
+
+* [Issue 112](https://github.com/pytroll/pyspectral/issues/112) - Do not cut NIR reflectance with a single threshold ([PR 113](https://github.com/pytroll/pyspectral/pull/113))
+* [Issue 111](https://github.com/pytroll/pyspectral/issues/111) - Error in equation in documentation ([PR 117](https://github.com/pytroll/pyspectral/pull/117))
+
+In this release 2 issues were closed.
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 117](https://github.com/pytroll/pyspectral/pull/117) - Fix documentation error in SI unit conversion ([111](https://github.com/pytroll/pyspectral/issues/111))
+
+#### Features added
+
+* [PR 116](https://github.com/pytroll/pyspectral/pull/116) - Skip python2 support
+* [PR 113](https://github.com/pytroll/pyspectral/pull/113) - Separate masking and Sun zenith angle correction ([112](https://github.com/pytroll/pyspectral/issues/112))
+* [PR 110](https://github.com/pytroll/pyspectral/pull/110) - Add bandname mapping for slstr
+
+#### Documentation changes
+
+* [PR 117](https://github.com/pytroll/pyspectral/pull/117) - Fix documentation error in SI unit conversion ([111](https://github.com/pytroll/pyspectral/issues/111))
+
+In this release 5 pull requests were closed.
+
+
+
 ## Version v0.10.0 (2020/06/24)
 
 ### Issues Closed
@@ -14,11 +44,13 @@ In this release 1 issue was closed.
 
 #### Features added
 
+* [PR 109](https://github.com/pytroll/pyspectral/pull/109) - add more realistic METimage RSRs
 * [PR 108](https://github.com/pytroll/pyspectral/pull/108) - Add option to specify sun-zenith angle threshold applied
 * [PR 107](https://github.com/pytroll/pyspectral/pull/107) - Add support for FCI
 * [PR 105](https://github.com/pytroll/pyspectral/pull/105) - Use original channel data on the night side for NIR emissive
+* [PR 104](https://github.com/pytroll/pyspectral/pull/104) - Updated Zenodo link for addition of SLSTR on Sentinel 3B ([96](https://github.com/pytroll/pyspectral/issues/96))
 
-In this release 4 pull requests were closed.
+In this release 5 pull requests were closed.
 
 
 
