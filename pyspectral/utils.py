@@ -554,3 +554,26 @@ def get_logger(name):
     if not log.handlers:
         log.addHandler(NullHandler())
     return log
+
+
+def get_wave_range(in_chan, threshold):
+    """Return central, min and max wavelength in an RSR greater than threshold
+
+    An RSR function will generally start near zero, increase to a maximum and
+    then drop back to near zero. This function takes advantage of this to find
+    the first and last points where the RSR is greater than a threshold. These
+    points are then defined as the minimum and maximum wavelengths for a
+    given channel, and can be used, for example, in Satpy reader YAML files.
+
+    """
+
+    cwl = get_central_wave(in_chan['wavelength'], in_chan['response'])
+
+    wvls = in_chan['wavelength']
+    rsr = in_chan['response']
+
+    pts = (rsr > threshold).nonzero()
+    min_wvl = wvls[pts[0][0]]
+    max_wvl = wvls[pts[0][-1]]
+
+    return [min_wvl, cwl, max_wvl]
