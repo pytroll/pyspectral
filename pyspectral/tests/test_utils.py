@@ -130,7 +130,7 @@ class TestUtils(unittest.TestCase):
         x = utils.get_bandname_from_wavelength('abi', 0.4, self.rsr.rsr)
         self.assertEqual(x, 'ch1')
         with self.assertRaises(AttributeError):
-            x = utils.get_bandname_from_wavelength('abi', 0.5, self.rsr.rsr)
+            utils.get_bandname_from_wavelength('abi', 0.5, self.rsr.rsr)
 
         x = utils.get_bandname_from_wavelength('abi', 0.6, self.rsr.rsr, epsilon=0.05)
         self.assertEqual(x, 'ch3')
