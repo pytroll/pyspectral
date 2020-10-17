@@ -45,7 +45,8 @@ if __name__ == "__main__":
     parser.add_argument("--bandname", '-b',
                         help="The sensor band name. Leave blank to return all bands.", type=str)
     parser.add_argument("--detector", '-d',
-                        help="The sensor detector, if not passed will default to det-1", type=str)
+                        help="The sensor detector, if not passed will default to det-1",
+                        default='det-1', type=str)
     args = parser.parse_args()
 
     platform = args.platform_name
@@ -57,12 +58,9 @@ if __name__ == "__main__":
         bands = [args.bandname]
     else:
         bands = rsr.band_names
-    if args.detector:
-        det = args.detector
-    else:
-        det = 'det-1'
+    det = args.detector
 
     for bname in bands:
         wvls = get_wave_range(rsr.rsr[bname][det], args.minimum_response)
         print(f'name:  {bname}')
-        print('  wavelength: [{wvls[0]:5.3f}, {wvls[1]:5.3f}, {wvls[2]:5.3f}]')
+        print(f'  wavelength: [{wvls[0]:5.3f}, {wvls[1]:5.3f}, {wvls[2]:5.3f}]')

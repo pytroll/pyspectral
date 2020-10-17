@@ -287,7 +287,7 @@ def convert2wavenumber(rsr):
                     retv[chname][det]['wavenumber'] = wnum[::-1]
                 elif sat == "response":
                     # Flip the response array:
-                    if type(rsr[chname][det][sat]) is dict:
+                    if isinstance(rsr[chname][det][sat], dict):
                         retv[chname][det][sat] = {}
                         for name in rsr[chname][det][sat].keys():
                             resp = rsr[chname][det][sat][name]
@@ -337,12 +337,11 @@ def get_bandname_from_wavelength(sensor, wavelength, rsr, epsilon=0.1, multiple_
 
     if len(chfound) == 1:
         return chfound[0]
-    elif len(chfound) > 1:
+    if len(chfound) > 1:
         bstrlist = ['band={}'.format(b) for b in chfound]
         if not multiple_bands:
             raise AttributeError("More than one band found with that wavelength! {}".format(str(bstrlist)))
-        else:
-            LOG.debug("More than one band found with requested wavelength: %s", str(bstrlist))
+        LOG.debug("More than one band found with requested wavelength: %s", str(bstrlist))
         return chfound
     else:
         return None
@@ -540,7 +539,6 @@ class NullHandler(logging.Handler):
 
     def emit(self, record):
         """Record a message."""
-        pass
 
 
 def logging_off():
@@ -564,7 +562,6 @@ def get_wave_range(in_chan, threshold):
     the first and last points where the RSR is greater than a threshold. These
     points are then defined as the minimum and maximum wavelengths for a
     given channel, and can be used, for example, in Satpy reader YAML files.
-
     """
 
     cwl = get_central_wave(in_chan['wavelength'], in_chan['response'])
