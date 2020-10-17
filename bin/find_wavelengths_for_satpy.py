@@ -43,9 +43,9 @@ if __name__ == "__main__":
                               "the minimum or maximum wavelengths."),
                         default=0.15, type=float)
     parser.add_argument("--bandname", '-b',
-                        help="The sensor band name", type=str)
+                        help="The sensor band name. Leave blank to return all bands.", type=str)
     parser.add_argument("--detector", '-d',
-                        help="The sensor detector", type=str)
+                        help="The sensor detector, if not passed will default to det-1", type=str)
     args = parser.parse_args()
 
     platform = args.platform_name
@@ -63,5 +63,5 @@ if __name__ == "__main__":
         det = 'det-1'
 
     for bname in bands:
-        wvls = get_wave_range(rsr.rsr[bname][det], 0.15)
+        wvls = get_wave_range(rsr.rsr[bname][det], args.minimum_response)
         print(f'name:  {bname}\n  wavelength: [{wvls[0]:5.3f}, {wvls[1]:5.3f}, {wvls[2]:5.3f}]')
