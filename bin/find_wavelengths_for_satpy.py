@@ -64,4 +64,5 @@ if __name__ == "__main__":
 
     for bname in bands:
         wvls = get_wave_range(rsr.rsr[bname][det], args.minimum_response)
-        print(f'name:  {bname}\n  wavelength: [{wvls[0]:5.3f}, {wvls[1]:5.3f}, {wvls[2]:5.3f}]')
+        print(f'name:  {bname}')
+        print('  wavelength: [{wvls[0]:5.3f}, {wvls[1]:5.3f}, {wvls[2]:5.3f}]')
