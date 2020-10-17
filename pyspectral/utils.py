@@ -343,8 +343,7 @@ def get_bandname_from_wavelength(sensor, wavelength, rsr, epsilon=0.1, multiple_
             raise AttributeError("More than one band found with that wavelength! {}".format(str(bstrlist)))
         LOG.debug("More than one band found with requested wavelength: %s", str(bstrlist))
         return chfound
-    else:
-        return None
+    return None
 
 
 def sort_data(x_vals, y_vals):
@@ -563,7 +562,6 @@ def get_wave_range(in_chan, threshold):
     points are then defined as the minimum and maximum wavelengths for a
     given channel, and can be used, for example, in Satpy reader YAML files.
     """
-
     cwl = get_central_wave(in_chan['wavelength'], in_chan['response'])
 
     wvls = in_chan['wavelength']

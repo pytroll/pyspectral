@@ -160,7 +160,7 @@ class TestUtils(unittest.TestCase):
         y_vals = np.array([45., 92., 20., 10., 15., 67., 108., 15.])
 
         x_sorted = np.array([1., 2.1, 5.6, 30, 57.8, 108.2, 1e9])
-        y_sorted = np.array([45.,  10.,  92.,  20.,  67.,  15., 108.])
+        y_sorted = np.array([45., 10., 92., 20., 67., 15., 108.])
 
         x_vals, y_vals = utils.sort_data(x_vals, y_vals)
 
