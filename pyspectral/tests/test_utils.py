@@ -6,6 +6,7 @@
 # Author(s):
 
 #   Adam.Dybbroe <a000680@c14526.ad.smhi.se>
+#   Simon.Proud <simon.proud@physics.ox.ac.uk>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -140,9 +141,37 @@ class TestUtils(unittest.TestCase):
         x = utils.get_bandname_from_wavelength('abi', 1.0, self.rsr.rsr)
         self.assertEqual(x, None)
 
+        # Multiple bands returned due to large epsilon
+        x = utils.get_bandname_from_wavelength('abi', 11.1, self.rsr.rsr,
+                                               epsilon=1.0, multiple_bands=True)
+        self.assertEqual(x, ['ch13', 'ch14'])
+
         # uses generic channel mapping where '20' -> 'ch20'
         bandname = utils.get_bandname_from_wavelength('abi', 3.7, TEST_RSR)
         self.assertEqual(bandname, 'ch20')
 
         bandname = utils.get_bandname_from_wavelength('abi', 3.0, TEST_RSR)
         self.assertIsNone(bandname)
+
+    def test_sort_data(self):
+        """Test function sorting data into monotonically increasing values."""
+        x_vals = np.array([1.0, 5.6, 30., 2.1, 108.2, 57.8, 1e9, 2.1])
+        y_vals = np.array([45., 92., 20., 10., 15., 67., 108., 15.])
+
+        x_sorted = np.array([1., 2.1, 5.6, 30, 57.8, 108.2, 1e9])
+        y_sorted = np.array([45.,  10.,  92.,  20.,  67.,  15., 108.])
+
+        x_vals, y_vals = utils.sort_data(x_vals, y_vals)
+
+        np.testing.assert_equal(x_vals, x_sorted)
+        np.testing.assert_equal(y_vals, y_sorted)
+
+    def test_get_wave_range(self):
+        """"Test the function that produces wavelength ranges from an RSR."""
+        wvl_range = utils.get_wave_range(self.rsr.rsr['ch3']['det-1'], 0.15)
+        expected_range = [0.59481323, 0.6393011276027835, 0.67512828]
+        np.testing.assert_allclose(wvl_range, expected_range)
+
+        wvl_range = utils.get_wave_range(self.rsr.rsr['ch3']['det-1'], 0.5)
+        expected_range = [0.60931027, 0.6393011276027835, 0.67512828]
+        np.testing.assert_allclose(wvl_range, expected_range)
