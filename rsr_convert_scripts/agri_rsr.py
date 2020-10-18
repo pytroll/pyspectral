@@ -90,7 +90,7 @@ class AGRIRSR(InstrumentRSR):
                              skip_header=0)
 
         wavelength = data['wavelength'] * scale
-        response = data['response']
+        response = data['response'] / 100.
 
         self.rsr = {'wavelength': wavelength, 'response': response}
 
