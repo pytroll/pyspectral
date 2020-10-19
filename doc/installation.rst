@@ -9,7 +9,7 @@ Some static data are part of the package. Downloading of this data is handled
 automagically by the software when data are needed. However, the data can also
 be downloaded manually once and for all by calling dedicated download
 scripts. The latter is helpful when running PySpectral in an operational
-environemnt. See further below on how the static data downloads are handled.
+environment. See further below on how the static data downloads are handled.
 
 You can also choose to download the PySpectral source code from github_::
 
@@ -57,7 +57,7 @@ data`_. But far from all data are available through that web-site.
 
 Therefore, in order to make life easier for the *PySpectral* user we have
 defined one common internal HDF5 format. That way it is also easy to add
-support for new instruments. Currently the relative spectral reponses for the
+support for new instruments. Currently the relative spectral responses for the
 following sensors are included:
 
  * Suomi-NPP and NOAA-20 VIIRS
@@ -66,10 +66,12 @@ following sensors are included:
  * Meteosat 8-11 SEVIRI
  * Sentinel-3A/3B SLSTR and OLCI
  * Envisat AATSR
- * GOES-16 ABI
- * Himawari-8 AHI
+ * GOES-16/17 ABI
+ * Himawari-8/9 AHI
  * Sentinel-2 A&B MSI
  * Landsat-8 OLI
+ * Geo-Kompsat-2A / AMI
+ * Fengyun-4A / AGRI
 
 The data are automagically downloaded and installed when needed. But if you
 need to specifically retrieve the data independently the data are available
@@ -92,8 +94,8 @@ using verbose mode (to get some log information on the screen):
    
 
 It is still also possible to download the original spectral responses from the
-various satellite operators instead and generate the internal HDF5 formatet
-files yourself. However, this should normaly never be needed. (For SEVIRI on
+various satellite operators instead and generate the internal HDF5 formatted
+files yourself. However, this should normally never be needed. (For SEVIRI on
 Meteosat download the data from eumetsat_ and unzip the Excel file.)
 
 
@@ -102,7 +104,7 @@ Look-Up-Tables for atmospheric correction in the SW spectral range
 
 Look-Up-Tables (LUTs) with simulated black surface top of atmosphere
 reflectances over the :math:`400-600 nm` wavelength spectrum for various
-aerosol distributions and a set of standard atmosdot-heres for varying
+aerosol distributions and a set of standard atmospheres for varying
 sun-satellite viewing are available in HDF5 on `zenodo.org`_. The LUTs are
 downloaded automagically when needed and placed in the same directory structure
 as the spectral response data (see above). The data can also be downloaded
@@ -135,7 +137,7 @@ this configuration file, as e.g.::
 
   $> PSP_CONFIG_FILE=/home/a000680/pyspectral.yaml; export PSP_CONFIG_FILE
 
-So, in case you want to download the internal *PySpectral* formatet relative
+So, in case you want to download the internal *PySpectral* formatted relative
 spectral responses as well as the atmospheric correction LUTs once and for all,
 and keep them somewhere else. Change the configuration in *pyspectral.yaml* so
 it looks something like this:

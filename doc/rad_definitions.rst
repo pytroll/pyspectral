@@ -187,7 +187,7 @@ In python code it may look like this:
    >>> from pyspectral.solar import (SolarIrradianceSpectrum, TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
    >>> solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, dlambda=0.0005, wavespace='wavenumber')
    >>> print("Solar Irrdiance (SEVIRI band VIS008) = {sflux:12.6f}".format(sflux=solar_irr.inband_solarflux(rsr['VIS0.8'])))
-   Solar Irrdiance (SEVIRI band VIS008) = 63767.908405
+   Solar Irradiance (SEVIRI band VIS008) = 63767.908405
 
 
 Planck radiation
