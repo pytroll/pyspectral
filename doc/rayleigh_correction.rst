@@ -1,4 +1,4 @@
-Atmospherioc correction in the visible spectrum
+Atmospheric correction in the visible spectrum
 -----------------------------------------------
 
 .. figure:: _static/truecolor_composite_20170518_nrk_reception_cropped_thumb.png
@@ -17,8 +17,8 @@ imagery.
 
 In order to correct for this atmospheric effect we have simulated the solar
 reflectance under various sun-satellite viewing conditions for a set of
-different standard atmospheres, asuming a black surface, using a radiative
-transfer model. For a given atmosphere the reflectance is dependent on wavelenght,
+different standard atmospheres, assuming a black surface, using a radiative
+transfer model. For a given atmosphere the reflectance is dependent on wavelength,
 solar-zenith angle, satellite zenith angle, and the relative sun-satellite
 azimuth difference angle:
 
@@ -35,7 +35,7 @@ in the figure below:
    :scale: 70%
    :align: center
 
-The method is descriped in detail in a `scientific paper`_.
+The method is described in detail in a `scientific paper`_.
 
 To apply the atmospheric correction for a given satellite sensor band, the
 procedure involves the following three steps:
@@ -47,7 +47,7 @@ procedure involves the following three steps:
 As the Rayleigh scattering, which is the dominating part we are correcting for
 under normal situations (when there is no excessive pollution or aerosols in
 the line of sight) is proportional to :math:`\frac{1}{{\lambda}^4}` the
-effective wavelength is derived by convolving the spectral response with
+effective wavelength is derived by convolution of the spectral response with
 :math:`\frac{1}{{\lambda}^4}`. 
 
 To get the atmospheric contribution for an arbitrary band, first the
