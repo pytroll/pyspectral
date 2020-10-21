@@ -555,6 +555,7 @@ def get_logger(name):
 
 def get_wave_range(in_chan, threshold=0.15):
     """Return central, min and max wavelength in an RSR greater than threshold.
+
     An RSR function will generally start near zero, increase to a maximum and
     then drop back to near zero. This function takes advantage of this to find
     the first and last points where the RSR is greater than a threshold. These

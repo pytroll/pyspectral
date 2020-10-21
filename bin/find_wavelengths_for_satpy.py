@@ -50,6 +50,7 @@ def _setup_argparse():
 
 
 def main(arguments):
+    """Retrieve wavelength range based on user-supplied arguments."""
     platform = arguments.platform_name
     sensor = arguments.sensor
     threshold = arguments.minimum_response
