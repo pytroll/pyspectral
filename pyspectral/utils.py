@@ -553,7 +553,7 @@ def get_logger(name):
     return log
 
 
-def get_wave_range(in_chan, threshold):
+def get_wave_range(in_chan, threshold=0.15):
     """Return central, min and max wavelength in an RSR greater than threshold
 
     An RSR function will generally start near zero, increase to a maximum and
