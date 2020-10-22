@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016-2019 Pytroll
+# Copyright (c) 2016-2020 Pytroll
 
 # Author(s):
 
@@ -65,7 +65,6 @@ LOG = logging.getLogger(__name__)
 
 class BandFrequencyOutOfRange(ValueError):
     """Exception when the band frequency is out of the visible range."""
-
     pass
 
 
@@ -278,8 +277,8 @@ class Rayleigh(RayleighConfigBaseClass):
                 chunks = sun_zenith.chunks if redband is None else redband.chunks
                 res = zeros(shape, chunks=chunks)
                 return res.compute() if compute else res
-            else:
-                return zeros(shape)
+
+            return zeros(shape)
 
         idx = np.searchsorted(wvl_coord, wvl)
         wvl1 = wvl_coord[idx - 1]
@@ -319,6 +318,7 @@ class Rayleigh(RayleighConfigBaseClass):
         res = clip(res, 0, 100)
         if compute:
             res = res.compute()
+
         return res
 
 

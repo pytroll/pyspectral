@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013-2019 Adam.Dybbroe
+# Copyright (c) 2013-2020 Adam.Dybbroe
 
 # Author(s):
 
@@ -197,9 +197,9 @@ class SolarIrradianceSpectrum(object):
         # Calculate the solar-flux: (w/m2)
         if flux:
             return np.trapz(irr * resp_ipol, wvl)
-        else:
-            # Divide by the equivalent band width:
-            return np.trapz(irr * resp_ipol, wvl) / np.trapz(resp_ipol, wvl)
+
+        # Divide by the equivalent band width:
+        return np.trapz(irr * resp_ipol, wvl) / np.trapz(resp_ipol, wvl)
 
     def interpolate(self, **options):
         """Interpolate Irradiance to a specified evenly spaced resolution/grid.
@@ -219,8 +219,6 @@ class SolarIrradianceSpectrum(object):
         """
         from scipy.interpolate import InterpolatedUnivariateSpline
 
-        # The user defined wavelength span is not yet used:
-        # FIXME!
         if 'ival_wavelength' in options:
             ival_wavelength = options['ival_wavelength']
         else:

@@ -170,7 +170,7 @@ class Seviri(object):
                     wnum = 1. / (1e-4 * self.rsr[chname][sat][:])  # microns to cm
                     self.rsr[chname]['wavenumber'] = wnum[::-1]
                 else:
-                    if type(self.rsr[chname][sat]) is dict:
+                    if isinstance(self.rsr[chname][sat], dict):
                         for name in self.rsr[chname][sat].keys():
                             resp = self.rsr[chname][sat][name][:]
                             self.rsr[chname][sat][name] = resp[::-1]
@@ -197,7 +197,7 @@ class Seviri(object):
             for sat in self.rsr[chname].keys():
                 if sat in ["wavelength", "wavenumber"]:
                     continue
-                if type(self.rsr[chname][sat]) is dict:
+                if isinstance(self.rsr[chname][sat], dict):
                     result[chname][sat] = {}
                     for name in self.rsr[chname][sat].keys():
                         resp = self.rsr[chname][sat][name]
@@ -255,8 +255,6 @@ def generate_seviri_file(seviri, platform_name):
                 arr = seviri.rsr[key][sat_name]
             dset = grp.create_dataset('response', arr.shape, dtype='f')
             dset[...] = arr
-
-    return
 
 
 def main():

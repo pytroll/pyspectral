@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2016 - 2018 Pytroll
+# Copyright (c) 2016 - 2018, 2020 Pytroll
 
 # Author(s):
 
@@ -62,8 +62,6 @@ def unpack_data(filename, fields):
                    fmt='%3.6f',
                    delimiter=' ' * 8,
                    header=hdline, newline='\n')
-
-    return
 
 
 if __name__ == "__main__":

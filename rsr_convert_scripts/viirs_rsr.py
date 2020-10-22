@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013-2018 Adam.Dybbroe
+# Copyright (c) 2013-2018, 2020 Adam.Dybbroe
 
 # Author(s):
 
@@ -151,7 +151,6 @@ class ViirsRSR(object):
                 band=self.bandname, path=path))
 
         self.filename = path
-        return
 
     def _load(self, scale=0.001):
         """Load the VIIRS RSR data for the band requested"""

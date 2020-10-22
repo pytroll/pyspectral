@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2014-2019 Adam.Dybbroe
+# Copyright (c) 2014-2020 Adam.Dybbroe
 
 # Author(s):
 
@@ -362,7 +362,3 @@ class TestRadTbConversions(unittest.TestCase):
 
         res = self.modis.tb2radiance(200.1, lut=False)
         self.assertAlmostEqual(865.09759706, res['radiance'])
-
-    def tearDown(self):
-        """Clean up."""
-        pass
