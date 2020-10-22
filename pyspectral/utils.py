@@ -561,7 +561,7 @@ def get_wave_range(in_chan, threshold=0.15):
     the first and last points where the RSR is greater than a threshold. These
     points are then defined as the minimum and maximum wavelengths for a
     given channel, and can be used, for example, in Satpy reader YAML files.
-    
+
     """
     cwl = get_central_wave(in_chan['wavelength'], in_chan['response'])
 
