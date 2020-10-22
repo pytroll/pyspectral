@@ -114,10 +114,10 @@ class SolarIrradianceSpectrum(object):
         """Calculate the solar constant."""
         if self.wavenumber is not None:
             return np.trapz(self.irradiance, self.wavenumber)
-        elif self.wavelength is not None:
+        if self.wavelength is not None:
             return np.trapz(self.irradiance, self.wavelength)
-        else:
-            raise TypeError('Neither wavelengths nor wavenumbers available!')
+
+        raise TypeError('Neither wavelengths nor wavenumbers available!')
 
     def inband_solarflux(self, rsr, scale=1.0, **options):
         """Get the in band solar flux.
