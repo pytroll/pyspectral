@@ -1,22 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-# Copyright (c) 2014, 2017, 2018, 2019 Adam.Dybbroe
-
+#
+# Copyright (c) 2014-2020 Pytroll developers
+#
 # Author(s):
-
+#
 #   Adam.Dybbroe <a000680@c14526.ad.smhi.se>
-
+#   Simon.Proud <simon.proud@physics.ox.ac.uk>
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-
+#
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -126,19 +127,24 @@ class TestUtils(unittest.TestCase):
 
     def test_get_bandname_from_wavelength(self):
         """Test the right bandname is found provided the wavelength in micro meters."""
-        x = utils.get_bandname_from_wavelength('abi', 0.4, self.rsr.rsr)
-        self.assertEqual(x, 'ch1')
+        bname = utils.get_bandname_from_wavelength('abi', 0.4, self.rsr.rsr)
+        self.assertEqual(bname, 'ch1')
         with self.assertRaises(AttributeError):
-            x = utils.get_bandname_from_wavelength('abi', 0.5, self.rsr.rsr)
+            utils.get_bandname_from_wavelength('abi', 0.5, self.rsr.rsr)
 
-        x = utils.get_bandname_from_wavelength('abi', 0.6, self.rsr.rsr, epsilon=0.05)
-        self.assertEqual(x, 'ch3')
-        x = utils.get_bandname_from_wavelength('abi', 0.7, self.rsr.rsr)
-        self.assertEqual(x, 'ch3')
-        x = utils.get_bandname_from_wavelength('abi', 0.8, self.rsr.rsr)
-        self.assertEqual(x, 'ch4')
-        x = utils.get_bandname_from_wavelength('abi', 1.0, self.rsr.rsr)
-        self.assertEqual(x, None)
+        bname = utils.get_bandname_from_wavelength('abi', 0.6, self.rsr.rsr, epsilon=0.05)
+        self.assertEqual(bname, 'ch3')
+        bname = utils.get_bandname_from_wavelength('abi', 0.7, self.rsr.rsr)
+        self.assertEqual(bname, 'ch3')
+        bname = utils.get_bandname_from_wavelength('abi', 0.8, self.rsr.rsr)
+        self.assertEqual(bname, 'ch4')
+        bname = utils.get_bandname_from_wavelength('abi', 1.0, self.rsr.rsr)
+        self.assertEqual(bname, None)
+
+        # Multiple bands returned due to large epsilon
+        bname = utils.get_bandname_from_wavelength('abi', 11.1, self.rsr.rsr,
+                                                   epsilon=1.0, multiple_bands=True)
+        self.assertEqual(bname, ['ch13', 'ch14'])
 
         # uses generic channel mapping where '20' -> 'ch20'
         bandname = utils.get_bandname_from_wavelength('abi', 3.7, TEST_RSR)
@@ -146,3 +152,27 @@ class TestUtils(unittest.TestCase):
 
         bandname = utils.get_bandname_from_wavelength('abi', 3.0, TEST_RSR)
         self.assertIsNone(bandname)
+
+    @staticmethod
+    def test_sort_data():
+        """Test function sorting data into monotonically increasing values."""
+        x_vals = np.array([1.0, 5.6, 30., 2.1, 108.2, 57.8, 1e9, 2.1])
+        y_vals = np.array([45., 92., 20., 10., 15., 67., 108., 15.])
+
+        x_sorted = np.array([1., 2.1, 5.6, 30, 57.8, 108.2, 1e9])
+        y_sorted = np.array([45., 10., 92., 20., 67., 15., 108.])
+
+        x_vals, y_vals = utils.sort_data(x_vals, y_vals)
+
+        np.testing.assert_equal(x_vals, x_sorted)
+        np.testing.assert_equal(y_vals, y_sorted)
+
+    def test_get_wave_range(self):
+        """Test the function that produces wavelength ranges from an RSR."""
+        wvl_range = utils.get_wave_range(self.rsr.rsr['ch3']['det-1'], 0.15)
+        expected_range = [0.59481323, 0.6393011276027835, 0.67512828]
+        np.testing.assert_allclose(wvl_range, expected_range)
+
+        wvl_range = utils.get_wave_range(self.rsr.rsr['ch3']['det-1'], 0.5)
+        expected_range = [0.60931027, 0.6393011276027835, 0.67512828]
+        np.testing.assert_allclose(wvl_range, expected_range)

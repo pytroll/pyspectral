@@ -1,23 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-# Copyright (c) 2014-2020 Pytroll
-
+#
+# Copyright (c) 2014-2020 Pytroll developers
+#
 # Author(s):
-
+#
 #   Adam.Dybbroe <adam.dybbroe@smhi.se>
 #   Panu Lahtinen <panu.lahtinen@fmi.fi>
-
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-
+#
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -287,7 +287,7 @@ def convert2wavenumber(rsr):
                     retv[chname][det]['wavenumber'] = wnum[::-1]
                 elif sat == "response":
                     # Flip the response array:
-                    if type(rsr[chname][det][sat]) is dict:
+                    if isinstance(rsr[chname][det][sat], dict):
                         retv[chname][det][sat] = {}
                         for name in rsr[chname][det][sat].keys():
                             resp = rsr[chname][det][sat][name]
@@ -337,15 +337,13 @@ def get_bandname_from_wavelength(sensor, wavelength, rsr, epsilon=0.1, multiple_
 
     if len(chfound) == 1:
         return chfound[0]
-    elif len(chfound) > 1:
+    if len(chfound) > 1:
         bstrlist = ['band={}'.format(b) for b in chfound]
         if not multiple_bands:
             raise AttributeError("More than one band found with that wavelength! {}".format(str(bstrlist)))
-        else:
-            LOG.debug("More than one band found with requested wavelength: %s", str(bstrlist))
+        LOG.debug("More than one band found with requested wavelength: %s", str(bstrlist))
         return chfound
-    else:
-        return None
+    return None
 
 
 def sort_data(x_vals, y_vals):
@@ -540,7 +538,6 @@ class NullHandler(logging.Handler):
 
     def emit(self, record):
         """Record a message."""
-        pass
 
 
 def logging_off():
@@ -554,3 +551,25 @@ def get_logger(name):
     if not log.handlers:
         log.addHandler(NullHandler())
     return log
+
+
+def get_wave_range(in_chan, threshold=0.15):
+    """Return central, min and max wavelength in an RSR greater than threshold.
+
+    An RSR function will generally start near zero, increase to a maximum and
+    then drop back to near zero. This function takes advantage of this to find
+    the first and last points where the RSR is greater than a threshold. These
+    points are then defined as the minimum and maximum wavelengths for a
+    given channel, and can be used, for example, in Satpy reader YAML files.
+
+    """
+    cwl = get_central_wave(in_chan['wavelength'], in_chan['response'])
+
+    wvls = in_chan['wavelength']
+    rsr = in_chan['response']
+
+    pts = (rsr > threshold).nonzero()
+    min_wvl = wvls[pts[0][0]]
+    max_wvl = wvls[pts[0][-1]]
+
+    return [min_wvl, cwl, max_wvl]

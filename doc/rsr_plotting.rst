@@ -32,7 +32,7 @@ MERSI-2 on FY-3D:
 
 It is possible to specify a different wavelength resolution/increments by using
 a flag. However, when you do that it might affect how pyspectral identify
-bands. If the resolution is too coarse svereal close bands may be considered
+bands. If the resolution is too coarse several close bands may be considered
 one and the same. In the below case it is probably not a good idea to lower the
 resolution as one can see (several MESI-2 bands are now missing):
 
