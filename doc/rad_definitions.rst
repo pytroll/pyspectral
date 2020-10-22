@@ -96,13 +96,30 @@ we see that this is indeed true:
   0.637648
 
 
-In the PySpectral unified HDF5 formated spectral response data we also store
+In the PySpectral unified HDF5 formatted spectral response data we also store
 the central wavelength, so you actually don't have to calculate them yourself:
 
   >>> from pyspectral.rsr_reader import RelativeSpectralResponse
   >>> print("Central wavelength = {cwl}".format(cwl=round(seviri.rsr['VIS0.6']['det-1']['central_wavelength'], 6)))
   Central wavelength = 0.640216
 
+
+Wavelength range
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Satellite radiometers do not measure outgoing radiance at only the central wavelength, but over a range of wavelengths
+defined by the spectral response function of the instrument. A given instrument channel is therefore often defined by
+a wavelength range in the form :math:`\lambda_{min}, \lambda_{c}, \lambda_{max}`.
+Where :math:`\lambda_{min}` and :math:`\lambda_{max}` are defined by the first and last points in the spectral response
+function where the response is greater than a given threshold.
+Pyspectral has a utility function to enable users to compute these wavelength ranges:
+
+  >>> from pyspectral.rsr_reader import RelativeSpectralResponse
+  >>> from pyspectral.utils import get_wave_range
+  >>> seviri = RelativeSpectralResponse('Meteosat-8', 'seviri')
+  >>> wvl_range = get_wave_range(seviri.rsr['HRV']['det-1'], 0.15)
+  >>> print(round(num, 3) for num in wvl_range)
+  [0.456, 0.715, 0.996]
 
 Spectral Irradiance
 ^^^^^^^^^^^^^^^^^^^
@@ -118,7 +135,7 @@ In wavelength space we write :math:`E(\lambda)` and it is given in units of
 In wavenumber space we write :math:`E(\nu)` and it is given in units of
 :math:`W/m^2 (cm^{-1})^{-1}`.
 
-To convert a spectral irradiance :math:`E_{\lambda_0}` at wavelengh
+To convert a spectral irradiance :math:`E_{\lambda_0}` at wavelength
 :math:`\lambda_0` to a spectral irradiance :math:`E_{\nu_0}` at wavenumber 
 :math:`\nu_0 = 1/\lambda_0` the following relation applies:
 
@@ -134,7 +151,7 @@ And if the units are not SI but rather given by the units shown above we have to
 
 
 
-TOA Solar irridiance and solar constant
+TOA Solar irradiance and solar constant
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 First, the TOA solar irradiance in wavelength space:
@@ -186,7 +203,7 @@ In python code it may look like this:
    >>> rsr, info = convert2wavenumber(seviri.rsr)
    >>> from pyspectral.solar import (SolarIrradianceSpectrum, TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
    >>> solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, dlambda=0.0005, wavespace='wavenumber')
-   >>> print("Solar Irrdiance (SEVIRI band VIS008) = {sflux:12.6f}".format(sflux=solar_irr.inband_solarflux(rsr['VIS0.8'])))
+   >>> print("Solar Irradiance (SEVIRI band VIS008) = {sflux:12.6f}".format(sflux=solar_irr.inband_solarflux(rsr['VIS0.8'])))
    Solar Irradiance (SEVIRI band VIS008) = 63767.908405
 
 
@@ -310,7 +327,7 @@ Another feasible approach is to fit a function :math:`\Phi` in a way that
 :math:`|T - \Phi(L_{measure})|` minimizes. This requires pre-calculations
 of data pairs :math:`T` and :math:`L(T)`. Finally an adequate function :math:`\Phi`
 (dependent on the shape of :math:`T(L(T))`) is assigned and used to calculate the 
-brightnesss temperature for one channel.
+brightness temperature for one channel.
 
 Advantages
    * fast approach (especially in execution)
