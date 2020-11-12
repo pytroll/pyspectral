@@ -183,7 +183,7 @@ class RelativeSpectralResponse(RSRDataBaseClass):
             self.set_description(h5f)
             self.set_platform_name(h5f)
             self.set_instrument(h5f)
-            self.get_relative_spectral_responses(h5f)
+            # self.get_relative_spectral_responses(h5f)
 
     def integral(self, bandname):
         """Calculate the integral of the spectral response function for each detector."""
@@ -254,48 +254,58 @@ class RelativeSpectralResponse(RSRDataBaseClass):
 
         self.platform_name = OSCAR_PLATFORM_NAMES.get(self.platform_name, self.platform_name)
 
+    def get_number_of_detectors4bandname(self, h5f, bandname):
+        """For a band name get the number of detectors, if any."""
+        try:
+            num_of_det = h5f[bandname].attrs['number_of_detectors']
+        except KeyError:
+            LOG.debug("No detectors found - assume only one...")
+            num_of_det = 1
+
+        return num_of_det
+
+    def set_band_responses_per_detector(self, h5f, bandname, detector_name):
+        """Set the RSR responses for the band and detector."""
+        self.rsr[bandname][detector_name] = {}
+        try:
+            resp = h5f[bandname][detector_name]['response'][:]
+        except KeyError:
+            resp = h5f[bandname]['response'][:]
+
+        self.rsr[bandname][detector_name]['response'] = resp
+
+    def set_band_wavelengths_per_detector(self, h5f, bandname, detector_name):
+        """Set the RSR wavelengths for the band and detector."""
+        try:
+            wvl = (h5f[bandname][detector_name]['wavelength'][:] *
+                   h5f[bandname][detector_name]['wavelength'].attrs['scale'])
+        except KeyError:
+            wvl = (h5f[bandname]['wavelength'][:] *
+                   h5f[bandname]['wavelength'].attrs['scale'])
+
+        # The wavelength is given in micro meters!
+        self.rsr[bandname][detector_name]['wavelength'] = wvl * 1e6
+
+    def set_band_central_wavelength_per_detector(self, h5f, bandname, detector_name):
+        """Set the central wavelength for the band and detector."""
+        try:
+            central_wvl = h5f[bandname][detector_name].attrs['central_wavelength']
+        except KeyError:
+            central_wvl = h5f[bandname].attrs['central_wavelength']
+
+        self.rsr[bandname][detector_name]['central_wavelength'] = central_wvl
+
     def get_relative_spectral_responses(self, h5f):
         """Read the rsr data and add to the object."""
-        no_detectors_message = False
         for bandname in self.band_names:
             self.rsr[bandname] = {}
-            try:
-                num_of_det = h5f[bandname].attrs['number_of_detectors']
-            except KeyError:
-                if not no_detectors_message:
-                    LOG.debug("No detectors found - assume only one...")
-                num_of_det = 1
-                no_detectors_message = True
 
+            num_of_det = self.get_number_of_detectors4bandname(h5f, bandname)
             for i in range(1, num_of_det + 1):
                 dname = 'det-{0:d}'.format(i)
-                self.rsr[bandname][dname] = {}
-                try:
-                    resp = h5f[bandname][dname]['response'][:]
-                except KeyError:
-                    resp = h5f[bandname]['response'][:]
-
-                self.rsr[bandname][dname]['response'] = resp
-
-                try:
-                    wvl = (h5f[bandname][dname]['wavelength'][:] *
-                           h5f[bandname][dname][
-                               'wavelength'].attrs['scale'])
-                except KeyError:
-                    wvl = (h5f[bandname]['wavelength'][:] *
-                           h5f[bandname]['wavelength'].attrs['scale'])
-
-                # The wavelength is given in micro meters!
-                self.rsr[bandname][dname]['wavelength'] = wvl * 1e6
-
-                try:
-                    central_wvl = h5f[bandname][
-                        dname].attrs['central_wavelength']
-                except KeyError:
-                    central_wvl = h5f[bandname].attrs['central_wavelength']
-
-                self.rsr[bandname][dname][
-                    'central_wavelength'] = central_wvl
+                self.set_band_responses_per_detector(h5f, bandname, dname)
+                self.set_band_wavelengths_per_detector(h5f, bandname, dname)
+                self.set_band_central_wavelength_per_detector(h5f, bandname, dname)
 
 
 def check_and_download(**kwargs):

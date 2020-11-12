@@ -25,10 +25,13 @@
 import sys
 import os.path
 import numpy as np
+import xarray as xr
 import pytest
 from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.utils import WAVE_NUMBER
 from pyspectral.utils import RSR_DATA_VERSION
+from pyspectral.tests.unittest_helpers import assertNumpyArraysEqual
+
 
 if sys.version_info < (2, 7):
     import unittest2 as unittest
@@ -209,6 +212,17 @@ class TestPopulateRSRObject(unittest.TestCase):
                                    'description': 'Relative Spectral Responses for VIIRS',
                                    'platform_name': 'NOAA-20',
                                    'sensor': 'viirs'}
+        self.viirs_bandnames = ['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9', 'M10',
+                                'M11', 'M12', 'M13', 'M14', 'M15', 'M16',
+                                'I1', 'I2', 'I3', 'I4', 'I5', 'DNB']
+        self.viirs_detector_names = ['det-1', 'det-2', 'det-3', 'det-4', 'det-5',
+                                     'det-6', 'det-7', 'det-8', 'det-9', 'det-10',
+                                     'det-11', 'det-12', 'det-13', 'det-14', 'det-15',
+                                     'det-16']
+        self.viirs_rsr_data = xr.Dataset({'wavelength': xr.DataArray(np.arange(10)),
+                                          'response': xr.DataArray(np.arange(10))})
+        self.viirs_rsr_data.attrs['central_wavelength'] = 100.0
+        self.viirs_rsr_data['wavelength'].attrs['scale'] = 0.01
 
         self.h5f_noaa20_viirs = MyHdf5Mock(hdf5_attrs_noaa20_viirs)
 
@@ -217,7 +231,7 @@ class TestPopulateRSRObject(unittest.TestCase):
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_filename')
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
     def test_create_rsr_instance(self, check_instrument, get_filename, check_filename_exist, load):
-        """Test setting the platform name."""
+        """Test creating the instance."""
 
         load.return_value = None
         check_filename_exist.return_value = None
@@ -274,7 +288,7 @@ class TestPopulateRSRObject(unittest.TestCase):
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_filename')
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
     def test_set_instrument(self, check_instrument, get_filename, check_filename_exist, load):
-        """Test setting the platform name."""
+        """Test setting the instrument name."""
 
         load.return_value = None
         check_filename_exist.return_value = None
@@ -304,7 +318,7 @@ class TestPopulateRSRObject(unittest.TestCase):
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_filename')
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
     def test_band_names(self, check_instrument, get_filename, check_filename_exist, load):
-        """Test setting the platform name."""
+        """Test setting the band names."""
 
         load.return_value = None
         check_filename_exist.return_value = None
@@ -315,3 +329,87 @@ class TestPopulateRSRObject(unittest.TestCase):
         test_rsr.set_band_names(self.h5f_aqua_modis)
         expected = self.modis_bandnames
         self.assertCountEqual(test_rsr.band_names, expected)
+
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_filename_exist')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_filename')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
+    def test_set_band_central_wavelength_per_detector(self,
+                                                      check_instrument, get_filename,
+                                                      check_filename_exist, load):
+        """Test setting the band specific central wavelength for a detector."""
+
+        load.return_value = None
+        check_filename_exist.return_value = None
+        get_filename.return_value = None
+        check_instrument.return_value = None
+
+        test_rsr = RelativeSpectralResponse('NOAA-20', 'viirs')
+
+        h5f = {}
+        for name in self.viirs_bandnames:
+            h5f[name] = {}
+            for det_name in self.viirs_detector_names:
+                h5f[name][det_name] = self.viirs_rsr_data
+
+        test_rsr.rsr['M1'] = {'det-1': {}}
+        test_rsr.set_band_central_wavelength_per_detector(h5f, 'M1', 'det-1')
+        self.assertTrue('central_wavelength' in test_rsr.rsr['M1']['det-1'])
+        self.assertEqual(test_rsr.rsr['M1']['det-1']['central_wavelength'], 100.)
+
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_filename_exist')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_filename')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
+    def test_set_band_wavelengths_per_detector(self,
+                                               check_instrument, get_filename,
+                                               check_filename_exist, load):
+        """Test setting the band wavelengths for a detector."""
+
+        load.return_value = None
+        check_filename_exist.return_value = None
+        get_filename.return_value = None
+        check_instrument.return_value = None
+
+        test_rsr = RelativeSpectralResponse('NOAA-20', 'viirs')
+
+        h5f = {}
+        for name in self.viirs_bandnames:
+            h5f[name] = {}
+            for det_name in self.viirs_detector_names:
+                h5f[name][det_name] = self.viirs_rsr_data
+
+        test_rsr.rsr['M1'] = {'det-1': {}}
+        test_rsr.set_band_wavelengths_per_detector(h5f, 'M1', 'det-1')
+
+        expected = np.array([0., 10000., 20000., 30000., 40000., 50000.,
+                             60000., 70000., 80000., 90000.])
+        assertNumpyArraysEqual(test_rsr.rsr['M1']['det-1']['wavelength'].data, expected)
+
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_filename_exist')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_filename')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
+    def test_set_band_responses_per_detector(self,
+                                             check_instrument, get_filename,
+                                             check_filename_exist, load):
+        """Test setting the band responses for a detector."""
+
+        load.return_value = None
+        check_filename_exist.return_value = None
+        get_filename.return_value = None
+        check_instrument.return_value = None
+
+        test_rsr = RelativeSpectralResponse('NOAA-20', 'viirs')
+
+        h5f = {}
+        for name in self.viirs_bandnames:
+            h5f[name] = {}
+            for det_name in self.viirs_detector_names:
+                h5f[name][det_name] = self.viirs_rsr_data
+
+        test_rsr.rsr['M1'] = {'det-1': {}}
+        test_rsr.set_band_responses_per_detector(h5f, 'M1', 'det-1')
+
+        expected = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+        assertNumpyArraysEqual(test_rsr.rsr['M1']['det-1']['response'].data, expected)
