@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2017-2019 Pytroll developers
+# Copyright (c) 2017-2020 Pytroll developers
 #
 # Author(s):
 #
@@ -167,3 +167,68 @@ class TestRsrReader(unittest.TestCase):
             test_rsr.rsr = TEST_RSR2
             res = test_rsr.integral('20')
             self.assertAlmostEqual(res['det-1'], 0.185634, 6)
+
+
+class MyHdf5Mock(object):
+    def __init__(self, attrs):
+        self.attrs = attrs
+
+
+class TestPopulateRSRObject(unittest.TestCase):
+    """Testing populate the RelativeSpectralResponse instance from the hdf5 file."""
+
+    def setUp(self):
+        """Initialise the tests."""
+        bandnames = np.array([b'1', b'2', b'3', b'4', b'5', b'6', b'7', b'8', b'9', b'10', b'11',
+                              b'12', b'13', b'14', b'15', b'16', b'17', b'18', b'19', b'20',
+                              b'21', b'22', b'23', b'24', b'25', b'26', b'27', b'28', b'29',
+                              b'30', b'31', b'32', b'33', b'34', b'35', b'36'], dtype='|S2')
+        hdf5_attrs_aqua_modis = {'band_names': bandnames,
+                                 'description': 'Relative Spectral Responses for MODIS',
+                                 'platform': 'eos',
+                                 'sat_number': 2}
+
+        self.h5f_aqua_modis = MyHdf5Mock(hdf5_attrs_aqua_modis)
+
+        bandnames = np.array([b'M1', b'M2', b'M3', b'M4', b'M5', b'M6', b'M7', b'M8', b'M9',
+                              b'M10', b'M11', b'M12', b'M13', b'M14', b'M15', b'M16', b'I1',
+                              b'I2', b'I3', b'I4', b'I5', b'DNB'], dtype='|S3')
+
+        hdf5_attrs_noaa20_viirs = {'band_names': bandnames,
+                                   'description': 'Relative Spectral Responses for VIIRS',
+                                   'platform_name': 'NOAA-20',
+                                   'sensor': 'viirs'}
+
+        self.h5f_noaa20_viirs = MyHdf5Mock(hdf5_attrs_noaa20_viirs)
+
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_filename_exist')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_filename')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
+    def test_set_platform_name(self, check_instrument, get_filename, check_filename_exist, load):
+        """Test setting the platform name."""
+
+        load.return_value = None
+        check_filename_exist.return_value = None
+        get_filename.return_value = None
+        check_instrument.return_value = None
+
+        #test_rsr = RelativeSpectralResponse('EOS-Aqua', 'modis')
+        #modis_aqua_filepath = "/home/a000680/data/pyspectral/rsr_modis_EOS-Aqua.h5"
+        modis_aqua_filepath = "/mypath/myfilename"
+        test_rsr = RelativeSpectralResponse(filename=modis_aqua_filepath)
+        test_rsr.filename = modis_aqua_filepath
+
+        test_rsr.set_platform_name(self.h5f_aqua_modis)
+        self.assertEqual(test_rsr.platform_name, 'EOS-Aqua')
+
+        viirs_noaa20_filepath = "/mypath/myfilename"
+        test_rsr = RelativeSpectralResponse(filename=viirs_noaa20_filepath)
+        test_rsr.filename = viirs_noaa20_filepath
+
+        test_rsr.set_platform_name(self.h5f_noaa20_viirs)
+        self.assertEqual(test_rsr.platform_name, 'NOAA-20')
+
+        import ipdb
+        ipdb.set_trace()
+        x = 1
