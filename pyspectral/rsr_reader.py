@@ -218,7 +218,6 @@ class RelativeSpectralResponse(RSRDataBaseClass):
 
     def set_description(self, h5f):
         """Set the description."""
-        #self.description = np2str(h5f.attrs['description'])
         self.description = h5f.attrs['description']
         self.description = _bytes2string(self.description)
 
