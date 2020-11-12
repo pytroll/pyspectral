@@ -573,3 +573,26 @@ def get_wave_range(in_chan, threshold=0.15):
     max_wvl = wvls[pts[0][-1]]
 
     return [min_wvl, cwl, max_wvl]
+
+
+def np2str(value):
+    """Convert an `numpy.string_` to str.
+    Args:
+        value (ndarray): scalar or 1-element numpy array to convert
+    Raises:
+        ValueError: if value is array larger than 1-element or it is not of
+                    type `numpy.string_` or it is not a numpy array
+    """
+    if isinstance(value, str):
+        return value
+    if hasattr(value, 'dtype') and \
+            issubclass(value.dtype.type, (np.str_, np.string_, np.object_)) \
+            and value.size == 1:
+        value = value.item()
+        if not isinstance(value, str):
+            # python 3 - was scalar numpy array of bytes
+            # otherwise python 2 - scalar numpy array of 'str'
+            value = value.decode()
+        return value
+    else:
+        raise ValueError("Array is not a string type or is larger than 1")
