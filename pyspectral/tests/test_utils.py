@@ -178,7 +178,7 @@ class TestUtils(unittest.TestCase):
         np.testing.assert_allclose(wvl_range, expected_range)
 
 
-def test_np2str(self):
+def test_np2str():
     """Test the np2str function."""
     import pytest
     from pyspectral.utils import np2str
