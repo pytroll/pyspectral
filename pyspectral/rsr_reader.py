@@ -32,6 +32,7 @@ from pyspectral.utils import WAVE_NUMBER
 from pyspectral.utils import WAVE_LENGTH
 from pyspectral.utils import (INSTRUMENTS, download_rsr)
 from pyspectral.utils import (RSR_DATA_VERSION_FILENAME, RSR_DATA_VERSION)
+from pyspectral.utils import np2str
 
 import logging
 LOG = logging.getLogger(__name__)
@@ -166,18 +167,12 @@ class RelativeSpectralResponse(RSRDataBaseClass):
 
         no_detectors_message = False
         with h5py.File(self.filename, 'r') as h5f:
-            self.band_names = h5f.attrs['band_names'].tolist()
-            self.description = h5f.attrs['description']
-            if not isinstance(self.band_names[0], str):
-                # byte array in python 3
-                self.band_names = [x.decode('utf-8') for x in self.band_names]
-                self.description = self.description.decode('utf-8')
-
+            self.band_names = h5f.attrs['band_names']
+            self.description = np2str(h5f.attrs['description'])
+            self.band_names = [np2str(x) for x in self.band_names]
             if not self.platform_name:
                 try:
-                    self.platform_name = h5f.attrs['platform_name']
-                    if not isinstance(self.platform_name, str):
-                        self.platform_name = self.platform_name.decode('utf-8')
+                    self.platform_name = np2str(h5f.attrs['platform_name'])
                 except KeyError:
                     LOG.warning("No platform_name in HDF5 file")
                     try:
@@ -190,9 +185,7 @@ class RelativeSpectralResponse(RSRDataBaseClass):
 
             if not self.instrument:
                 try:
-                    self.instrument = h5f.attrs['sensor'].decode('utf-8')
-                    if not isinstance(self.instrument, str):
-                        self.instrument = self.instrument.decode('utf-8')
+                    self.instrument = np2str(h5f.attrs['sensor'])
                 except KeyError:
                     LOG.warning("No sensor name specified in HDF5 file")
                     self.instrument = INSTRUMENTS.get(self.platform_name)
