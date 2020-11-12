@@ -39,7 +39,11 @@ from pyspectral.utils import np2str
 import logging
 LOG = logging.getLogger(__name__)
 
-OSCAR_PLATFORM_NAMES = {'eos-2': 'EOS-Aqua'}
+OSCAR_PLATFORM_NAMES = {'eos-2': 'EOS-Aqua',
+                        'meteosat-11': 'Meteosat-11',
+                        'meteosat-10': 'Meteosat-10',
+                        'meteosat-9': 'Meteosat-9',
+                        'meteosat-8': 'Meteosat-8'}
 
 
 class RSRDataBaseClass(object):
@@ -214,20 +218,12 @@ class RelativeSpectralResponse(RSRDataBaseClass):
 
     def set_description(self, h5f):
         """Set the description."""
-
         self.description = np2str(h5f.attrs['description'])
-        #self.description = h5f.attrs['description']
-        # if isinstance(self.description, bytes):
-        #    self.description = self.description.decode('utf-8')
 
     def set_band_names(self, h5f):
         """Set the band names."""
         self.band_names = h5f.attrs['band_names']
         self.band_names = [np2str(x) for x in self.band_names]
-        #self.band_names = h5f.attrs['band_names'].tolist()
-        # if not isinstance(self.band_names[0], str):
-        #    # byte array in python 3
-        #    self.band_names = [x.decode('utf-8') for x in self.band_names]
 
     def set_instrument(self, h5f):
         """Set the instrument name."""
@@ -239,13 +235,6 @@ class RelativeSpectralResponse(RSRDataBaseClass):
         except KeyError:
             LOG.warning("No sensor name specified in HDF5 file")
             self.instrument = INSTRUMENTS.get(self.platform_name)
-        # try:
-        #     self.instrument = h5f.attrs['sensor'].decode('utf-8')
-        #     if not isinstance(self.instrument, str):
-        #         self.instrument = self.instrument.decode('utf-8')
-        # except KeyError:
-        #     LOG.warning("No sensor name specified in HDF5 file")
-        #     self.instrument = INSTRUMENTS.get(self.platform_name)
 
     def set_platform_name(self, h5f):
         """Set the platform name."""
@@ -257,14 +246,11 @@ class RelativeSpectralResponse(RSRDataBaseClass):
         except KeyError:
             LOG.warning("No platform_name in HDF5 file")
             try:
-                self.platform_name = h5f.attrs['platform'] + '-' + h5f.attrs['satnum']
+                self.platform_name = np2str(h5f.attrs['platform']) + '-' + str(h5f.attrs['sat_number'])
             except KeyError:
-                try:
-                    self.platform_name = h5f.attrs['platform'] + '-' + str(h5f.attrs['sat_number'])
-                except KeyError:
-                    LOG.warning(
-                        "Unable to determine platform name from HDF5 file content")
-                    self.platform_name = None
+                LOG.warning(
+                    "Unable to determine platform name from HDF5 file content")
+                self.platform_name = None
 
         self.platform_name = OSCAR_PLATFORM_NAMES.get(self.platform_name, self.platform_name)
 

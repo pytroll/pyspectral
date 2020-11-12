@@ -24,10 +24,11 @@
 
 import sys
 import os.path
+import numpy as np
+import pytest
 from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.utils import WAVE_NUMBER
 from pyspectral.utils import RSR_DATA_VERSION
-import numpy as np
 
 if sys.version_info < (2, 7):
     import unittest2 as unittest
@@ -187,8 +188,18 @@ class TestPopulateRSRObject(unittest.TestCase):
                                  'description': 'Relative Spectral Responses for MODIS',
                                  'platform': 'eos',
                                  'sat_number': 2}
+        self.modis_bandnames = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
+                                '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
+                                '21', '22', '23', '24', '25', '26', '27', '28', '29', '30',
+                                '31', '32', '33', '34', '35', '36']
 
         self.h5f_aqua_modis = MyHdf5Mock(hdf5_attrs_aqua_modis)
+
+        hdf5_attrs_aqua_modis_err = {'band_names': bandnames,
+                                     'description': 'Relative Spectral Responses for MODIS',
+                                     'platform': 'eos'}
+
+        self.h5f_aqua_modis_err = MyHdf5Mock(hdf5_attrs_aqua_modis_err)
 
         bandnames = np.array([b'M1', b'M2', b'M3', b'M4', b'M5', b'M6', b'M7', b'M8', b'M9',
                               b'M10', b'M11', b'M12', b'M13', b'M14', b'M15', b'M16', b'I1',
@@ -205,6 +216,25 @@ class TestPopulateRSRObject(unittest.TestCase):
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_filename_exist')
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_filename')
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
+    def test_create_rsr_instance(self, check_instrument, get_filename, check_filename_exist, load):
+        """Test setting the platform name."""
+
+        load.return_value = None
+        check_filename_exist.return_value = None
+        get_filename.return_value = None
+        check_instrument.return_value = None
+
+        with pytest.raises(AttributeError) as exec_info:
+            test_rsr = RelativeSpectralResponse('MyPlatform')
+
+        exception_raised = exec_info.value
+        expected_value = 'platform name and sensor or filename must be specified'
+        self.assertEqual(str(exception_raised), expected_value)
+
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_filename_exist')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_filename')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
     def test_set_platform_name(self, check_instrument, get_filename, check_filename_exist, load):
         """Test setting the platform name."""
 
@@ -213,7 +243,13 @@ class TestPopulateRSRObject(unittest.TestCase):
         get_filename.return_value = None
         check_instrument.return_value = None
 
-        #test_rsr = RelativeSpectralResponse('EOS-Aqua', 'modis')
+        test_rsr = RelativeSpectralResponse('EOS-Aqua', 'modis')
+        test_rsr.set_platform_name(self.h5f_aqua_modis)
+        self.assertEqual(test_rsr.platform_name, 'EOS-Aqua')
+
+        test_rsr = RelativeSpectralResponse('MyPlatform', 'modis')
+        self.assertEqual(test_rsr.platform_name, 'MyPlatform')
+
         #modis_aqua_filepath = "/home/a000680/data/pyspectral/rsr_modis_EOS-Aqua.h5"
         modis_aqua_filepath = "/mypath/myfilename"
         test_rsr = RelativeSpectralResponse(filename=modis_aqua_filepath)
@@ -228,3 +264,55 @@ class TestPopulateRSRObject(unittest.TestCase):
 
         test_rsr.set_platform_name(self.h5f_noaa20_viirs)
         self.assertEqual(test_rsr.platform_name, 'NOAA-20')
+
+        test_rsr = RelativeSpectralResponse(filename=modis_aqua_filepath)
+        test_rsr.filename = modis_aqua_filepath
+        test_rsr.set_platform_name(self.h5f_aqua_modis_err)
+        self.assertEqual(test_rsr.platform_name, None)
+
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_filename_exist')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_filename')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
+    def test_set_instrument(self, check_instrument, get_filename, check_filename_exist, load):
+        """Test setting the platform name."""
+
+        load.return_value = None
+        check_filename_exist.return_value = None
+        get_filename.return_value = None
+        check_instrument.return_value = None
+
+        test_rsr = RelativeSpectralResponse('EOS-Aqua', 'modis')
+        test_rsr.set_instrument(self.h5f_aqua_modis)
+        self.assertEqual(test_rsr.instrument, 'modis')
+
+        modis_aqua_filepath = "/mypath/myfilename"
+        test_rsr = RelativeSpectralResponse(filename=modis_aqua_filepath)
+        test_rsr.filename = modis_aqua_filepath
+        test_rsr.platform_name = 'EOS-Aqua'
+        test_rsr.set_instrument(self.h5f_aqua_modis)
+        self.assertEqual(test_rsr.instrument, 'modis')
+
+        viirs_noaa20_filepath = "/mypath/myfilename"
+        test_rsr = RelativeSpectralResponse(filename=viirs_noaa20_filepath)
+        test_rsr.filename = viirs_noaa20_filepath
+
+        test_rsr.set_instrument(self.h5f_noaa20_viirs)
+        self.assertEqual(test_rsr.instrument, 'viirs')
+
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_filename_exist')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_filename')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
+    def test_band_names(self, check_instrument, get_filename, check_filename_exist, load):
+        """Test setting the platform name."""
+
+        load.return_value = None
+        check_filename_exist.return_value = None
+        get_filename.return_value = None
+        check_instrument.return_value = None
+
+        test_rsr = RelativeSpectralResponse('EOS-Aqua', 'modis')
+        test_rsr.set_band_names(self.h5f_aqua_modis)
+        expected = self.modis_bandnames
+        self.assertCountEqual(test_rsr.band_names, expected)
