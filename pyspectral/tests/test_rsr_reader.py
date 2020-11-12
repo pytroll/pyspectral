@@ -191,12 +191,17 @@ class TestPopulateRSRObject(unittest.TestCase):
                                  'description': 'Relative Spectral Responses for MODIS',
                                  'platform': 'eos',
                                  'sat_number': 2}
+        hdf5_attrs_aqua_modis_b = {'band_names': bandnames,
+                                   'description': b'Relative Spectral Responses for MODIS',
+                                   'platform': b'eos',
+                                   'sat_number': 2}
         self.modis_bandnames = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
                                 '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
                                 '21', '22', '23', '24', '25', '26', '27', '28', '29', '30',
                                 '31', '32', '33', '34', '35', '36']
 
         self.h5f_aqua_modis = MyHdf5Mock(hdf5_attrs_aqua_modis)
+        self.h5f_aqua_modis_b = MyHdf5Mock(hdf5_attrs_aqua_modis_b)
 
         hdf5_attrs_aqua_modis_err = {'band_names': bandnames,
                                      'description': 'Relative Spectral Responses for MODIS',
@@ -209,9 +214,9 @@ class TestPopulateRSRObject(unittest.TestCase):
                               b'I2', b'I3', b'I4', b'I5', b'DNB'], dtype='|S3')
 
         hdf5_attrs_noaa20_viirs = {'band_names': bandnames,
-                                   'description': 'Relative Spectral Responses for VIIRS',
-                                   'platform_name': 'NOAA-20',
-                                   'sensor': 'viirs'}
+                                   'description': b'Relative Spectral Responses for VIIRS',
+                                   'platform_name': b'NOAA-20',
+                                   'sensor': b'viirs'}
         self.viirs_bandnames = ['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9', 'M10',
                                 'M11', 'M12', 'M13', 'M14', 'M15', 'M16',
                                 'I1', 'I2', 'I3', 'I4', 'I5', 'DNB']
@@ -249,6 +254,28 @@ class TestPopulateRSRObject(unittest.TestCase):
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_filename_exist')
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_filename')
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
+    def test_set_description(self, check_instrument, get_filename, check_filename_exist, load):
+        """Test setting the description."""
+
+        load.return_value = None
+        check_filename_exist.return_value = None
+        get_filename.return_value = None
+        check_instrument.return_value = None
+
+        test_rsr = RelativeSpectralResponse('NOAA-20', 'viirs')
+        test_rsr.set_description(self.h5f_noaa20_viirs)
+
+        self.assertEqual(test_rsr.description, 'Relative Spectral Responses for VIIRS')
+
+        test_rsr = RelativeSpectralResponse('EOS-Aqua', 'modis')
+        test_rsr.set_description(self.h5f_aqua_modis)
+
+        self.assertEqual(test_rsr.description, 'Relative Spectral Responses for MODIS')
+
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_filename_exist')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_filename')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
     def test_set_platform_name(self, check_instrument, get_filename, check_filename_exist, load):
         """Test setting the platform name."""
 
@@ -269,6 +296,13 @@ class TestPopulateRSRObject(unittest.TestCase):
         test_rsr.filename = modis_aqua_filepath
 
         test_rsr.set_platform_name(self.h5f_aqua_modis)
+        self.assertEqual(test_rsr.platform_name, 'EOS-Aqua')
+
+        modis_aqua_filepath = "/mypath/myfilename"
+        test_rsr = RelativeSpectralResponse(filename=modis_aqua_filepath)
+        test_rsr.filename = modis_aqua_filepath
+
+        test_rsr.set_platform_name(self.h5f_aqua_modis_b)
         self.assertEqual(test_rsr.platform_name, 'EOS-Aqua')
 
         viirs_noaa20_filepath = "/mypath/myfilename"
@@ -317,7 +351,7 @@ class TestPopulateRSRObject(unittest.TestCase):
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_filename_exist')
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_filename')
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
-    def test_band_names(self, check_instrument, get_filename, check_filename_exist, load):
+    def test_set_band_names(self, check_instrument, get_filename, check_filename_exist, load):
         """Test setting the band names."""
 
         load.return_value = None

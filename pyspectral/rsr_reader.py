@@ -218,7 +218,9 @@ class RelativeSpectralResponse(RSRDataBaseClass):
 
     def set_description(self, h5f):
         """Set the description."""
-        self.description = np2str(h5f.attrs['description'])
+        #self.description = np2str(h5f.attrs['description'])
+        self.description = h5f.attrs['description']
+        self.description = _bytes2string(self.description)
 
     def set_band_names(self, h5f):
         """Set the band names."""
@@ -231,7 +233,8 @@ class RelativeSpectralResponse(RSRDataBaseClass):
             return
 
         try:
-            self.instrument = np2str(h5f.attrs['sensor'])
+            self.instrument = h5f.attrs['sensor']
+            self.instrument = _bytes2string(self.instrument)
         except KeyError:
             LOG.warning("No sensor name specified in HDF5 file")
             self.instrument = INSTRUMENTS.get(self.platform_name)
@@ -242,11 +245,15 @@ class RelativeSpectralResponse(RSRDataBaseClass):
             return
 
         try:
-            self.platform_name = np2str(h5f.attrs['platform_name'])
+            self.platform_name = h5f.attrs['platform_name']
+            self.platform_name = _bytes2string(self.platform_name)
         except KeyError:
             LOG.warning("No platform_name in HDF5 file")
             try:
-                self.platform_name = np2str(h5f.attrs['platform']) + '-' + str(h5f.attrs['sat_number'])
+                satname = h5f.attrs['platform']
+                satname = _bytes2string(satname)
+                sat_number = h5f.attrs['sat_number']
+                self.platform_name = satname + '-' + str(sat_number)
             except KeyError:
                 LOG.warning(
                     "Unable to determine platform name from HDF5 file content")
@@ -306,6 +313,13 @@ class RelativeSpectralResponse(RSRDataBaseClass):
                 self.set_band_responses_per_detector(h5f, bandname, dname)
                 self.set_band_wavelengths_per_detector(h5f, bandname, dname)
                 self.set_band_central_wavelength_per_detector(h5f, bandname, dname)
+
+
+def _bytes2string(var):
+    """Decode a bytes variable and return a string."""
+    if isinstance(var, bytes):
+        return var.decode('utf-8')
+    return var
 
 
 def check_and_download(**kwargs):
