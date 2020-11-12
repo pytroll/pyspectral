@@ -225,7 +225,7 @@ class TestPopulateRSRObject(unittest.TestCase):
         check_instrument.return_value = None
 
         with pytest.raises(AttributeError) as exec_info:
-            test_rsr = RelativeSpectralResponse('MyPlatform')
+            dummy = RelativeSpectralResponse('MyPlatform')
 
         exception_raised = exec_info.value
         expected_value = 'platform name and sensor or filename must be specified'
@@ -250,7 +250,6 @@ class TestPopulateRSRObject(unittest.TestCase):
         test_rsr = RelativeSpectralResponse('MyPlatform', 'modis')
         self.assertEqual(test_rsr.platform_name, 'MyPlatform')
 
-        #modis_aqua_filepath = "/home/a000680/data/pyspectral/rsr_modis_EOS-Aqua.h5"
         modis_aqua_filepath = "/mypath/myfilename"
         test_rsr = RelativeSpectralResponse(filename=modis_aqua_filepath)
         test_rsr.filename = modis_aqua_filepath
