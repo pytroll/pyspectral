@@ -33,6 +33,8 @@ from pyspectral.utils import WAVE_LENGTH
 from pyspectral.utils import (INSTRUMENTS, download_rsr)
 from pyspectral.utils import (RSR_DATA_VERSION_FILENAME, RSR_DATA_VERSION)
 from pyspectral.utils import (convert2wavenumber, get_central_wave)
+from pyspectral.utils import np2str
+
 
 import logging
 LOG = logging.getLogger(__name__)
@@ -175,7 +177,6 @@ class RelativeSpectralResponse(RSRDataBaseClass):
         with h5py.File(self.filename, 'r') as h5f:
             self.set_band_names(h5f)
             self.set_description(h5f)
-
             self.set_platform_name(h5f)
             self.set_instrument(h5f)
             self.get_relative_spectral_responses(h5f)
@@ -213,16 +214,20 @@ class RelativeSpectralResponse(RSRDataBaseClass):
 
     def set_description(self, h5f):
         """Set the description."""
-        self.description = h5f.attrs['description']
-        if isinstance(self.description, bytes):
-            self.description = self.description.decode('utf-8')
+
+        self.description = np2str(h5f.attrs['description'])
+        #self.description = h5f.attrs['description']
+        # if isinstance(self.description, bytes):
+        #    self.description = self.description.decode('utf-8')
 
     def set_band_names(self, h5f):
         """Set the band names."""
-        self.band_names = h5f.attrs['band_names'].tolist()
-        if not isinstance(self.band_names[0], str):
-            # byte array in python 3
-            self.band_names = [x.decode('utf-8') for x in self.band_names]
+        self.band_names = h5f.attrs['band_names']
+        self.band_names = [np2str(x) for x in self.band_names]
+        #self.band_names = h5f.attrs['band_names'].tolist()
+        # if not isinstance(self.band_names[0], str):
+        #    # byte array in python 3
+        #    self.band_names = [x.decode('utf-8') for x in self.band_names]
 
     def set_instrument(self, h5f):
         """Set the instrument name."""
@@ -230,12 +235,17 @@ class RelativeSpectralResponse(RSRDataBaseClass):
             return
 
         try:
-            self.instrument = h5f.attrs['sensor'].decode('utf-8')
-            if not isinstance(self.instrument, str):
-                self.instrument = self.instrument.decode('utf-8')
+            self.instrument = np2str(h5f.attrs['sensor'])
         except KeyError:
             LOG.warning("No sensor name specified in HDF5 file")
             self.instrument = INSTRUMENTS.get(self.platform_name)
+        # try:
+        #     self.instrument = h5f.attrs['sensor'].decode('utf-8')
+        #     if not isinstance(self.instrument, str):
+        #         self.instrument = self.instrument.decode('utf-8')
+        # except KeyError:
+        #     LOG.warning("No sensor name specified in HDF5 file")
+        #     self.instrument = INSTRUMENTS.get(self.platform_name)
 
     def set_platform_name(self, h5f):
         """Set the platform name."""
@@ -243,9 +253,7 @@ class RelativeSpectralResponse(RSRDataBaseClass):
             return
 
         try:
-            self.platform_name = h5f.attrs['platform_name']
-            if not isinstance(self.platform_name, str):
-                self.platform_name = self.platform_name.decode('utf-8')
+            self.platform_name = np2str(h5f.attrs['platform_name'])
         except KeyError:
             LOG.warning("No platform_name in HDF5 file")
             try:

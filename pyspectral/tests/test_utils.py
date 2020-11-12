@@ -176,3 +176,33 @@ class TestUtils(unittest.TestCase):
         wvl_range = utils.get_wave_range(self.rsr.rsr['ch3']['det-1'], 0.5)
         expected_range = [0.60931027, 0.6393011276027835, 0.67512828]
         np.testing.assert_allclose(wvl_range, expected_range)
+
+
+def test_np2str():
+    """Test the np2str function."""
+    import pytest
+    from pyspectral.utils import np2str
+    # byte object
+    npstring = np.string_('hej')
+    assert np2str(npstring) == 'hej'
+
+    # single element numpy array
+    np_arr = np.array([npstring])
+    assert np2str(np_arr) == 'hej'
+
+    # scalar numpy array
+    np_arr = np.array(npstring)
+    assert np2str(np_arr) == 'hej'
+
+    # multi-element array
+    npstring = np.array([npstring, npstring])
+    with pytest.raises(ValueError):
+        _ = np2str(npstring)
+
+    # non-array-non-string
+    with pytest.raises(ValueError):
+        _ = np2str(5)
+
+    # pure string
+    pure_str = 'hej'
+    assert np2str(pure_str) is pure_str
