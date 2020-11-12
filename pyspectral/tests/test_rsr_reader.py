@@ -228,7 +228,3 @@ class TestPopulateRSRObject(unittest.TestCase):
 
         test_rsr.set_platform_name(self.h5f_noaa20_viirs)
         self.assertEqual(test_rsr.platform_name, 'NOAA-20')
-
-        import ipdb
-        ipdb.set_trace()
-        x = 1
