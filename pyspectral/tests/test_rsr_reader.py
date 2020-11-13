@@ -388,7 +388,7 @@ class TestPopulateRSRObject(unittest.TestCase):
 
         test_rsr.rsr['M1'] = {'det-1': {}}
         test_rsr.set_band_central_wavelength_per_detector(h5f, 'M1', 'det-1')
-        self.assertTrue('central_wavelength' in test_rsr.rsr['M1']['det-1'])
+        self.assertIn('central_wavelength', test_rsr.rsr['M1']['det-1'])
         self.assertEqual(test_rsr.rsr['M1']['det-1']['central_wavelength'], 100.)
 
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
