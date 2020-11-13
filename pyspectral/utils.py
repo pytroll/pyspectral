@@ -178,10 +178,16 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'Metop-C': 'avhrr/3',
                'Suomi-NPP': 'viirs',
                'NOAA-20': 'viirs',
+               'EOS-Aqua': 'modis',
+               'EOS-Terra': 'modis',
                'FY-3D': 'mersi-2',
                'FY-3C': 'virr',
                'FY-3B': 'virr',
                'Feng-Yun 3D': 'mersi-2',
+               'Meteosat-11': 'seviri',
+               'Meteosat-10': 'seviri',
+               'Meteosat-9': 'seviri',
+               'Meteosat-8': 'seviri',
                'FY-4A': 'agri',
                'GEO-KOMPSAT-2A': 'ami',
                'MTG-I1': 'fci'
@@ -575,6 +581,15 @@ def get_wave_range(in_chan, threshold=0.15):
     return [min_wvl, cwl, max_wvl]
 
 
+def convert2str(value):
+    """Convert a value to string.
+    Args:
+        value: Either a str, bytes or 1-element numpy array
+    """
+    value = bytes2string(value)
+    return np2str(value)
+
+
 def np2str(value):
     """Convert an `numpy.string_` to str.
     Args:
@@ -585,14 +600,22 @@ def np2str(value):
     """
     if isinstance(value, str):
         return value
+
     if hasattr(value, 'dtype') and \
             issubclass(value.dtype.type, (np.str_, np.string_, np.object_)) \
             and value.size == 1:
         value = value.item()
+        # python 3 - was scalar numpy array of bytes
+        # otherwise python 2 - scalar numpy array of 'str'
         if not isinstance(value, str):
-            # python 3 - was scalar numpy array of bytes
-            # otherwise python 2 - scalar numpy array of 'str'
-            value = value.decode()
+            return value.decode()
         return value
     else:
         raise ValueError("Array is not a string type or is larger than 1")
+
+
+def bytes2string(var):
+    """Decode a bytes variable and return a string."""
+    if isinstance(var, bytes):
+        return var.decode('utf-8')
+    return var
