@@ -244,7 +244,7 @@ class TestPopulateRSRObject(unittest.TestCase):
         check_instrument.return_value = None
 
         with pytest.raises(AttributeError) as exec_info:
-            dummy = RelativeSpectralResponse('MyPlatform')
+            _ = RelativeSpectralResponse('MyPlatform')
 
         exception_raised = exec_info.value
         expected_value = 'platform name and sensor or filename must be specified'
