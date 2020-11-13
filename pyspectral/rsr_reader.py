@@ -33,7 +33,7 @@ from pyspectral.utils import WAVE_LENGTH
 from pyspectral.utils import (INSTRUMENTS, download_rsr)
 from pyspectral.utils import (RSR_DATA_VERSION_FILENAME, RSR_DATA_VERSION)
 from pyspectral.utils import (convert2wavenumber, get_central_wave)
-from pyspectral.utils import np2str
+from pyspectral.utils import convert2str
 
 
 import logging
@@ -183,7 +183,7 @@ class RelativeSpectralResponse(RSRDataBaseClass):
             self.set_description(h5f)
             self.set_platform_name(h5f)
             self.set_instrument(h5f)
-            # self.get_relative_spectral_responses(h5f)
+            self.get_relative_spectral_responses(h5f)
 
     def integral(self, bandname):
         """Calculate the integral of the spectral response function for each detector."""
@@ -219,12 +219,12 @@ class RelativeSpectralResponse(RSRDataBaseClass):
     def set_description(self, h5f):
         """Set the description."""
         self.description = h5f.attrs['description']
-        self.description = _bytes2string(self.description)
+        self.description = convert2str(self.description)
 
     def set_band_names(self, h5f):
         """Set the band names."""
         self.band_names = h5f.attrs['band_names']
-        self.band_names = [np2str(x) for x in self.band_names]
+        self.band_names = [convert2str(x) for x in self.band_names]
 
     def set_instrument(self, h5f):
         """Set the instrument name."""
@@ -233,7 +233,7 @@ class RelativeSpectralResponse(RSRDataBaseClass):
 
         try:
             self.instrument = h5f.attrs['sensor']
-            self.instrument = _bytes2string(self.instrument)
+            self.instrument = convert2str(self.instrument)
         except KeyError:
             LOG.warning("No sensor name specified in HDF5 file")
             self.instrument = INSTRUMENTS.get(self.platform_name)
@@ -245,12 +245,12 @@ class RelativeSpectralResponse(RSRDataBaseClass):
 
         try:
             self.platform_name = h5f.attrs['platform_name']
-            self.platform_name = _bytes2string(self.platform_name)
+            self.platform_name = convert2str(self.platform_name)
         except KeyError:
             LOG.warning("No platform_name in HDF5 file")
             try:
                 satname = h5f.attrs['platform']
-                satname = _bytes2string(satname)
+                satname = convert2str(satname)
                 sat_number = h5f.attrs['sat_number']
                 self.platform_name = satname + '-' + str(sat_number)
             except KeyError:
@@ -312,13 +312,6 @@ class RelativeSpectralResponse(RSRDataBaseClass):
                 self.set_band_responses_per_detector(h5f, bandname, dname)
                 self.set_band_wavelengths_per_detector(h5f, bandname, dname)
                 self.set_band_central_wavelength_per_detector(h5f, bandname, dname)
-
-
-def _bytes2string(var):
-    """Decode a bytes variable and return a string."""
-    if isinstance(var, bytes):
-        return var.decode('utf-8')
-    return var
 
 
 def check_and_download(**kwargs):

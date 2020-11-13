@@ -23,10 +23,13 @@
 
 """Do the unit testing for the utils library."""
 
-from pyspectral import utils
-
+import pytest
 import unittest
 import numpy as np
+
+from pyspectral import utils
+from pyspectral.utils import np2str, bytes2string
+
 
 TEST_RSR = {'20': {}, }
 TEST_RSR['20']['det-1'] = {}
@@ -178,31 +181,74 @@ class TestUtils(unittest.TestCase):
         np.testing.assert_allclose(wvl_range, expected_range)
 
 
-def test_np2str():
-    """Test the np2str function."""
-    import pytest
-    from pyspectral.utils import np2str
+def test_np2str_byte_object():
+    """Test the np2str function on a byte object."""
     # byte object
-    npstring = np.string_('hej')
-    assert np2str(npstring) == 'hej'
+    npstring = np.string_('hey')
+    assert np2str(npstring) == 'hey'
 
+
+def test_np2str_single_element_array():
+    """Test the np2str function."""
     # single element numpy array
+    npstring = np.string_('Hej')
     np_arr = np.array([npstring])
-    assert np2str(np_arr) == 'hej'
+    assert np2str(np_arr) == 'Hej'
 
+
+def test_np2str_single_element_scalar():
+    """Test the np2str function on a scalar."""
     # scalar numpy array
+    npstring = np.string_('hej')
     np_arr = np.array(npstring)
     assert np2str(np_arr) == 'hej'
 
+
+def test_np2str_multi_element():
+    """Test the np2str function on a multi-element array."""
     # multi-element array
+    npstring = np.string_('hej')
     npstring = np.array([npstring, npstring])
     with pytest.raises(ValueError):
         _ = np2str(npstring)
 
+
+def test_np2str_scalar():
+    """Test the np2str function inputting a scalar value."""
     # non-array-non-string
     with pytest.raises(ValueError):
         _ = np2str(5)
 
+
+def test_np2str_pure_string():
+    """Test the np2str function inputting a pure string."""
     # pure string
-    pure_str = 'hej'
+    pure_str = 'HEJ'
     assert np2str(pure_str) is pure_str
+
+
+def test_bytes2string_bytes_string():
+    """Test the bytes2string function inputting a bytes string."""
+    # bytes string
+    pure_str = b'Hello'
+    assert bytes2string(pure_str) == 'Hello'
+
+
+def test_bytes2string_pure_string():
+    """Test the bytes2string function inputting a pure string."""
+    # pure string
+    pure_str = 'Hello'
+    assert bytes2string(pure_str) == 'Hello'
+
+
+def test_bytes2string_numpy_string():
+    """Test the bytes2string function inputting numpy string."""
+    npstring = np.string_('HELLO')
+    assert bytes2string(npstring) == 'HELLO'
+
+
+def test_bytes2string_numpy_string_array():
+    """Test the bytes2string function inputting numpy string array."""
+    npstring = np.string_('HELLO')
+    np_arr = np.array(npstring)
+    assert bytes2string(np_arr) == np_arr
