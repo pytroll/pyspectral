@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2019 Pytroll developers
+# Copyright (c) 2014-2020 Pytroll developers
 #
 # Author(s):
 #
@@ -32,9 +32,18 @@ from pyspectral.utils import WAVE_NUMBER
 from pyspectral.utils import WAVE_LENGTH
 from pyspectral.utils import (INSTRUMENTS, download_rsr)
 from pyspectral.utils import (RSR_DATA_VERSION_FILENAME, RSR_DATA_VERSION)
+from pyspectral.utils import (convert2wavenumber, get_central_wave)
+from pyspectral.utils import convert2str
+
 
 import logging
 LOG = logging.getLogger(__name__)
+
+OSCAR_PLATFORM_NAMES = {'eos-2': 'EOS-Aqua',
+                        'meteosat-11': 'Meteosat-11',
+                        'meteosat-10': 'Meteosat-10',
+                        'meteosat-9': 'Meteosat-9',
+                        'meteosat-8': 'Meteosat-8'}
 
 
 class RSRDataBaseClass(object):
@@ -108,20 +117,7 @@ class RelativeSpectralResponse(RSRDataBaseClass):
         if not self.filename:
             self._get_filename()
 
-        if not os.path.exists(self.filename) or not os.path.isfile(self.filename):
-            errmsg = ('pyspectral RSR file does not exist! Filename = ' +
-                      str(self.filename))
-            if self.instrument and self.platform_name:
-                fmatch = glob(
-                    os.path.join(self.rsr_dir, '*{0}*{1}*.h5'.format(self.instrument,
-                                                                     self.platform_name)))
-                errmsg = (errmsg +
-                          '\nFiles matching instrument and satellite platform' +
-                          ': ' + str(fmatch))
-
-            raise IOError(errmsg)
-
-        LOG.debug('Filename: %s', str(self.filename))
+        self._check_filename_exist()
         self.load()
 
     def _check_instrument(self):
@@ -160,82 +156,34 @@ class RelativeSpectralResponse(RSRDataBaseClass):
                 LOG.info("Will download from internet...")
                 download_rsr()
 
+    def _check_filename_exist(self):
+        """Check that the file exist."""
+
+        if not os.path.exists(self.filename) or not os.path.isfile(self.filename):
+            errmsg = ('pyspectral RSR file does not exist! Filename = ' +
+                      str(self.filename))
+            if self.instrument and self.platform_name:
+                fmatch = glob(
+                    os.path.join(self.rsr_dir, '*{0}*{1}*.h5'.format(self.instrument,
+                                                                     self.platform_name)))
+                errmsg = (errmsg +
+                          '\nFiles matching instrument and satellite platform' +
+                          ': ' + str(fmatch))
+
+            raise IOError(errmsg)
+
+        LOG.debug('Filename: %s', str(self.filename))
+
     def load(self):
         """Read the internally formatet hdf5 relative spectral response data."""
         import h5py
 
-        no_detectors_message = False
         with h5py.File(self.filename, 'r') as h5f:
-            self.band_names = h5f.attrs['band_names'].tolist()
-            self.description = h5f.attrs['description']
-            if not isinstance(self.band_names[0], str):
-                # byte array in python 3
-                self.band_names = [x.decode('utf-8') for x in self.band_names]
-                self.description = self.description.decode('utf-8')
-
-            if not self.platform_name:
-                try:
-                    self.platform_name = h5f.attrs['platform_name']
-                    if not isinstance(self.platform_name, str):
-                        self.platform_name = self.platform_name.decode('utf-8')
-                except KeyError:
-                    LOG.warning("No platform_name in HDF5 file")
-                    try:
-                        self.platform_name = h5f.attrs[
-                            'platform'] + '-' + h5f.attrs['satnum']
-                    except KeyError:
-                        LOG.warning(
-                            "Unable to determine platform name from HDF5 file content")
-                        self.platform_name = None
-
-            if not self.instrument:
-                try:
-                    self.instrument = h5f.attrs['sensor'].decode('utf-8')
-                    if not isinstance(self.instrument, str):
-                        self.instrument = self.instrument.decode('utf-8')
-                except KeyError:
-                    LOG.warning("No sensor name specified in HDF5 file")
-                    self.instrument = INSTRUMENTS.get(self.platform_name)
-
-            for bandname in self.band_names:
-                self.rsr[bandname] = {}
-                try:
-                    num_of_det = h5f[bandname].attrs['number_of_detectors']
-                except KeyError:
-                    if not no_detectors_message:
-                        LOG.debug("No detectors found - assume only one...")
-                    num_of_det = 1
-                    no_detectors_message = True
-
-                for i in range(1, num_of_det + 1):
-                    dname = 'det-{0:d}'.format(i)
-                    self.rsr[bandname][dname] = {}
-                    try:
-                        resp = h5f[bandname][dname]['response'][:]
-                    except KeyError:
-                        resp = h5f[bandname]['response'][:]
-
-                    self.rsr[bandname][dname]['response'] = resp
-
-                    try:
-                        wvl = (h5f[bandname][dname]['wavelength'][:] *
-                               h5f[bandname][dname][
-                                   'wavelength'].attrs['scale'])
-                    except KeyError:
-                        wvl = (h5f[bandname]['wavelength'][:] *
-                               h5f[bandname]['wavelength'].attrs['scale'])
-
-                    # The wavelength is given in micro meters!
-                    self.rsr[bandname][dname]['wavelength'] = wvl * 1e6
-
-                    try:
-                        central_wvl = h5f[bandname][
-                            dname].attrs['central_wavelength']
-                    except KeyError:
-                        central_wvl = h5f[bandname].attrs['central_wavelength']
-
-                    self.rsr[bandname][dname][
-                        'central_wavelength'] = central_wvl
+            self.set_band_names(h5f)
+            self.set_description(h5f)
+            self.set_platform_name(h5f)
+            self.set_instrument(h5f)
+            self.get_relative_spectral_responses(h5f)
 
     def integral(self, bandname):
         """Calculate the integral of the spectral response function for each detector."""
@@ -248,7 +196,6 @@ class RelativeSpectralResponse(RSRDataBaseClass):
 
     def convert(self):
         """Convert spectral response functions from wavelength to wavenumber."""
-        from pyspectral.utils import (convert2wavenumber, get_central_wave)
         if self._wavespace == WAVE_LENGTH:
             rsr, info = convert2wavenumber(self.rsr)
             for band in rsr.keys():
@@ -268,6 +215,103 @@ class RelativeSpectralResponse(RSRDataBaseClass):
         else:
             errmsg = "Conversion from {wn} to {wl} not supported yet".format(wn=WAVE_NUMBER, wl=WAVE_LENGTH)
             raise NotImplementedError(errmsg)
+
+    def set_description(self, h5f):
+        """Set the description."""
+        self.description = h5f.attrs['description']
+        self.description = convert2str(self.description)
+
+    def set_band_names(self, h5f):
+        """Set the band names."""
+        self.band_names = h5f.attrs['band_names']
+        self.band_names = [convert2str(x) for x in self.band_names]
+
+    def set_instrument(self, h5f):
+        """Set the instrument name."""
+        if self.instrument:
+            return
+
+        try:
+            self.instrument = h5f.attrs['sensor']
+            self.instrument = convert2str(self.instrument)
+        except KeyError:
+            LOG.warning("No sensor name specified in HDF5 file")
+            self.instrument = INSTRUMENTS.get(self.platform_name)
+
+    def set_platform_name(self, h5f):
+        """Set the platform name."""
+        if self.platform_name:
+            return
+
+        try:
+            self.platform_name = h5f.attrs['platform_name']
+            self.platform_name = convert2str(self.platform_name)
+        except KeyError:
+            LOG.warning("No platform_name in HDF5 file")
+            try:
+                satname = h5f.attrs['platform']
+                satname = convert2str(satname)
+                sat_number = h5f.attrs['sat_number']
+                self.platform_name = satname + '-' + str(sat_number)
+            except KeyError:
+                LOG.warning(
+                    "Unable to determine platform name from HDF5 file content")
+                self.platform_name = None
+
+        self.platform_name = OSCAR_PLATFORM_NAMES.get(self.platform_name, self.platform_name)
+
+    def get_number_of_detectors4bandname(self, h5f, bandname):
+        """For a band name get the number of detectors, if any."""
+        try:
+            num_of_det = h5f[bandname].attrs['number_of_detectors']
+        except KeyError:
+            LOG.debug("No detectors found - assume only one...")
+            num_of_det = 1
+
+        return num_of_det
+
+    def set_band_responses_per_detector(self, h5f, bandname, detector_name):
+        """Set the RSR responses for the band and detector."""
+        self.rsr[bandname][detector_name] = {}
+        try:
+            resp = h5f[bandname][detector_name]['response'][:]
+        except KeyError:
+            resp = h5f[bandname]['response'][:]
+
+        self.rsr[bandname][detector_name]['response'] = resp
+
+    def set_band_wavelengths_per_detector(self, h5f, bandname, detector_name):
+        """Set the RSR wavelengths for the band and detector."""
+        try:
+            wvl = (h5f[bandname][detector_name]['wavelength'][:] *
+                   h5f[bandname][detector_name]['wavelength'].attrs['scale'])
+        except KeyError:
+            wvl = (h5f[bandname]['wavelength'][:] *
+                   h5f[bandname]['wavelength'].attrs['scale'])
+
+        # The wavelength is given in micro meters!
+        self.rsr[bandname][detector_name]['wavelength'] = wvl * 1e6
+
+    def set_band_central_wavelength_per_detector(self, h5f, bandname, detector_name):
+        """Set the central wavelength for the band and detector."""
+        try:
+            central_wvl = h5f[bandname][detector_name].attrs['central_wavelength']
+        except KeyError:
+            central_wvl = h5f[bandname].attrs['central_wavelength']
+
+        self.rsr[bandname][detector_name]['central_wavelength'] = central_wvl
+
+    def get_relative_spectral_responses(self, h5f):
+        """Read the rsr data and add to the object."""
+        for bandname in self.band_names:
+            self.rsr[bandname] = {}
+
+            num_of_det = self.get_number_of_detectors4bandname(h5f, bandname)
+            for i in range(1, num_of_det + 1):
+                dname = 'det-{0:d}'.format(i)
+                self.set_band_responses_per_detector(h5f, bandname, dname)
+                self.set_band_wavelengths_per_detector(h5f, bandname, dname)
+                self.set_band_central_wavelength_per_detector(h5f, bandname, dname)
 
 
 def check_and_download(**kwargs):
