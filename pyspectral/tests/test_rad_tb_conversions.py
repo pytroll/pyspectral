@@ -289,10 +289,6 @@ class TestSeviriConversions(unittest.TestCase):
         rads2 = retv2['radiance']
         self.assertTrue(np.allclose(rads1, rads2))
 
-    def tearDown(self):
-        """Clean up."""
-        pass
-
 
 class TestRadTbConversions(unittest.TestCase):
     """Testing the conversions between radiances and brightness temperatures."""

@@ -297,7 +297,7 @@ class SeviriRadTbConverter(RadTbConverter):
 
     def _get_rsr(self):
         """Overload the _get_rsr method, since RSR data are ignored here."""
-        pass
+        LOG.debug("RSR data are ignored in this converter!")
 
     def radiance2tb(self, rad):
         """Get the Tb from the radiance using the simple non-linear regression method.
