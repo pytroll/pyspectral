@@ -2,7 +2,7 @@
 #
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2013-2019 Pytroll developers
+# Copyright (c) 2013-2020 Pytroll developers
 #
 # Author(s):
 #
@@ -114,10 +114,10 @@ class SolarIrradianceSpectrum(object):
         """Calculate the solar constant."""
         if self.wavenumber is not None:
             return np.trapz(self.irradiance, self.wavenumber)
-        elif self.wavelength is not None:
+        if self.wavelength is not None:
             return np.trapz(self.irradiance, self.wavelength)
-        else:
-            raise TypeError('Neither wavelengths nor wavenumbers available!')
+
+        raise TypeError('Neither wavelengths nor wavenumbers available!')
 
     def inband_solarflux(self, rsr, scale=1.0, **options):
         """Get the in band solar flux.
@@ -197,9 +197,9 @@ class SolarIrradianceSpectrum(object):
         # Calculate the solar-flux: (w/m2)
         if flux:
             return np.trapz(irr * resp_ipol, wvl)
-        else:
-            # Divide by the equivalent band width:
-            return np.trapz(irr * resp_ipol, wvl) / np.trapz(resp_ipol, wvl)
+
+        # Divide by the equivalent band width:
+        return np.trapz(irr * resp_ipol, wvl) / np.trapz(resp_ipol, wvl)
 
     def interpolate(self, **options):
         """Interpolate Irradiance to a specified evenly spaced resolution/grid.
@@ -219,8 +219,6 @@ class SolarIrradianceSpectrum(object):
         """
         from scipy.interpolate import InterpolatedUnivariateSpline
 
-        # The user defined wavelength span is not yet used:
-        # FIXME!
         if 'ival_wavelength' in options:
             ival_wavelength = options['ival_wavelength']
         else:

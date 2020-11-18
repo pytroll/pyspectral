@@ -167,11 +167,11 @@ class RadTbConverter(object):
 
     def _getsatname(self):
         """Get the satellite name used in the rsr-reader, from the platform and number."""
-        if self.platform_name.startswith("Meteosat"):
-            return self.platform_name
-        else:
+        if not self.platform_name.startswith("Meteosat"):
             raise NotImplementedError(
                 'Platform {0} not yet supported...'.format(self.platform_name))
+
+        return self.platform_name
 
     @staticmethod
     def _getitem(block, lut):
@@ -297,7 +297,7 @@ class SeviriRadTbConverter(RadTbConverter):
 
     def _get_rsr(self):
         """Overload the _get_rsr method, since RSR data are ignored here."""
-        pass
+        LOG.debug("RSR data are ignored in this converter!")
 
     def radiance2tb(self, rad):
         """Get the Tb from the radiance using the simple non-linear regression method.

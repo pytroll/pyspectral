@@ -9,13 +9,12 @@ environment:
     CONDA_CHANNEL_PRIORITY: "True"
 
   matrix:
-    - PYTHON: "C:\\Python27_64"
-      PYTHON_VERSION: "2.7"
+    - PYTHON: "C:\\Python37_64"
+      PYTHON_VERSION: "3.7"
       PYTHON_ARCH: "64"
       NUMPY_VERSION: "stable"
-
-    - PYTHON: "C:\\Python36_64"
-      PYTHON_VERSION: "3.6"
+    - PYTHON: "C:\\Python38_64"
+      PYTHON_VERSION: "3.8"
       PYTHON_ARCH: "64"
       NUMPY_VERSION: "stable"
 
