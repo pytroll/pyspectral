@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2019 Pytroll developers
+# Copyright (c) 2014-2020 Pytroll developers
 #
 # Author(s):
 #
-#   Adam.Dybbroe <a000680@c14526.ad.smhi.se>
+#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -289,10 +289,6 @@ class TestSeviriConversions(unittest.TestCase):
         rads2 = retv2['radiance']
         self.assertTrue(np.allclose(rads1, rads2))
 
-    def tearDown(self):
-        """Clean up."""
-        pass
-
 
 class TestRadTbConversions(unittest.TestCase):
     """Testing the conversions between radiances and brightness temperatures."""
@@ -362,7 +358,3 @@ class TestRadTbConversions(unittest.TestCase):
 
         res = self.modis.tb2radiance(200.1, lut=False)
         self.assertAlmostEqual(865.09759706, res['radiance'])
-
-    def tearDown(self):
-        """Clean up."""
-        pass

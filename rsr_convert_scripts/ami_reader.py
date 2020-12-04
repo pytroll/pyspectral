@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2019 Pytroll developers
+# Copyright (c) 2019, 2020 Pytroll developers
 #
 # Author(s):
 #
@@ -82,8 +82,8 @@ class AmiRSR(InstrumentRSR):
                              skip_header=4)
 
         # Data are wavenumbers in cm-1:
-        wavelength = 1. / data['wavenumber'] * scale
-        response = data['response']
+        wavelength = 1. / data['wavenumber'][::-1] * scale
+        response = data['response'][::-1]
 
         # The real AMI has more than one detectors I assume. However, for now
         # we store the single rsr available in the NWPSAF coefficient files:

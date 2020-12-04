@@ -1,3 +1,41 @@
+## Version <v0.10.3> (2020/12/04)
+
+### Issues Closed
+
+* [Issue 89](https://github.com/pytroll/pyspectral/issues/89) - GK2A AMI RSR wavelengths are reversed
+
+In this release 1 issue was closed.
+
+## Version <v0.10.2> (2020/11/20)
+
+### Issues Closed
+
+* [Issue 122](https://github.com/pytroll/pyspectral/issues/122) - Pyspectral incompatible with h5py=3.1.0 ([PR 123](https://github.com/pytroll/pyspectral/pull/123) by [@pnuu](https://github.com/pnuu))
+
+In this release 1 issue was closed.
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 124](https://github.com/pytroll/pyspectral/pull/124) - Refactor the rsr-reader and add more test coverage ([122](https://github.com/pytroll/pyspectral/issues/122))
+* [PR 123](https://github.com/pytroll/pyspectral/pull/123) - Add a utility function to decode HDF5 strings ([122](https://github.com/pytroll/pyspectral/issues/122))
+* [PR 120](https://github.com/pytroll/pyspectral/pull/120) - Fix scale of AGRI response values
+* [PR 118](https://github.com/pytroll/pyspectral/pull/118) - Update documentation with new satellites / sensors and correct typos
+
+#### Features added
+
+* [PR 124](https://github.com/pytroll/pyspectral/pull/124) - Refactor the rsr-reader and add more test coverage ([122](https://github.com/pytroll/pyspectral/issues/122))
+* [PR 123](https://github.com/pytroll/pyspectral/pull/123) - Add a utility function to decode HDF5 strings ([122](https://github.com/pytroll/pyspectral/issues/122))
+* [PR 121](https://github.com/pytroll/pyspectral/pull/121) - Fix codefactor issues and appveyor testing
+* [PR 119](https://github.com/pytroll/pyspectral/pull/119) - Add wavelength rangefinder
+
+#### Documentation changes
+
+* [PR 118](https://github.com/pytroll/pyspectral/pull/118) - Update documentation with new satellites / sensors and correct typos
+
+In this release 9 pull requests were closed.
+
 
 ## Version <v0.10.1> (2020/10/06)
 
