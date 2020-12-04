@@ -609,8 +609,8 @@ def np2str(value):
         if not isinstance(value, str):
             return value.decode()
         return value
-    else:
-        raise ValueError("Array is not a string type or is larger than 1")
+
+    raise ValueError("Array is not a string type or is larger than 1")
 
 
 def bytes2string(var):
