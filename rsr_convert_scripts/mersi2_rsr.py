@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2018 Pytroll developers
+# Copyright (c) 2018, 2020 Pytroll developers
 #
 # Author(s):
 #
@@ -20,8 +20,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Read the MERSI-II relative spectral responses. Data from xuna@cma.gov.cn
-(Personal contact with Sara Hörnquist, SMHI).
+"""Read the MERSI-II relative spectral responses.
+
+Data available from NSMC:
+http://gsics.nsmc.org.cn/portal/en/fycv/srf.html
+http://gsics.nsmc.org.cn/download/documents/SRF/FY3D_MERSI_SRF_Pub.zip
 """
 import os
 import numpy as np
