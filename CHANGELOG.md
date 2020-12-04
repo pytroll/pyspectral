@@ -1,3 +1,11 @@
+## Version <v0.10.3> (2020/12/04)
+
+### Issues Closed
+
+* [Issue 89](https://github.com/pytroll/pyspectral/issues/89) - GK2A AMI RSR wavelengths are reversed
+
+In this release 1 issue was closed.
+
 ## Version <v0.10.2> (2020/11/20)
 
 ### Issues Closed
