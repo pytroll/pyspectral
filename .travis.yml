@@ -32,18 +32,18 @@ install:
     - pip install -e .
 script:
   - py.test  --cov-report term --cov=./
-after_success:
-- if [[ $PYTHON_VERSION == 3.7 ]]; then coveralls; fi
-- if [[ $PYTHON_VERSION == 3.8 ]]; then coveralls; fi
-deploy:
-  - provider: pypi
-    user: adybbroe
-    password:
-      secure: SY0qo7sZXDjDx0DHvuXrHvL9VTAulgU/T33d6UWXf469jT9DOexuZ2VYLgJbYQen5FSe5JmQE0ZMdId1cb8IPP/77qCgQK6f0lRDa43fSYXhcD+fHzlQskievJrwamkRYx6WBrJbwGAKBNinUgNSaTdbh9XUugziGFiOHUfVppM=
-    distributions: sdist bdist_wheel
-    skip_existing: true
-    on:
-      tags: true
-      repo: pytroll/pyspectral
-notifications:
-  slack: pytroll:LR63XVq1cT8kVc3fnXKIZmYr
+# after_success:
+# - if [[ $PYTHON_VERSION == 3.7 ]]; then coveralls; fi
+# - if [[ $PYTHON_VERSION == 3.8 ]]; then coveralls; fi
+# deploy:
+#   - provider: pypi
+#     user: adybbroe
+#     password:
+#       secure: SY0qo7sZXDjDx0DHvuXrHvL9VTAulgU/T33d6UWXf469jT9DOexuZ2VYLgJbYQen5FSe5JmQE0ZMdId1cb8IPP/77qCgQK6f0lRDa43fSYXhcD+fHzlQskievJrwamkRYx6WBrJbwGAKBNinUgNSaTdbh9XUugziGFiOHUfVppM=
+#     distributions: sdist bdist_wheel
+#     skip_existing: true
+#     on:
+#       tags: true
+#       repo: pytroll/pyspectral
+#notifications:
+#  slack: pytroll:LR63XVq1cT8kVc3fnXKIZmYr
