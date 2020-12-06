@@ -2,7 +2,7 @@ Pyspectral
 ==========
 
 
-![CI](https://github.com/pytroll/pyspectral/workflows/CI/badge.svg?branch=master)
+[![Build status](https://github.com/pytroll/pyspectral/actions?query=workflow%3A%22CI%22)](https://github.com/pytroll/pyspectral/workflows/CI/badge.svg?branch=master)
 [![Anaconda-Server Badge](https://anaconda.org/conda-forge/pyspectral/badges/version.svg)](https://anaconda.org/conda-forge/pyspectral)
 [![Build status](https://ci.appveyor.com/api/projects/status/5lm42n0l65l5o9xn?svg=true)](https://ci.appveyor.com/project/pytroll/pyspectral)
 [![Coverage Status](https://coveralls.io/repos/github/pytroll/pyspectral/badge.svg?branch=master)](https://coveralls.io/github/pytroll/pyspectral?branch=master)
