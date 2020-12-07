@@ -1,3 +1,15 @@
+## Version <v0.10.4> (2020/12/07)
+
+
+### Pull Requests Merged
+
+#### Features added
+
+* [PR 125](https://github.com/pytroll/pyspectral/pull/125) - Add GitHub ci support
+
+In this release 1 pull request was closed.
+
+
 ## Version <v0.10.3> (2020/12/04)
 
 ### Issues Closed
