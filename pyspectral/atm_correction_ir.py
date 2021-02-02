@@ -139,17 +139,10 @@ def viewzen_corr(data, view_zen):
     LOG.debug("Update to process dask array data.") 
     np_view_zen = np.array(view_zen.compute())
     np_data = np.ma.masked_array(data.compute())
-    
-    #y0, x0 = np.ma.where(view_zen == 0)
     y0, x0 = np.ma.where(np_view_zen == 0)
-        
-    # data[y0, x0] += tau0(data[y0, x0])
     np_data[y0, x0] += tau0(np_data[y0, x0])
-    
-    # y, x = np.ma.where((view_zen > 0) & (view_zen < 90) & (~data.mask))
+
     y, x = np.ma.where((np_view_zen > 0) & (np_view_zen < 90) & (~np_data.mask))
-    
-    # data[y, x] += tau(data[y, x]) * delta(view_zen[y, x])
     np_data[y, x] += tau(np_data[y, x]) * delta(np_view_zen[y, x])
             
     LOG.debug( 'Calculated data min/avr/max: {:.3f}/{:.3f}/{:.3f}'.format(np.nanmin(np_data),  \
