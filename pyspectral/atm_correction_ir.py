@@ -159,5 +159,5 @@ if __name__ == "__main__":
     NDIM = SHAPE[0] * SHAPE[1]
     SATZ = np.ma.arange(NDIM).reshape(SHAPE) * 60. / float(NDIM)
     TBS = np.ma.arange(NDIM).reshape(SHAPE) * 80.0 / float(NDIM) + 220.
-    atm_corr = this.get_correction(SATZ, 'M4', TBS)
+    atm_corr = this.get_correction(da.from_array(SATZ), 'M4', da.from_array(TBS))
 
