@@ -24,6 +24,7 @@
 
 
 import numpy as np
+import dask.array as da
 from pyspectral.atm_correction_ir import AtmosphericalCorrection
 import sys
 if sys.version_info < (2, 7):
@@ -121,5 +122,5 @@ class TestAtmCorrection(unittest.TestCase):
     def test_get_correction(self):
         """Test getting the atm correction."""
         this = AtmosphericalCorrection('EOS-Terra', 'modis')
-        atm_corr = this.get_correction(SATZ, None, TBS)
+        atm_corr = this.get_correction(da.from_array(SATZ), None, da.from_array(TBS))
         np.testing.assert_almost_equal(RES, atm_corr)
