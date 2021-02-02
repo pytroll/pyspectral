@@ -128,15 +128,15 @@ def viewzen_corr(data, view_zen):
         Z_REF = 70.0
         DELTA_REF = 6.2
         return (1 + DELTA_REF)**ratio(z, Z_0, Z_REF) - 1
-      
+
     # not allowed for dask arrays:
     # - assignment
     # - access with indexes
     #
     # that's why all calculations are done as numpy arrays
-    # special data conversion are needed    
+    # special data conversion are needed
     # conversion from dask arrays into numpy arrays
-    LOG.debug("Update to process dask array data.") 
+    LOG.debug("Update to process dask array data.")
     np_view_zen = np.array(view_zen.compute())
     np_data = np.ma.masked_array(data.compute())
     y0, x0 = np.ma.where(np_view_zen == 0)
@@ -144,15 +144,16 @@ def viewzen_corr(data, view_zen):
 
     y, x = np.ma.where((np_view_zen > 0) & (np_view_zen < 90) & (~np_data.mask))
     np_data[y, x] += tau(np_data[y, x]) * delta(np_view_zen[y, x])
-            
-    LOG.debug( 'Calculated data min/avr/max: {:.3f}/{:.3f}/{:.3f}'.format(np.nanmin(np_data),  \
-                                                                          np.nanmean(np_data), \
-                                                                          np.nanmax(np_data)))
-                                              
+
+    LOG.debug('Calculated data min/avr/max: {:.3f}/{:.3f}/{:.3f}'.format(np.nanmin(np_data),
+                                                                         np.nanmean(np_data),
+                                                                         np.nanmax(np_data)))
+
     # back conversion from numpy array into dask array
-    # return data                                              
+    # return data
     return da.from_array(np_data)
-    
+
+
 if __name__ == "__main__":
     this = AtmosphericalCorrection('Suomi-NPP', 'viirs')
     SHAPE = (1000, 3000)
@@ -160,4 +161,3 @@ if __name__ == "__main__":
     SATZ = np.ma.arange(NDIM).reshape(SHAPE) * 60. / float(NDIM)
     TBS = np.ma.arange(NDIM).reshape(SHAPE) * 80.0 / float(NDIM) + 220.
     atm_corr = this.get_correction(da.from_array(SATZ), 'M4', da.from_array(TBS))
-
