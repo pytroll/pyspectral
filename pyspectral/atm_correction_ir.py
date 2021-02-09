@@ -59,7 +59,14 @@ from this time are not longer at DWD.'
 
 
 import numpy as np
-import dask.array as da
+try:
+    import dask.array as da
+    HAVE_DASK = True
+except ImportError:
+    da = None
+    HAVE_DASK = False
+
+
 import logging
 
 LOG = logging.getLogger(__name__)
@@ -129,17 +136,14 @@ def viewzen_corr(data, view_zen):
         DELTA_REF = 6.2
         return (1 + DELTA_REF)**ratio(z, Z_0, Z_REF) - 1
 
-    if hasattr(data, 'compute') or hasattr(view_zen, 'compute'):
-        is_dask_data = True
-    else:
-        is_dask_data = False
+    is_dask_data = hasattr(data, 'compute') or hasattr(view_zen, 'compute')
 
-    if is_dask_data:
-        dask_data = da.where(view_zen == 0,
-                             data + tau0(data),
+    if is_dask_data and HAVE_DASK:
+        data_tau0 = data + tau0(data)
+        data_tau_delta = data + (tau(data) * delta(view_zen))
+        dask_data = da.where(view_zen == 0, data_tau0,
                              da.where((view_zen > 0) & (view_zen < 90),
-                                      data + (tau(data) * delta(view_zen)),
-                                      data))
+                                      data_tau_delta, data))
         return dask_data
     else:
         y0, x0 = np.ma.where(view_zen == 0)
@@ -147,10 +151,6 @@ def viewzen_corr(data, view_zen):
 
         y, x = np.ma.where((view_zen > 0) & (view_zen < 90) & (~data.mask))
         data[y, x] += tau(data[y, x]) * delta(view_zen[y, x])
-
-        LOG.debug('Calculated data min/avr/max: {:.3f}/{:.3f}/{:.3f}'.format(np.nanmin(data),
-                                                                             np.nanmean(data),
-                                                                             np.nanmax(data)))
         return data
 
 
