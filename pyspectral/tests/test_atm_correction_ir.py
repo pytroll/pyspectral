@@ -120,7 +120,13 @@ class TestAtmCorrection(unittest.TestCase):
     """Class for testing pyspectral.atm_correction_ir."""
 
     def test_get_correction(self):
-        """Test getting the atm correction."""
+        """Test getting the atm correction (dask data)."""
         this = AtmosphericalCorrection('EOS-Terra', 'modis')
         atm_corr = this.get_correction(da.from_array(SATZ), None, da.from_array(TBS))
+        np.testing.assert_almost_equal(RES, atm_corr)
+
+    def test_get_correction_np(self):
+        """Test getting the atm correction (numpy data)."""
+        this = AtmosphericalCorrection('EOS-Terra', 'modis')
+        atm_corr = this.get_correction(SATZ, None, TBS)
         np.testing.assert_almost_equal(RES, atm_corr)
