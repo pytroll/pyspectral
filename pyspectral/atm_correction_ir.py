@@ -59,6 +59,12 @@ from this time are not longer at DWD.'
 
 
 import numpy as np
+try:
+    import dask.array as da
+except ImportError:
+    da = None
+
+
 import logging
 
 LOG = logging.getLogger(__name__)
@@ -128,6 +134,16 @@ def viewzen_corr(data, view_zen):
         DELTA_REF = 6.2
         return (1 + DELTA_REF)**ratio(z, Z_0, Z_REF) - 1
 
+    is_dask_data = hasattr(data, 'compute') or hasattr(view_zen, 'compute')
+
+    if is_dask_data:
+        data_tau0 = data + tau0(data)
+        data_tau_delta = data + (tau(data) * delta(view_zen))
+        dask_data = da.where(view_zen == 0, data_tau0,
+                             da.where((view_zen > 0) & (view_zen < 90),
+                                      data_tau_delta, data))
+        return dask_data
+    # expect numpy types otherwise
     y0, x0 = np.ma.where(view_zen == 0)
     data[y0, x0] += tau0(data[y0, x0])
 
@@ -143,3 +159,4 @@ if __name__ == "__main__":
     SATZ = np.ma.arange(NDIM).reshape(SHAPE) * 60. / float(NDIM)
     TBS = np.ma.arange(NDIM).reshape(SHAPE) * 80.0 / float(NDIM) + 220.
     atm_corr = this.get_correction(SATZ, 'M4', TBS)
+    atm_corr = this.get_correction(da.from_array(SATZ), 'M4', da.from_array(TBS))
