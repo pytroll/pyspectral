@@ -143,13 +143,13 @@ def viewzen_corr(data, view_zen):
                              da.where((view_zen > 0) & (view_zen < 90),
                                       data_tau_delta, data))
         return dask_data
-    else:
-        y0, x0 = np.ma.where(view_zen == 0)
-        data[y0, x0] += tau0(data[y0, x0])
+    # expect numpy types otherwise
+    y0, x0 = np.ma.where(view_zen == 0)
+    data[y0, x0] += tau0(data[y0, x0])
 
-        y, x = np.ma.where((view_zen > 0) & (view_zen < 90) & (~data.mask))
-        data[y, x] += tau(data[y, x]) * delta(view_zen[y, x])
-        return data
+    y, x = np.ma.where((view_zen > 0) & (view_zen < 90) & (~data.mask))
+    data[y, x] += tau(data[y, x]) * delta(view_zen[y, x])
+    return data
 
 
 if __name__ == "__main__":
