@@ -61,10 +61,8 @@ from this time are not longer at DWD.'
 import numpy as np
 try:
     import dask.array as da
-    HAVE_DASK = True
 except ImportError:
     da = None
-    HAVE_DASK = False
 
 
 import logging
@@ -138,7 +136,7 @@ def viewzen_corr(data, view_zen):
 
     is_dask_data = hasattr(data, 'compute') or hasattr(view_zen, 'compute')
 
-    if is_dask_data and HAVE_DASK:
+    if is_dask_data:
         data_tau0 = data + tau0(data)
         data_tau_delta = data + (tau(data) * delta(view_zen))
         dask_data = da.where(view_zen == 0, data_tau0,
