@@ -301,11 +301,11 @@ class Calculator(RadTbConverter):
 
 
 def get_as_array(variable):
-    """Return variable as a Dask or Numpy array. 
+    """Return variable as a Dask or Numpy array.
 
     Variable may be a scalar, a list or a Numpy/Dask array.
     """
     if np.isscalar(variable):
         return array([variable, ])
-    else:
-        return asanyarray(variable)
+
+    return asanyarray(variable)
