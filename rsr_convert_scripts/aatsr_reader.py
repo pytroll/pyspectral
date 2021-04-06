@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2016, 2017 Pytroll developers
+# Copyright (c) 2016, 2017, 2021 Pytroll developers
 #
 # Author(s):
 #
@@ -79,9 +79,13 @@ class AatsrRSR(object):
 
 
 def main():
-    """Main"""
+    """Main.
+
+    """
 
     tohdf5(AatsrRSR, 'Envisat', AATSR_BAND_NAMES)
 
+
 if __name__ == "__main__":
+
     main()

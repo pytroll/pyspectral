@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2015-2017 Pytroll developers
+# Copyright (c) 2015-2017, 2021 Pytroll developers
 #
 # Author(s):
 #
@@ -26,8 +26,6 @@ http://www.data.jma.go.jp/mscweb/en/himawari89/space_segment/spsg_ahi.html#srf
 """
 
 import logging
-LOG = logging.getLogger(__name__)
-
 import os
 import numpy as np
 from xlrd import open_workbook
@@ -35,6 +33,7 @@ from xlrd import open_workbook
 from pyspectral.utils import get_central_wave
 from pyspectral.config import get_config
 
+LOG = logging.getLogger(__name__)
 
 AHI_BAND_NAMES = {'Band 1': 'ch1',
                   'Band 2': 'ch2',
@@ -148,6 +147,7 @@ def main():
     for satnum in [8, 9]:
         convert2hdf5('Himawari-{0:d}'.format(satnum))
         print("Himawari-{0:d} done...".format(satnum))
+
 
 if __name__ == "__main__":
 

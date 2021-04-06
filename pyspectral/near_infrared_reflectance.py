@@ -300,12 +300,12 @@ class Calculator(RadTbConverter):
         return res
 
 
-def get_as_array(parameter):
-    """Return parameter as a Dask or Numpy array. 
+def get_as_array(variable):
+    """Return variable as a Dask or Numpy array. 
 
-    Parameter may be a scalar, a list or a Numpy/Dask array.
+    Variable may be a scalar, a list or a Numpy/Dask array.
     """
-    if np.isscalar(parameter):
-        return array([parameter, ])
+    if np.isscalar(variable):
+        return array([variable, ])
     else:
-        return asanyarray(parameter)
+        return asanyarray(variable)
