@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2020 Pytroll developers
+# Copyright (c) 2014-2021 Pytroll developers
 #
 # Author(s):
 #
@@ -219,15 +219,9 @@ class Calculator(RadTbConverter):
         else:
             is_masked = False
 
-        if np.isscalar(tb_near_ir):
-            tb_nir = array([tb_near_ir, ])
-        else:
-            tb_nir = asanyarray(tb_near_ir)
-
-        if np.isscalar(tb_thermal):
-            tb_therm = array([tb_thermal, ])
-        else:
-            tb_therm = asanyarray(tb_thermal)
+        tb_nir = get_as_array(tb_near_ir)
+        tb_therm = get_as_array(tb_thermal)
+        sun_zenith = get_as_array(sun_zenith)
 
         if tb_therm.shape != tb_nir.shape:
             errmsg = 'Dimensions do not match! {0} and {1}'.format(
@@ -266,6 +260,7 @@ class Calculator(RadTbConverter):
             LOG.info('l_nir = %s', str(l_nir))
 
         LOG.debug("Apply sun-zenith angle clipping between 0 and %5.2f", self.masking_limit)
+
         sunz = sun_zenith.clip(0, self.sunz_threshold)
         mu0 = np.cos(np.deg2rad(sunz))
 
@@ -303,3 +298,14 @@ class Calculator(RadTbConverter):
         if is_masked:
             res = np.ma.masked_invalid(res)
         return res
+
+
+def get_as_array(parameter):
+    """Return parameter as a Dask or Numpy array. 
+
+    Parameter may be a scalar, a list or a Numpy/Dask array.
+    """
+    if np.isscalar(parameter):
+        return array([parameter, ])
+    else:
+        return asanyarray(parameter)

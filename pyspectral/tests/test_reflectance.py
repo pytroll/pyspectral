@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2013-2020 Pytroll developers
+# Copyright (c) 2013-2021 Pytroll developers
 #
 # Author(s):
 #
@@ -22,17 +22,11 @@
 
 """Unit testing the 3.7 micron reflectance calculations."""
 
-from pyspectral.near_infrared_reflectance import Calculator, TERMINATOR_LIMIT
 import numpy as np
-import sys
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
-if sys.version_info < (3,):
-    from mock import patch
-else:
-    from unittest.mock import patch
+import unittest
+from unittest.mock import patch
+from pyspectral.near_infrared_reflectance import Calculator, TERMINATOR_LIMIT
+from pyspectral.near_infrared_reflectance import get_as_array
 
 
 TEST_RSR = {'20': {},
@@ -164,15 +158,15 @@ class TestReflectance(unittest.TestCase):
             self.assertAlmostEqual(refl37_sz88.bandwavelength, 3.780282, 5)
             self.assertEqual(refl37_sz88.bandname, '20')
 
-        sunz = np.array([80.])
-        tb3 = np.array([290.])
-        tb4 = np.array([282.])
+        sunz = 80.
+        tb3 = 290.
+        tb4 = 282.
         refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
         np.testing.assert_allclose(refl[0], 0.251245010648, 6)
 
-        sunz = np.array([85.])
-        tb3 = np.array([290.])
-        tb4 = np.array([282.])
+        sunz = 85.
+        tb3 = 290.
+        tb4 = 282.
         refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
         np.testing.assert_allclose(refl[0], 1.12236884, 6)
 
@@ -221,3 +215,33 @@ class TestReflectance(unittest.TestCase):
             self.assertTrue(hasattr(refl, 'compute'))
         except ImportError:
             pass
+
+
+def test_get_as_array_from_scalar_input():
+    """Test the function to return an array when input is a scalar"""
+    res = get_as_array(1)
+
+    if hasattr(res, 'compute'):
+        assert res.compute()[0] == 1
+    else:
+        assert res[0] == 1
+
+
+def test_get_as_array_from_numpy_array_input():
+    """Test the function to return an array when input is a numpy array."""
+    res = get_as_array(np.array([1.0, 2.0]))
+
+    if hasattr(res, 'compute'):
+        np.testing.assert_allclose(res.compute(), np.array([1.0, 2.0]), 5)
+    else:
+        np.testing.assert_allclose(res, np.array([1.0, 2.0]), 5)
+
+
+def test_get_as_array_from_list_input():
+    """Test the function to return an array when input is a list."""
+    res = get_as_array([1.0, 2.0])
+
+    if hasattr(res, 'compute'):
+        np.testing.assert_allclose(res.compute(), np.array([1.0, 2.0]), 5)
+    else:
+        np.testing.assert_allclose(res, np.array([1.0, 2.0]), 5)
