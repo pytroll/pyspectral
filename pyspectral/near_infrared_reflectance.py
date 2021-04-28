@@ -30,6 +30,7 @@ window channel (usually around 11-12 microns).
 """
 
 import os
+import logging
 import numpy as np
 try:
     from dask.array import where, logical_or, asanyarray, array, isnan
@@ -43,7 +44,7 @@ from pyspectral.utils import TB2RAD_DIR
 from pyspectral.utils import WAVE_LENGTH
 from pyspectral.radiance_tb_conversion import RadTbConverter
 from pyspectral.config import get_config
-import logging
+
 LOG = logging.getLogger(__name__)
 
 EPSILON = 0.005
@@ -236,10 +237,7 @@ class Calculator(RadTbConverter):
             tbco2 = None
         else:
             co2corr = True
-            if np.isscalar(tb_ir_co2):
-                tbco2 = array([tb_ir_co2, ])
-            else:
-                tbco2 = asanyarray(tb_ir_co2)
+            tbco2 = get_as_array(tb_ir_co2)
 
         if not self.rsr:
             raise NotImplementedError("Reflectance calculations without "
