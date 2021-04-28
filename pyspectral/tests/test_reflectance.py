@@ -26,7 +26,6 @@ import numpy as np
 import unittest
 from unittest.mock import patch
 from pyspectral.near_infrared_reflectance import Calculator, TERMINATOR_LIMIT
-from pyspectral.near_infrared_reflectance import get_as_array
 
 
 TEST_RSR = {'20': {},
@@ -217,18 +216,21 @@ class TestReflectance(unittest.TestCase):
             pass
 
 
-def test_get_as_array_from_scalar_input():
-    """Test the function to return an array when input is a scalar"""
-    res = get_as_array(1)
+def test_get_as_array_from_scalar_input_dask():
+    """Test the function to return an array when input is a scalar - using Dask"""
+    from pyspectral.near_infrared_reflectance import get_as_array
 
+    res = get_as_array(2.3)
     if hasattr(res, 'compute'):
-        assert res.compute()[0] == 1
+        assert res.compute()[0] == 2.3
     else:
-        assert res[0] == 1
+        assert res[0] == 2.3
 
 
 def test_get_as_array_from_numpy_array_input():
     """Test the function to return an array when input is a numpy array."""
+    from pyspectral.near_infrared_reflectance import get_as_array
+
     res = get_as_array(np.array([1.0, 2.0]))
 
     if hasattr(res, 'compute'):
@@ -239,6 +241,8 @@ def test_get_as_array_from_numpy_array_input():
 
 def test_get_as_array_from_list_input():
     """Test the function to return an array when input is a list."""
+    from pyspectral.near_infrared_reflectance import get_as_array
+
     res = get_as_array([1.0, 2.0])
 
     if hasattr(res, 'compute'):
