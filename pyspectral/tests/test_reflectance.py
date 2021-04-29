@@ -227,8 +227,19 @@ def test_get_as_array_from_scalar_input_dask():
         assert res[0] == 2.3
 
 
-def test_get_as_array_from_numpy_array_input():
-    """Test the function to return an array when input is a numpy array."""
+def test_get_as_array_from_scalar_input_numpy():
+    """Test the function to return an array when input is a scalar - using Numpy"""
+    from pyspectral.near_infrared_reflectance import get_as_array
+    import numpy as np
+
+    with patch('pyspectral.near_infrared_reflectance.asanyarray', new=np.asanyarray):
+        res = get_as_array(2.3)
+
+    assert res[0] == 2.3
+
+
+def test_get_as_array_from_numpy_array_input_dask():
+    """Test the function to return an array when input is a numpy array - using Dask"""
     from pyspectral.near_infrared_reflectance import get_as_array
 
     res = get_as_array(np.array([1.0, 2.0]))
@@ -239,8 +250,18 @@ def test_get_as_array_from_numpy_array_input():
         np.testing.assert_allclose(res, np.array([1.0, 2.0]), 5)
 
 
-def test_get_as_array_from_list_input():
-    """Test the function to return an array when input is a list."""
+def test_get_as_array_from_numpy_array_input_numpy():
+    """Test the function to return an array when input is a numpy array - using Numpy"""
+    from pyspectral.near_infrared_reflectance import get_as_array
+
+    with patch('pyspectral.near_infrared_reflectance.asanyarray', new=np.asanyarray):
+        res = get_as_array(np.array([1.0, 2.0]))
+
+    np.testing.assert_allclose(res, np.array([1.0, 2.0]), 5)
+
+
+def test_get_as_array_from_list_input_dask():
+    """Test the function to return an array when input is a list - using Dask"""
     from pyspectral.near_infrared_reflectance import get_as_array
 
     res = get_as_array([1.0, 2.0])
@@ -249,3 +270,13 @@ def test_get_as_array_from_list_input():
         np.testing.assert_allclose(res.compute(), np.array([1.0, 2.0]), 5)
     else:
         np.testing.assert_allclose(res, np.array([1.0, 2.0]), 5)
+
+
+def test_get_as_array_from_list_input_numpy():
+    """Test the function to return an array when input is a list - using Numpy"""
+    from pyspectral.near_infrared_reflectance import get_as_array
+
+    with patch('pyspectral.near_infrared_reflectance.asanyarray', new=np.asanyarray):
+        res = get_as_array([1.1, 2.2])
+
+    np.testing.assert_allclose(res, np.array([1.1, 2.2]), 5)

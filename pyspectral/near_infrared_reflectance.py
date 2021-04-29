@@ -304,6 +304,6 @@ def get_as_array(variable):
     Variable may be a scalar, a list or a Numpy/Dask array.
     """
     if np.isscalar(variable):
-        return array([variable, ])
+        return asanyarray([variable, ])
 
     return asanyarray(variable)
