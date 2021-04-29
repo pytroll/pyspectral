@@ -1,3 +1,22 @@
+## Version <v0.10.5> (2021/04/29)
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 129](https://github.com/pytroll/pyspectral/pull/129) - Fix so reflectances can be derived from scalar inputs
+
+#### Features added
+
+* [PR 128](https://github.com/pytroll/pyspectral/pull/128) - Fix dask compatibility of IR atmospherical correction
+
+#### Documentation changes
+
+* [PR 129](https://github.com/pytroll/pyspectral/pull/129) - Fix so reflectances can be derived from scalar inputs
+
+In this release 2 pull requests were closed.
+
+
 ## Version <v0.10.4> (2020/12/07)
 
 
