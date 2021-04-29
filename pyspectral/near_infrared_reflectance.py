@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2020 Pytroll developers
+# Copyright (c) 2014-2021 Pytroll developers
 #
 # Author(s):
 #
@@ -30,6 +30,7 @@ window channel (usually around 11-12 microns).
 """
 
 import os
+import logging
 import numpy as np
 try:
     from dask.array import where, logical_or, asanyarray, array, isnan
@@ -43,7 +44,7 @@ from pyspectral.utils import TB2RAD_DIR
 from pyspectral.utils import WAVE_LENGTH
 from pyspectral.radiance_tb_conversion import RadTbConverter
 from pyspectral.config import get_config
-import logging
+
 LOG = logging.getLogger(__name__)
 
 EPSILON = 0.005
@@ -219,15 +220,9 @@ class Calculator(RadTbConverter):
         else:
             is_masked = False
 
-        if np.isscalar(tb_near_ir):
-            tb_nir = array([tb_near_ir, ])
-        else:
-            tb_nir = asanyarray(tb_near_ir)
-
-        if np.isscalar(tb_thermal):
-            tb_therm = array([tb_thermal, ])
-        else:
-            tb_therm = asanyarray(tb_thermal)
+        tb_nir = get_as_array(tb_near_ir)
+        tb_therm = get_as_array(tb_thermal)
+        sun_zenith = get_as_array(sun_zenith)
 
         if tb_therm.shape != tb_nir.shape:
             errmsg = 'Dimensions do not match! {0} and {1}'.format(
@@ -242,10 +237,7 @@ class Calculator(RadTbConverter):
             tbco2 = None
         else:
             co2corr = True
-            if np.isscalar(tb_ir_co2):
-                tbco2 = array([tb_ir_co2, ])
-            else:
-                tbco2 = asanyarray(tb_ir_co2)
+            tbco2 = get_as_array(tb_ir_co2)
 
         if not self.rsr:
             raise NotImplementedError("Reflectance calculations without "
@@ -266,6 +258,7 @@ class Calculator(RadTbConverter):
             LOG.info('l_nir = %s', str(l_nir))
 
         LOG.debug("Apply sun-zenith angle clipping between 0 and %5.2f", self.masking_limit)
+
         sunz = sun_zenith.clip(0, self.sunz_threshold)
         mu0 = np.cos(np.deg2rad(sunz))
 
@@ -303,3 +296,14 @@ class Calculator(RadTbConverter):
         if is_masked:
             res = np.ma.masked_invalid(res)
         return res
+
+
+def get_as_array(variable):
+    """Return variable as a Dask or Numpy array.
+
+    Variable may be a scalar, a list or a Numpy/Dask array.
+    """
+    if np.isscalar(variable):
+        return asanyarray([variable, ])
+
+    return asanyarray(variable)

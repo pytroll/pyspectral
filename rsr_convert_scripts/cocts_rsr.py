@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2019 Pytroll developers
+# Copyright (c) 2019, 2021 Pytroll developers
 #
 # Author(s):
 #
@@ -20,12 +20,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Read the HY-1C COCTS relative spectral responses. Data from 
+"""Read the HY-1C COCTS relative spectral responses. Data from
 lwk1542@hotmail.com
 
 NB! The two IR bands are NOT included.
 
-See issue 
+See issue
 https://github.com/pytroll/pyspectral/issues/61
 """
 import os
