@@ -85,6 +85,35 @@ for chan_num in range(1, 37):
 # MODIS RSR files were made before 'chX' became standard in pyspectral
 BANDNAMES['modis'] = {str(chan_num): str(chan_num) for chan_num in range(1, 37)}
 
+BANDNAMES['seviri'] = {'VIS006': 'VIS0.6',
+                       'VIS008': 'VIS0.8',
+                       'IR_016': 'NIR1.6',
+                       'IR_039': 'IR3.9',
+                       'WV_062': 'IR6.2',
+                       'WV_073': 'IR7.3',
+                       'IR_087': 'IR8.7',
+                       'IR_097': 'IR9.7',
+                       'IR_108': 'IR10.8',
+                       'IR_120': 'IR12.0',
+                       'IR_134': 'IR13.4',
+                       'HRV': 'HRV'}
+
+BANDNAMES['viirs'] = {'I01': 'I1',
+                      'I02': 'I2',
+                      'I03': 'I3',
+                      'I04': 'I4',
+                      'I05': 'I5',
+                      'M01': 'M1',
+                      'M02': 'M2',
+                      'M03': 'M3',
+                      'M04': 'M4',
+                      'M05': 'M5',
+                      'M06': 'M6',
+                      'M07': 'M7',
+                      'M08': 'M8',
+                      'M09': 'M9',
+                      }
+
 BANDNAMES['avhrr-3'] = {'1': 'ch1',
                         '2': 'ch2',
                         '3b': 'ch3b',
@@ -193,7 +222,6 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'MTG-I1': 'fci'
                }
 
-
 HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/4305549/files/pyspectral_rsr_data.tgz"
 
 RSR_DATA_VERSION_FILENAME = "PYSPECTRAL_RSR_VERSION"
@@ -209,7 +237,7 @@ ATM_CORRECTION_LUT_VERSION['continental_clean_aerosol'] = {'version': 'v1.0.1',
 ATM_CORRECTION_LUT_VERSION['continental_polluted_aerosol'] = {'version': 'v1.0.1',
                                                               'filename': 'PYSPECTRAL_ATM_CORR_LUT_CPA'}
 ATM_CORRECTION_LUT_VERSION['desert_aerosol'] = {'version': 'v1.0.1',
-                                                           'filename': 'PYSPECTRAL_ATM_CORR_LUT_DA'}
+                                                'filename': 'PYSPECTRAL_ATM_CORR_LUT_DA'}
 ATM_CORRECTION_LUT_VERSION['marine_clean_aerosol'] = {'version': 'v1.0.1',
                                                       'filename': 'PYSPECTRAL_ATM_CORR_LUT_MCA'}
 ATM_CORRECTION_LUT_VERSION['marine_polluted_aerosol'] = {'version': 'v1.0.1',
@@ -223,7 +251,6 @@ ATM_CORRECTION_LUT_VERSION['urban_aerosol'] = {'version': 'v1.0.1',
 ATM_CORRECTION_LUT_VERSION['rayleigh_only'] = {'version': 'v1.0.1',
                                                'filename': 'PYSPECTRAL_ATM_CORR_LUT_RO'}
 
-
 AEROSOL_TYPES = ['antarctic_aerosol', 'continental_average_aerosol',
                  'continental_clean_aerosol', 'continental_polluted_aerosol',
                  'desert_aerosol', 'marine_clean_aerosol',
@@ -234,14 +261,12 @@ ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
                'midlatitude summer': 6, 'midlatitude winter': 7,
                'tropical': 8, 'us-standard': 9}
 
-
 HTTPS_RAYLEIGH_LUTS = {}
 URL_PREFIX = "https://zenodo.org/record/1288441/files/pyspectral_atm_correction_luts"
 for atype in AEROSOL_TYPES:
     name = {'rayleigh_only': 'no_aerosol'}.get(atype, atype)
     url = "{prefix}_{name}.tgz".format(prefix=URL_PREFIX, name=name)
     HTTPS_RAYLEIGH_LUTS[atype] = url
-
 
 CONF = get_config()
 LOCAL_RSR_DIR = CONF.get('rsr_dir')
@@ -470,7 +495,7 @@ def download_luts(**kwargs):
     else:
         aerosol_types = HTTPS_RAYLEIGH_LUTS.keys()
 
-    chunk_size = 1024*1024  # 1 MB
+    chunk_size = 1024 * 1024  # 1 MB
 
     for subname in aerosol_types:
 
