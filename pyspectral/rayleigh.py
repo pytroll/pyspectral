@@ -26,7 +26,6 @@
 import os
 import time
 import logging
-from six import integer_types
 
 import h5py
 import numpy as np
@@ -187,7 +186,7 @@ class Rayleigh(RayleighConfigBaseClass):
         except(IOError, OSError):
             LOG.exception(
                 "No spectral responses for this platform and sensor: %s %s", self.platform_name, self.sensor)
-            if isinstance(bandname, (float, integer_types)):
+            if isinstance(bandname, (float, int)):
                 LOG.warning(
                     "Effective wavelength is set to the requested band wavelength = %f", bandname)
                 return bandname
@@ -198,7 +197,7 @@ class Rayleigh(RayleighConfigBaseClass):
 
         if isinstance(bandname, str):
             bandname = BANDNAMES.get(self.sensor, BANDNAMES['generic']).get(bandname, bandname)
-        elif isinstance(bandname, (float, integer_types)):
+        elif isinstance(bandname, (float, int)):
             if not(0.4 < bandname < 0.8):
                 raise BandFrequencyOutOfRange(
                     'Requested band frequency should be between 0.4 and 0.8 microns!')
