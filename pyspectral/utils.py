@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2020 Pytroll developers
+# Copyright (c) 2014-2021 Pytroll developers
 #
 # Author(s):
 #
@@ -193,6 +193,9 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'MTG-I1': 'fci'
                }
 
+AVHRR_INSTRUMENT_NAME = {'avhrr-3': 'avhrr/3',
+                         'avhrr-2': 'avhrr/2',
+                         'avhrr-1': 'avhrr/1'}
 
 HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/4305549/files/pyspectral_rsr_data.tgz"
 

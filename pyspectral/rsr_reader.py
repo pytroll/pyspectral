@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2020 Pytroll developers
+# Copyright (c) 2014-2021 Pytroll developers
 #
 # Author(s):
 #
@@ -30,7 +30,8 @@ from os.path import expanduser
 from pyspectral.config import get_config
 from pyspectral.utils import WAVE_NUMBER
 from pyspectral.utils import WAVE_LENGTH
-from pyspectral.utils import (INSTRUMENTS, download_rsr)
+from pyspectral.utils import (INSTRUMENTS, AVHRR_INSTRUMENT_NAME)
+from pyspectral.utils import download_rsr
 from pyspectral.utils import (RSR_DATA_VERSION_FILENAME, RSR_DATA_VERSION)
 from pyspectral.utils import (convert2wavenumber, get_central_wave)
 from pyspectral.utils import convert2str
@@ -103,7 +104,7 @@ class RelativeSpectralResponse(RSRDataBaseClass):
         super(RelativeSpectralResponse, self).__init__()
 
         self.platform_name = platform_name
-        self.instrument = instrument
+        self.instrument = AVHRR_INSTRUMENT_NAME.get(instrument, instrument)
         self.filename = None
         if not self.instrument or not self.platform_name:
             if 'filename' in kwargs:
