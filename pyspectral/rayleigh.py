@@ -216,7 +216,7 @@ class Rayleigh(RayleighConfigBaseClass):
     def get_reflectance_lut(self):
         """Get reflectance LUT.
 
-        If not already cached (read previosuly) read the file with Look-Up
+        If not already cached (read previously) read the file with Look-Up
         Tables of reflectances as a function of wavelength, satellite zenith
         secant, azimuth difference angle, and sun zenith secant.
 
