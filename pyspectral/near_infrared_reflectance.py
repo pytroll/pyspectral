@@ -33,9 +33,9 @@ import os
 import logging
 import numpy as np
 try:
-    from dask.array import where, logical_or, asanyarray, array, isnan
+    from dask.array import where, logical_or, asanyarray, isnan
 except ImportError:
-    from numpy import where, logical_or, asanyarray, array, isnan
+    from numpy import where, logical_or, asanyarray, isnan
 
 from pyspectral.solar import (SolarIrradianceSpectrum,
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
