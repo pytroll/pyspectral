@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2016-2020 Pytroll developers
+# Copyright (c) 2016-2021 Pytroll developers
 #
 # Author(s):
 #
@@ -64,6 +64,7 @@ LOG = logging.getLogger(__name__)
 
 class BandFrequencyOutOfRange(ValueError):
     """Exception when the band frequency is out of the visible range."""
+
     pass
 
 
@@ -183,7 +184,7 @@ class Rayleigh(RayleighConfigBaseClass):
         """Get the effective wavelength with Rayleigh scattering in mind."""
         try:
             rsr = RelativeSpectralResponse(self.platform_name, self.sensor)
-        except(IOError, OSError):
+        except OSError:
             LOG.exception(
                 "No spectral responses for this platform and sensor: %s %s", self.platform_name, self.sensor)
             if isinstance(bandname, (float, int)):
@@ -214,12 +215,13 @@ class Rayleigh(RayleighConfigBaseClass):
     def get_reflectance_lut(self):
         """Get reflectance LUT.
 
-        Read the LUT with reflectances as a function of wavelength, satellite zenith
+        If not already cached (read previously) read the file with Look-Up
+        Tables of reflectances as a function of wavelength, satellite zenith
         secant, azimuth difference angle, and sun zenith secant.
 
         """
         if self._rayl is None:
-            lut_vars = get_reflectance_lut(self.reflectance_lut_filename)
+            lut_vars = get_reflectance_lut_from_file(self.reflectance_lut_filename)
             self._rayl = lut_vars[0]
             self._wvl_coord = lut_vars[1]
             self._azid_coord = lut_vars[2]
@@ -321,12 +323,12 @@ class Rayleigh(RayleighConfigBaseClass):
         return res
 
 
-def get_reflectance_lut(filename):
-    """
-    Get reflectance LUT.
+def get_reflectance_lut_from_file(filename):
+    """Get reflectance LUT.
 
-    Read the LUT with reflectances as a function of wavelength, satellite
-    zenith secant, azimuth difference angle, and sun zenith secant
+    Read the Look-Up Tables from file with reflectances as a function of
+    wavelength, satellite zenith secant, azimuth difference angle, and sun
+    zenith secant
 
     """
     h5f = h5py.File(filename, 'r')
