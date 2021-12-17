@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013-2020 Pytroll
+# Copyright (c) 2013-2021 Pytroll
 
 # Author(s):
 
@@ -20,10 +20,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
-from setuptools import setup, find_packages
-import os.path
+"""Setup for the Pyspectral package."""
 
+import os.path
+from setuptools import setup, find_packages
 
 try:
     # HACK: https://github.com/pypa/setuptools_scm/issues/190#issuecomment-351181286
@@ -50,14 +50,6 @@ requires = ['docutils>=0.3', 'numpy>=1.5.1', 'scipy>=0.14',
 
 dask_extra = ['dask[array]']
 test_requires = ['pyyaml', 'dask[array]', 'xlrd', 'pytest', 'xarray']
-if sys.version < '3.0':
-    test_requires.append('mock')
-    try:
-        # This is needed in order to let the unittests pass
-        # without complaining at the end on certain systems
-        import multiprocessing
-    except ImportError:
-        pass
 
 NAME = 'pyspectral'
 

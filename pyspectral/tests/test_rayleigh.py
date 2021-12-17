@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2016-2019 Pytroll developers
+# Copyright (c) 2016-2019, 2021 Pytroll developers
 #
 # Author(s):
 #
@@ -166,11 +166,11 @@ class TestRayleigh(unittest.TestCase):
     @patch('pyspectral.rayleigh.HAVE_DASK', False)
     @patch('os.path.exists')
     @patch('pyspectral.utils.download_luts')
-    @patch('pyspectral.rayleigh.get_reflectance_lut')
+    @patch('pyspectral.rayleigh.get_reflectance_lut_from_file')
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_rsr_data_version')
     @patch('pyspectral.rayleigh.Rayleigh.get_effective_wavelength')
     def test_get_reflectance(self, get_effective_wvl,
-                             get_rsr_version, get_reflectance_lut, download_luts, exists):
+                             get_rsr_version, get_reflectance_lut_from_file, download_luts, exists):
         """Test getting the reflectance correction."""
         rayl = TEST_RAYLEIGH_LUT
         wvl_coord = TEST_RAYLEIGH_WVL_COORD
@@ -178,8 +178,8 @@ class TestRayleigh(unittest.TestCase):
         sunz_sec_coord = TEST_RAYLEIGH_SUNZ_COORD
         satz_sec_coord = TEST_RAYLEIGH_SATZ_COORD
 
-        get_reflectance_lut.return_value = (rayl, wvl_coord, azid_coord,
-                                            satz_sec_coord, sunz_sec_coord)
+        get_reflectance_lut_from_file.return_value = (rayl, wvl_coord, azid_coord,
+                                                      satz_sec_coord, sunz_sec_coord)
         download_luts.return_code = None
         exists.return_code = True
         get_rsr_version.return_code = RSR_DATA_VERSION
@@ -203,25 +203,24 @@ class TestRayleigh(unittest.TestCase):
 
     @patch('os.path.exists')
     @patch('pyspectral.utils.download_luts')
-    @patch('pyspectral.rayleigh.get_reflectance_lut')
+    @patch('pyspectral.rayleigh.get_reflectance_lut_from_file')
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse.'
            '_get_rsr_data_version')
     @patch('pyspectral.rayleigh.Rayleigh.get_effective_wavelength')
     def test_get_reflectance_dask(self, get_effective_wvl,
-                                  get_rsr_version, get_reflectance_lut,
+                                  get_rsr_version, get_reflectance_lut_from_file,
                                   download_luts, exists):
         """Test getting the reflectance correction with dask inputs."""
         rayl = da.from_array(TEST_RAYLEIGH_LUT, chunks=(10, 10, 10, 10))
-        wvl_coord = da.from_array(TEST_RAYLEIGH_WVL_COORD,
-                                  chunks=(100,)).persist()
+        wvl_coord = TEST_RAYLEIGH_WVL_COORD
         azid_coord = da.from_array(TEST_RAYLEIGH_AZID_COORD, chunks=(1000,))
         sunz_sec_coord = da.from_array(TEST_RAYLEIGH_SUNZ_COORD,
                                        chunks=(1000,))
         satz_sec_coord = da.from_array(TEST_RAYLEIGH_SATZ_COORD,
                                        chunks=(1000,))
 
-        get_reflectance_lut.return_value = (rayl, wvl_coord, azid_coord,
-                                            satz_sec_coord, sunz_sec_coord)
+        get_reflectance_lut_from_file.return_value = (rayl, wvl_coord, azid_coord,
+                                                      satz_sec_coord, sunz_sec_coord)
         download_luts.return_code = None
         exists.return_code = True
         get_rsr_version.return_code = RSR_DATA_VERSION
@@ -245,25 +244,24 @@ class TestRayleigh(unittest.TestCase):
 
     @patch('os.path.exists')
     @patch('pyspectral.utils.download_luts')
-    @patch('pyspectral.rayleigh.get_reflectance_lut')
+    @patch('pyspectral.rayleigh.get_reflectance_lut_from_file')
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse.'
            '_get_rsr_data_version')
     @patch('pyspectral.rayleigh.Rayleigh.get_effective_wavelength')
     def test_get_reflectance_numpy_dask(self, get_effective_wvl,
-                                        get_rsr_version, get_reflectance_lut,
+                                        get_rsr_version, get_reflectance_lut_from_file,
                                         download_luts, exists):
         """Test getting the reflectance correction with dask inputs."""
         rayl = da.from_array(TEST_RAYLEIGH_LUT, chunks=(10, 10, 10, 10))
-        wvl_coord = da.from_array(TEST_RAYLEIGH_WVL_COORD,
-                                  chunks=(100,)).persist()
+        wvl_coord = TEST_RAYLEIGH_WVL_COORD
         azid_coord = da.from_array(TEST_RAYLEIGH_AZID_COORD, chunks=(1000,))
         sunz_sec_coord = da.from_array(TEST_RAYLEIGH_SUNZ_COORD,
                                        chunks=(1000,))
         satz_sec_coord = da.from_array(TEST_RAYLEIGH_SATZ_COORD,
                                        chunks=(1000,))
 
-        get_reflectance_lut.return_value = (rayl, wvl_coord, azid_coord,
-                                            satz_sec_coord, sunz_sec_coord)
+        get_reflectance_lut_from_file.return_value = (rayl, wvl_coord, azid_coord,
+                                                      satz_sec_coord, sunz_sec_coord)
         download_luts.return_code = None
         exists.return_code = True
         get_rsr_version.return_code = RSR_DATA_VERSION
@@ -288,8 +286,8 @@ class TestRayleigh(unittest.TestCase):
     @patch('pyspectral.rayleigh.HAVE_DASK', False)
     @patch('os.path.exists')
     @patch('pyspectral.utils.download_luts')
-    @patch('pyspectral.rayleigh.get_reflectance_lut')
-    def test_get_reflectance_no_rsr(self, get_reflectance_lut, download_luts, exists):
+    @patch('pyspectral.rayleigh.get_reflectance_lut_from_file')
+    def test_get_reflectance_no_rsr(self, get_reflectance_lut_from_file, download_luts, exists):
         """Test getting the reflectance correction, simulating that we have no RSR data."""
         rayl = TEST_RAYLEIGH_LUT
         wvl_coord = TEST_RAYLEIGH_WVL_COORD
@@ -297,8 +295,8 @@ class TestRayleigh(unittest.TestCase):
         sunz_sec_coord = TEST_RAYLEIGH_SUNZ_COORD
         satz_sec_coord = TEST_RAYLEIGH_SATZ_COORD
 
-        get_reflectance_lut.return_value = (rayl, wvl_coord, azid_coord,
-                                            satz_sec_coord, sunz_sec_coord)
+        get_reflectance_lut_from_file.return_value = (rayl, wvl_coord, azid_coord,
+                                                      satz_sec_coord, sunz_sec_coord)
         download_luts.return_code = None
         exists.return_code = True
 

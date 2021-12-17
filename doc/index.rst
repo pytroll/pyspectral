@@ -1,4 +1,4 @@
-.. Pyspectral documentation master file, created by
+.. Pyspectral documentation main file, created by
    sphinx-quickstart on Tue Oct 15 13:31:45 2013.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
