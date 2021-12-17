@@ -49,6 +49,7 @@ else:
 TEST_RAYLEIGH_RESULT1 = np.array([10.40727436,   8.69775471], dtype='float32')
 TEST_RAYLEIGH_RESULT2 = np.array([9.71695252,  8.51415601], dtype='float32')
 TEST_RAYLEIGH_RESULT3 = np.array([5.61532271,  8.69267476], dtype='float32')
+TEST_RAYLEIGH_RESULT4 = np.array([0.0,   8.69775471], dtype='float32')
 
 
 # Mock some modules, so we don't need them for tests.
@@ -169,6 +170,44 @@ class TestRayleigh(unittest.TestCase):
     @patch('pyspectral.rayleigh.get_reflectance_lut_from_file')
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_rsr_data_version')
     @patch('pyspectral.rayleigh.Rayleigh.get_effective_wavelength')
+    def test_get_reflectance_redband_outside_clip(self, get_effective_wvl,
+                                                  get_rsr_version, get_reflectance_lut_from_file,
+                                                  download_luts, exists):
+        """Test getting the reflectance correction - using red band reflections outside 0-100."""
+        rayl = TEST_RAYLEIGH_LUT
+        wvl_coord = TEST_RAYLEIGH_WVL_COORD
+        azid_coord = TEST_RAYLEIGH_AZID_COORD
+        sunz_sec_coord = TEST_RAYLEIGH_SUNZ_COORD
+        satz_sec_coord = TEST_RAYLEIGH_SATZ_COORD
+
+        get_reflectance_lut_from_file.return_value = (rayl, wvl_coord, azid_coord,
+                                                      satz_sec_coord, sunz_sec_coord)
+        download_luts.return_code = None
+        exists.return_code = True
+        get_rsr_version.return_code = RSR_DATA_VERSION
+        get_effective_wvl.return_value = self.cwvl
+
+        sun_zenith = np.array([67., 32.])
+        sat_zenith = np.array([45., 18.])
+        azidiff = np.array([150., 110.])
+        redband_refl = np.array([108., -0.5])
+        retv = self.viirs_rayleigh.get_reflectance(
+            sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
+
+        self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT4))
+
+        redband_refl = np.array([100., 20.0])
+        retv = self.viirs_rayleigh.get_reflectance(
+            sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
+
+        self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT4))
+
+    @patch('pyspectral.rayleigh.HAVE_DASK', False)
+    @patch('os.path.exists')
+    @patch('pyspectral.utils.download_luts')
+    @patch('pyspectral.rayleigh.get_reflectance_lut_from_file')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_rsr_data_version')
+    @patch('pyspectral.rayleigh.Rayleigh.get_effective_wavelength')
     def test_get_reflectance(self, get_effective_wvl,
                              get_rsr_version, get_reflectance_lut_from_file, download_luts, exists):
         """Test getting the reflectance correction."""
@@ -188,18 +227,56 @@ class TestRayleigh(unittest.TestCase):
         sun_zenith = np.array([67., 32.])
         sat_zenith = np.array([45., 18.])
         azidiff = np.array([150., 110.])
-        blueband = np.array([14., 5.])
+        redband_refl = np.array([14., 5.])
         retv = self.viirs_rayleigh.get_reflectance(
-            sun_zenith, sat_zenith, azidiff, 'M2', blueband)
+            sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
         self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT1))
 
         sun_zenith = np.array([60., 20.])
         sat_zenith = np.array([49., 26.])
         azidiff = np.array([140., 130.])
-        blueband = np.array([12., 8.])
+        redband_refl = np.array([12., 8.])
         retv = self.viirs_rayleigh.get_reflectance(
-            sun_zenith, sat_zenith, azidiff, 'M2', blueband)
+            sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
         self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT2))
+
+    @patch('os.path.exists')
+    @patch('pyspectral.utils.download_luts')
+    @patch('pyspectral.rayleigh.get_reflectance_lut_from_file')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.'
+           '_get_rsr_data_version')
+    @patch('pyspectral.rayleigh.Rayleigh.get_effective_wavelength')
+    def test_get_reflectance_dask_redband_outside_clip(self, get_effective_wvl,
+                                                       get_rsr_version, get_reflectance_lut_from_file,
+                                                       download_luts, exists):
+        """Test getting the reflectance correction with dask inputs - using red band reflections outside 0-100."""
+        rayl = da.from_array(TEST_RAYLEIGH_LUT, chunks=(10, 10, 10, 10))
+        wvl_coord = TEST_RAYLEIGH_WVL_COORD
+        azid_coord = da.from_array(TEST_RAYLEIGH_AZID_COORD, chunks=(1000,))
+        sunz_sec_coord = da.from_array(TEST_RAYLEIGH_SUNZ_COORD,
+                                       chunks=(1000,))
+        satz_sec_coord = da.from_array(TEST_RAYLEIGH_SATZ_COORD,
+                                       chunks=(1000,))
+
+        get_reflectance_lut_from_file.return_value = (rayl, wvl_coord, azid_coord,
+                                                      satz_sec_coord, sunz_sec_coord)
+        download_luts.return_code = None
+        exists.return_code = True
+        get_rsr_version.return_code = RSR_DATA_VERSION
+        get_effective_wvl.return_value = self.cwvl
+
+        sun_zenith = da.from_array(np.array([67., 32.]), chunks=2)
+        sat_zenith = da.from_array(np.array([45., 18.]), chunks=2)
+        azidiff = da.from_array(np.array([150., 110.]), chunks=2)
+        redband_refl = da.from_array(np.array([108., -0.5]), chunks=2)
+        retv = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
+        self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT4))
+        self.assertIsInstance(retv, da.Array)
+
+        redband_refl = da.from_array(np.array([100., 20.0]), chunks=2)
+        retv = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
+        self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT4))
+        self.assertIsInstance(retv, da.Array)
 
     @patch('os.path.exists')
     @patch('pyspectral.utils.download_luts')
@@ -229,16 +306,16 @@ class TestRayleigh(unittest.TestCase):
         sun_zenith = da.from_array(np.array([67., 32.]), chunks=2)
         sat_zenith = da.from_array(np.array([45., 18.]), chunks=2)
         azidiff = da.from_array(np.array([150., 110.]), chunks=2)
-        blueband = da.from_array(np.array([14., 5.]), chunks=2)
-        retv = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', blueband)
+        redband_refl = da.from_array(np.array([14., 5.]), chunks=2)
+        retv = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
         self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT1))
         self.assertIsInstance(retv, da.Array)
 
         sun_zenith = da.from_array(np.array([60., 20.]), chunks=2)
         sat_zenith = da.from_array(np.array([49., 26.]), chunks=2)
         azidiff = da.from_array(np.array([140., 130.]), chunks=2)
-        blueband = da.from_array(np.array([12., 8.]), chunks=2)
-        retv = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', blueband)
+        redband_refl = da.from_array(np.array([12., 8.]), chunks=2)
+        retv = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
         self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT2))
         self.assertIsInstance(retv, da.Array)
 
@@ -270,16 +347,16 @@ class TestRayleigh(unittest.TestCase):
         sun_zenith = np.array([67., 32.])
         sat_zenith = np.array([45., 18.])
         azidiff = np.array([150., 110.])
-        blueband = np.array([14., 5.])
-        retv = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', blueband)
+        redband_refl = np.array([14., 5.])
+        retv = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
         self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT1))
         self.assertIsInstance(retv, np.ndarray)
 
         sun_zenith = np.array([60., 20.])
         sat_zenith = np.array([49., 26.])
         azidiff = np.array([140., 130.])
-        blueband = np.array([12., 8.])
-        retv = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', blueband)
+        redband_refl = np.array([12., 8.])
+        retv = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
         self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT2))
         self.assertIsInstance(retv, np.ndarray)
 
@@ -309,8 +386,8 @@ class TestRayleigh(unittest.TestCase):
             sun_zenith = np.array([50., 10.])
             sat_zenith = np.array([39., 16.])
             azidiff = np.array([170., 110.])
-            blueband = np.array([29., 12.])
+            redband_refl = np.array([29., 12.])
             ufo = rayleigh.Rayleigh('UFO', 'unknown')
 
-            retv = ufo.get_reflectance(sun_zenith, sat_zenith, azidiff, 0.441, blueband)
+            retv = ufo.get_reflectance(sun_zenith, sat_zenith, azidiff, 0.441, redband_refl)
             self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT3))

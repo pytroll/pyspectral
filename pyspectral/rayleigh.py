@@ -33,7 +33,7 @@ import numpy as np
 
 try:
     from dask.array import (where, zeros, clip, rad2deg, deg2rad, cos, arccos,
-                            atleast_2d, Array, map_blocks, from_array)
+                            atleast_2d, Array, map_blocks, from_array, nan_to_num)
     import dask.array as da
     HAVE_DASK = True
     # try:
@@ -42,7 +42,7 @@ try:
     # except ImportError:
     #     pass
 except ImportError:
-    from numpy import where, zeros, clip, rad2deg, deg2rad, cos, arccos, atleast_2d
+    from numpy import where, zeros, clip, rad2deg, deg2rad, cos, arccos, atleast_2d, nan_to_num
     da = None
     map_blocks = None
     from_array = None
@@ -261,10 +261,12 @@ class Rayleigh(RayleighConfigBaseClass):
             if redband is not None:
                 redband = from_array(redband, chunks=redband.shape)
 
-        clip_angle = rad2deg(arccos(1. / sunz_sec_coord.max()))
+        clip_angle = nan_to_num(rad2deg(arccos(1. / sunz_sec_coord.max())))
+        sun_zenith = nan_to_num(sun_zenith)
         sun_zenith = clip(sun_zenith, 0, clip_angle)
         sunzsec = 1. / cos(deg2rad(sun_zenith))
-        clip_angle = rad2deg(arccos(1. / satz_sec_coord.max()))
+        clip_angle = nan_to_num(rad2deg(arccos(1. / satz_sec_coord.max())))
+        sat_zenith = nan_to_num(sat_zenith)
         sat_zenith = clip(sat_zenith, 0, clip_angle)
         satzsec = 1. / cos(deg2rad(sat_zenith))
         shape = sun_zenith.shape
@@ -317,7 +319,7 @@ class Rayleigh(RayleighConfigBaseClass):
             res = where(redband < 20., res,
                         (1 - (redband - 20) / 80) * res)
 
-        res = clip(res, 0, 100)
+        res = clip(nan_to_num(res), 0, 100)
         if compute:
             res = res.compute()
 
