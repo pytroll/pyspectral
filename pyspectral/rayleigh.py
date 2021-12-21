@@ -236,6 +236,20 @@ class Rayleigh(RayleighConfigBaseClass):
         res = minterp(interp_points2)
         return res.reshape(sunzsec.shape)
 
+    def _clip_angles_inside_coordinate_range(self, zenith_angle, zenith_secant_max):
+        """Clipping solar- or satellite zenith angles to be inside the allowed coordinate range.
+
+        The "allowed" coordinate range is 0 to the angle corresponiding to a
+        maximum secant. The maximum secant is here the maximum available in the
+        Rayleigh LUT file.
+
+        Also the nan's in the angle array are filled with zeros (0)!
+
+        """
+        clip_angle = nan_to_num(rad2deg(arccos(1. / zenith_secant_max)))
+        zang = nan_to_num(zenith_angle)
+        return clip(zang, 0, clip_angle)
+
     def get_reflectance(self, sun_zenith, sat_zenith, azidiff, bandname, redband=None):
         """Get the reflectance from the three sun-sat angles."""
         # Get wavelength in nm for band:
@@ -260,17 +274,15 @@ class Rayleigh(RayleighConfigBaseClass):
             if redband is not None:
                 redband = from_array(redband, chunks=redband.shape)
 
-        clip_angle = nan_to_num(rad2deg(arccos(1. / sunz_sec_coord.max())))
-        sun_zenith = nan_to_num(sun_zenith)
-        sun_zenith = clip(sun_zenith, 0, clip_angle)
+        sun_zenith = self._clip_angles_inside_coordinate_range(sun_zenith, sunz_sec_coord.max())
         sunzsec = 1. / cos(deg2rad(sun_zenith))
-        clip_angle = nan_to_num(rad2deg(arccos(1. / satz_sec_coord.max())))
-        sat_zenith = nan_to_num(sat_zenith)
-        sat_zenith = clip(sat_zenith, 0, clip_angle)
+
+        sat_zenith = self._clip_angles_inside_coordinate_range(sat_zenith, satz_sec_coord.max())
         satzsec = 1. / cos(deg2rad(sat_zenith))
+
         shape = sun_zenith.shape
 
-        if not(wvl_coord.min() < wvl < wvl_coord.max()):
+        if not wvl_coord.min() < wvl < wvl_coord.max():
             LOG.warning(
                 "Effective wavelength for band %s outside 400-800 nm range!",
                 str(bandname))
