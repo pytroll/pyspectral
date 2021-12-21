@@ -27,7 +27,7 @@ import os.path
 import numpy as np
 import xarray as xr
 import pytest
-from pyspectral.rsr_reader import RelativeSpectralResponse
+from pyspectral.rsr_reader import RelativeSpectralResponse, RSRDict
 from pyspectral.utils import WAVE_NUMBER
 from pyspectral.utils import RSR_DATA_VERSION
 from pyspectral.tests.unittest_helpers import assertNumpyArraysEqual
@@ -447,3 +447,19 @@ class TestPopulateRSRObject(unittest.TestCase):
 
         expected = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
         assertNumpyArraysEqual(test_rsr.rsr['M1']['det-1']['response'].data, expected)
+
+    def test_rsr_dict(self):
+        """Test finding correct band names from utils dicts."""
+
+        test_rsr = RSRDict(instrument='viirs')
+        test_rsr['M1'] = 0
+        test_rsr['VIS0.6'] = 1
+        # Check for correct band name
+        self.assertEqual(test_rsr['M1'], 0)
+        # Check for alternative band name on same instrument
+        self.assertEqual(test_rsr['M01'], 0)
+        # Check for generic band name
+        self.assertEqual(test_rsr['VIS006'], 1)
+        # Check exception raised if incorrect band name given
+        with self.assertRaises(KeyError):
+            print('d', test_rsr['VIS030'])

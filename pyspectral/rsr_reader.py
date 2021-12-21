@@ -49,7 +49,7 @@ OSCAR_PLATFORM_NAMES = {'eos-2': 'EOS-Aqua',
 
 class RSRDict(dict):
     def __init__(self, instrument=None):
-        self.instrument=instrument
+        self.instrument = instrument
         dict.__init__(self)
 
     def __getitem__(self, key):
@@ -63,7 +63,6 @@ class RSRDict(dict):
             else:
                 raise KeyError(f'Band not found in RSR for {self.instrument}: {key}')
         return val
-
 
 
 class RSRDataBaseClass(object):
