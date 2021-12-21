@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2017-2020 Pytroll developers
+# Copyright (c) 2017-2021 Pytroll developers
 #
 # Author(s):
 #
-#   Adam.Dybbroe <a000680@c20671.ad.smhi.se>
+#   Adam Dybbroe <adam.dybbroe@smhi.se>
+#   Simon Proud
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,26 +23,17 @@
 
 """Unit testing the generic rsr hdf5 reader."""
 
-import sys
 import os.path
 import numpy as np
 import xarray as xr
+import unittest
+from unittest.mock import patch
 import pytest
+
 from pyspectral.rsr_reader import RelativeSpectralResponse, RSRDict
 from pyspectral.utils import WAVE_NUMBER
 from pyspectral.utils import RSR_DATA_VERSION
 from pyspectral.tests.unittest_helpers import assertNumpyArraysEqual
-
-
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
-
-if sys.version_info < (3,):
-    from mock import patch
-else:
-    from unittest.mock import patch
 
 TEST_RSR = {'20': {}, }
 TEST_RSR['20']['det-1'] = {}
@@ -174,7 +166,10 @@ class TestRsrReader(unittest.TestCase):
 
 
 class MyHdf5Mock(object):
+    """A Mock for the RSR data normally stored in a HDF5 file."""
+
     def __init__(self, attrs):
+        """Initialize the mock class."""
         self.attrs = attrs
 
 
@@ -237,7 +232,6 @@ class TestPopulateRSRObject(unittest.TestCase):
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
     def test_create_rsr_instance(self, check_instrument, get_filename, check_filename_exist, load):
         """Test creating the instance."""
-
         load.return_value = None
         check_filename_exist.return_value = None
         get_filename.return_value = None
@@ -256,7 +250,6 @@ class TestPopulateRSRObject(unittest.TestCase):
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
     def test_set_description(self, check_instrument, get_filename, check_filename_exist, load):
         """Test setting the description."""
-
         load.return_value = None
         check_filename_exist.return_value = None
         get_filename.return_value = None
@@ -278,7 +271,6 @@ class TestPopulateRSRObject(unittest.TestCase):
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
     def test_set_platform_name(self, check_instrument, get_filename, check_filename_exist, load):
         """Test setting the platform name."""
-
         load.return_value = None
         check_filename_exist.return_value = None
         get_filename.return_value = None
@@ -323,7 +315,6 @@ class TestPopulateRSRObject(unittest.TestCase):
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
     def test_set_instrument(self, check_instrument, get_filename, check_filename_exist, load):
         """Test setting the instrument name."""
-
         load.return_value = None
         check_filename_exist.return_value = None
         get_filename.return_value = None
@@ -353,7 +344,6 @@ class TestPopulateRSRObject(unittest.TestCase):
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
     def test_set_band_names(self, check_instrument, get_filename, check_filename_exist, load):
         """Test setting the band names."""
-
         load.return_value = None
         check_filename_exist.return_value = None
         get_filename.return_value = None
@@ -372,7 +362,6 @@ class TestPopulateRSRObject(unittest.TestCase):
                                                       check_instrument, get_filename,
                                                       check_filename_exist, load):
         """Test setting the band specific central wavelength for a detector."""
-
         load.return_value = None
         check_filename_exist.return_value = None
         get_filename.return_value = None
@@ -399,7 +388,6 @@ class TestPopulateRSRObject(unittest.TestCase):
                                                check_instrument, get_filename,
                                                check_filename_exist, load):
         """Test setting the band wavelengths for a detector."""
-
         load.return_value = None
         check_filename_exist.return_value = None
         get_filename.return_value = None
@@ -428,7 +416,6 @@ class TestPopulateRSRObject(unittest.TestCase):
                                              check_instrument, get_filename,
                                              check_filename_exist, load):
         """Test setting the band responses for a detector."""
-
         load.return_value = None
         check_filename_exist.return_value = None
         get_filename.return_value = None
@@ -450,7 +437,6 @@ class TestPopulateRSRObject(unittest.TestCase):
 
     def test_rsr_dict(self):
         """Test finding correct band names from utils dicts."""
-
         test_rsr = RSRDict(instrument='viirs')
         test_rsr['M1'] = 0
         test_rsr['VIS0.6'] = 1
