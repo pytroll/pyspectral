@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2020 Pytroll developers
+# Copyright (c) 2014-2021 Pytroll developers
 #
 # Author(s):
 #
@@ -607,8 +607,10 @@ def get_wave_range(in_chan, threshold=0.15):
 
 def convert2str(value):
     """Convert a value to string.
+
     Args:
         value: Either a str, bytes or 1-element numpy array
+
     """
     value = bytes2string(value)
     return np2str(value)
@@ -616,11 +618,13 @@ def convert2str(value):
 
 def np2str(value):
     """Convert an `numpy.string_` to str.
+
     Args:
         value (ndarray): scalar or 1-element numpy array to convert
     Raises:
         ValueError: if value is array larger than 1-element or it is not of
                     type `numpy.string_` or it is not a numpy array
+
     """
     if isinstance(value, str):
         return value
