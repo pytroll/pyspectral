@@ -137,7 +137,7 @@ class TestRayleighDask(unittest.TestCase):
         get_rsr_version.return_code = RSR_DATA_VERSION
         get_effective_wvl.return_value = self.cwvl
 
-        zenith_angle = da.from_array(np.array([79., 69., 32., np.nan]), chunks=2)
+        zenith_angle = da.array([79., 69., 32., np.nan])
         result = self.viirs_rayleigh._clip_angles_inside_coordinate_range(zenith_angle, 2.75)
 
         np.testing.assert_allclose(result, TEST_ZENITH_ANGLES_RESULTS)
@@ -159,10 +159,10 @@ class TestRayleighDask(unittest.TestCase):
         get_rsr_version.return_code = RSR_DATA_VERSION
         get_effective_wvl.return_value = self.cwvl
 
-        sun_zenith = da.from_array(np.array([67., 32.]), chunks=2)
-        sat_zenith = da.from_array(np.array([45., 18.]), chunks=2)
-        azidiff = da.from_array(np.array([150., 110.]), chunks=2)
-        redband_refl = da.from_array(np.array([108., -0.5]), chunks=2)
+        sun_zenith = da.array([67., 32.])
+        sat_zenith = da.array([45., 18.])
+        azidiff = da.array([150., 110.])
+        redband_refl = da.array([108., -0.5])
         refl_corr = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
         np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT4)
         self.assertIsInstance(refl_corr, da.Array)
@@ -184,18 +184,18 @@ class TestRayleighDask(unittest.TestCase):
         get_rsr_version.return_code = RSR_DATA_VERSION
         get_effective_wvl.return_value = self.cwvl
 
-        sun_zenith = da.from_array(np.array([67., 32.]), chunks=2)
-        sat_zenith = da.from_array(np.array([45., 18.]), chunks=2)
-        azidiff = da.from_array(np.array([150., 110.]), chunks=2)
-        redband_refl = da.from_array(np.array([14., 5.]), chunks=2)
+        sun_zenith = da.array([67., 32.])
+        sat_zenith = da.array([45., 18.])
+        azidiff = da.array([150., 110.])
+        redband_refl = da.array([14., 5.])
         refl_corr = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
         np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT1)
         self.assertIsInstance(refl_corr, da.Array)
 
-        sun_zenith = da.from_array(np.array([60., 20.]), chunks=2)
-        sat_zenith = da.from_array(np.array([49., 26.]), chunks=2)
-        azidiff = da.from_array(np.array([140., 130.]), chunks=2)
-        redband_refl = da.from_array(np.array([12., 8.]), chunks=2)
+        sun_zenith = da.array([60., 20.])
+        sat_zenith = da.array([49., 26.])
+        azidiff = da.array([140., 130.])
+        redband_refl = da.array([12., 8.])
         refl_corr = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
         np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT2)
         self.assertIsInstance(refl_corr, da.Array)
