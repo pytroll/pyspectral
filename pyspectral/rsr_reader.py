@@ -30,6 +30,7 @@ from os.path import expanduser
 from pyspectral.config import get_config
 from pyspectral.utils import WAVE_NUMBER
 from pyspectral.utils import WAVE_LENGTH
+from pyspectral.utils import BANDNAMES
 from pyspectral.utils import (INSTRUMENTS, download_rsr)
 from pyspectral.utils import (RSR_DATA_VERSION_FILENAME, RSR_DATA_VERSION)
 from pyspectral.utils import (convert2wavenumber, get_central_wave)
@@ -46,6 +47,24 @@ OSCAR_PLATFORM_NAMES = {'eos-2': 'EOS-Aqua',
                         'meteosat-8': 'Meteosat-8'}
 
 
+class RSRDict(dict):
+    def __init__(self, instrument=None):
+        self.instrument = instrument
+        dict.__init__(self)
+
+    def __getitem__(self, key):
+        try:
+            val = dict.__getitem__(self, key)
+        except KeyError:
+            if key in BANDNAMES[self.instrument]:
+                val = dict.__getitem__(self, BANDNAMES[self.instrument][key])
+            elif key in BANDNAMES['generic']:
+                val = dict.__getitem__(self, BANDNAMES['generic'][key])
+            else:
+                raise KeyError(f'Band not found in RSR for {self.instrument}: {key}')
+        return val
+
+
 class RSRDataBaseClass(object):
     """Data container for the Relative Spectral Responses for all (supported) satellite sensors."""
 
@@ -56,7 +75,7 @@ class RSRDataBaseClass(object):
         filename and load the data.
 
         """
-        self.rsr = {}
+        self.rsr = RSRDict()
         self.description = "Unknown"
         self.band_names = None
         self.unit = '1e-6 m'
@@ -105,6 +124,7 @@ class RelativeSpectralResponse(RSRDataBaseClass):
         self.platform_name = platform_name
         self.instrument = instrument
         self.filename = None
+        self.rsr.instrument = self.instrument
         if not self.instrument or not self.platform_name:
             if 'filename' in kwargs:
                 self.filename = kwargs['filename']
