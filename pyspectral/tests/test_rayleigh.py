@@ -36,15 +36,8 @@ from pyspectral.tests.data import (
     TEST_RAYLEIGH_WVL_COORD)
 from pyspectral.utils import RSR_DATA_VERSION
 
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
-
-if sys.version_info < (3,):
-    from mock import patch
-else:
-    from unittest.mock import patch
+import unittest
+from unittest.mock import patch
 
 TEST_RAYLEIGH_RESULT1 = np.array([10.40727436,   8.69775471], dtype='float32')
 TEST_RAYLEIGH_RESULT2 = np.array([9.71696059, 8.51415689], dtype='float32')
@@ -352,7 +345,6 @@ class TestRayleigh(unittest.TestCase):
         # Test case where extreme reduction is performed.
         retv = self.viirs_rayleigh.reduce_rayleigh_highzenith(sun_zenith, in_rayleigh, 30., 90., 1.5)
         self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT_R2))
-
 
     @patch('pyspectral.rayleigh.HAVE_DASK', False)
     @patch('os.path.exists')
