@@ -50,6 +50,8 @@ TEST_RAYLEIGH_RESULT1 = np.array([10.40727436,   8.69775471], dtype='float32')
 TEST_RAYLEIGH_RESULT2 = np.array([9.71696059, 8.51415689], dtype='float32')
 TEST_RAYLEIGH_RESULT3 = np.array([5.61532271,  8.69267476], dtype='float32')
 TEST_RAYLEIGH_RESULT4 = np.array([0.0,   8.69775471], dtype='float32')
+TEST_RAYLEIGH_RESULT_R1 = np.array([16.66666667, 20.83333333, 25.], dtype='float32')
+TEST_RAYLEIGH_RESULT_R2 = np.array([0., 6.25, 12.5], dtype='float32')
 
 TEST_ZENITH_ANGLES_RESULTS = np.array([68.67631374, 68.67631374, 32., 0.])
 
@@ -334,6 +336,23 @@ class TestRayleigh(unittest.TestCase):
         result = self.viirs_rayleigh._clip_angles_inside_coordinate_range(zenith_angle, 2.75)
 
         np.testing.assert_allclose(result, TEST_ZENITH_ANGLES_RESULTS)
+
+    def test_rayleigh_reduction(self):
+        """Test the code that reduces Rayleigh correction for high zenith angles."""
+
+        # Test the Rayleigh reduction code
+        sun_zenith = np.array([70., 65., 60.])
+        in_rayleigh = [50, 50, 50]
+        # Test case where no reduction is done.
+        retv = self.viirs_rayleigh.reduce_rayleigh_highzenith(sun_zenith, in_rayleigh, 70., 90., 1)
+        self.assertTrue(np.allclose(retv, in_rayleigh))
+        # Test case where moderate reduction is performed.
+        retv = self.viirs_rayleigh.reduce_rayleigh_highzenith(sun_zenith, in_rayleigh, 30., 90., 1)
+        self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT_R1))
+        # Test case where extreme reduction is performed.
+        retv = self.viirs_rayleigh.reduce_rayleigh_highzenith(sun_zenith, in_rayleigh, 30., 90., 1.5)
+        self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT_R2))
+
 
     @patch('pyspectral.rayleigh.HAVE_DASK', False)
     @patch('os.path.exists')

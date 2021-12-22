@@ -110,6 +110,31 @@ if you want another setup, e.g.:
   [[ 10.01281363   9.65488615]
    [  9.78070046   9.70335278]]
 
+At high solar zenith angles the assumptions used in the simulations begin to break
+down, which can lead to unrealistic correction values. In particular, for true color
+imagery this often results in the red channel being too bright compared to the
+green and / or blue channels.
+We have implemented an optional scaling method to minimise this overcorrection at
+high solar zeniths, `reduce_rayleigh`:
+
+  >>> from pyspectral.rayleigh import Rayleigh
+  >>> import numpy as np
+  >>> viirs = Rayleigh('Suomi-NPP', 'viirs', atmosphere='midlatitude summer', rural_aerosol=True)
+  >>> sunz = np.array([[32., 40.], [80., 88.]])
+  >>> satz = np.array([[45., 20.], [46., 21.]])
+  >>> ssadiff = np.array([[110, 170], [120, 180]])
+  >>> refl_cor_m2 = viirs.get_reflectance(sunz, satz, ssadiff, 0.45, redband)
+  [[ 10.40291763 9.654881]
+   [ 30.9275331  39.41288558]]
+  >>> reduced_refl_cor_m2 = viirs.reduce_rayleigh_highzenith(sunz, refl_cor_m2, 70., 90., 1.)
+  [[ 10.40291763 9.654881],
+   [ 15.46376655 3.94128856]]
+
+These reduced atmospheric correction (primarily due to increased Rayleigh
+scattering in the clear atmosphere) values can then be used to correct the
+original satellite reflectance data to produce more visually pleasing imagery,
+also at low sun elevations. Due to the nature of this reduction method they
+should not be used for any scientific analysis.
 
 .. _Satpy: http://www.github.com/pytroll/satpy
 .. _zenodo: https://doi.org/10.5281/zenodo.1288441
