@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2020 Pytroll developers
+# Copyright (c) 2014-2021 Pytroll developers
 #
 # Author(s):
 #
@@ -150,10 +150,10 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(bname, ['ch13', 'ch14'])
 
         # uses generic channel mapping where '20' -> 'ch20'
-        bandname = utils.get_bandname_from_wavelength('abi', 3.7, TEST_RSR)
+        bandname = utils.get_bandname_from_wavelength('ufo', 3.7, TEST_RSR)
         self.assertEqual(bandname, 'ch20')
 
-        bandname = utils.get_bandname_from_wavelength('abi', 3.0, TEST_RSR)
+        bandname = utils.get_bandname_from_wavelength('ufo', 3.0, TEST_RSR)
         self.assertIsNone(bandname)
 
     @staticmethod

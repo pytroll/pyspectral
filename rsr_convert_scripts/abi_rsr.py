@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2016 - 2018 Pytroll developers
+# Copyright (c) 2016 - 2021 Pytroll developers
 #
 # Author(s):
 #
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
+#   Adam Dybbroe <Firstname.Lastname@smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Reading the original raw GOES-R ABI spectral responses and generating the
+"""Read raw GOES-R series ABI RSR and generate HDF5 files.
+
+Reading the original raw GOES-R ABI spectral responses and generating the
 internal pyspectral formatet hdf5.
 
 https://ncc.nesdis.noaa.gov/GOESR/ABI.php
@@ -42,14 +44,10 @@ ABI_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4',
 
 
 class AbiRSR(InstrumentRSR):
-
-    """Class for GOES-R ABI RSR"""
+    """Class for GOES-R ABI RSR."""
 
     def __init__(self, bandname, platform_name):
-        """
-        Read the GOES-R ABI relative spectral responses for all channels.
-
-        """
+        """Read the GOES-R ABI relative spectral responses for all channels."""
         super(AbiRSR, self).__init__(bandname, platform_name,
                                      ABI_BAND_NAMES)
 
@@ -69,27 +67,21 @@ class AbiRSR(InstrumentRSR):
         self.filename = self.requested_band_filename
 
     def _load(self, scale=1.0):
-        """Load the ABI relative spectral responses
-        """
-
+        """Load the ABI relative spectral responses."""
         LOG.debug("File: %s", str(self.requested_band_filename))
 
         data = np.genfromtxt(self.requested_band_filename,
                              unpack=True,
-                             names=['wavelength',
-                                    'wavenumber',
-                                    'response'],
                              skip_header=2)
-
-        wvl = data['wavelength'] * scale
-        resp = data['response']
+        wvl = data[0] * scale
+        resp = data[2]
 
         self.rsr = {'wavelength': wvl, 'response': resp}
 
 
 def main():
-    """Main"""
-    for platform_name in ['GOES-16', 'GOES-17', ]:
+    """Create pyspectral hdf5 RSR files for all GOES sats."""
+    for platform_name in ['GOES-16', 'GOES-17', 'GOES-18', 'GOES-19']:
         tohdf5(AbiRSR, platform_name, ABI_BAND_NAMES)
 
 
