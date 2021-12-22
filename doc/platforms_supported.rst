@@ -2,7 +2,7 @@ Satellite sensors supported
 ===========================
 
 Below we list the satellite sensors for which the relative spectral responses
-have been included in PySpectral. 
+have been included in Pyspectral.
 
 .. list-table:: Satellite sensors supported
     :header-rows: 1
@@ -28,6 +28,12 @@ have been included in PySpectral.
     * - GOES-17 abi
       - `rsr_abi_GOES-17.h5`
       - GOES-S_
+    * - GOES-18 abi
+      - `rsr_abi_GOES-18.h5`
+      - GOES-T_
+    * - GOES-19 abi
+      - `rsr_abi_GOES-19.h5`
+      - GOES-U_
     * - Himawari-8 ahi
       - `rsr_ahi_Himawari-8.h5`
       - JMA_
@@ -70,6 +76,9 @@ have been included in PySpectral.
     * - Sentinel-3A olci
       - `rsr_olci_Sentinel-3A.h5`
       - ESA-Sentinel-OLCI_
+    * - Sentinel-3B olci
+      - `rsr_olci_Sentinel-3B.h5`
+      - ESA-Sentinel-OLCI_
     * - Sentinel-2A msi
       - `rsr_msi_Sentinel-2A.h5`
       - ESA-Sentinel-MSI_
@@ -104,8 +113,10 @@ have been included in PySpectral.
 
 .. _Eumetsat: https://www.eumetsat.int/website/home/Data/Products/Calibration/MSGCalibration/index.html
 .. _GSICS: https://www.star.nesdis.noaa.gov/smcd/GCC/instrInfo-srf.php
-.. _GOES-R: http://ncc.nesdis.noaa.gov/GOESR/docs/GOES-R_ABI_PFM_SRF_CWG_v3.zip
-.. _GOES-S:  http://ncc.nesdis.noaa.gov/GOESR/docs/GOES-R_ABI_FM2_SRF_CWG.zip
+.. _GOES-R: https://ncc.nesdis.noaa.gov/GOESR/docs/GOES-R_ABI_PFM_SRF_CWG_v3.zip
+.. _GOES-S:  https://ncc.nesdis.noaa.gov/GOESR/docs/GOES-R_ABI_FM2_SRF_CWG.zip
+.. _GOES-T:  https://ncc.nesdis.noaa.gov/GOESR/docs/GOES-R_ABI_FM3_SRF_CWG.zip
+.. _GOES-U:  https://ncc.nesdis.noaa.gov/GOESR/docs/GOES-R_ABI_FM4_SRF_CWG.zip
 .. _JMA: http://www.data.jma.go.jp/mscweb/en/himawari89/space_segment/spsg_ahi.html#srf
 .. _ESA-Envisat: http://envisat.esa.int/handbooks/aatsr/aux-files/consolidatedsrfs.xls
 .. _ESA-Sentinel-OLCI: https://sentinel.esa.int/documents/247904/322304/OLCI+SRF+%28NetCDF%29/15cfd7a6-b7bc-4051-87f8-c35d765ae43a
