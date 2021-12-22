@@ -81,7 +81,7 @@ class AbiRSR(InstrumentRSR):
 
 def main():
     """Create pyspectral hdf5 RSR files for all GOES sats."""
-    for platform_name in ['GOES-18', 'GOES-19', ]:
+    for platform_name in ['GOES-16', 'GOES-17', 'GOES-18', 'GOES-19']:
         tohdf5(AbiRSR, platform_name, ABI_BAND_NAMES)
 
 
