@@ -204,8 +204,8 @@ class Rayleigh(RayleighConfigBaseClass):
                     'Requested band frequency should be between 0.4 and 0.8 microns!')
             bandname = get_bandname_from_wavelength(self.sensor, bandname, rsr.rsr)
 
-        wvl, resp = rsr.rsr[bandname][
-            'det-1']['wavelength'], rsr.rsr[bandname]['det-1']['response']
+        wvl, resp = (rsr.rsr[bandname]['det-1']['wavelength'],
+                     rsr.rsr[bandname]['det-1']['response'])
 
         cwvl = get_central_wave(wvl, resp, weight=1. / wvl**4)
         LOG.debug("Band name: %s  Effective wavelength: %f", bandname, cwvl)
