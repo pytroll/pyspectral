@@ -1,3 +1,29 @@
+## Version <v0.10.6> (2021/12/22)
+
+### Issues Closed
+
+* [Issue 137](https://github.com/pytroll/pyspectral/issues/137) - Bug in rayleigh correction related to Dask version >= 2021.5.1 ([PR 138](https://github.com/pytroll/pyspectral/pull/138) by [@adybbroe](https://github.com/adybbroe))
+* [Issue 132](https://github.com/pytroll/pyspectral/issues/132) - Add GOES-18 and GOES-19 RSRs ([PR 142](https://github.com/pytroll/pyspectral/pull/142) by [@adybbroe](https://github.com/adybbroe))
+
+In this release 2 issues were closed.
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 138](https://github.com/pytroll/pyspectral/pull/138) - Bugfix unittests rayleigh ([137](https://github.com/pytroll/pyspectral/issues/137))
+
+#### Features added
+
+* [PR 142](https://github.com/pytroll/pyspectral/pull/142) - Creating ABI RSR files for GOES 18 & 19 (FM3 & 4) ([132](https://github.com/pytroll/pyspectral/issues/132))
+* [PR 141](https://github.com/pytroll/pyspectral/pull/141) - Add technique to reduce Rayleigh contribution at high zenith angles
+* [PR 140](https://github.com/pytroll/pyspectral/pull/140) - Fix for deprecation warnings concerning clipping in Rayleigh part
+* [PR 135](https://github.com/pytroll/pyspectral/pull/135) - Remove all use of 'six'
+* [PR 134](https://github.com/pytroll/pyspectral/pull/134) - Change tested Python versions to 3.8, 3.9 and 3.10
+
+In this release 6 pull requests were closed.
+
+
 ## Version <v0.10.5> (2021/04/29)
 
 ### Pull Requests Merged
@@ -171,7 +197,7 @@ In this release 3 pull requests were closed.
 ### Issues Closed
 
 * [Issue 92](https://github.com/pytroll/pyspectral/issues/92) - Fails to pull from Github because of a git-lfs quota limit ([PR 93](https://github.com/pytroll/pyspectral/pull/93))
-* [Issue 90](https://github.com/pytroll/pyspectral/issues/90) - CREFL rayleigh Goes-16 ABI L1B 
+* [Issue 90](https://github.com/pytroll/pyspectral/issues/90) - CREFL rayleigh Goes-16 ABI L1B
 
 In this release 2 issues were closed.
 
