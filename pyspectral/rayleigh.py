@@ -204,8 +204,8 @@ class Rayleigh(RayleighConfigBaseClass):
                     'Requested band frequency should be between 0.4 and 0.8 microns!')
             bandname = get_bandname_from_wavelength(self.sensor, bandname, rsr.rsr)
 
-        wvl, resp = rsr.rsr[bandname][
-            'det-1']['wavelength'], rsr.rsr[bandname]['det-1']['response']
+        wvl, resp = (rsr.rsr[bandname]['det-1']['wavelength'],
+                     rsr.rsr[bandname]['det-1']['response'])
 
         cwvl = get_central_wave(wvl, resp, weight=1. / wvl**4)
         LOG.debug("Band name: %s  Effective wavelength: %f", bandname, cwvl)
@@ -335,6 +335,19 @@ class Rayleigh(RayleighConfigBaseClass):
             res = res.compute()
 
         return res
+
+    @staticmethod
+    def reduce_rayleigh_highzenith(zenith, rayref, thresh_zen, maxzen, strength):
+        """Reduce the Rayleigh correction amount at high zenith angles.
+        This linearly scales the Rayleigh reflectance, `rayref`, for solar or satellite zenith angles, `zenith`,
+        above a threshold angle, `thresh_zen`. Between `thresh_zen` and `maxzen` the Rayleigh reflectance will
+        be linearly scaled, from one at `thresh_zen` to zero at `maxzen`.
+        """
+        LOG.info("Reducing Rayleigh effect at high zenith angles.")
+        factor = 1. - strength * where(zenith < thresh_zen, 0, (zenith - thresh_zen) / (maxzen - thresh_zen))
+        # For low zenith factor can be greater than one, so we need to clip it into a sensible range.
+        factor = clip(factor, 0, 1)
+        return rayref * factor
 
 
 def get_reflectance_lut_from_file(filename):
