@@ -24,7 +24,6 @@
 """Atmospheric correction of shortwave imager bands in the wavelength range 400 to 800 nm."""
 
 import os
-import time
 import logging
 
 import h5py
@@ -35,11 +34,6 @@ try:
                             atleast_2d, Array, map_blocks, from_array, nan_to_num)
     import dask.array as da
     HAVE_DASK = True
-    # try:
-    #     # use serializable h5py wrapper to make sure files are closed properly
-    #     import h5pickle as h5py
-    # except ImportError:
-    #     pass
 except ImportError:
     from numpy import where, zeros, clip, rad2deg, deg2rad, cos, arccos, atleast_2d, nan_to_num
     da = None
@@ -60,6 +54,21 @@ from pyspectral.utils import (INSTRUMENTS, RAYLEIGH_LUT_DIRS,
 from pyspectral.config import get_config
 
 LOG = logging.getLogger(__name__)
+
+
+def _clip_angles_inside_coordinate_range(zenith_angle, zenith_secant_max):
+    """Clipping solar- or satellite zenith angles to be inside the allowed coordinate range.
+
+    The "allowed" coordinate range is 0 to the angle corresponiding to a
+    maximum secant. The maximum secant is here the maximum available in the
+    Rayleigh LUT file.
+
+    Also the nan's in the angle array are filled with zeros (0)!
+
+    """
+    clip_angle = nan_to_num(rad2deg(arccos(1. / zenith_secant_max)))
+    zang = nan_to_num(zenith_angle)
+    return clip(zang, 0, clip_angle)
 
 
 class BandFrequencyOutOfRange(ValueError):
@@ -212,77 +221,16 @@ class Rayleigh(RayleighConfigBaseClass):
 
         return cwvl
 
-    def get_reflectance_lut(self):
-        """Get reflectance LUT.
-
-        If not already cached (read previously) read the file with Look-Up
-        Tables of reflectances as a function of wavelength, satellite zenith
-        secant, azimuth difference angle, and sun zenith secant.
-
-        """
-        if self._rayl is None:
-            lut_vars = get_reflectance_lut_from_file(self.reflectance_lut_filename)
-            self._rayl = lut_vars[0]
-            self._wvl_coord = lut_vars[1]
-            self._azid_coord = lut_vars[2]
-            self._satz_sec_coord = lut_vars[3]
-            self._sunz_sec_coord = lut_vars[4]
-        return self._rayl, self._wvl_coord, self._azid_coord,\
-            self._satz_sec_coord, self._sunz_sec_coord
-
-    # def _do_interp(sun_zenith, sat_zenith, azidiff, wvl, reflectance_lut_filename):
-    #     lut_vars = get_reflectance_lut(reflectance_lut_filename)
-    #     rayl, wvl_coord, azid_coord, satz_sec_coord, sunz_sec_coord = lut_vars
     @staticmethod
-    def _do_interp(minterp, sunzsec, azidiff, satzsec):
-        interp_points2 = np.vstack((sunzsec.ravel(), 180 - azidiff.ravel(), satzsec.ravel()))
-        res = minterp(interp_points2)
-        return res.reshape(sunzsec.shape)
+    def _do_interp(sun_zenith, sat_zenith, azidiff, wvl, reflectance_lut_filename):
+        lut_vars = get_reflectance_lut_from_file(reflectance_lut_filename)
+        rayl, wvl_coord, azid_coord, satz_sec_coord, sunz_sec_coord = lut_vars
 
-    def _clip_angles_inside_coordinate_range(self, zenith_angle, zenith_secant_max):
-        """Clipping solar- or satellite zenith angles to be inside the allowed coordinate range.
-
-        The "allowed" coordinate range is 0 to the angle corresponiding to a
-        maximum secant. The maximum secant is here the maximum available in the
-        Rayleigh LUT file.
-
-        Also the nan's in the angle array are filled with zeros (0)!
-
-        """
-        clip_angle = nan_to_num(rad2deg(arccos(1. / zenith_secant_max)))
-        zang = nan_to_num(zenith_angle)
-        return clip(zang, 0, clip_angle)
-
-    def get_reflectance(self, sun_zenith, sat_zenith, azidiff, bandname, redband=None):
-        """Get the reflectance from the three sun-sat angles."""
-        # Get wavelength in nm for band:
-        if isinstance(bandname, float):
-            LOG.warning('A wavelength is provided instead of band name - ' +
-                        'disregard the relative spectral responses and assume ' +
-                        'it is the effective wavelength: %f (micro meter)', bandname)
-            wvl = bandname * 1000.0
-        else:
-            wvl = self.get_effective_wavelength(bandname)
-            wvl = wvl * 1000.0
-
-        rayl, wvl_coord, azid_coord, satz_sec_coord, sunz_sec_coord = self.get_reflectance_lut()
-
-        # force dask arrays
-        compute = False
-        if HAVE_DASK and not isinstance(sun_zenith, Array):
-            compute = True
-            sun_zenith = from_array(sun_zenith, chunks=sun_zenith.shape)
-            sat_zenith = from_array(sat_zenith, chunks=sat_zenith.shape)
-            azidiff = from_array(azidiff, chunks=azidiff.shape)
-            if redband is not None:
-                redband = from_array(redband, chunks=redband.shape)
-
-        sun_zenith = self._clip_angles_inside_coordinate_range(sun_zenith, sunz_sec_coord.max())
+        sun_zenith = _clip_angles_inside_coordinate_range(sun_zenith, sunz_sec_coord.max())
         sunzsec = 1. / cos(deg2rad(sun_zenith))
 
-        sat_zenith = self._clip_angles_inside_coordinate_range(sat_zenith, satz_sec_coord.max())
+        sat_zenith = _clip_angles_inside_coordinate_range(sat_zenith, satz_sec_coord.max())
         satzsec = 1. / cos(deg2rad(sat_zenith))
-
         shape = sun_zenith.shape
 
         if not wvl_coord.min() < wvl < wvl_coord.max():
@@ -304,7 +252,6 @@ class Rayleigh(RayleighConfigBaseClass):
 
         fac = (wvl2 - wvl) / (wvl2 - wvl1)
         raylwvl = fac * rayl[idx - 1, :, :, :] + (1 - fac) * rayl[idx, :, :, :]
-        tic = time.time()
 
         smin = [sunz_sec_coord[0], azid_coord[0], satz_sec_coord[0]]
         smax = [sunz_sec_coord[-1], azid_coord[-1], satz_sec_coord[-1]]
@@ -330,73 +277,15 @@ class Rayleigh(RayleighConfigBaseClass):
             wvl = self.get_effective_wavelength(bandname)
             wvl = wvl * 1000.0
 
-        # rayl, wvl_coord, azid_coord, satz_sec_coord, sunz_sec_coord = self.get_reflectance_lut()
-
-        # force dask arrays
-        # compute = False
-        # if HAVE_DASK and not isinstance(sun_zenith, Array):
-        #     compute = True
-        #     sun_zenith = from_array(sun_zenith, chunks=sun_zenith.shape)
-        #     sat_zenith = from_array(sat_zenith, chunks=sat_zenith.shape)
-        #     azidiff = from_array(azidiff, chunks=azidiff.shape)
-        #     if redband is not None:
-        #         redband = from_array(redband, chunks=redband.shape)
-
-        # XXX: Try to optimize/remove rad2deg/deg2rad
-        # clip_angle = rad2deg(arccos(1. / sunz_sec_coord.max()))
-        # sun_zenith = clip(sun_zenith, 0, clip_angle)
-        # sunzsec = 1. / cos(deg2rad(sun_zenith))
-        # clip_angle = rad2deg(arccos(1. / satz_sec_coord.max()))
-        # sat_zenith = clip(sat_zenith, 0, clip_angle)
-        # satzsec = 1. / cos(deg2rad(sat_zenith))
-        # shape = sun_zenith.shape
-
-        # if not(wvl_coord.min() < wvl < wvl_coord.max()):
-        #     LOG.warning(
-        #         "Effective wavelength for band %s outside 400-800 nm range!",
-        #         str(bandname))
-        #     LOG.info(
-        #         "Set the rayleigh/aerosol reflectance contribution to zero!")
-        #     if HAVE_DASK:
-        #         chunks = sun_zenith.chunks if redband is None else redband.chunks
-        #         res = zeros(shape, chunks=chunks)
-        #         return res.compute() if compute else res
-        #
-        #     return zeros(shape)
-        #
-        # idx = np.searchsorted(wvl_coord, wvl)
-        # wvl1 = wvl_coord[idx - 1]
-        # wvl2 = wvl_coord[idx]
-        #
-        # fac = (wvl2 - wvl) / (wvl2 - wvl1)
-        # raylwvl = fac * rayl[idx - 1, :, :, :] + (1 - fac) * rayl[idx, :, :, :]
-        # tic = time.time()
-        #
-        # smin = [sunz_sec_coord[0], azid_coord[0], satz_sec_coord[0]]
-        # smax = [sunz_sec_coord[-1], azid_coord[-1], satz_sec_coord[-1]]
-        # orders = [
-        #     len(sunz_sec_coord), len(azid_coord), len(satz_sec_coord)]
-        # f_3d_grid = atleast_2d(raylwvl.ravel())
-        #
-        # if HAVE_DASK and isinstance(smin[0], Array):
-        #     # compute all of these at the same time before passing to the interpolator
-        #     # otherwise they are computed separately
-        #     smin, smax, orders, f_3d_grid = da.compute(smin, smax, orders, f_3d_grid)
-        # minterp = MultilinearInterpolator(smin, smax, orders)
-        # minterp.set_values(f_3d_grid)
-
+        # if the user gave us non-dask arrays we'll use the dask
+        # version of the algorithm but return numpy arrays back
+        compute = HAVE_DASK and not isinstance(sun_zenith, Array)
         if HAVE_DASK:
-            # ipn = map_blocks(self._do_interp, minterp, sunzsec, azidiff,
-            #                  satzsec,
-            #                  meta=np.array((), dtype=raylwvl.dtype),
-            #                  dtype=raylwvl.dtype, chunks=azidiff.chunks)
             ipn = map_blocks(self._do_interp, sun_zenith, sat_zenith, azidiff, wvl, self.reflectance_lut_filename,
                              meta=np.array((), dtype=np.float64),
                              dtype=np.float64, chunks=azidiff.chunks)
         else:
             ipn = self._do_interp(minterp, sunzsec, azidiff, satzsec)
-
-        # LOG.debug("Time - Interpolation: {0:f}".format(time.time() - tic))
 
         ipn *= 100
         res = ipn
@@ -440,15 +329,6 @@ def get_reflectance_lut_from_file(filename):
     satellite_zenith_secant = h5f['satellite_zenith_secant']
     sun_zenith_secant = h5f['sun_zenith_secant']
 
-    # if HAVE_DASK:
-    #     tab = from_array(tab, chunks=(10, 10, 10, 10))
-    #     wvl = wvl[:]  # no benefit to dask-ifying this
-    #     azidiff = from_array(azidiff, chunks=(1000,))
-    #     satellite_zenith_secant = from_array(satellite_zenith_secant,
-    #                                          chunks=(1000,))
-    #     sun_zenith_secant = from_array(sun_zenith_secant,
-    #                                    chunks=(1000,))
-    # else:
     # load all of the data we are going to use in to memory
     tab = tab[:]
     wvl = wvl[:]
