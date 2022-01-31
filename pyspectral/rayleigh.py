@@ -323,8 +323,8 @@ def _get_wavelength_adjusted_lut_rayleigh_reflectance(lut_filename, wvl):
     if not wvl_coord.min() < wvl < wvl_coord.max():
         return None
     wavelength_index, wavelength_factor = _get_wavelength_index_and_factor(wvl_coord, wvl)
-    raylwvl = wavelength_factor * rayleigh_refl[wavelength_index - 1, :, :, :] + \
-              (1 - wavelength_factor) * rayleigh_refl[wavelength_index, :, :, :]
+    raylwvl = (wavelength_factor * rayleigh_refl[wavelength_index - 1, :, :, :] +
+               (1 - wavelength_factor) * rayleigh_refl[wavelength_index, :, :, :])
     return raylwvl
 
 
