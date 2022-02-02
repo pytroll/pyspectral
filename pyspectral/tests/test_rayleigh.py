@@ -23,9 +23,9 @@
 """Unittest for the rayleigh correction utilities."""
 
 import os
-import sys
 import numpy as np
 import dask.array as da
+import pytest
 from pyspectral import rayleigh
 from pyspectral.rayleigh import BandFrequencyOutOfRange
 from pyspectral.tests.data import (
@@ -36,7 +36,6 @@ from pyspectral.tests.data import (
     TEST_RAYLEIGH_WVL_COORD)
 from pyspectral.utils import RSR_DATA_VERSION
 
-import unittest
 from unittest.mock import patch
 
 TEST_RAYLEIGH_RESULT1 = np.array([10.40727436,   8.69775471], dtype='float32')
@@ -47,10 +46,6 @@ TEST_RAYLEIGH_RESULT_R1 = np.array([16.66666667, 20.83333333, 25.], dtype='float
 TEST_RAYLEIGH_RESULT_R2 = np.array([0., 6.25, 12.5], dtype='float32')
 
 TEST_ZENITH_ANGLES_RESULTS = np.array([68.67631374, 68.67631374, 32., 0.])
-
-# Mock some modules, so we don't need them for tests.
-
-# sys.modules['pyresample'] = MagicMock()
 
 
 class RelativeSpectralResponseTestData(object):
@@ -87,10 +82,10 @@ class RelativeSpectralResponseTestData(object):
         self.rsr[chname]['det-1']['response'] = ch3_resp
 
 
-class TestRayleighDask(unittest.TestCase):
+class TestRayleighDask:
     """Class for testing pyspectral.rayleigh - with dask-arrays as input."""
 
-    def setUp(self):
+    def setup_method(self):
         """Set up the test."""
         self.cwvl = 0.4440124
         self.rsr = RelativeSpectralResponseTestData()
@@ -146,7 +141,7 @@ class TestRayleighDask(unittest.TestCase):
         redband_refl = da.array([108., -0.5])
         refl_corr = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
         np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT4)
-        self.assertIsInstance(refl_corr, da.Array)
+        assert isinstance(refl_corr, da.Array)
 
     @patch('os.path.exists')
     @patch('pyspectral.utils.download_luts')
@@ -174,7 +169,7 @@ class TestRayleighDask(unittest.TestCase):
         redband_refl = da.array([14., 5.])
         refl_corr = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
         np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT1)
-        self.assertIsInstance(refl_corr, da.Array)
+        assert isinstance(refl_corr, da.Array)
 
         sun_zenith = da.array([60., 20.])
         sat_zenith = da.array([49., 26.])
@@ -182,7 +177,7 @@ class TestRayleighDask(unittest.TestCase):
         redband_refl = da.array([12., 8.])
         refl_corr = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
         np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT2)
-        self.assertIsInstance(refl_corr, da.Array)
+        assert isinstance(refl_corr, da.Array)
 
     @patch('os.path.exists')
     @patch('pyspectral.utils.download_luts')
@@ -210,7 +205,7 @@ class TestRayleighDask(unittest.TestCase):
         redband_refl = np.array([14., 5.])
         refl_corr = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
         np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT1)
-        self.assertIsInstance(refl_corr, np.ndarray)
+        assert isinstance(refl_corr, np.ndarray)
 
         sun_zenith = np.array([60., 20.])
         sat_zenith = np.array([49., 26.])
@@ -218,13 +213,13 @@ class TestRayleighDask(unittest.TestCase):
         redband_refl = np.array([12., 8.])
         refl_corr = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
         np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT2)
-        self.assertIsInstance(refl_corr, np.ndarray)
+        assert isinstance(refl_corr, np.ndarray)
 
 
-class TestRayleigh(unittest.TestCase):
+class TestRayleigh:
     """Class for testing pyspectral.rayleigh."""
 
-    def setUp(self):
+    def setup_method(self):
         """Set up the test."""
         self.cwvl = 0.4440124
         self.rsr = RelativeSpectralResponseTestData()
@@ -255,12 +250,12 @@ class TestRayleigh(unittest.TestCase):
             instance.rsr = RelativeSpectralResponseTestData().rsr
 
             this = rayleigh.Rayleigh('Himawari-8', 'ahi')
-            with self.assertRaises(BandFrequencyOutOfRange):
+            with pytest.raises(BandFrequencyOutOfRange):
                 this.get_effective_wavelength(0.9)
 
             # Only ch3 (~0.63) testdata implemented yet...
             ewl = this.get_effective_wavelength(0.65)
-            self.assertAlmostEqual(ewl, 0.6356167)
+            np.testing.assert_allclose(ewl, 0.6356167)
 
         # mymock:
         with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
@@ -269,11 +264,11 @@ class TestRayleigh(unittest.TestCase):
 
             this = rayleigh.Rayleigh('Himawari-8', 'ahi')
             ewl = this.get_effective_wavelength(0.7)
-            self.assertEqual(ewl, 0.7)
+            assert ewl == 0.7
             ewl = this.get_effective_wavelength(0.9)
-            self.assertEqual(ewl, 0.9)
+            assert ewl == 0.9
             ewl = this.get_effective_wavelength(0.455)
-            self.assertEqual(ewl, 0.455)
+            assert ewl == 0.455
 
     @patch('os.path.exists')
     @patch('pyspectral.utils.download_luts')
@@ -282,23 +277,22 @@ class TestRayleigh(unittest.TestCase):
         download_luts.return_code = None
         exists.return_code = True
 
-        # mymock:
         with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
             instance = mymock.return_value
             instance.rsr = RelativeSpectralResponseTestData().rsr
 
-            with self.assertRaises(AttributeError):
-                this = rayleigh.Rayleigh('Himawari-8', 'ahi', atmosphere='unknown')
+            with pytest.raises(AttributeError):
+                rayleigh.Rayleigh('Himawari-8', 'ahi', atmosphere='unknown')
 
-            with self.assertRaises(AttributeError):
-                this = rayleigh.Rayleigh('Himawari-8', 'ahi', aerosol_type='unknown')
+            with pytest.raises(AttributeError):
+                rayleigh.Rayleigh('Himawari-8', 'ahi', aerosol_type='unknown')
 
             this = rayleigh.Rayleigh('Himawari-8', 'ahi', atmosphere='subarctic winter')
-            self.assertTrue(os.path.basename(this.reflectance_lut_filename).endswith('subarctic_winter.h5'))
-            self.assertTrue(this.sensor == 'ahi')
+            assert os.path.basename(this.reflectance_lut_filename).endswith('subarctic_winter.h5')
+            assert this.sensor == 'ahi'
 
             this = rayleigh.Rayleigh('NOAA-19', 'avhrr/3', atmosphere='tropical')
-            self.assertTrue(this.sensor == 'avhrr3')
+            assert this.sensor == 'avhrr3'
 
     def test_cliping_angles_with_nans(self):
         """Test the cliping of angles outside coordinate range - with nan's in input."""
@@ -314,13 +308,13 @@ class TestRayleigh(unittest.TestCase):
         in_rayleigh = [50, 50, 50]
         # Test case where no reduction is done.
         retv = self.viirs_rayleigh.reduce_rayleigh_highzenith(sun_zenith, in_rayleigh, 70., 90., 1)
-        self.assertTrue(np.allclose(retv, in_rayleigh))
+        np.testing.assert_allclose(retv, in_rayleigh)
         # Test case where moderate reduction is performed.
         retv = self.viirs_rayleigh.reduce_rayleigh_highzenith(sun_zenith, in_rayleigh, 30., 90., 1)
-        self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT_R1))
+        np.testing.assert_allclose(retv, TEST_RAYLEIGH_RESULT_R1)
         # Test case where extreme reduction is performed.
         retv = self.viirs_rayleigh.reduce_rayleigh_highzenith(sun_zenith, in_rayleigh, 30., 90., 1.5)
-        self.assertTrue(np.allclose(retv, TEST_RAYLEIGH_RESULT_R2))
+        np.testing.assert_allclose(retv, TEST_RAYLEIGH_RESULT_R2)
 
     @patch('pyspectral.rayleigh.HAVE_DASK', False)
     @patch('os.path.exists')
