@@ -283,7 +283,7 @@ class Rayleigh(RayleighConfigBaseClass):
                          chunks=getattr(azidiff, "chunks", None))
 
         if redband is not None:
-            res = map_blocks(self._correct_red_by_interpolated_rayleigh_refl,
+            res = map_blocks(self._relax_rayleigh_refl_correction_where_cloudy,
                              redband, res)
 
         res = np.clip(np.nan_to_num(res), 0, 100)
@@ -292,7 +292,7 @@ class Rayleigh(RayleighConfigBaseClass):
         return res
 
     @staticmethod
-    def _correct_red_by_interpolated_rayleigh_refl(redband, rayleigh_refl):
+    def _relax_rayleigh_refl_correction_where_cloudy(redband, rayleigh_refl):
         return np.where(redband < 20., rayleigh_refl,
                         (1 - (redband - 20) / 80) * rayleigh_refl)
 
@@ -351,17 +351,15 @@ def get_reflectance_lut_from_file(lut_filename):
     zenith secant.
 
     """
-    h5f = h5py.File(lut_filename, 'r')
+    with h5py.File(lut_filename, 'r') as h5f:
+        azidiff = h5f['azimuth_difference']
+        satellite_zenith_secant = h5f['satellite_zenith_secant']
+        sun_zenith_secant = h5f['sun_zenith_secant']
 
-    azidiff = h5f['azimuth_difference']
-    satellite_zenith_secant = h5f['satellite_zenith_secant']
-    sun_zenith_secant = h5f['sun_zenith_secant']
-
-    # load all of the data we are going to use in to memory
-    azidiff = azidiff[:]
-    satellite_zenith_secant = satellite_zenith_secant[:]
-    sun_zenith_secant = sun_zenith_secant[:]
-    h5f.close()
+        # load all of the data we are going to use in to memory
+        azidiff = azidiff[:]
+        satellite_zenith_secant = satellite_zenith_secant[:]
+        sun_zenith_secant = sun_zenith_secant[:]
 
     return azidiff, satellite_zenith_secant, sun_zenith_secant
 
