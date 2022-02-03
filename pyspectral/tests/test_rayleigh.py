@@ -199,6 +199,22 @@ class TestRayleighDask:
         np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT2)
         assert isinstance(refl_corr, np.ndarray)
 
+    def test_get_reflectance_wvl_outside_range(self, fake_lut_hdf5):
+        """Test getting the reflectance correction with wavelength outside correction range."""
+        with mocked_rsr() as rsr_obj:
+            rsr_obj.side_effect = IOError("No rsr data in pyspectral for this platform and sensor")
+            sun_zenith = da.from_array([50., 10.])
+            sat_zenith = da.from_array([39., 16.])
+            azidiff = da.from_array([170., 110.])
+            redband_refl = da.from_array([29., 12.])
+            rayl = rayleigh.Rayleigh('UFO', 'unknown', atmosphere='midlatitude summer')
+
+            # we gave a direct wavelength so the RSR object shouldn't be needed
+            refl_corr = rayl.get_reflectance(sun_zenith, sat_zenith, azidiff, 1.2, redband_refl)
+            np.testing.assert_allclose(refl_corr, 0)
+            assert isinstance(refl_corr, da.Array)
+            assert rsr_obj.not_called()
+
 
 class TestRayleigh:
     """Class for testing pyspectral.rayleigh."""
@@ -303,6 +319,8 @@ class TestRayleigh:
             refl_corr3 = rayl.get_reflectance(
                 sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
 
+        assert isinstance(refl_corr1, np.ndarray)
+        assert isinstance(refl_corr2, np.ndarray)
         np.testing.assert_allclose(refl_corr1, refl_corr2)
         np.testing.assert_allclose(refl_corr2, refl_corr3)
 
@@ -327,6 +345,7 @@ class TestRayleigh:
             refl_corr = rayl.get_reflectance(
                 sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
 
+        assert isinstance(refl_corr, np.ndarray)
         np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT2)
 
     @patch('pyspectral.rayleigh.HAVE_DASK', False)
@@ -357,4 +376,28 @@ class TestRayleigh:
             # we gave a direct wavelength so the RSR object shouldn't be needed
             refl_corr = rayl.get_reflectance(sun_zenith, sat_zenith, azidiff, 0.634, redband_refl)
             np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT3)
+            assert isinstance(refl_corr, np.ndarray)
             assert rsr_obj.not_called()
+
+    @patch('pyspectral.rayleigh.HAVE_DASK', False)
+    def test_get_reflectance_wvl_outside_range(self, fake_lut_hdf5):
+        """Test getting the reflectance correction with wavelength outside correction range."""
+        with mocked_rsr() as rsr_obj:
+            rsr_obj.side_effect = IOError("No rsr data in pyspectral for this platform and sensor")
+            sun_zenith = np.array([50., 10.])
+            sat_zenith = np.array([39., 16.])
+            azidiff = np.array([170., 110.])
+            redband_refl = np.array([29., 12.])
+            rayl = rayleigh.Rayleigh('UFO', 'unknown', atmosphere='midlatitude summer')
+
+            # we gave a direct wavelength so the RSR object shouldn't be needed
+            refl_corr = rayl.get_reflectance(sun_zenith, sat_zenith, azidiff, 1.2, redband_refl)
+            np.testing.assert_allclose(refl_corr, 0)
+            assert isinstance(refl_corr, np.ndarray)
+            assert rsr_obj.not_called()
+
+    def test_get_reflectance_no_lut(self, fake_lut_hdf5):
+        """Test that missing a LUT causes an exception.."""
+        # test LUT doesn't have a tropical file
+        with pytest.raises(IOError):
+            rayleigh.Rayleigh('UFO', 'unknown', atmosphere='tropical')

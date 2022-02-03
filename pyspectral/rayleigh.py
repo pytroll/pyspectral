@@ -30,7 +30,7 @@ import h5py
 import numpy as np
 
 try:
-    from dask.array import Array, map_blocks, from_array
+    from dask.array import Array, from_array
     import dask.array as da
     HAVE_DASK = True
 except ImportError:
@@ -38,14 +38,6 @@ except ImportError:
     from_array = None
     Array = None
     HAVE_DASK = False
-
-    def map_blocks(func, *args, **kwargs):
-        """Mimic dask's map_blocks for a single call since it isn't available."""
-        kwargs.pop("meta", None)
-        kwargs.pop("dtype", None)
-        kwargs.pop("chunks", None)
-        return func(*args, **kwargs)
-
 
 from geotiepoints.multilinear import MultilinearInterpolator
 from pyspectral.rsr_reader import RelativeSpectralResponse
@@ -59,6 +51,16 @@ from pyspectral.utils import (INSTRUMENTS, _get_rayleigh_lut_dir,
 from pyspectral.config import get_config
 
 LOG = logging.getLogger(__name__)
+
+
+def _map_blocks_or_direct_call(func, *args, **kwargs):
+    """Call dask's map_blocks or call func directly if dask is not available."""
+    if not HAVE_DASK:
+        kwargs.pop("meta", None)
+        kwargs.pop("dtype", None)
+        kwargs.pop("chunks", None)
+        return func(*args, **kwargs)
+    return da.map_blocks(func, *args, **kwargs)
 
 
 def _clip_angles_inside_coordinate_range(zenith_angle, zenith_secant_max):
@@ -183,11 +185,6 @@ class Rayleigh(RayleighConfigBaseClass):
                           str(self.reflectance_lut_filename))
 
         LOG.debug('LUT filename: %s', str(self.reflectance_lut_filename))
-        self._rayl = None
-        self._wvl_coord = None
-        self._azid_coord = None
-        self._satz_sec_coord = None
-        self._sunz_sec_coord = None
 
     def get_effective_wavelength(self, bandname):
         """Get the effective wavelength with Rayleigh scattering in mind."""
@@ -267,20 +264,20 @@ class Rayleigh(RayleighConfigBaseClass):
             LOG.warning("Effective wavelength for band %s outside 400-800 nm range!",
                         str(bandname))
             LOG.info("Setting the rayleigh/aerosol reflectance contribution to zero!")
-            chunks = getattr(sun_zenith, "chunks", None) if redband is None else getattr(redband, "chunks", None)
+            chunks = getattr(sun_zenith, "chunks", "auto") if redband is None else getattr(redband, "chunks", "auto")
             return _get_zeroed_result(
                 sun_zenith.shape, compute,
                 chunks=chunks)
-        res = map_blocks(self._interp_rayleigh_refl_by_angles,
-                         sun_zenith, sat_zenith, azidiff, rayleigh_refl,
-                         self.reflectance_lut_filename,
-                         meta=np.array((), dtype=rayleigh_refl.dtype),
-                         dtype=rayleigh_refl.dtype,
-                         chunks=getattr(azidiff, "chunks", None))
+        res = _map_blocks_or_direct_call(self._interp_rayleigh_refl_by_angles,
+                                         sun_zenith, sat_zenith, azidiff, rayleigh_refl,
+                                         self.reflectance_lut_filename,
+                                         meta=np.array((), dtype=rayleigh_refl.dtype),
+                                         dtype=rayleigh_refl.dtype,
+                                         chunks=getattr(azidiff, "chunks", None))
 
         if redband is not None:
-            res = map_blocks(self._relax_rayleigh_refl_correction_where_cloudy,
-                             redband, res)
+            res = _map_blocks_or_direct_call(self._relax_rayleigh_refl_correction_where_cloudy,
+                                             redband, res)
 
         res = np.clip(np.nan_to_num(res), 0, 100)
         if compute:
