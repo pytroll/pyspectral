@@ -30,13 +30,10 @@ import h5py
 import numpy as np
 
 try:
-    from dask.array import Array, from_array
     import dask.array as da
     HAVE_DASK = True
 except ImportError:
     da = None
-    from_array = None
-    Array = None
     HAVE_DASK = False
 
 from geotiepoints.multilinear import MultilinearInterpolator
@@ -243,28 +240,33 @@ class Rayleigh(RayleighConfigBaseClass):
         """Get the reflectance from the three sun-sat angles."""
         # if the user gave us non-dask arrays we'll use the dask
         # version of the algorithm but return numpy arrays back
-        compute = HAVE_DASK and not isinstance(sun_zenith, Array)
+        compute = HAVE_DASK and not isinstance(sun_zenith, da.Array)
 
         wvl, band_name = self._get_effective_wavelength_and_band_name(band_name_or_wavelength)
-        rayleigh_refl = _get_wavelength_adjusted_lut_rayleigh_reflectance(self.reflectance_lut_filename, wvl)
-        if rayleigh_refl is None:
-            LOG.warning("Effective wavelength for band %s outside 400-800 nm range!",
-                        str(band_name))
+        try:
+            rayleigh_refl = _get_wavelength_adjusted_lut_rayleigh_reflectance(
+                self.reflectance_lut_filename, wvl)
+        except ValueError:
+            LOG.warning("Effective wavelength for band %s outside "
+                        "nominal 400-800 nm range!", str(band_name))
             LOG.info("Setting the rayleigh/aerosol reflectance contribution to zero!")
-            chunks = getattr(sun_zenith, "chunks", "auto") if redband is None else getattr(redband, "chunks", "auto")
-            return _get_zeroed_result(
-                sun_zenith.shape, compute,
-                chunks=chunks)
-        res = _map_blocks_or_direct_call(self._interp_rayleigh_refl_by_angles,
-                                         sun_zenith, sat_zenith, azidiff, rayleigh_refl,
-                                         self.reflectance_lut_filename,
-                                         meta=np.array((), dtype=rayleigh_refl.dtype),
-                                         dtype=rayleigh_refl.dtype,
-                                         chunks=getattr(azidiff, "chunks", None))
+            repr_arr = sun_zenith if redband is None else redband
+            zeros_like = np.zeros_like if isinstance(repr_arr, np.ndarray) else da.zeros_like
+            res = zeros_like(repr_arr)
+        else:
+            res = _map_blocks_or_direct_call(self._interp_rayleigh_refl_by_angles,
+                                             sun_zenith, sat_zenith, azidiff, rayleigh_refl,
+                                             self.reflectance_lut_filename,
+                                             meta=np.array((), dtype=rayleigh_refl.dtype),
+                                             dtype=rayleigh_refl.dtype,
+                                             chunks=getattr(azidiff, "chunks", None))
 
         if redband is not None:
             res = _map_blocks_or_direct_call(self._relax_rayleigh_refl_correction_where_cloudy,
-                                             redband, res)
+                                             redband, res,
+                                             meta=np.array((), dtype=res.dtype),
+                                             dtype=res.dtype,
+                                             chunks=getattr(res, "chunks", None))
 
         res = np.clip(np.nan_to_num(res), 0, 100)
         if compute:
@@ -307,19 +309,12 @@ def _get_rsr_wavelength_from_band_name(platform_name, sensor, band_name):
     return cwvl
 
 
-def _get_zeroed_result(shape, compute, chunks=None):
-    if HAVE_DASK:
-        res = da.zeros(shape, chunks=chunks)
-        return res.compute() if compute else res
-    return np.zeros(shape)
-
-
 def _get_wavelength_adjusted_lut_rayleigh_reflectance(lut_filename, wvl):
     with h5py.File(lut_filename, 'r') as h5f:
         rayleigh_refl = h5f["reflectance"]
         wvl_coord = h5f["wavelengths"][:]
         if not wvl_coord.min() < wvl < wvl_coord.max():
-            return None
+            raise ValueError("Wavelength out of range for available LUT wavelengths")
         wavelength_index, wavelength_factor = _get_wavelength_index_and_factor(wvl_coord, wvl)
         raylwvl = (wavelength_factor * rayleigh_refl[wavelength_index - 1, :, :, :] +
                    (1 - wavelength_factor) * rayleigh_refl[wavelength_index, :, :, :])
