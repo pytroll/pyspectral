@@ -96,8 +96,8 @@ def fake_lut_hdf5(tmp_path):
         "rayleigh_dir": str(tmp_path),
         "download_from_internet": False,
     }
-    with (patch('pyspectral.rayleigh.get_config', lambda: fake_config),
-          patch('pyspectral.utils.get_config', lambda: fake_config)):
+    with patch('pyspectral.rayleigh.get_config', lambda: fake_config), \
+            patch('pyspectral.utils.get_config', lambda: fake_config):
         yield lut_filename
 
 
@@ -227,10 +227,10 @@ class TestRayleigh:
 
             this = rayleigh.Rayleigh('Himawari-8', 'ahi')
             with pytest.raises(BandFrequencyOutOfRange):
-                this.get_effective_wavelength(0.9)
+                this._get_effective_wavelength(0.9)
 
             # Only ch3 (~0.63) testdata implemented yet...
-            ewl = this.get_effective_wavelength(0.65)
+            ewl = this._get_effective_wavelength(0.65)
             np.testing.assert_allclose(ewl, 0.6356167)
 
         with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
@@ -238,11 +238,11 @@ class TestRayleigh:
                 'Fake that there is no spectral response file...')
 
             this = rayleigh.Rayleigh('Himawari-8', 'ahi')
-            ewl = this.get_effective_wavelength(0.7)
+            ewl = this._get_effective_wavelength(0.7)
             assert ewl == 0.7
-            ewl = this.get_effective_wavelength(0.9)
+            ewl = this._get_effective_wavelength(0.9)
             assert ewl == 0.9
-            ewl = this.get_effective_wavelength(0.455)
+            ewl = this._get_effective_wavelength(0.455)
             assert ewl == 0.455
 
     @patch('os.path.exists')

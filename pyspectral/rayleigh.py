@@ -186,35 +186,36 @@ class Rayleigh(RayleighConfigBaseClass):
 
         LOG.debug('LUT filename: %s', str(self.reflectance_lut_filename))
 
-    def get_effective_wavelength(self, bandname):
+    def _get_effective_wavelength(self, band_name_or_wavelength):
         """Get the effective wavelength with Rayleigh scattering in mind."""
         try:
             rsr = RelativeSpectralResponse(self.platform_name, self.sensor)
         except OSError:
             LOG.exception(
                 "No spectral responses for this platform and sensor: %s %s", self.platform_name, self.sensor)
-            if isinstance(bandname, (float, int)):
+            if isinstance(band_name_or_wavelength, (float, int)):
                 LOG.warning(
-                    "Effective wavelength is set to the requested band wavelength = %f", bandname)
-                return bandname
+                    "Effective wavelength is set to the requested band wavelength = %f", band_name_or_wavelength)
+                return band_name_or_wavelength
 
             msg = ("Can't get effective wavelength for band %s on platform %s and sensor %s" %
-                   (str(bandname), self.platform_name, self.sensor))
+                   (str(band_name_or_wavelength), self.platform_name, self.sensor))
             raise KeyError(msg)
 
-        if isinstance(bandname, str):
-            bandname = BANDNAMES.get(self.sensor, BANDNAMES['generic']).get(bandname, bandname)
-        elif isinstance(bandname, (float, int)):
-            if not(0.4 < bandname < 0.8):
+        if isinstance(band_name_or_wavelength, str):
+            band_name_or_wavelength = BANDNAMES.get(self.sensor, BANDNAMES['generic']).get(
+                band_name_or_wavelength, band_name_or_wavelength)
+        elif isinstance(band_name_or_wavelength, (float, int)):
+            if not(0.4 < band_name_or_wavelength < 0.8):
                 raise BandFrequencyOutOfRange(
                     'Requested band frequency should be between 0.4 and 0.8 microns!')
-            bandname = get_bandname_from_wavelength(self.sensor, bandname, rsr.rsr)
+            band_name_or_wavelength = get_bandname_from_wavelength(self.sensor, band_name_or_wavelength, rsr.rsr)
 
-        wvl, resp = (rsr.rsr[bandname]['det-1']['wavelength'],
-                     rsr.rsr[bandname]['det-1']['response'])
+        wvl, resp = (rsr.rsr[band_name_or_wavelength]['det-1']['wavelength'],
+                     rsr.rsr[band_name_or_wavelength]['det-1']['response'])
 
         cwvl = get_central_wave(wvl, resp, weight=1. / wvl**4)
-        LOG.debug("Band name: %s  Effective wavelength: %f", bandname, cwvl)
+        LOG.debug("Band name: %s  Effective wavelength: %f", band_name_or_wavelength, cwvl)
 
         return cwvl
 
@@ -252,7 +253,7 @@ class Rayleigh(RayleighConfigBaseClass):
                         'it is the effective wavelength: %f (micro meter)', bandname)
             wvl = bandname * 1000.0
         else:
-            wvl = self.get_effective_wavelength(bandname)
+            wvl = self._get_effective_wavelength(bandname)
             wvl = wvl * 1000.0
 
         # if the user gave us non-dask arrays we'll use the dask
