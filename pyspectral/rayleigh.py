@@ -31,10 +31,8 @@ import numpy as np
 
 try:
     import dask.array as da
-    HAVE_DASK = True
 except ImportError:
     da = None
-    HAVE_DASK = False
 
 from geotiepoints.multilinear import MultilinearInterpolator
 from pyspectral.rsr_reader import RelativeSpectralResponse
@@ -50,7 +48,7 @@ LOG = logging.getLogger(__name__)
 
 def _map_blocks_or_direct_call(func, *args, **kwargs):
     """Call dask's map_blocks or call func directly if dask is not available."""
-    if not HAVE_DASK:
+    if da is None:
         kwargs.pop("meta", None)
         kwargs.pop("dtype", None)
         kwargs.pop("chunks", None)
@@ -240,7 +238,7 @@ class Rayleigh(RayleighConfigBaseClass):
         """Get the reflectance from the three sun-sat angles."""
         # if the user gave us non-dask arrays we'll use the dask
         # version of the algorithm but return numpy arrays back
-        compute = HAVE_DASK and not isinstance(sun_zenith, da.Array)
+        compute = da is not None and not isinstance(sun_zenith, da.Array)
 
         wvl, band_name = self._get_effective_wavelength_and_band_name(band_name_or_wavelength)
         try:

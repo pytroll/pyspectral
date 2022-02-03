@@ -291,7 +291,7 @@ class TestRayleigh:
         retv = rayleigh.Rayleigh.reduce_rayleigh_highzenith(sun_zenith, in_rayleigh, 30., 90., 1.5)
         np.testing.assert_allclose(retv, TEST_RAYLEIGH_RESULT_R2)
 
-    @patch('pyspectral.rayleigh.HAVE_DASK', False)
+    @patch('pyspectral.rayleigh.da', None)
     def test_get_reflectance_redband_outside_clip(self, fake_lut_hdf5):
         """Test getting the reflectance correction - using red band reflections outside 20 to 100."""
         sun_zenith = np.array([67., 32.])
@@ -324,7 +324,7 @@ class TestRayleigh:
         np.testing.assert_allclose(refl_corr1, refl_corr2)
         np.testing.assert_allclose(refl_corr2, refl_corr3)
 
-    @patch('pyspectral.rayleigh.HAVE_DASK', False)
+    @patch('pyspectral.rayleigh.da', None)
     def test_get_reflectance(self, fake_lut_hdf5):
         """Test getting the reflectance correction."""
         sun_zenith = np.array([67., 32.])
@@ -348,7 +348,7 @@ class TestRayleigh:
         assert isinstance(refl_corr, np.ndarray)
         np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT2)
 
-    @patch('pyspectral.rayleigh.HAVE_DASK', False)
+    @patch('pyspectral.rayleigh.da', None)
     def test_get_reflectance_no_rsr(self, fake_lut_hdf5):
         """Test getting the reflectance correction, simulating that we have no RSR data."""
         with mocked_rsr() as rsr_obj:
@@ -361,7 +361,7 @@ class TestRayleigh:
             with pytest.raises(KeyError):
                 ufo.get_reflectance(sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
 
-    @patch('pyspectral.rayleigh.HAVE_DASK', False)
+    @patch('pyspectral.rayleigh.da', None)
     def test_get_reflectance_float_wavelength(self, fake_lut_hdf5):
         """Test getting the reflectance correction."""
         with mocked_rsr() as rsr_obj:
@@ -379,7 +379,7 @@ class TestRayleigh:
             assert isinstance(refl_corr, np.ndarray)
             assert rsr_obj.not_called()
 
-    @patch('pyspectral.rayleigh.HAVE_DASK', False)
+    @patch('pyspectral.rayleigh.da', None)
     def test_get_reflectance_wvl_outside_range(self, fake_lut_hdf5):
         """Test getting the reflectance correction with wavelength outside correction range."""
         with mocked_rsr() as rsr_obj:
