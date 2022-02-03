@@ -28,7 +28,6 @@ import dask.array as da
 import h5py
 import pytest
 from pyspectral import rayleigh
-from pyspectral.rayleigh import BandFrequencyOutOfRange
 from pyspectral.tests.data import (
     TEST_RAYLEIGH_LUT,
     TEST_RAYLEIGH_AZID_COORD,
@@ -219,31 +218,32 @@ class TestRayleighDask:
 class TestRayleigh:
     """Class for testing pyspectral.rayleigh."""
 
-    def test_get_effective_wavelength(self):
+    def test_get_effective_wavelength_and_band_name_with_floats(self):
         """Test getting the effective wavelength."""
         with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
             instance = mymock.return_value
             instance.rsr = RelativeSpectralResponseTestData().rsr
 
             this = rayleigh.Rayleigh('Himawari-8', 'ahi')
-            with pytest.raises(BandFrequencyOutOfRange):
-                this._get_effective_wavelength(0.9)
-
             # Only ch3 (~0.63) testdata implemented yet...
-            ewl = this._get_effective_wavelength(0.65)
-            np.testing.assert_allclose(ewl, 0.6356167)
+            ewl, band_name = this._get_effective_wavelength_and_band_name(0.65)
+            np.testing.assert_allclose(ewl, 650)  # 635.6167)
+            assert isinstance(band_name, str)
 
         with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
             mymock.side_effect = IOError(
                 'Fake that there is no spectral response file...')
 
             this = rayleigh.Rayleigh('Himawari-8', 'ahi')
-            ewl = this._get_effective_wavelength(0.7)
-            assert ewl == 0.7
-            ewl = this._get_effective_wavelength(0.9)
-            assert ewl == 0.9
-            ewl = this._get_effective_wavelength(0.455)
-            assert ewl == 0.455
+            ewl, band_name = this._get_effective_wavelength_and_band_name(0.7)
+            assert ewl == 700.0
+            assert isinstance(band_name, str)
+            ewl, band_name = this._get_effective_wavelength_and_band_name(0.9)
+            assert ewl == 900.0
+            assert isinstance(band_name, str)
+            ewl, band_name = this._get_effective_wavelength_and_band_name(0.455)
+            assert ewl == 455.0
+            assert isinstance(band_name, str)
 
     @patch('os.path.exists')
     @patch('pyspectral.utils.download_luts')

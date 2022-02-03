@@ -45,9 +45,7 @@ from pyspectral.utils import (INSTRUMENTS, _get_rayleigh_lut_dir,
                               AEROSOL_TYPES, ATMOSPHERES,
                               BANDNAMES,
                               ATM_CORRECTION_LUT_VERSION,
-                              download_luts, get_central_wave,
-                              get_bandname_from_wavelength)
-
+                              download_luts, get_central_wave)
 from pyspectral.config import get_config
 
 LOG = logging.getLogger(__name__)
@@ -76,12 +74,6 @@ def _clip_angles_inside_coordinate_range(zenith_angle, zenith_secant_max):
     clip_angle = np.nan_to_num(np.rad2deg(np.arccos(1. / zenith_secant_max)))
     zang = np.nan_to_num(zenith_angle)
     return np.clip(zang, 0, clip_angle)
-
-
-class BandFrequencyOutOfRange(ValueError):
-    """Exception when the band frequency is out of the visible range."""
-
-    pass
 
 
 class RayleighConfigBaseClass(object):
@@ -186,38 +178,40 @@ class Rayleigh(RayleighConfigBaseClass):
 
         LOG.debug('LUT filename: %s', str(self.reflectance_lut_filename))
 
-    def _get_effective_wavelength(self, band_name_or_wavelength):
-        """Get the effective wavelength with Rayleigh scattering in mind."""
-        try:
-            rsr = RelativeSpectralResponse(self.platform_name, self.sensor)
-        except OSError:
-            LOG.exception(
-                "No spectral responses for this platform and sensor: %s %s", self.platform_name, self.sensor)
-            if isinstance(band_name_or_wavelength, (float, int)):
-                LOG.warning(
-                    "Effective wavelength is set to the requested band wavelength = %f", band_name_or_wavelength)
-                return band_name_or_wavelength
+    def _get_effective_wavelength_and_band_name(self, band_name_or_wavelength):
+        """Get the effective wavelength in nanometers and name of the band/channel.
 
-            msg = ("Can't get effective wavelength for band %s on platform %s and sensor %s" %
-                   (str(band_name_or_wavelength), self.platform_name, self.sensor))
-            raise KeyError(msg)
+        The provided argument can be either the name of a band/channel that
+        pyspectral knows about in its RSR files or it can be a wavelength
+        specified in micrometers. If a wavelength is provided it is converted
+        to nanometers and returned. If a band name is provided then it is used
+        to lookup the spectral response and determine an effective wavelength
+        useful for rayleigh correction.
 
-        if isinstance(band_name_or_wavelength, str):
-            band_name_or_wavelength = BANDNAMES.get(self.sensor, BANDNAMES['generic']).get(
-                band_name_or_wavelength, band_name_or_wavelength)
-        elif isinstance(band_name_or_wavelength, (float, int)):
-            if not(0.4 < band_name_or_wavelength < 0.8):
-                raise BandFrequencyOutOfRange(
-                    'Requested band frequency should be between 0.4 and 0.8 microns!')
-            band_name_or_wavelength = get_bandname_from_wavelength(self.sensor, band_name_or_wavelength, rsr.rsr)
+        Returns:
+            A two element tuple of (wavelength in nanometers, name of band). If
+            a wavelength is provided then the band name is a string
+            representation of the wavelength.
 
-        wvl, resp = (rsr.rsr[band_name_or_wavelength]['det-1']['wavelength'],
-                     rsr.rsr[band_name_or_wavelength]['det-1']['response'])
-
-        cwvl = get_central_wave(wvl, resp, weight=1. / wvl**4)
-        LOG.debug("Band name: %s  Effective wavelength: %f", band_name_or_wavelength, cwvl)
-
-        return cwvl
+        """
+        # Get wavelength in nm for band:
+        if isinstance(band_name_or_wavelength, (float, int)):
+            LOG.warning('A wavelength is provided instead of band name - ' +
+                        'disregard the relative spectral responses and assume ' +
+                        'it is the effective wavelength: %f (micro meter)', band_name_or_wavelength)
+            wvl = band_name_or_wavelength
+            band_name = f'{wvl:f}um'
+        else:
+            band_name = band_name_or_wavelength
+            wvl = _get_rsr_wavelength_from_band_name(
+                self.platform_name,
+                self.sensor,
+                band_name,
+            )
+            band_name_map = BANDNAMES.get(self.sensor, BANDNAMES['generic'])
+            band_name_or_wavelength = band_name_map.get(band_name, band_name)
+        LOG.debug("Band name: %s  Effective wavelength: %fum", band_name_or_wavelength, wvl)
+        return wvl * 1000.0, band_name
 
     @staticmethod
     def _interp_rayleigh_refl_by_angles(sun_zenith, sat_zenith, azidiff,
@@ -244,26 +238,18 @@ class Rayleigh(RayleighConfigBaseClass):
         res *= 100
         return res.reshape(sunzsec.shape)
 
-    def get_reflectance(self, sun_zenith, sat_zenith, azidiff, bandname, redband=None):
+    def get_reflectance(self, sun_zenith, sat_zenith, azidiff,
+                        band_name_or_wavelength, redband=None):
         """Get the reflectance from the three sun-sat angles."""
-        # Get wavelength in nm for band:
-        if isinstance(bandname, float):
-            LOG.warning('A wavelength is provided instead of band name - ' +
-                        'disregard the relative spectral responses and assume ' +
-                        'it is the effective wavelength: %f (micro meter)', bandname)
-            wvl = bandname * 1000.0
-        else:
-            wvl = self._get_effective_wavelength(bandname)
-            wvl = wvl * 1000.0
-
         # if the user gave us non-dask arrays we'll use the dask
         # version of the algorithm but return numpy arrays back
         compute = HAVE_DASK and not isinstance(sun_zenith, Array)
 
+        wvl, band_name = self._get_effective_wavelength_and_band_name(band_name_or_wavelength)
         rayleigh_refl = _get_wavelength_adjusted_lut_rayleigh_reflectance(self.reflectance_lut_filename, wvl)
         if rayleigh_refl is None:
             LOG.warning("Effective wavelength for band %s outside 400-800 nm range!",
-                        str(bandname))
+                        str(band_name))
             LOG.info("Setting the rayleigh/aerosol reflectance contribution to zero!")
             chunks = getattr(sun_zenith, "chunks", "auto") if redband is None else getattr(redband, "chunks", "auto")
             return _get_zeroed_result(
@@ -303,6 +289,22 @@ class Rayleigh(RayleighConfigBaseClass):
         # For low zenith factor can be greater than one, so we need to clip it into a sensible range.
         factor = np.clip(factor, 0, 1)
         return rayref * factor
+
+
+def _get_rsr_wavelength_from_band_name(platform_name, sensor, band_name):
+    try:
+        rsr = RelativeSpectralResponse(platform_name, sensor)
+    except OSError:
+        LOG.exception(
+            "No spectral responses for this platform and sensor: %s %s", platform_name, sensor)
+        msg = ("Can't get effective wavelength for band %s on platform %s and sensor %s" %
+               (str(band_name), platform_name, sensor))
+        raise KeyError(msg)
+
+    wvl = rsr.rsr[band_name]['det-1']['wavelength']
+    resp = rsr.rsr[band_name]['det-1']['response']
+    cwvl = get_central_wave(wvl, resp, weight=1. / wvl**4)
+    return cwvl
 
 
 def _get_zeroed_result(shape, compute, chunks=None):
