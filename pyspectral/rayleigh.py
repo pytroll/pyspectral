@@ -315,13 +315,14 @@ def _get_zeroed_result(shape, compute, chunks=None):
 
 
 def _get_wavelength_adjusted_lut_rayleigh_reflectance(lut_filename, wvl):
-    rayleigh_refl, wvl_coord = _get_rayleigh_wavelength_lut_from_file(lut_filename)
-    wvl_coord = wvl_coord[:]
-    if not wvl_coord.min() < wvl < wvl_coord.max():
-        return None
-    wavelength_index, wavelength_factor = _get_wavelength_index_and_factor(wvl_coord, wvl)
-    raylwvl = (wavelength_factor * rayleigh_refl[wavelength_index - 1, :, :, :] +
-               (1 - wavelength_factor) * rayleigh_refl[wavelength_index, :, :, :])
+    with h5py.File(lut_filename, 'r') as h5f:
+        rayleigh_refl = h5f["reflectance"]
+        wvl_coord = h5f["wavelengths"][:]
+        if not wvl_coord.min() < wvl < wvl_coord.max():
+            return None
+        wavelength_index, wavelength_factor = _get_wavelength_index_and_factor(wvl_coord, wvl)
+        raylwvl = (wavelength_factor * rayleigh_refl[wavelength_index - 1, :, :, :] +
+                   (1 - wavelength_factor) * rayleigh_refl[wavelength_index, :, :, :])
     return raylwvl
 
 
@@ -331,13 +332,6 @@ def _get_wavelength_index_and_factor(wvl_coord, wvl):
     wvl2 = wvl_coord[wavelength_index]
     wavelength_factor = (wvl2 - wvl) / (wvl2 - wvl1)
     return wavelength_index, wavelength_factor
-
-
-def _get_rayleigh_wavelength_lut_from_file(lut_filename):
-    h5f = h5py.File(lut_filename, 'r')
-    rayleigh_refl = h5f["reflectance"]
-    wvl_coord = h5f["wavelengths"]
-    return rayleigh_refl, wvl_coord
 
 
 def get_reflectance_lut_from_file(lut_filename):
