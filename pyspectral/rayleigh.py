@@ -40,7 +40,7 @@ except ImportError:
     HAVE_DASK = False
 
     def map_blocks(func, *args, **kwargs):
-        """Placeholder for dask's map_blocks since it isn't available."""
+        """Mimic dask's map_blocks for a single call since it isn't available."""
         kwargs.pop("meta", None)
         kwargs.pop("dtype", None)
         kwargs.pop("chunks", None)
@@ -49,7 +49,7 @@ except ImportError:
 
 from geotiepoints.multilinear import MultilinearInterpolator
 from pyspectral.rsr_reader import RelativeSpectralResponse
-from pyspectral.utils import (INSTRUMENTS, get_rayleigh_lut_dir,
+from pyspectral.utils import (INSTRUMENTS, _get_rayleigh_lut_dir,
                               AEROSOL_TYPES, ATMOSPHERES,
                               BANDNAMES,
                               ATM_CORRECTION_LUT_VERSION,
@@ -116,7 +116,7 @@ class RayleighConfigBaseClass(object):
         specific aerosol correction directory.
 
         """
-        basedir = get_rayleigh_lut_dir(self._aerosol_type)
+        basedir = _get_rayleigh_lut_dir(self._aerosol_type)
         lutfiles_version_path = os.path.join(basedir,
                                              ATM_CORRECTION_LUT_VERSION[self._aerosol_type]['filename'])
 
@@ -167,7 +167,7 @@ class Rayleigh(RayleighConfigBaseClass):
 
         self.sensor = sensor.replace('/', '')
 
-        rayleigh_dir = get_rayleigh_lut_dir(aerosol_type)
+        rayleigh_dir = _get_rayleigh_lut_dir(aerosol_type)
         ext = atm_type.replace(' ', '_')
         lutname = "rayleigh_lut_{0}.h5".format(ext)
         self.reflectance_lut_filename = os.path.join(rayleigh_dir, lutname)
@@ -294,6 +294,7 @@ class Rayleigh(RayleighConfigBaseClass):
     @staticmethod
     def reduce_rayleigh_highzenith(zenith, rayref, thresh_zen, maxzen, strength):
         """Reduce the Rayleigh correction amount at high zenith angles.
+
         This linearly scales the Rayleigh reflectance, `rayref`, for solar or satellite zenith angles, `zenith`,
         above a threshold angle, `thresh_zen`. Between `thresh_zen` and `maxzen` the Rayleigh reflectance will
         be linearly scaled, from one at `thresh_zen` to zero at `maxzen`.

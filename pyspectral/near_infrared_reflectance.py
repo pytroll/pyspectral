@@ -40,7 +40,7 @@ except ImportError:
 from pyspectral.solar import (SolarIrradianceSpectrum,
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
 from pyspectral.utils import BANDNAMES, get_bandname_from_wavelength
-from pyspectral.utils import get_tb2rad_dir
+from pyspectral.utils import _get_tb2rad_dir
 from pyspectral.utils import WAVE_LENGTH
 from pyspectral.radiance_tb_conversion import RadTbConverter
 from pyspectral.config import get_config
@@ -108,7 +108,7 @@ class Calculator(RadTbConverter):
         self.lutfile = None
 
         platform_sensor = platform_name + '-' + instrument
-        tb2rad_dir = get_tb2rad_dir()
+        tb2rad_dir = _get_tb2rad_dir()
         if platform_sensor in options and 'tb2rad_lut_filename' in options[platform_sensor]:
             if isinstance(options[platform_sensor]['tb2rad_lut_filename'], dict):
                 for item in options[platform_sensor]['tb2rad_lut_filename']:

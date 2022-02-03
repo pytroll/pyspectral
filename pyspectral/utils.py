@@ -117,7 +117,7 @@ for atype in AEROSOL_TYPES:
     HTTPS_RAYLEIGH_LUTS[atype] = url
 
 
-def get_rayleigh_lut_dir(aerosol_type):
+def _get_rayleigh_lut_dir(aerosol_type):
     conf = get_config()
     local_rayleigh_dir = conf.get('rayleigh_dir')
     return os.path.join(local_rayleigh_dir, aerosol_type)
@@ -127,7 +127,7 @@ def get_rayleigh_lut_dir(aerosol_type):
 DEFAULT_TB2RAD_DIR = tempfile.gettempdir()
 
 
-def get_tb2rad_dir():
+def _get_tb2rad_dir():
     conf = get_config()
     return conf.get('tb2rad_dir', DEFAULT_TB2RAD_DIR)
 
@@ -350,7 +350,7 @@ def download_luts(**kwargs):
         http = HTTPS_RAYLEIGH_LUTS[subname]
         LOG.debug('URL = %s', http)
 
-        subdir_path = get_rayleigh_lut_dir(subname)
+        subdir_path = _get_rayleigh_lut_dir(subname)
         try:
             LOG.debug('Create directory: %s', subdir_path)
             if not dry_run:
