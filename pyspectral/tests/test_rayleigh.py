@@ -21,10 +21,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Unittest for the rayleigh correction utilities."""
-
+import contextlib
 import os
 import numpy as np
 import dask.array as da
+import h5py
 import pytest
 from pyspectral import rayleigh
 from pyspectral.rayleigh import BandFrequencyOutOfRange
@@ -34,14 +35,14 @@ from pyspectral.tests.data import (
     TEST_RAYLEIGH_SUNZ_COORD,
     TEST_RAYLEIGH_SATZ_COORD,
     TEST_RAYLEIGH_WVL_COORD)
-from pyspectral.utils import RSR_DATA_VERSION
+from pyspectral.utils import ATM_CORRECTION_LUT_VERSION
 
 from unittest.mock import patch
 
-TEST_RAYLEIGH_RESULT1 = np.array([10.40727436,   8.69775471], dtype='float32')
-TEST_RAYLEIGH_RESULT2 = np.array([9.71696059, 8.51415689], dtype='float32')
-TEST_RAYLEIGH_RESULT3 = np.array([5.61532271,  8.69267476], dtype='float32')
-TEST_RAYLEIGH_RESULT4 = np.array([0.0,   8.69775471], dtype='float32')
+TEST_RAYLEIGH_RESULT1 = np.array([10.339923,    8.64748], dtype='float32')
+TEST_RAYLEIGH_RESULT2 = np.array([9.653559, 8.464997], dtype='float32')
+TEST_RAYLEIGH_RESULT3 = np.array([5.488735, 8.533125], dtype='float32')
+TEST_RAYLEIGH_RESULT4 = np.array([0.0,    8.64748], dtype='float32')
 TEST_RAYLEIGH_RESULT_R1 = np.array([16.66666667, 20.83333333, 25.], dtype='float32')
 TEST_RAYLEIGH_RESULT_R2 = np.array([0., 6.25, 12.5], dtype='float32')
 
@@ -82,92 +83,89 @@ class RelativeSpectralResponseTestData(object):
         self.rsr[chname]['det-1']['response'] = ch3_resp
 
 
+@pytest.fixture
+def fake_lut_hdf5(tmp_path):
+    """Create a fake LUT HDF5 file and necessary mocks to use it."""
+    aerosol_type = "marine_clean_aerosol"
+    base_dir = tmp_path / aerosol_type
+    base_dir.mkdir()
+    _create_fake_lut_version_file(base_dir, aerosol_type)
+    lut_filename = _create_fake_lut_hdf5_file(base_dir, "midlatitude_summer")
+    fake_config = {
+        "rsr_dir": str(tmp_path),
+        "rayleigh_dir": str(tmp_path),
+        "download_from_internet": False,
+    }
+    with (patch('pyspectral.rayleigh.get_config', lambda: fake_config),
+          patch('pyspectral.utils.get_config', lambda: fake_config)):
+        yield lut_filename
+
+
+def _create_fake_lut_version_file(base_dir, aerosol_type):
+    lut_version = ATM_CORRECTION_LUT_VERSION[aerosol_type]["version"]
+    lutfiles_path = str(base_dir / ATM_CORRECTION_LUT_VERSION[aerosol_type]["filename"])
+    with open(lutfiles_path, "w") as version_file:
+        version_file.write(lut_version)
+
+
+def _create_fake_lut_hdf5_file(base_dir, atm_type) -> str:
+    filename = str(base_dir / f"rayleigh_lut_{atm_type}.h5")
+    with h5py.File(filename, "w") as h5f:
+        h5f["reflectance"] = TEST_RAYLEIGH_LUT
+        h5f["wavelengths"] = TEST_RAYLEIGH_WVL_COORD
+        h5f["azimuth_difference"] = TEST_RAYLEIGH_AZID_COORD
+        h5f["sun_zenith_secant"] = TEST_RAYLEIGH_SUNZ_COORD
+        h5f["satellite_zenith_secant"] = TEST_RAYLEIGH_SATZ_COORD
+    return filename
+
+
+def _create_rayleigh():
+    rayl = rayleigh.Rayleigh('NOAA-20', 'viirs', atmosphere='midlatitude summer')
+    return rayl
+
+
+@contextlib.contextmanager
+def mocked_rsr():
+    """Mock the RSR class used by the Rayleigh class with fake data."""
+    with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
+        instance = mymock.return_value
+        instance.rsr = RelativeSpectralResponseTestData().rsr
+        instance.unit = '1e-6 m'
+        instance.si_scale = 1e-6
+        yield mymock
+
+
 class TestRayleighDask:
     """Class for testing pyspectral.rayleigh - with dask-arrays as input."""
 
-    def setup_method(self):
-        """Set up the test."""
-        self.cwvl = 0.4440124
-        self.rsr = RelativeSpectralResponseTestData()
-        self._res1 = da.from_array(TEST_RAYLEIGH_RESULT1, chunks=2)
-        self._res2 = da.from_array(TEST_RAYLEIGH_RESULT2, chunks=2)
-        self._res3 = da.from_array(TEST_RAYLEIGH_RESULT3, chunks=2)
-
-        self.rayl = TEST_RAYLEIGH_LUT
-        self.wvl_coord = TEST_RAYLEIGH_WVL_COORD
-        self.azid_coord = TEST_RAYLEIGH_AZID_COORD
-        self.sunz_sec_coord = TEST_RAYLEIGH_SUNZ_COORD
-        self.satz_sec_coord = TEST_RAYLEIGH_SATZ_COORD
-
-        # mymock:
-        with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
-            instance = mymock.return_value
-            instance.rsr = RelativeSpectralResponseTestData().rsr
-            instance.unit = '1e-6 m'
-            instance.si_scale = 1e-6
-
-            self.viirs_rayleigh = rayleigh.Rayleigh('NOAA-20', 'viirs', atmosphere='midlatitude summer')
-
-    def test_dask_cliping_angles_with_nans(self):
+    def test_dask_clipping_angles_with_nans(self):
         """Test the clipping of angles outside coordinate range - with nan's in input."""
         from pyspectral.rayleigh import _clip_angles_inside_coordinate_range
         zenith_angle = da.array([79., 69., 32., np.nan])
         result = _clip_angles_inside_coordinate_range(zenith_angle, 2.75)
         np.testing.assert_allclose(result, TEST_ZENITH_ANGLES_RESULTS)
 
-    @patch('os.path.exists')
-    @patch('pyspectral.utils.download_luts')
-    @patch('pyspectral.rayleigh.get_reflectance_lut_from_file')
-    @patch('pyspectral.rayleigh._get_rayleigh_wavelength_lut_from_file')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.'
-           '_get_rsr_data_version')
-    @patch('pyspectral.rayleigh.Rayleigh.get_effective_wavelength')
-    def test_get_reflectance_dask_redband_outside_clip(self, get_effective_wvl,
-                                                       get_rsr_version,
-                                                       get_rayleigh_wavelength_lut_from_file,
-                                                       get_reflectance_lut_from_file,
-                                                       download_luts, exists):
+    def test_get_reflectance_dask_redband_outside_clip(self, fake_lut_hdf5):
         """Test getting the reflectance correction with dask inputs - using red band reflections outside 20-100."""
-        get_rayleigh_wavelength_lut_from_file.return_value = (self.rayl, self.wvl_coord)
-        get_reflectance_lut_from_file.return_value = (self.azid_coord, self.satz_sec_coord, self.sunz_sec_coord)
-        download_luts.return_code = None
-        exists.return_code = True
-        get_rsr_version.return_code = RSR_DATA_VERSION
-        get_effective_wvl.return_value = self.cwvl
-
         sun_zenith = da.array([67., 32.])
         sat_zenith = da.array([45., 18.])
         azidiff = da.array([150., 110.])
         redband_refl = da.array([108., -0.5])
-        refl_corr = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
+        viirs_rayl = _create_rayleigh()
+        with mocked_rsr():
+            refl_corr = viirs_rayl.get_reflectance(sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
         np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT4)
         assert isinstance(refl_corr, da.Array)
 
-    @patch('os.path.exists')
-    @patch('pyspectral.utils.download_luts')
-    @patch('pyspectral.rayleigh.get_reflectance_lut_from_file')
-    @patch('pyspectral.rayleigh._get_rayleigh_wavelength_lut_from_file')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.'
-           '_get_rsr_data_version')
-    @patch('pyspectral.rayleigh.Rayleigh.get_effective_wavelength')
-    def test_get_reflectance_dask(self, get_effective_wvl,
-                                  get_rsr_version,
-                                  get_rayleigh_wavelength_lut_from_file,
-                                  get_reflectance_lut_from_file,
-                                  download_luts, exists):
+    def test_get_reflectance_dask(self, fake_lut_hdf5):
         """Test getting the reflectance correction with dask inputs."""
-        get_rayleigh_wavelength_lut_from_file.return_value = (self.rayl, self.wvl_coord)
-        get_reflectance_lut_from_file.return_value = (self.azid_coord, self.satz_sec_coord, self.sunz_sec_coord)
-        download_luts.return_code = None
-        exists.return_code = True
-        get_rsr_version.return_code = RSR_DATA_VERSION
-        get_effective_wvl.return_value = self.cwvl
-
         sun_zenith = da.array([67., 32.])
         sat_zenith = da.array([45., 18.])
         azidiff = da.array([150., 110.])
         redband_refl = da.array([14., 5.])
-        refl_corr = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
+        rayl = _create_rayleigh()
+        with mocked_rsr():
+            refl_corr = rayl.get_reflectance(sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
         np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT1)
         assert isinstance(refl_corr, da.Array)
 
@@ -175,35 +173,20 @@ class TestRayleighDask:
         sat_zenith = da.array([49., 26.])
         azidiff = da.array([140., 130.])
         redband_refl = da.array([12., 8.])
-        refl_corr = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
+        with mocked_rsr():
+            refl_corr = rayl.get_reflectance(sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
         np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT2)
         assert isinstance(refl_corr, da.Array)
 
-    @patch('os.path.exists')
-    @patch('pyspectral.utils.download_luts')
-    @patch('pyspectral.rayleigh.get_reflectance_lut_from_file')
-    @patch('pyspectral.rayleigh._get_rayleigh_wavelength_lut_from_file')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.'
-           '_get_rsr_data_version')
-    @patch('pyspectral.rayleigh.Rayleigh.get_effective_wavelength')
-    def test_get_reflectance_numpy_dask(self, get_effective_wvl,
-                                        get_rsr_version,
-                                        get_rayleigh_wavelength_lut_from_file,
-                                        get_reflectance_lut_from_file,
-                                        download_luts, exists):
+    def test_get_reflectance_numpy_dask(self, fake_lut_hdf5):
         """Test getting the reflectance correction with dask inputs."""
-        get_rayleigh_wavelength_lut_from_file.return_value = (self.rayl, self.wvl_coord)
-        get_reflectance_lut_from_file.return_value = (self.azid_coord, self.satz_sec_coord, self.sunz_sec_coord)
-        download_luts.return_code = None
-        exists.return_code = True
-        get_rsr_version.return_code = RSR_DATA_VERSION
-        get_effective_wvl.return_value = self.cwvl
-
         sun_zenith = np.array([67., 32.])
         sat_zenith = np.array([45., 18.])
         azidiff = np.array([150., 110.])
         redband_refl = np.array([14., 5.])
-        refl_corr = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
+        rayl = _create_rayleigh()
+        with mocked_rsr():
+            refl_corr = rayl.get_reflectance(sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
         np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT1)
         assert isinstance(refl_corr, np.ndarray)
 
@@ -211,7 +194,8 @@ class TestRayleighDask:
         sat_zenith = np.array([49., 26.])
         azidiff = np.array([140., 130.])
         redband_refl = np.array([12., 8.])
-        refl_corr = self.viirs_rayleigh.get_reflectance(sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
+        with mocked_rsr():
+            refl_corr = rayl.get_reflectance(sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
         np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT2)
         assert isinstance(refl_corr, np.ndarray)
 
@@ -219,32 +203,8 @@ class TestRayleighDask:
 class TestRayleigh:
     """Class for testing pyspectral.rayleigh."""
 
-    def setup_method(self):
-        """Set up the test."""
-        self.cwvl = 0.4440124
-        self.rsr = RelativeSpectralResponseTestData()
-        self._res1 = da.from_array(TEST_RAYLEIGH_RESULT1, chunks=2)
-        self._res2 = da.from_array(TEST_RAYLEIGH_RESULT2, chunks=2)
-        self._res3 = da.from_array(TEST_RAYLEIGH_RESULT3, chunks=2)
-
-        self.rayl = TEST_RAYLEIGH_LUT
-        self.wvl_coord = TEST_RAYLEIGH_WVL_COORD
-        self.azid_coord = TEST_RAYLEIGH_AZID_COORD
-        self.sunz_sec_coord = TEST_RAYLEIGH_SUNZ_COORD
-        self.satz_sec_coord = TEST_RAYLEIGH_SATZ_COORD
-
-        # mymock:
-        with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
-            instance = mymock.return_value
-            instance.rsr = RelativeSpectralResponseTestData().rsr
-            instance.unit = '1e-6 m'
-            instance.si_scale = 1e-6
-
-            self.viirs_rayleigh = rayleigh.Rayleigh('NOAA-20', 'viirs', atmosphere='midlatitude summer')
-
     def test_get_effective_wavelength(self):
         """Test getting the effective wavelength."""
-        # mymock:
         with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
             instance = mymock.return_value
             instance.rsr = RelativeSpectralResponseTestData().rsr
@@ -257,9 +217,8 @@ class TestRayleigh:
             ewl = this.get_effective_wavelength(0.65)
             np.testing.assert_allclose(ewl, 0.6356167)
 
-        # mymock:
         with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
-            instance = mymock.side_effect = IOError(
+            mymock.side_effect = IOError(
                 'Fake that there is no spectral response file...')
 
             this = rayleigh.Rayleigh('Himawari-8', 'ahi')
@@ -294,54 +253,39 @@ class TestRayleigh:
             this = rayleigh.Rayleigh('NOAA-19', 'avhrr/3', atmosphere='tropical')
             assert this.sensor == 'avhrr3'
 
-    def test_cliping_angles_with_nans(self):
-        """Test the cliping of angles outside coordinate range - with nan's in input."""
+    def test_clipping_angles_with_nans(self):
+        """Test the clipping of angles outside coordinate range - with nan's in input."""
         from pyspectral.rayleigh import _clip_angles_inside_coordinate_range
         zenith_angle = np.array([79., 69., 32., np.nan])
         result = _clip_angles_inside_coordinate_range(zenith_angle, 2.75)
         np.testing.assert_allclose(result, TEST_ZENITH_ANGLES_RESULTS)
 
-    def test_rayleigh_reduction(self):
+    def test_rayleigh_reduction(self, fake_lut_hdf5):
         """Test the code that reduces Rayleigh correction for high zenith angles."""
         # Test the Rayleigh reduction code
         sun_zenith = np.array([70., 65., 60.])
         in_rayleigh = [50, 50, 50]
         # Test case where no reduction is done.
-        retv = self.viirs_rayleigh.reduce_rayleigh_highzenith(sun_zenith, in_rayleigh, 70., 90., 1)
+        retv = rayleigh.Rayleigh.reduce_rayleigh_highzenith(sun_zenith, in_rayleigh, 70., 90., 1)
         np.testing.assert_allclose(retv, in_rayleigh)
         # Test case where moderate reduction is performed.
-        retv = self.viirs_rayleigh.reduce_rayleigh_highzenith(sun_zenith, in_rayleigh, 30., 90., 1)
+        retv = rayleigh.Rayleigh.reduce_rayleigh_highzenith(sun_zenith, in_rayleigh, 30., 90., 1)
         np.testing.assert_allclose(retv, TEST_RAYLEIGH_RESULT_R1)
         # Test case where extreme reduction is performed.
-        retv = self.viirs_rayleigh.reduce_rayleigh_highzenith(sun_zenith, in_rayleigh, 30., 90., 1.5)
+        retv = rayleigh.Rayleigh.reduce_rayleigh_highzenith(sun_zenith, in_rayleigh, 30., 90., 1.5)
         np.testing.assert_allclose(retv, TEST_RAYLEIGH_RESULT_R2)
 
     @patch('pyspectral.rayleigh.HAVE_DASK', False)
-    @patch('os.path.exists')
-    @patch('pyspectral.utils.download_luts')
-    @patch('pyspectral.rayleigh.get_reflectance_lut_from_file')
-    @patch('pyspectral.rayleigh._get_rayleigh_wavelength_lut_from_file')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_rsr_data_version')
-    @patch('pyspectral.rayleigh.Rayleigh.get_effective_wavelength')
-    def test_get_reflectance_redband_outside_clip(self, get_effective_wvl,
-                                                  get_rsr_version,
-                                                  get_rayleigh_wavelength_lut_from_file,
-                                                  get_reflectance_lut_from_file,
-                                                  download_luts, exists):
+    def test_get_reflectance_redband_outside_clip(self, fake_lut_hdf5):
         """Test getting the reflectance correction - using red band reflections outside 20 to 100."""
-        get_rayleigh_wavelength_lut_from_file.return_value = (self.rayl, self.wvl_coord)
-        get_reflectance_lut_from_file.return_value = (self.azid_coord, self.satz_sec_coord, self.sunz_sec_coord)
-        download_luts.return_code = None
-        exists.return_code = True
-        get_rsr_version.return_code = RSR_DATA_VERSION
-        get_effective_wvl.return_value = self.cwvl
-
         sun_zenith = np.array([67., 32.])
         sat_zenith = np.array([45., 18.])
         azidiff = np.array([150., 110.])
         redband_refl = np.array([100., 20.])
-        refl_corr1 = self.viirs_rayleigh.get_reflectance(
-            sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
+        rayl = _create_rayleigh()
+        with mocked_rsr():
+            refl_corr1 = rayl.get_reflectance(
+                sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
 
         np.testing.assert_allclose(refl_corr1, TEST_RAYLEIGH_RESULT4)
 
@@ -350,80 +294,67 @@ class TestRayleigh:
         rints_high = rng.integers(low=100, high=200, size=2).astype('float')
 
         redband_refl = np.array([rints_high[0], rints_low[0]])
-        refl_corr2 = self.viirs_rayleigh.get_reflectance(
-            sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
+        with mocked_rsr():
+            refl_corr2 = rayl.get_reflectance(
+                sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
 
         redband_refl = np.array([rints_high[1], rints_low[1]])
-        refl_corr3 = self.viirs_rayleigh.get_reflectance(
-            sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
+        with mocked_rsr():
+            refl_corr3 = rayl.get_reflectance(
+                sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
 
         np.testing.assert_allclose(refl_corr1, refl_corr2)
         np.testing.assert_allclose(refl_corr2, refl_corr3)
 
     @patch('pyspectral.rayleigh.HAVE_DASK', False)
-    @patch('os.path.exists')
-    @patch('pyspectral.utils.download_luts')
-    @patch('pyspectral.rayleigh.get_reflectance_lut_from_file')
-    @patch('pyspectral.rayleigh._get_rayleigh_wavelength_lut_from_file')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_rsr_data_version')
-    @patch('pyspectral.rayleigh.Rayleigh.get_effective_wavelength')
-    def test_get_reflectance(self, get_effective_wvl,
-                             get_rsr_version,
-                             get_rayleigh_wavelength_lut_from_file,
-                             get_reflectance_lut_from_file,
-                             download_luts, exists):
+    def test_get_reflectance(self, fake_lut_hdf5):
         """Test getting the reflectance correction."""
-        get_rayleigh_wavelength_lut_from_file.return_value = (self.rayl, self.wvl_coord)
-        get_reflectance_lut_from_file.return_value = (self.azid_coord, self.satz_sec_coord, self.sunz_sec_coord)
-        download_luts.return_code = None
-        exists.return_code = True
-        get_rsr_version.return_code = RSR_DATA_VERSION
-        get_effective_wvl.return_value = self.cwvl
-
         sun_zenith = np.array([67., 32.])
         sat_zenith = np.array([45., 18.])
         azidiff = np.array([150., 110.])
         redband_refl = np.array([14., 5.])
-        refl_corr = self.viirs_rayleigh.get_reflectance(
-            sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
+        rayl = _create_rayleigh()
+        with mocked_rsr():
+            refl_corr = rayl.get_reflectance(
+                sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
         np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT1)
 
         sun_zenith = np.array([60., 20.])
         sat_zenith = np.array([49., 26.])
         azidiff = np.array([140., 130.])
         redband_refl = np.array([12., 8.])
-        refl_corr = self.viirs_rayleigh.get_reflectance(
-            sun_zenith, sat_zenith, azidiff, 'M2', redband_refl)
+        with mocked_rsr():
+            refl_corr = rayl.get_reflectance(
+                sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
 
         np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT2)
 
     @patch('pyspectral.rayleigh.HAVE_DASK', False)
-    @patch('os.path.exists')
-    @patch('pyspectral.utils.download_luts')
-    @patch('pyspectral.rayleigh.get_reflectance_lut_from_file')
-    @patch('pyspectral.rayleigh._get_rayleigh_wavelength_lut_from_file')
-    def test_get_reflectance_no_rsr(self,
-                                    get_rayleigh_wavelength_lut_from_file,
-                                    get_reflectance_lut_from_file,
-                                    download_luts,
-                                    exists):
+    def test_get_reflectance_no_rsr(self, fake_lut_hdf5):
         """Test getting the reflectance correction, simulating that we have no RSR data."""
-        get_rayleigh_wavelength_lut_from_file.return_value = (self.rayl, self.wvl_coord)
-        get_reflectance_lut_from_file.return_value = (self.azid_coord, self.satz_sec_coord, self.sunz_sec_coord)
-        download_luts.return_code = None
-        exists.return_code = True
-
-        with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
-            instance = mymock.return_value
-            mymock.side_effect = IOError("No rsr data in pyspectral for this platform and sensor")
-            instance.rsr = None
-            instance.unit = '1e-6 m'
-            instance.si_scale = 1e-6
+        with mocked_rsr() as rsr_obj:
+            rsr_obj.side_effect = IOError("No rsr data in pyspectral for this platform and sensor")
             sun_zenith = np.array([50., 10.])
             sat_zenith = np.array([39., 16.])
             azidiff = np.array([170., 110.])
             redband_refl = np.array([29., 12.])
-            ufo = rayleigh.Rayleigh('UFO', 'unknown')
+            ufo = rayleigh.Rayleigh('UFO', 'unknown', atmosphere='midlatitude summer')
+            with pytest.raises(KeyError):
+                ufo.get_reflectance(sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
 
-            refl_corr = ufo.get_reflectance(sun_zenith, sat_zenith, azidiff, 0.441, redband_refl)
+    @patch('pyspectral.rayleigh.HAVE_DASK', False)
+    def test_get_reflectance_float_wavelength(self, fake_lut_hdf5):
+        """Test getting the reflectance correction."""
+        with mocked_rsr() as rsr_obj:
+            rsr_obj.side_effect = IOError("No rsr data in pyspectral for this platform and sensor")
+            sun_zenith = np.array([50., 10.])
+            sat_zenith = np.array([39., 16.])
+            azidiff = np.array([170., 110.])
+            redband_refl = np.array([29., 12.])
+            # rayl = _create_rayleigh()
+            rayl = rayleigh.Rayleigh('UFO', 'unknown', atmosphere='midlatitude summer')
+
+            # we gave a direct wavelength so the RSR object shouldn't be needed
+            refl_corr = rayl.get_reflectance(sun_zenith, sat_zenith, azidiff, 0.634, redband_refl)
             np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT3)
+            assert rsr_obj.not_called()

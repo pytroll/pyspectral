@@ -267,9 +267,10 @@ class Rayleigh(RayleighConfigBaseClass):
             LOG.warning("Effective wavelength for band %s outside 400-800 nm range!",
                         str(bandname))
             LOG.info("Setting the rayleigh/aerosol reflectance contribution to zero!")
+            chunks = getattr(sun_zenith, "chunks", None) if redband is None else getattr(redband, "chunks", None)
             return _get_zeroed_result(
                 sun_zenith.shape, compute,
-                chunks=sun_zenith.chunks if redband is None else redband.chunks)
+                chunks=chunks)
         res = map_blocks(self._interp_rayleigh_refl_by_angles,
                          sun_zenith, sat_zenith, azidiff, rayleigh_refl,
                          self.reflectance_lut_filename,
