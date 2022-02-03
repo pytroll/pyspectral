@@ -89,7 +89,8 @@ def fake_lut_hdf5(tmp_path):
     base_dir = tmp_path / aerosol_type
     base_dir.mkdir()
     _create_fake_lut_version_file(base_dir, aerosol_type)
-    lut_filename = _create_fake_lut_hdf5_file(base_dir, "midlatitude_summer")
+    for atm_type in ("midlatitude_summer", "subarctic_winter", "tropical", "us-standard"):
+        _create_fake_lut_hdf5_file(base_dir, atm_type)
     fake_config = {
         "rsr_dir": str(tmp_path),
         "rayleigh_dir": str(tmp_path),
@@ -97,7 +98,7 @@ def fake_lut_hdf5(tmp_path):
     }
     with patch('pyspectral.rayleigh.get_config', lambda: fake_config), \
             patch('pyspectral.utils.get_config', lambda: fake_config):
-        yield lut_filename
+        yield None
 
 
 def _create_fake_lut_version_file(base_dir, aerosol_type):
@@ -218,40 +219,27 @@ class TestRayleighDask:
 class TestRayleigh:
     """Class for testing pyspectral.rayleigh."""
 
-    def test_get_effective_wavelength_and_band_name_with_floats(self):
+    def test_get_effective_wavelength_and_band_name_with_floats(self, fake_lut_hdf5):
         """Test getting the effective wavelength."""
-        with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
-            instance = mymock.return_value
-            instance.rsr = RelativeSpectralResponseTestData().rsr
+        this = rayleigh.Rayleigh('Himawari-8', 'ahi')
+        # Only ch3 (~0.63) testdata implemented yet...
+        ewl, band_name = this._get_effective_wavelength_and_band_name(0.65)
+        np.testing.assert_allclose(ewl, 650)  # 635.6167)
+        assert isinstance(band_name, str)
 
-            this = rayleigh.Rayleigh('Himawari-8', 'ahi')
-            # Only ch3 (~0.63) testdata implemented yet...
-            ewl, band_name = this._get_effective_wavelength_and_band_name(0.65)
-            np.testing.assert_allclose(ewl, 650)  # 635.6167)
-            assert isinstance(band_name, str)
+        this = rayleigh.Rayleigh('Himawari-8', 'ahi')
+        ewl, band_name = this._get_effective_wavelength_and_band_name(0.7)
+        assert ewl == 700.0
+        assert isinstance(band_name, str)
+        ewl, band_name = this._get_effective_wavelength_and_band_name(0.9)
+        assert ewl == 900.0
+        assert isinstance(band_name, str)
+        ewl, band_name = this._get_effective_wavelength_and_band_name(0.455)
+        assert ewl == 455.0
+        assert isinstance(band_name, str)
 
-        with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
-            mymock.side_effect = IOError(
-                'Fake that there is no spectral response file...')
-
-            this = rayleigh.Rayleigh('Himawari-8', 'ahi')
-            ewl, band_name = this._get_effective_wavelength_and_band_name(0.7)
-            assert ewl == 700.0
-            assert isinstance(band_name, str)
-            ewl, band_name = this._get_effective_wavelength_and_band_name(0.9)
-            assert ewl == 900.0
-            assert isinstance(band_name, str)
-            ewl, band_name = this._get_effective_wavelength_and_band_name(0.455)
-            assert ewl == 455.0
-            assert isinstance(band_name, str)
-
-    @patch('os.path.exists')
-    @patch('pyspectral.utils.download_luts')
-    def test_rayleigh_init(self, download_luts, exists):
+    def test_rayleigh_init(self, fake_lut_hdf5):
         """Test creating the Rayleigh object."""
-        download_luts.return_code = None
-        exists.return_code = True
-
         with patch('pyspectral.rayleigh.RelativeSpectralResponse') as mymock:
             instance = mymock.return_value
             instance.rsr = RelativeSpectralResponseTestData().rsr
@@ -398,6 +386,6 @@ class TestRayleigh:
 
     def test_get_reflectance_no_lut(self, fake_lut_hdf5):
         """Test that missing a LUT causes an exception.."""
-        # test LUT doesn't have a tropical file
+        # test LUT doesn't have a subartic_summer file
         with pytest.raises(IOError):
-            rayleigh.Rayleigh('UFO', 'unknown', atmosphere='tropical')
+            rayleigh.Rayleigh('UFO', 'unknown', atmosphere='subarctic summer')
