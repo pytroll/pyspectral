@@ -116,22 +116,20 @@ for atype in AEROSOL_TYPES:
     url = "{prefix}_{name}.tgz".format(prefix=URL_PREFIX, name=name)
     HTTPS_RAYLEIGH_LUTS[atype] = url
 
-CONF = get_config()
-LOCAL_RSR_DIR = CONF.get('rsr_dir')
-LOCAL_RAYLEIGH_DIR = CONF.get('rayleigh_dir')
 
-try:
-    os.makedirs(LOCAL_RSR_DIR)
-except OSError:
-    if not os.path.isdir(LOCAL_RSR_DIR):
-        raise
+def get_rayleigh_lut_dir(aerosol_type):
+    conf = get_config()
+    local_rayleigh_dir = conf.get('rayleigh_dir')
+    return os.path.join(local_rayleigh_dir, aerosol_type)
 
-RAYLEIGH_LUT_DIRS = {}
-for sub_dir_name in HTTPS_RAYLEIGH_LUTS:
-    dirname = os.path.join(LOCAL_RAYLEIGH_DIR, sub_dir_name)
-    RAYLEIGH_LUT_DIRS[sub_dir_name] = dirname
 
-TB2RAD_DIR = CONF.get('tb2rad_dir', tempfile.gettempdir())
+# only create one temporary directory once
+DEFAULT_TB2RAD_DIR = tempfile.gettempdir()
+
+
+def get_tb2rad_dir():
+    conf = get_config()
+    return conf.get('tb2rad_dir', DEFAULT_TB2RAD_DIR)
 
 
 def convert2wavenumber(rsr):
@@ -296,7 +294,9 @@ def download_rsr(**kwargs):
     except ImportError:
         TQDM_LOADED = False
 
-    dest_dir = kwargs.get('dest_dir', LOCAL_RSR_DIR)
+    config = get_config()
+    local_rsr_dir = config.get('rsr_dir')
+    dest_dir = kwargs.get('dest_dir', local_rsr_dir)
     dry_run = kwargs.get('dry_run', False)
 
     LOG.info("Download RSR files and store in directory %s", dest_dir)
@@ -344,14 +344,13 @@ def download_luts(**kwargs):
         aerosol_types = HTTPS_RAYLEIGH_LUTS.keys()
 
     chunk_size = 1024 * 1024  # 1 MB
-
     for subname in aerosol_types:
 
         LOG.debug('Aerosol type: %s', subname)
         http = HTTPS_RAYLEIGH_LUTS[subname]
         LOG.debug('URL = %s', http)
 
-        subdir_path = RAYLEIGH_LUT_DIRS[subname]
+        subdir_path = get_rayleigh_lut_dir(subname)
         try:
             LOG.debug('Create directory: %s', subdir_path)
             if not dry_run:

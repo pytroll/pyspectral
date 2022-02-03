@@ -87,5 +87,7 @@ def get_config():
     user_datadir = app_dirs.user_data_dir
     config['rsr_dir'] = expanduser(config.get('rsr_dir', user_datadir))
     config['rayleigh_dir'] = expanduser(config.get('rayleigh_dir', user_datadir))
+    os.makedirs(config['rsr_dir'], exist_ok=True)
+    os.makedirs(config['rayleigh_dir'], exist_ok=True)
 
     return config

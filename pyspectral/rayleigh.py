@@ -49,7 +49,7 @@ except ImportError:
 
 from geotiepoints.multilinear import MultilinearInterpolator
 from pyspectral.rsr_reader import RelativeSpectralResponse
-from pyspectral.utils import (INSTRUMENTS, RAYLEIGH_LUT_DIRS,
+from pyspectral.utils import (INSTRUMENTS, get_rayleigh_lut_dir,
                               AEROSOL_TYPES, ATMOSPHERES,
                               BANDNAMES,
                               ATM_CORRECTION_LUT_VERSION,
@@ -88,11 +88,8 @@ class RayleighConfigBaseClass(object):
     def __init__(self, aerosol_type, atm_type='us-standard'):
         """Initialize class and determine LUT to use."""
         options = get_config()
-        self.do_download = False
+        self.do_download = 'download_from_internet' in options and options['download_from_internet']
         self._lutfiles_version_uptodate = False
-
-        if 'download_from_internet' in options and options['download_from_internet']:
-            self.do_download = True
 
         if atm_type not in ATMOSPHERES:
             raise AttributeError('Atmosphere type not supported! ' +
@@ -113,14 +110,13 @@ class RayleighConfigBaseClass(object):
             self.lutfiles_version_uptodate = True
 
     def _get_lutfiles_version(self):
-        """
-        Get LUT file version.
+        """Get LUT file version.
 
         Check the version of the atm correction luts from the version file in the
         specific aerosol correction directory.
 
         """
-        basedir = RAYLEIGH_LUT_DIRS[self._aerosol_type]
+        basedir = get_rayleigh_lut_dir(self._aerosol_type)
         lutfiles_version_path = os.path.join(basedir,
                                              ATM_CORRECTION_LUT_VERSION[self._aerosol_type]['filename'])
 
@@ -171,8 +167,7 @@ class Rayleigh(RayleighConfigBaseClass):
 
         self.sensor = sensor.replace('/', '')
 
-        rayleigh_dir = RAYLEIGH_LUT_DIRS[aerosol_type]
-
+        rayleigh_dir = get_rayleigh_lut_dir(aerosol_type)
         ext = atm_type.replace(' ', '_')
         lutname = "rayleigh_lut_{0}.h5".format(ext)
         self.reflectance_lut_filename = os.path.join(rayleigh_dir, lutname)
