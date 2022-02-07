@@ -78,7 +78,7 @@ class MsugsRSR(InstrumentRSR):
         wavelength = 1. / data[0][::-1] * scale
         response = data[1][::-1]
 
-        # The real AMI has more than one detectors I assume. However, for now
+        # The real MSU-GS likely has multiple detectors. However, for now
         # we store the single rsr available in the NWPSAF coefficient files:
         self.rsr = {'wavelength': wavelength, 'response': response}
 
