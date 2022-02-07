@@ -25,6 +25,7 @@
 
 import os
 import logging
+import numbers
 
 import h5py
 import numpy as np
@@ -36,7 +37,7 @@ except ImportError:
 
 from geotiepoints.multilinear import MultilinearInterpolator
 from pyspectral.rsr_reader import RelativeSpectralResponse
-from pyspectral.utils import (INSTRUMENTS, _get_rayleigh_lut_dir,
+from pyspectral.utils import (INSTRUMENTS, get_rayleigh_lut_dir,
                               AEROSOL_TYPES, ATMOSPHERES,
                               BANDNAMES,
                               ATM_CORRECTION_LUT_VERSION,
@@ -105,7 +106,7 @@ class RayleighConfigBaseClass(object):
         specific aerosol correction directory.
 
         """
-        basedir = _get_rayleigh_lut_dir(self._aerosol_type)
+        basedir = get_rayleigh_lut_dir(self._aerosol_type)
         lutfiles_version_path = os.path.join(basedir,
                                              ATM_CORRECTION_LUT_VERSION[self._aerosol_type]['filename'])
 
@@ -156,7 +157,7 @@ class Rayleigh(RayleighConfigBaseClass):
 
         self.sensor = sensor.replace('/', '')
 
-        rayleigh_dir = _get_rayleigh_lut_dir(aerosol_type)
+        rayleigh_dir = get_rayleigh_lut_dir(aerosol_type)
         ext = atm_type.replace(' ', '_')
         lutname = "rayleigh_lut_{0}.h5".format(ext)
         self.reflectance_lut_filename = os.path.join(rayleigh_dir, lutname)
@@ -190,7 +191,7 @@ class Rayleigh(RayleighConfigBaseClass):
 
         """
         # Get wavelength in nm for band:
-        if isinstance(band_name_or_wavelength, (float, int)):
+        if isinstance(band_name_or_wavelength, numbers.Real):
             LOG.warning('A wavelength is provided instead of band name - ' +
                         'disregard the relative spectral responses and assume ' +
                         'it is the effective wavelength: %f (micro meter)', band_name_or_wavelength)
