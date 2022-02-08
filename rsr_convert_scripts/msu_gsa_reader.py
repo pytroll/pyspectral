@@ -30,7 +30,7 @@ LOG = logging.getLogger(__name__)
 
 # Names of the individual bands
 MSUGSA_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5',
-                    'ch6', 'ch7', 'ch8', 'ch9', 'ch10']
+                     'ch6', 'ch7', 'ch8', 'ch9', 'ch10']
 
 # Set up VIS and IR bands, needed for selecting sheet in RSR file
 VISBANDS = {'ch1', 'ch2', 'ch3'}
