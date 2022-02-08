@@ -172,6 +172,14 @@ the pyspectral.yaml file:
      filename: J1_VIIRS_Detector_RSR_V2/J1_VIIRS_RSR_DNBLGS_Detector_Fused_V2S.txt
      bands: [DNB]
 
+.. code::
+
+   %> python msu_gsa_reader.py
+
+Converts RSRs for the MSU-GS/A sensors aboard Arctica-M N1 satellite.
+RSRs were retrieved from Roshydromet. Filenames look like:
+
+``rtcoef_electro-l_2_msugs_srf_ch01.txt``
 
 Adam Dybbroe
 Sat Dec  1 17:39:48 2018
