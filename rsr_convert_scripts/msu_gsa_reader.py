@@ -88,7 +88,7 @@ class MsugsaRSR(InstrumentRSR):
 def main():
     """Main"""
     for platform_name in ['Arctica-M-N1', ]:
-        tohdf5(MsugsaRSR, platform_name, MSUGSA_BAND_NAMES, dets=['det-1', 'det-2'])
+        tohdf5(MsugsaRSR, platform_name, MSUGSA_BAND_NAMES, detectors=['det-1', 'det-2'])
 
 
 if __name__ == "__main__":

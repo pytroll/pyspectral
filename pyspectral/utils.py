@@ -67,13 +67,14 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'Meteosat-8': 'seviri',
                'FY-4A': 'agri',
                'GEO-KOMPSAT-2A': 'ami',
-               'MTG-I1': 'fci'
+               'MTG-I1': 'fci',
+               'Arctica-M-N1': 'msu-gsa'
                }
 
-HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/5797957/files/pyspectral_rsr_data.tgz"
+HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/6026563/files/pyspectral_rsr_data.tg"
 
 RSR_DATA_VERSION_FILENAME = "PYSPECTRAL_RSR_VERSION"
-RSR_DATA_VERSION = "v1.0.17"
+RSR_DATA_VERSION = "v1.0.18"
 
 ATM_CORRECTION_LUT_VERSION = {}
 ATM_CORRECTION_LUT_VERSION['antarctic_aerosol'] = {'version': 'v1.0.1',
@@ -244,7 +245,7 @@ def sort_data(x_vals, y_vals):
     return x_vals, y_vals
 
 
-def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06, dets=None):
+def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06, detectors=None):
     """Retrieve original RSR data and convert to internal hdf5 format.
 
     *scale* is the number which has to be multiplied to the wavelength data in
@@ -270,10 +271,10 @@ def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06, dets=None):
             grp = h5f.create_group(chname)
 
             # If multiple detectors, assume all have same wavelength range in SRF.
-            if dets is not None:
-                wvl = sensor.rsr[dets[0]]['wavelength'][~np.isnan(sensor.rsr[dets[0]]['wavelength'])]
-                arr = sensor.rsr[dets[0]]['wavelength']
-                grp.attrs['number_of_detectors'] = len(dets)
+            if detectors is not None:
+                wvl = sensor.rsr[detectors[0]]['wavelength'][~np.isnan(sensor.rsr[detectors[0]]['wavelength'])]
+                arr = sensor.rsr[detectors[0]]['wavelength']
+                grp.attrs['number_of_detectors'] = len(detectors)
             else:
                 wvl = sensor.rsr['wavelength'][~np.isnan(sensor.rsr['wavelength'])]
                 arr = sensor.rsr['wavelength']
@@ -285,14 +286,14 @@ def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06, dets=None):
             dset[...] = arr
 
             # Now to do the responses
-            if dets is None:
+            if detectors is None:
                 rsp = sensor.rsr['response'][~np.isnan(sensor.rsr['wavelength'])]
                 grp.attrs['central_wavelength'] = get_central_wave(wvl, rsp)
                 arr = sensor.rsr['response']
                 dset = grp.create_dataset('response', arr.shape, dtype='f')
                 dset[...] = arr
             else:
-                for cur_det in dets:
+                for cur_det in detectors:
                     det_grp = grp.create_group(cur_det)
                     rsp = sensor.rsr[cur_det]['response'][~np.isnan(sensor.rsr[cur_det]['wavelength'])]
                     det_grp.attrs['central_wavelength'] = get_central_wave(wvl, rsp)
