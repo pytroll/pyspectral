@@ -31,6 +31,7 @@ window channel (usually around 11-12 microns).
 
 import os
 import logging
+import tempfile
 import numpy as np
 try:
     from dask.array import where, logical_or, asanyarray, isnan
@@ -40,7 +41,6 @@ except ImportError:
 from pyspectral.solar import (SolarIrradianceSpectrum,
                               TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
 from pyspectral.utils import BANDNAMES, get_bandname_from_wavelength
-from pyspectral.utils import TB2RAD_DIR
 from pyspectral.utils import WAVE_LENGTH
 from pyspectral.radiance_tb_conversion import RadTbConverter
 from pyspectral.config import get_config
@@ -108,6 +108,7 @@ class Calculator(RadTbConverter):
         self.lutfile = None
 
         platform_sensor = platform_name + '-' + instrument
+        tb2rad_dir = options.get('tb2rad_dir', tempfile.gettempdir())
         if platform_sensor in options and 'tb2rad_lut_filename' in options[platform_sensor]:
             if isinstance(options[platform_sensor]['tb2rad_lut_filename'], dict):
                 for item in options[platform_sensor]['tb2rad_lut_filename']:
@@ -126,14 +127,14 @@ class Calculator(RadTbConverter):
             if self.lutfile and not os.path.exists(os.path.dirname(self.lutfile)):
                 LOG.warning(
                     "Directory %s does not exist! Check config file", os.path.dirname(self.lutfile))
-                self.lutfile = os.path.join(TB2RAD_DIR, os.path.basename(self.lutfile))
+                self.lutfile = os.path.join(tb2rad_dir, os.path.basename(self.lutfile))
 
         if self.lutfile is None:
             LOG.info("No lut filename available in config file. "
                      "Will generate filename automatically")
             lutname = 'tb2rad_lut_{0}_{1}_{band}'.format(
                 self.platform_name.lower(), self.instrument.lower(), band=self.bandname.lower())
-            self.lutfile = os.path.join(TB2RAD_DIR, lutname + '.npz')
+            self.lutfile = os.path.join(tb2rad_dir, lutname + '.npz')
 
         LOG.info("lut filename: " + str(self.lutfile))
         if not os.path.exists(self.lutfile):
