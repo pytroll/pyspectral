@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2021 Pytroll developers
+# Copyright (c) 2014-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
-#   Panu Lahtinen <panu.lahtinen@fmi.fi>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -70,10 +66,10 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'MTG-I1': 'fci'
                }
 
-HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/5797957/files/pyspectral_rsr_data.tgz"
+HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/6026563/files/pyspectral_rsr_data.tgz"
 
 RSR_DATA_VERSION_FILENAME = "PYSPECTRAL_RSR_VERSION"
-RSR_DATA_VERSION = "v1.0.17"
+RSR_DATA_VERSION = "v1.0.18"
 
 ATM_CORRECTION_LUT_VERSION = {}
 ATM_CORRECTION_LUT_VERSION['antarctic_aerosol'] = {'version': 'v1.0.1',

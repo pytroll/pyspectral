@@ -226,6 +226,19 @@ download_from_internet: True
 #     ch13: FY4A_AGRI_SRF_CH13.txt
 #     ch14: FY4A_AGRI_SRF_CH14.txt
 
+#Electro-L-N2-msu-gs:
+#     path: /path/to/rsrs/rtcoef_electro-l_2_msugs_srf/
+#     ch1: rtcoef_electro-l_2_msugs_srf_ch01.txt
+#     ch2: rtcoef_electro-l_2_msugs_srf_ch02.txt
+#     ch3: rtcoef_electro-l_2_msugs_srf_ch03.txt
+#     ch4: rtcoef_electro-l_2_msugs_srf_ch04.txt
+#     ch5: rtcoef_electro-l_2_msugs_srf_ch05.txt
+#     ch6: rtcoef_electro-l_2_msugs_srf_ch06.txt
+#     ch7: rtcoef_electro-l_2_msugs_srf_ch07.txt
+#     ch8: rtcoef_electro-l_2_msugs_srf_ch08.txt
+#     ch9: rtcoef_electro-l_2_msugs_srf_ch09.txt
+#     ch10: rtcoef_electro-l_2_msugs_srf_ch10.txt
+
 #FY-3B-virr:
 #  path: /Users/davidh/repos/git/pyspectral/virr_srf/FY3B-VIRR
 #  ch1: ch1.prn
