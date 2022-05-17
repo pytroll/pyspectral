@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2020 Pytroll developers
+# Copyright (c) 2020-2022 Pytroll developers
 #
 # Author(s):
 #
@@ -22,63 +22,52 @@
 
 """Read the MTG FCI relative spectral response functions.
 
-Data from EUMETSAT NWP-SAF:
-https://nwpsaf.eu/downloads/rtcoef_rttov12/ir_srf/rtcoef_mtg_1_fci_srf.html
+Data from EUMETSAT:
+https://sftp.eumetsat.int/public/folder/UsCVknVOOkSyCdgpMimJNQ/User-Materials/MTGUP/Materials/FCI-SRF_Apr2022/
 """
 
-import os
 import logging
-import numpy as np
+from netCDF4 import Dataset
 from pyspectral.utils import convert2hdf5 as tohdf5
 from pyspectral.raw_reader import InstrumentRSR
 
 LOG = logging.getLogger(__name__)
 
-FCI_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'ch7', 'ch8', 'ch9', 'ch10',
-                  'ch11', 'ch12', 'ch13', 'ch14', 'ch15', 'ch16']
+FCI_BAND_NAMES = ['VIS0.4', 'VIS0.5', 'VIS0.6_HR', 'VIS0.8', 'VIS0.9', 'NIR1.3',
+                  'NIR1.6', 'NIR2.2_HR', 'IR3.8_HR', 'WV6.3', 'WV7.3', 'IR8.7',
+                  'IR9.7', 'IR10.5_HR', 'IR12.3', 'IR13.3']
 
 
 class FciRSR(InstrumentRSR):
     """Container for the MTG FCI RSR data."""
 
     def __init__(self, bandname, platform_name):
-        """Setup the MTG FCI RSR data container."""
-        super(FciRSR, self).__init__(bandname, platform_name, FCI_BAND_NAMES)
+        """MTG FCI RSR data container."""
+        super().__init__(bandname, platform_name)
 
         self.instrument = 'fci'
-
         self._get_options_from_config()
-        self._get_bandfilenames()
 
-        LOG.debug("Filenames: %s", str(self.filenames))
-        if self.filenames[bandname] and os.path.exists(self.filenames[bandname]):
-            self.requested_band_filename = self.filenames[bandname]
-            self._load()
+        LOG.debug("Filename with all bands: %s", str(self.filename))
+        self._load()
 
-        else:
-            LOG.warning("Couldn't find an existing file for this band: %s",
-                        str(self.bandname))
-
-        # To be compatible with VIIRS....
-        self.filename = self.requested_band_filename
-
-    def _load(self, scale=10000.0):
+    def _load(self, scale=1000000.0):
         """Load the FCI RSR data for the band requested."""
-        data = np.genfromtxt(self.requested_band_filename,
-                             unpack=True,
-                             names=['wavenumber',
-                                    'response'],
-                             skip_header=4)
+        LOG.debug("File: %s", str(self.filename))
 
-        # Data are wavenumbers in cm-1:
-        wavelength = 1. / data['wavenumber'] * scale
-        response = data['response']
+        ncf = Dataset(self.path / self.filename, 'r')
 
-        self.rsr = {'wavelength': wavelength[::-1], 'response': response[::-1]}
+        wvl = ncf.variables['wavelength'][:] * scale
+        resp = ncf.variables['srf'][:]
+
+        bandnames = ncf.variables['channel_id'][:]
+        for idx, band_name in enumerate(bandnames):
+            if band_name == self.bandname:
+                self.rsr = {'wavelength': wvl[:, idx], 'response': resp[:, idx]}
 
 
 def main():
-    """Main function creating the internal Pyspectral hdf5 output for FCI."""
+    """Ccreate the internal Pyspectral hdf5 output for FCI."""
     for platform_name in ["Meteosat-12", 'MTG-I1']:
         tohdf5(FciRSR, platform_name, FCI_BAND_NAMES)
 

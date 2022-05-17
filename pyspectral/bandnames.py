@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2021 Adam.Dybbroe
+# Copyright (c) 2021, 2022 Adam.Dybbroe
 
 # Author(s):
 
@@ -72,6 +72,7 @@ for chan_num in range(1, 37):
 
 # MODIS RSR files were made before 'chX' became standard in pyspectral
 BANDNAMES['modis'] = {str(chan_num): str(chan_num) for chan_num in range(1, 37)}
+
 
 BANDNAMES['seviri'] = {'VIS006': 'VIS0.6',
                        'VIS008': 'VIS0.8',
@@ -163,22 +164,22 @@ BANDNAMES['ami'] = {'VI004': 'ch1',
                     'IR133': 'ch16'
                     }
 
-BANDNAMES['fci'] = {'vis_04': 'ch1',
-                    'vis_05': 'ch2',
-                    'vis_06': 'ch3',
-                    'vis_08': 'ch4',
-                    'vis_09': 'ch5',
-                    'nir_13': 'ch6',
-                    'nir_16': 'ch7',
-                    'nir_22': 'ch8',
-                    'ir_38': 'ch9',
-                    'wv_63': 'ch10',
-                    'wv_73': 'ch11',
-                    'ir_87': 'ch12',
-                    'ir_97': 'ch13',
-                    'ir_105': 'ch14',
-                    'ir_123': 'ch15',
-                    'ir_133': 'ch16'
+BANDNAMES['fci'] = {'vis_04': 'VIS0.4',
+                    'vis_05': 'VIS0.5',
+                    'vis_06': 'VIS0.6_HR',
+                    'vis_08': 'VIS0.8',
+                    'vis_09': 'VIS0.9',
+                    'nir_13': 'NIR1.3',
+                    'nir_16': 'NIR1.6',
+                    'nir_22': 'NIR2.2_HR',
+                    'ir_38': 'IR3.8_HR',
+                    'wv_63': 'WV6.3',
+                    'wv_73': 'WV7.3',
+                    'ir_87': 'IR8.7',
+                    'ir_97': 'IR9.7',
+                    'ir_105': 'IR10.5_HR',
+                    'ir_123': 'IR12.3',
+                    'ir_133': 'IR13.3'
                     }
 
 BANDNAMES['slstr'] = {'S1': 'ch1',
