@@ -30,12 +30,10 @@ import logging
 from netCDF4 import Dataset
 from pyspectral.utils import convert2hdf5 as tohdf5
 from pyspectral.raw_reader import InstrumentRSR
-
+from pyspectral.bandnames import BANDNAMES
 LOG = logging.getLogger(__name__)
 
-FCI_BAND_NAMES = ['VIS0.4', 'VIS0.5', 'VIS0.6_HR', 'VIS0.8', 'VIS0.9', 'NIR1.3',
-                  'NIR1.6', 'NIR2.2_HR', 'IR3.8_HR', 'WV6.3', 'WV7.3', 'IR8.7',
-                  'IR9.7', 'IR10.5_HR', 'IR12.3', 'IR13.3']
+FCI_BAND_NAMES = list(BANDNAMES['fci'].values())
 
 
 class FciRSR(InstrumentRSR):
@@ -67,7 +65,7 @@ class FciRSR(InstrumentRSR):
 
 
 def main():
-    """Ccreate the internal Pyspectral hdf5 output for FCI."""
+    """Create the internal Pyspectral hdf5 output for FCI."""
     for platform_name in ["Meteosat-12", 'MTG-I1']:
         tohdf5(FciRSR, platform_name, FCI_BAND_NAMES)
 
