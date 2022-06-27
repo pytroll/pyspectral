@@ -31,30 +31,44 @@ from pyspectral.utils import convert2hdf5 as tohdf5
 from pyspectral.raw_reader import InstrumentRSR
 from pyspectral.utils import logging_on, get_logger
 
-FY4A_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'ch7', 'ch8',
-                   'ch9', 'ch10', 'ch11', 'ch12', 'ch13', 'ch14']
-BANDNAME_SCALE2MICROMETERS = {'ch1': 0.001,
-                              'ch2': 0.001,
-                              'ch3': 0.001,
-                              'ch4': 1.0,
-                              'ch5': 1.0,
-                              'ch6': 1.0,
-                              'ch7': 1.0,
-                              'ch8': 1.0,
-                              'ch9': 1.0,
-                              'ch10': 1.0,
-                              'ch11': 1.0,
-                              'ch12': 1.0,
-                              'ch13': 1.0,
-                              'ch14': 1.0}
-
+FY4_AGRI_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'ch7', 'ch8',
+                   'ch9', 'ch10', 'ch11', 'ch12', 'ch13', 'ch14', 'ch15']
+BANDNAME_SCALE2MICROMETERS = {'FY-4A': {'ch1': 0.001,
+                                        'ch2': 0.001,
+                                        'ch3': 0.001,
+                                        'ch4': 1.0,
+                                        'ch5': 1.0,
+                                        'ch6': 1.0,
+                                        'ch7': 1.0,
+                                        'ch8': 1.0,
+                                        'ch9': 1.0,
+                                        'ch10': 1.0,
+                                        'ch11': 1.0,
+                                        'ch12': 1.0,
+                                        'ch13': 1.0,
+                                        'ch14': 1.0},
+                              'FY-4B': {'ch1': 0.001,
+                                        'ch2': 0.001,
+                                        'ch3': 0.001,
+                                        'ch4': 0.001,
+                                        'ch5': 0.001,
+                                        'ch6': 0.001,
+                                        'ch7': 1.0,
+                                        'ch8': 1.0,
+                                        'ch9': 1.0,
+                                        'ch10': 1.0,
+                                        'ch11': 1.0,
+                                        'ch12': 1.0,
+                                        'ch13': 1.0,
+                                        'ch14': 1.0,
+                                        'ch15': 1.0}}
 
 class AGRIRSR(InstrumentRSR):
     """Container for the FY-4 AGRI RSR data"""
 
     def __init__(self, bandname, platform_name):
         """Initialise the FY-4 AGRI relative spectral response data"""
-        super(AGRIRSR, self).__init__(bandname, platform_name, FY4A_BAND_NAMES)
+        super(AGRIRSR, self).__init__(bandname, platform_name, FY4_AGRI_BAND_NAMES)
 
         self.instrument = INSTRUMENTS.get(platform_name, 'agri')
 
@@ -64,7 +78,7 @@ class AGRIRSR(InstrumentRSR):
         LOG.debug("Filenames: %s", str(self.filenames))
         if self.filenames[bandname] and os.path.exists(self.filenames[bandname]):
             self.requested_band_filename = self.filenames[bandname]
-            scale = BANDNAME_SCALE2MICROMETERS.get(bandname)
+            scale = BANDNAME_SCALE2MICROMETERS[platform_name].get(bandname)
             if scale:
                 self._load(scale=scale)
             else:
@@ -97,8 +111,8 @@ class AGRIRSR(InstrumentRSR):
 
 def main():
     """Main"""
-    for platform_name in ["FY-4A", ]:
-        tohdf5(AGRIRSR, platform_name, FY4A_BAND_NAMES)
+    for platform_name in ["FY-4A", "FY-4B"]:
+        tohdf5(AGRIRSR, platform_name, FY4_AGRI_BAND_NAMES)
 
 
 if __name__ == "__main__":
