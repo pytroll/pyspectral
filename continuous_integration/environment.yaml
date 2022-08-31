@@ -8,7 +8,6 @@ dependencies:
   - toolz
   - Cython
   - sphinx
-  - cartopy
   - matplotlib
   - scipy
   - pyyaml
@@ -20,7 +19,6 @@ dependencies:
   - h5py
   - h5netcdf
   - pyhdf
-  - zarr
   - mock
   - pytest
   - pytest-cov
@@ -29,4 +27,3 @@ dependencies:
   - pip
   - pip:
     - trollsift
-    - pyorbital
