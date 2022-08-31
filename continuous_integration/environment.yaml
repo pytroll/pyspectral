@@ -25,6 +25,8 @@ dependencies:
   - pytest
   - pytest-cov
   - appdirs
+  - python-geotiepoints
   - pip
   - pip:
     - trollsift
+    - pyorbital
