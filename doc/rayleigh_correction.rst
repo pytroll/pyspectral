@@ -48,7 +48,7 @@ As the Rayleigh scattering, which is the dominating part we are correcting for
 under normal situations (when there is no excessive pollution or aerosols in
 the line of sight) is proportional to :math:`\frac{1}{{\lambda}^4}` the
 effective wavelength is derived by convolution of the spectral response with
-:math:`\frac{1}{{\lambda}^4}`. 
+:math:`\frac{1}{{\lambda}^4}`.
 
 To get the atmospheric contribution for an arbitrary band, first the
 solar zenith, satellite zenith and the sun-satellite azimuth difference angles
@@ -81,7 +81,7 @@ provide a more gentle scaling in cases of high reflectances (above 20%):
 In case you want to bypass the reading of the sensor response functions or you have
 a sensor for which there are no RSR data available in PySpectral it is still possible
 to derive an atmospheric correction for that band. All what is needed is the effective
-wavelength of the band, given in micrometers (`:math: \mu m`). This wavelength is
+wavelength of the band, given in micrometers (:math:`\mu m`). This wavelength is
 normally calculated by PySPectral from the RSR data when passing the name of the band
 as above.
 
@@ -139,5 +139,3 @@ should not be used for any scientific analysis.
 .. _Satpy: http://www.github.com/pytroll/satpy
 .. _zenodo: https://doi.org/10.5281/zenodo.1288441
 .. _`scientific paper`: https://doi.org/10.3390/rs10040560
-
-
