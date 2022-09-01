@@ -80,7 +80,7 @@ provide a more gentle scaling in cases of high reflectances (above 20%):
 
 In case you want to bypass the reading of the sensor response functions or you have
 a sensor for which there are no RSR data available in PySpectral it is still possible
-to derive an atmospheric correction for that band. All what is needed is the effective
+to derive an atmospheric correction for that band. All that is needed is the effective
 wavelength of the band, given in micrometers (:math:`\mu m`). This wavelength is
 normally calculated by PySpectral from the RSR data when passing the name of the band
 as above.
