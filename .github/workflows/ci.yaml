@@ -13,7 +13,7 @@ jobs:
         python-version: ["3.8", "3.9", "3.10"]
         experimental: [false]
         include:
-          - python-version: "3.8"
+          - python-version: "3.10"
             os: "ubuntu-latest"
             experimental: true
 
@@ -41,7 +41,7 @@ jobs:
         if: matrix.experimental == true
         shell: bash -l {0}
         run: |
-          sudo apt-get install libgdal-dev \
+          sudo apt-get install \
           gcc \
           python3-dev; \
           python -m pip install \
@@ -55,9 +55,7 @@ jobs:
           --no-deps --upgrade \
           git+https://github.com/dask/dask \
           git+https://github.com/dask/distributed \
-          git+https://github.com/zarr-developers/zarr \
           git+https://github.com/Unidata/cftime \
-          git+https://github.com/mapbox/rasterio \
           git+https://github.com/pydata/bottleneck \
           git+https://github.com/pydata/xarray;
 
