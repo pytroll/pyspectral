@@ -82,7 +82,7 @@ In case you want to bypass the reading of the sensor response functions or you h
 a sensor for which there are no RSR data available in PySpectral it is still possible
 to derive an atmospheric correction for that band. All what is needed is the effective
 wavelength of the band, given in micrometers (:math:`\mu m`). This wavelength is
-normally calculated by PySPectral from the RSR data when passing the name of the band
+normally calculated by PySpectral from the RSR data when passing the name of the band
 as above.
 
   >>> from pyspectral.rayleigh import Rayleigh
