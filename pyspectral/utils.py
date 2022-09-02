@@ -21,6 +21,8 @@
 
 import os
 import logging
+import warnings
+
 import numpy as np
 from pyspectral.config import get_config
 from pyspectral.bandnames import BANDNAMES
@@ -94,6 +96,7 @@ ATM_CORRECTION_LUT_VERSION['urban_aerosol'] = {'version': 'v1.0.1',
 ATM_CORRECTION_LUT_VERSION['rayleigh_only'] = {'version': 'v1.0.1',
                                                'filename': 'PYSPECTRAL_ATM_CORR_LUT_RO'}
 
+#: Aerosol types available as downloadable LUTs for rayleigh correction
 AEROSOL_TYPES = ['antarctic_aerosol', 'continental_average_aerosol',
                  'continental_clean_aerosol', 'continental_polluted_aerosol',
                  'desert_aerosol', 'marine_clean_aerosol',
@@ -266,11 +269,21 @@ def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06):
             dset[...] = arr
 
 
-def download_rsr(**kwargs):
+def download_rsr(dest_dir=None, dry_run=False):
     """Download the relative spectral response functions.
 
-    Download the pre-compiled hdf5 formatet relative spectral response functions
-    from the internet
+    Download the pre-compiled HDF5 formatted relative spectral response
+    functions from the internet as tarballs, extracts them, then deletes
+    the tarball.
+
+    See :func:`pyspectral.rsr_reader.check_and_download` for a "smart" version
+    of this process that only downloads the necessary files.
+
+    Args:
+        dest_dir (str): Path to put the temporary tarball and extracted RSR
+            files.
+        dry_run (bool): If True, don't actually download files, only log what
+            URLs would be downloaded. Defaults to False.
 
     """
     import tarfile
@@ -283,8 +296,7 @@ def download_rsr(**kwargs):
 
     config = get_config()
     local_rsr_dir = config.get('rsr_dir')
-    dest_dir = kwargs.get('dest_dir', local_rsr_dir)
-    dry_run = kwargs.get('dry_run', False)
+    dest_dir = dest_dir or local_rsr_dir
 
     LOG.info("Download RSR files and store in directory %s", dest_dir)
 
@@ -310,8 +322,21 @@ def download_rsr(**kwargs):
     os.remove(filename)
 
 
-def download_luts(**kwargs):
-    """Download the luts from internet."""
+def download_luts(aerosol_types=None, dry_run=False, aerosol_type=None):
+    """Download the luts from internet.
+
+    See :func:`pyspectral.rayleigh.check_and_download` for a "smart" version
+    of this process that only downloads the necessary files.
+
+    Args:
+        aerosol_types (Iterable): Aerosol types to download the LUTs for.
+            Defaults to all aerosol types. See :data:`AEROSOL_TYPES` for the
+            full list.
+        dry_run (bool): If True, don't actually download files, only log what
+            URLs would be downloaded. Defaults to False.
+        aerosol_type (str): Deprecated.
+
+    """
     import tarfile
     import requests
     TQDM_LOADED = True
@@ -320,19 +345,9 @@ def download_luts(**kwargs):
     except ImportError:
         TQDM_LOADED = False
 
-    dry_run = kwargs.get('dry_run', False)
-
-    if 'aerosol_type' in kwargs:
-        if isinstance(kwargs['aerosol_type'], (list, tuple, set)):
-            aerosol_types = kwargs['aerosol_type']
-        else:
-            aerosol_types = [kwargs['aerosol_type'], ]
-    else:
-        aerosol_types = HTTPS_RAYLEIGH_LUTS.keys()
-
+    aerosol_types = _get_aerosol_types(aerosol_types, aerosol_type)
     chunk_size = 1024 * 1024  # 1 MB
     for subname in aerosol_types:
-
         LOG.debug('Aerosol type: %s', subname)
         http = HTTPS_RAYLEIGH_LUTS[subname]
         LOG.debug('URL = %s', http)
@@ -368,6 +383,18 @@ def download_luts(**kwargs):
         tar.extractall(subdir_path)
         tar.close()
         os.remove(filename)
+
+
+def _get_aerosol_types(aerosol_types, aerosol_type):
+    if aerosol_type is not None:
+        warnings.warn("'aerosol_type' is deprecated, use 'aerosol_types' instead.", UserWarning)
+        if isinstance(aerosol_type, (list, tuple, set)):
+            aerosol_types = aerosol_type
+        else:
+            aerosol_types = [aerosol_type]
+    elif aerosol_types is None:
+        aerosol_types = list(HTTPS_RAYLEIGH_LUTS.keys())
+    return aerosol_types
 
 
 def debug_on():
