@@ -21,11 +21,19 @@
 
 import os
 import logging
+import tarfile
 import warnings
 
 import numpy as np
+import requests
 from pyspectral.config import get_config
 from pyspectral.bandnames import BANDNAMES
+
+TQDM_LOADED = True
+try:
+    from tqdm import tqdm
+except ImportError:
+    TQDM_LOADED = False
 
 LOG = logging.getLogger(__name__)
 
@@ -286,20 +294,11 @@ def download_rsr(dest_dir=None, dry_run=False):
             URLs would be downloaded. Defaults to False.
 
     """
-    import tarfile
-    import requests
-    TQDM_LOADED = True
-    try:
-        from tqdm import tqdm
-    except ImportError:
-        TQDM_LOADED = False
-
     config = get_config()
     local_rsr_dir = config.get('rsr_dir')
     dest_dir = dest_dir or local_rsr_dir
 
     LOG.info("Download RSR files and store in directory %s", dest_dir)
-
     filename = os.path.join(dest_dir, "pyspectral_rsr_data.tgz")
     LOG.debug("Get data. URL: %s", HTTP_PYSPECTRAL_RSR)
     LOG.debug("Destination = %s", dest_dir)
@@ -307,14 +306,9 @@ def download_rsr(dest_dir=None, dry_run=False):
         return
 
     response = requests.get(HTTP_PYSPECTRAL_RSR)
-    if TQDM_LOADED:
-        with open(filename, "wb") as handle:
-            for data in tqdm(response.iter_content()):
-                handle.write(data)
-    else:
-        with open(filename, "wb") as handle:
-            for data in response.iter_content():
-                handle.write(data)
+    with open(filename, "wb") as handle:
+        for data in _tqdm_or_iter(response.iter_content()):
+            handle.write(data)
 
     tar = tarfile.open(filename)
     tar.extractall(dest_dir)
@@ -337,14 +331,6 @@ def download_luts(aerosol_types=None, dry_run=False, aerosol_type=None):
         aerosol_type (str): Deprecated.
 
     """
-    import tarfile
-    import requests
-    TQDM_LOADED = True
-    try:
-        from tqdm import tqdm
-    except ImportError:
-        TQDM_LOADED = False
-
     aerosol_types = _get_aerosol_types(aerosol_types, aerosol_type)
     chunk_size = 1024 * 1024  # 1 MB
     for subname in aerosol_types:
@@ -369,15 +355,11 @@ def download_luts(aerosol_types=None, dry_run=False, aerosol_type=None):
 
         filename = os.path.join(
             subdir_path, "pyspectral_rayleigh_correction_luts.tgz")
-        if TQDM_LOADED:
-            with open(filename, "wb") as handle:
-                for data in tqdm(iterable=response.iter_content(chunk_size=chunk_size),
-                                 total=(int(total_size / chunk_size + 0.5)), unit='kB'):
-                    handle.write(data)
-        else:
-            with open(filename, "wb") as handle:
-                for data in response.iter_content():
-                    handle.write(data)
+        with open(filename, "wb") as handle:
+            for data in _tqdm_or_iter(response.iter_content(chunk_size=chunk_size),
+                                      total=(int(total_size / chunk_size + 0.5)),
+                                      unit='kB'):
+                handle.write(data)
 
         tar = tarfile.open(filename)
         tar.extractall(subdir_path)
@@ -395,6 +377,14 @@ def _get_aerosol_types(aerosol_types, aerosol_type):
     elif aerosol_types is None:
         aerosol_types = list(HTTPS_RAYLEIGH_LUTS.keys())
     return aerosol_types
+
+
+def _tqdm_or_iter(an_iterable, **tqdm_kwargs):
+    """Wrap an iterable with tqdm if it is available, otherwise return the iterable."""
+    if TQDM_LOADED:
+        return tqdm(iterable=an_iterable, **tqdm_kwargs)
+    else:
+        return an_iterable
 
 
 def debug_on():

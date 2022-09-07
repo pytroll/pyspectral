@@ -213,3 +213,17 @@ def test_np2str(input_value, exp_except):
 def test_bytes2string(input_value, exp_result):
     """Test the bytes2string function with different inputs."""
     assert bytes2string(input_value) == exp_result
+
+
+def test_download_rsr():
+    """Test basic usage of the download_rsr function."""
+    with unittest.mock.patch("pyspectral.utils.requests") as requests_mock:
+        utils.download_rsr(dry_run=True)
+    requests_mock.assert_not_called()
+
+
+def test_download_luts():
+    """Test basic usage of the download_luts function."""
+    with unittest.mock.patch("pyspectral.utils.requests") as requests_mock:
+        utils.download_luts(dry_run=True)
+    requests_mock.assert_not_called()
