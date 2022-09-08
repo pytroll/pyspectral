@@ -252,7 +252,7 @@ def _create_fake_rsr_tarball_bytes():
     file_obj = BytesIO()
 
     with tarfile.open(mode="w:gz", fileobj=file_obj) as rsr_tar:
-        info = tarfile.TarInfo("PYSPECTRAL_RSR_VERSION")
+        info = tarfile.TarInfo(utils.RSR_DATA_VERSION_FILENAME)
         info.size = len(utils.RSR_DATA_VERSION)
         rsr_tar.addfile(info, BytesIO(utils.RSR_DATA_VERSION.encode("ascii")))
 
