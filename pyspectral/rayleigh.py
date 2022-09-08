@@ -367,4 +367,5 @@ def check_and_download(dry_run=False, aerosol_types=None):
             needed_aerosol_types.append(aerosol_type)
 
     # Download
-    download_luts(aerosol_types=needed_aerosol_types, dry_run=dry_run)
+    if needed_aerosol_types:
+        download_luts(aerosol_types=needed_aerosol_types, dry_run=dry_run)
