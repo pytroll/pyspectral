@@ -116,15 +116,15 @@ ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
                'tropical': 8, 'us-standard': 9}
 
 HTTPS_RAYLEIGH_LUTS = {}
-URL_PREFIX = "https://zenodo.org/record/1288441/files/pyspectral_atm_correction_luts"
+LUT_URL_PREFIX = "https://zenodo.org/record/1288441/files/pyspectral_atm_correction_luts"
 for atype in AEROSOL_TYPES:
     name = {'rayleigh_only': 'no_aerosol'}.get(atype, atype)
-    url = "{prefix}_{name}.tgz".format(prefix=URL_PREFIX, name=name)
+    url = "{prefix}_{name}.tgz".format(prefix=LUT_URL_PREFIX, name=name)
     HTTPS_RAYLEIGH_LUTS[atype] = url
 
 
 def get_rayleigh_lut_dir(aerosol_type):
-    """Get the rayleight LUT directory for the specified aerosol type."""
+    """Get the rayleigh LUT directory for the specified aerosol type."""
     conf = get_config()
     local_rayleigh_dir = conf.get('rayleigh_dir')
     return os.path.join(local_rayleigh_dir, aerosol_type)

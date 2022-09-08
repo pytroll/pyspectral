@@ -22,10 +22,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Do the unit testing for the utils library."""
+import contextlib
+import os
+import re
+import tarfile
+from io import BytesIO
 
 import pytest
 import unittest
 import numpy as np
+import responses
+
 
 from pyspectral import utils
 from pyspectral.utils import np2str, bytes2string
@@ -215,15 +222,92 @@ def test_bytes2string(input_value, exp_result):
     assert bytes2string(input_value) == exp_result
 
 
-def test_download_rsr():
-    """Test basic usage of the download_rsr function."""
+def test_download_rsr_dry_run():
+    """Test dry run of the download_rsr function."""
     with unittest.mock.patch("pyspectral.utils.requests") as requests_mock:
         utils.download_rsr(dry_run=True)
     requests_mock.assert_not_called()
 
 
-def test_download_luts():
-    """Test basic usage of the download_luts function."""
+def test_download_rsr(tmp_path):
+    """Test basic usage of the download_rsr function."""
+    tar_data = _create_fake_rsr_tarball_bytes()
+    with responses.RequestsMock() as rsps:
+        rsps.add(
+            "GET",
+            utils.HTTP_PYSPECTRAL_RSR,
+            body=tar_data,
+            status=200,
+            content_type="application/octet-stream",
+            headers={
+                "Content-Length": str(len(tar_data)),
+            },
+        )
+        utils.download_rsr(dest_dir=str(tmp_path))
+    assert os.path.isfile(tmp_path / "PYSPECTRAL_RSR_VERSION")
+
+
+def _create_fake_rsr_tarball_bytes():
+    file_obj = BytesIO()
+
+    with tarfile.open(mode="w:gz", fileobj=file_obj) as rsr_tar:
+        info = tarfile.TarInfo("PYSPECTRAL_RSR_VERSION")
+        info.size = len(utils.RSR_DATA_VERSION)
+        rsr_tar.addfile(info, BytesIO(utils.RSR_DATA_VERSION.encode("ascii")))
+
+    file_obj.seek(0)
+    return file_obj.read()
+
+
+def test_download_luts_dry_run():
+    """Test a dry run of the download_luts function."""
     with unittest.mock.patch("pyspectral.utils.requests") as requests_mock:
         utils.download_luts(dry_run=True)
     requests_mock.assert_not_called()
+
+
+def test_download_luts(tmp_path):
+    """Test basic usage of the download_luts function."""
+    tar_data = _create_fake_lut_tarball_bytes()
+    with responses.RequestsMock() as rsps:
+        rsps.add(
+            "GET",
+            re.compile(re.escape(utils.LUT_URL_PREFIX) + r"_.+\.tgz"),
+            body=tar_data,
+            status=200,
+            content_type="application/octet-stream",
+            headers={
+                "Content-Length": str(len(tar_data)),
+            },
+        )
+        with _fake_get_config(tmp_path):
+            utils.download_luts()
+    for aerosol_type in utils.AEROSOL_TYPES:
+        assert os.path.isfile(tmp_path / aerosol_type / utils.ATM_CORRECTION_LUT_VERSION[aerosol_type]["filename"])
+
+
+def _create_fake_lut_tarball_bytes():
+    file_obj = BytesIO()
+
+    with tarfile.open(mode="w:gz", fileobj=file_obj) as rsr_tar:
+        for aerosol_type in utils.AEROSOL_TYPES:
+            version_fn = utils.ATM_CORRECTION_LUT_VERSION[aerosol_type]["filename"]
+            version_value = utils.ATM_CORRECTION_LUT_VERSION[aerosol_type]["version"]
+            info = tarfile.TarInfo(version_fn)
+            info.size = len(version_value)
+            rsr_tar.addfile(info, BytesIO(version_value.encode("ascii")))
+
+    file_obj.seek(0)
+    return file_obj.read()
+
+
+@contextlib.contextmanager
+def _fake_get_config(tmp_path):
+    def _get_config():
+        return {
+            "rayleigh_dir": str(tmp_path),
+            "rsr_dir": str(tmp_path),
+        }
+    with unittest.mock.patch("pyspectral.utils.get_config") as get_config:
+        get_config.side_effect = _get_config
+        yield

@@ -22,6 +22,7 @@ dependencies:
   - mock
   - pytest
   - pytest-cov
+  - responses
   - appdirs
   - python-geotiepoints
   - pip
