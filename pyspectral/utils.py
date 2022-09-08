@@ -300,20 +300,12 @@ def download_rsr(dest_dir=None, dry_run=False):
 
     LOG.info("Download RSR files and store in directory %s", dest_dir)
     filename = os.path.join(dest_dir, "pyspectral_rsr_data.tgz")
-    LOG.debug("Get data. URL: %s", HTTP_PYSPECTRAL_RSR)
+    LOG.debug("RSR URL: %s", HTTP_PYSPECTRAL_RSR)
     LOG.debug("Destination = %s", dest_dir)
     if dry_run:
         return
 
-    response = requests.get(HTTP_PYSPECTRAL_RSR)
-    with open(filename, "wb") as handle:
-        for data in _tqdm_or_iter(response.iter_content()):
-            handle.write(data)
-
-    tar = tarfile.open(filename)
-    tar.extractall(dest_dir)
-    tar.close()
-    os.remove(filename)
+    _download_tarball_and_extract(HTTP_PYSPECTRAL_RSR, filename, dest_dir)
 
 
 def download_luts(aerosol_types=None, dry_run=False, aerosol_type=None):
@@ -332,39 +324,18 @@ def download_luts(aerosol_types=None, dry_run=False, aerosol_type=None):
 
     """
     aerosol_types = _get_aerosol_types(aerosol_types, aerosol_type)
-    chunk_size = 1024 * 1024  # 1 MB
     for subname in aerosol_types:
         LOG.debug('Aerosol type: %s', subname)
-        http = HTTPS_RAYLEIGH_LUTS[subname]
-        LOG.debug('URL = %s', http)
+        lut_tarball_url = HTTPS_RAYLEIGH_LUTS[subname]
+        LOG.debug('Atmospheric LUT URL = %s', lut_tarball_url)
 
         subdir_path = get_rayleigh_lut_dir(subname)
-        try:
-            LOG.debug('Create directory: %s', subdir_path)
-            if not dry_run:
-                os.makedirs(subdir_path)
-        except OSError:
-            if not os.path.isdir(subdir_path):
-                raise
-
+        _create_rayleigh_aerosol_subdir(subdir_path, dry_run)
         if dry_run:
             continue
 
-        response = requests.get(http)
-        total_size = int(response.headers['content-length'])
-
-        filename = os.path.join(
-            subdir_path, "pyspectral_rayleigh_correction_luts.tgz")
-        with open(filename, "wb") as handle:
-            for data in _tqdm_or_iter(response.iter_content(chunk_size=chunk_size),
-                                      total=(int(total_size / chunk_size + 0.5)),
-                                      unit='kB'):
-                handle.write(data)
-
-        tar = tarfile.open(filename)
-        tar.extractall(subdir_path)
-        tar.close()
-        os.remove(filename)
+        local_tarball_pathname = os.path.join(subdir_path, "pyspectral_rayleigh_correction_luts.tgz")
+        _download_tarball_and_extract(lut_tarball_url, local_tarball_pathname, subdir_path)
 
 
 def _get_aerosol_types(aerosol_types, aerosol_type):
@@ -377,6 +348,33 @@ def _get_aerosol_types(aerosol_types, aerosol_type):
     elif aerosol_types is None:
         aerosol_types = list(HTTPS_RAYLEIGH_LUTS.keys())
     return aerosol_types
+
+
+def _create_rayleigh_aerosol_subdir(subdir_path, dry_run):
+    try:
+        LOG.debug('Create directory: %s', subdir_path)
+        if not dry_run:
+            os.makedirs(subdir_path)
+    except OSError:
+        if not os.path.isdir(subdir_path):
+            raise
+
+
+def _download_tarball_and_extract(tarball_url, local_pathname, extract_dir):
+    chunk_size = 1024 * 1024  # 1 MB
+    response = requests.get(tarball_url)
+    total_size = int(response.headers['content-length'])
+
+    with open(local_pathname, "wb") as handle:
+        for data in _tqdm_or_iter(response.iter_content(chunk_size=chunk_size),
+                                  total=(int(total_size / chunk_size + 0.5)),
+                                  unit='kB'):
+            handle.write(data)
+
+    tar = tarfile.open(local_pathname)
+    tar.extractall(extract_dir)
+    tar.close()
+    os.remove(local_pathname)
 
 
 def _tqdm_or_iter(an_iterable, **tqdm_kwargs):
