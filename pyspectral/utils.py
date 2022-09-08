@@ -330,7 +330,9 @@ def download_luts(aerosol_types=None, dry_run=False, aerosol_type=None):
         LOG.debug('Atmospheric LUT URL = %s', lut_tarball_url)
 
         subdir_path = get_rayleigh_lut_dir(subname)
-        _create_rayleigh_aerosol_subdir(subdir_path, dry_run)
+        LOG.debug('Create directory: %s', subdir_path)
+        if not dry_run:
+            os.makedirs(subdir_path, exist_ok=True)
         if dry_run:
             continue
 
@@ -348,16 +350,6 @@ def _get_aerosol_types(aerosol_types, aerosol_type):
     elif aerosol_types is None:
         aerosol_types = list(HTTPS_RAYLEIGH_LUTS.keys())
     return aerosol_types
-
-
-def _create_rayleigh_aerosol_subdir(subdir_path, dry_run):
-    try:
-        LOG.debug('Create directory: %s', subdir_path)
-        if not dry_run:
-            os.makedirs(subdir_path)
-    except OSError:
-        if not os.path.isdir(subdir_path):
-            raise
 
 
 def _download_tarball_and_extract(tarball_url, local_pathname, extract_dir):

@@ -26,6 +26,7 @@ import contextlib
 import os
 import re
 import tarfile
+import warnings
 from io import BytesIO
 
 import pytest
@@ -266,9 +267,18 @@ def test_download_luts_dry_run():
     requests_mock.assert_not_called()
 
 
-def test_download_luts(tmp_path):
+@pytest.mark.parametrize(
+    ("aerosol_types", "aerosol_type", "exp_warning"),
+    [
+        (None, None, False),
+        (["desert_aerosol"], None, False),
+        (None, "desert_aerosol", True),
+    ]
+)
+def test_download_luts(tmp_path, aerosol_types, aerosol_type, exp_warning):
     """Test basic usage of the download_luts function."""
-    tar_data = _create_fake_lut_tarball_bytes()
+    atypes_to_create = _atypes_to_create(aerosol_types, aerosol_type)
+    tar_data = _create_fake_lut_tarball_bytes(aerosol_types=atypes_to_create)
     with responses.RequestsMock() as rsps:
         rsps.add(
             "GET",
@@ -280,17 +290,25 @@ def test_download_luts(tmp_path):
                 "Content-Length": str(len(tar_data)),
             },
         )
-        with _fake_get_config(tmp_path):
-            utils.download_luts()
-    for aerosol_type in utils.AEROSOL_TYPES:
-        assert os.path.isfile(tmp_path / aerosol_type / utils.ATM_CORRECTION_LUT_VERSION[aerosol_type]["filename"])
+        with _fake_get_config(tmp_path), warnings.catch_warnings(record=True) as warns:
+            utils.download_luts(aerosol_types=aerosol_types, aerosol_type=aerosol_type)
+    _check_user_warning(warns, exp_warning)
+    _check_expected_aerosol_files(atypes_to_create, tmp_path)
 
 
-def _create_fake_lut_tarball_bytes():
+def _atypes_to_create(aerosol_types, aerosol_type):
+    if aerosol_types:
+        return aerosol_types
+    if aerosol_type is None:
+        return utils.AEROSOL_TYPES
+    return [aerosol_type]
+
+
+def _create_fake_lut_tarball_bytes(aerosol_types):
     file_obj = BytesIO()
 
     with tarfile.open(mode="w:gz", fileobj=file_obj) as rsr_tar:
-        for aerosol_type in utils.AEROSOL_TYPES:
+        for aerosol_type in aerosol_types:
             version_fn = utils.ATM_CORRECTION_LUT_VERSION[aerosol_type]["filename"]
             version_value = utils.ATM_CORRECTION_LUT_VERSION[aerosol_type]["version"]
             info = tarfile.TarInfo(version_fn)
@@ -311,3 +329,18 @@ def _fake_get_config(tmp_path):
     with unittest.mock.patch("pyspectral.utils.get_config") as get_config:
         get_config.side_effect = _get_config
         yield
+
+
+def _check_user_warning(warns, exp_warning):
+    all_user_warnings = [warn_msg for warn_msg in warns if issubclass(warn_msg.category, UserWarning)]
+    all_matching_warnings = [warn_msg for warn_msg in all_user_warnings if "aerosol_type" in str(warn_msg.message)]
+    assert len(all_matching_warnings) == (1 if exp_warning else 0)
+
+
+def _check_expected_aerosol_files(atypes_to_create, tmp_path):
+    for aerosol_type in utils.AEROSOL_TYPES:
+        atype_fn = tmp_path / aerosol_type / utils.ATM_CORRECTION_LUT_VERSION[aerosol_type]["filename"]
+        if aerosol_type in atypes_to_create:
+            assert os.path.isfile(atype_fn)
+        else:
+            assert not os.path.isfile(atype_fn)
