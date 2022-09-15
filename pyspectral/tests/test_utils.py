@@ -341,6 +341,6 @@ def _check_expected_aerosol_files(atypes_to_create, tmp_path):
     for aerosol_type in utils.AEROSOL_TYPES:
         atype_fn = tmp_path / aerosol_type / utils.ATM_CORRECTION_LUT_VERSION[aerosol_type]["filename"]
         if aerosol_type in atypes_to_create:
-            assert os.path.isfile(atype_fn)
+            assert atype_fn.is_file()
         else:
             assert not os.path.isfile(atype_fn)
