@@ -343,4 +343,4 @@ def _check_expected_aerosol_files(atypes_to_create, tmp_path):
         if aerosol_type in atypes_to_create:
             assert atype_fn.is_file()
         else:
-            assert not os.path.isfile(atype_fn)
+            assert not atype_fn.is_file()
