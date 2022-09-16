@@ -349,22 +349,23 @@ def get_reflectance_lut_from_file(lut_filename):
     return azidiff, satellite_zenith_secant, sun_zenith_secant
 
 
-def check_and_download(**kwargs):
-    """
-    Download atm correction LUT tables if they are not up to date already.
+def check_and_download(dry_run=False, aerosol_types=None):
+    """Download atm correction LUT tables if they are not up-to-date already.
 
     Do a check for the version of the atmospheric correction LUTs and attempt
     downloading only if needed.
 
     """
-    aerosol_types = kwargs.get('aerosol_types', AEROSOL_TYPES)
-    dry_run = kwargs.get('dry_run', False)
-
+    aerosol_types = aerosol_types or AEROSOL_TYPES
+    needed_aerosol_types = []
     for aerosol_type in aerosol_types:
         atmcorr = RayleighConfigBaseClass(aerosol_type)
         if atmcorr.lutfiles_version_uptodate:
             LOG.info("Atm correction LUTs, for aerosol distribution %s, already the latest!",
                      aerosol_type)
         else:
-            # Download
-            download_luts(aerosol_type=aerosol_type, dry_run=dry_run)
+            needed_aerosol_types.append(aerosol_type)
+
+    # Download
+    if needed_aerosol_types:
+        download_luts(aerosol_types=needed_aerosol_types, dry_run=dry_run)

@@ -22,7 +22,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Unit testing the generic rsr hdf5 reader."""
-
+import contextlib
 import os.path
 import numpy as np
 import xarray as xr
@@ -31,8 +31,7 @@ from unittest.mock import patch
 import pytest
 
 from pyspectral.rsr_reader import RelativeSpectralResponse, RSRDict
-from pyspectral.utils import WAVE_NUMBER
-from pyspectral.utils import RSR_DATA_VERSION
+from pyspectral.utils import WAVE_NUMBER, RSR_DATA_VERSION_FILENAME, RSR_DATA_VERSION
 from pyspectral.tests.unittest_helpers import assertNumpyArraysEqual
 
 TEST_RSR = {'20': {}, }
@@ -449,3 +448,43 @@ class TestPopulateRSRObject(unittest.TestCase):
         # Check exception raised if incorrect band name given
         with self.assertRaises(KeyError):
             print('d', test_rsr['VIS030'])
+
+
+@pytest.mark.parametrize(
+    ("version", "exp_download"),
+    [
+        (RSR_DATA_VERSION, False),
+        ("v1.0.0", True),
+    ],
+)
+def test_check_and_download(tmp_path, version, exp_download):
+    """Test that check_and_download only downloads when necessary."""
+    from pyspectral.rsr_reader import check_and_download
+    with _fake_rsr_dir(tmp_path, version), unittest.mock.patch("pyspectral.rsr_reader.download_rsr") as download:
+        check_and_download()
+        if exp_download:
+            download.assert_called()
+        else:
+            download.assert_not_called()
+
+
+@contextlib.contextmanager
+def _fake_rsr_dir(tmp_path, rsr_version):
+    with _fake_get_config(tmp_path):
+        version_filename = str(tmp_path / RSR_DATA_VERSION_FILENAME)
+        with open(version_filename, "w") as version_file:
+            version_file.write(rsr_version)
+        yield
+
+
+@contextlib.contextmanager
+def _fake_get_config(tmp_path):
+    def _get_config():
+        return {
+            "rayleigh_dir": str(tmp_path),
+            "rsr_dir": str(tmp_path),
+            "download_from_internet": True,
+        }
+    with unittest.mock.patch("pyspectral.rsr_reader.get_config") as get_config:
+        get_config.side_effect = _get_config
+        yield

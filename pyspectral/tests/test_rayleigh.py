@@ -23,11 +23,13 @@
 """Unittest for the rayleigh correction utilities."""
 import contextlib
 import os
+import unittest
+
 import numpy as np
 import dask.array as da
 import h5py
 import pytest
-from pyspectral import rayleigh
+from pyspectral import rayleigh, utils
 from pyspectral.tests.data import (
     TEST_RAYLEIGH_LUT,
     TEST_RAYLEIGH_AZID_COORD,
@@ -389,3 +391,50 @@ class TestRayleigh:
         # test LUT doesn't have a subartic_summer file
         with pytest.raises(IOError):
             rayleigh.Rayleigh('UFO', 'unknown', atmosphere='subarctic summer')
+
+
+@pytest.mark.parametrize(
+    ("version", "exp_download"),
+    [
+        (None, False),
+        ("v0.0.0", True),
+    ],
+)
+def test_check_and_download(tmp_path, version, exp_download):
+    """Test that check_and_download only downloads when necessary."""
+    from pyspectral.rayleigh import check_and_download
+    with _fake_lut_dir(tmp_path, version), unittest.mock.patch("pyspectral.rayleigh.download_luts") as download:
+        check_and_download()
+        if exp_download:
+            download.assert_called()
+        else:
+            download.assert_not_called()
+
+
+@contextlib.contextmanager
+def _fake_lut_dir(tmp_path, lut_version):
+    with _fake_get_config(tmp_path):
+        for aerosol_type in utils.AEROSOL_TYPES:
+            atype_version_fn = utils.ATM_CORRECTION_LUT_VERSION[aerosol_type]["filename"]
+            atype_version = utils.ATM_CORRECTION_LUT_VERSION[aerosol_type]["version"]
+            atype_subdir = tmp_path / aerosol_type
+            atype_subdir.mkdir()
+            version_filename = str(atype_subdir / atype_version_fn)
+            with open(version_filename, "w") as version_file:
+                version_file.write(lut_version or atype_version)
+        yield
+
+
+@contextlib.contextmanager
+def _fake_get_config(tmp_path):
+    def _get_config():
+        return {
+            "rayleigh_dir": str(tmp_path),
+            "rsr_dir": str(tmp_path),
+            "download_from_internet": True,
+        }
+    with unittest.mock.patch("pyspectral.rayleigh.get_config") as get_config, \
+            unittest.mock.patch("pyspectral.utils.get_config") as get_config2:
+        get_config.side_effect = _get_config
+        get_config2.side_effect = _get_config
+        yield

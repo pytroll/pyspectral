@@ -48,11 +48,15 @@ OSCAR_PLATFORM_NAMES = {'eos-2': 'EOS-Aqua',
 
 
 class RSRDict(dict):
+    """Helper dict-like class to handle multiple names for band keys."""
+
     def __init__(self, instrument=None):
+        """Initialize dict and primary instrument name."""
         self.instrument = instrument
         dict.__init__(self)
 
     def __getitem__(self, key):
+        """Get value either directly or fallback to pre-configured 'standard' names.."""
         try:
             val = dict.__getitem__(self, key)
         except KeyError:
@@ -178,7 +182,6 @@ class RelativeSpectralResponse(RSRDataBaseClass):
 
     def _check_filename_exist(self):
         """Check that the file exist."""
-
         if not os.path.exists(self.filename) or not os.path.isfile(self.filename):
             errmsg = ('pyspectral RSR file does not exist! Filename = ' +
                       str(self.filename))
@@ -334,25 +337,18 @@ class RelativeSpectralResponse(RSRDataBaseClass):
                 self.set_band_central_wavelength_per_detector(h5f, bandname, dname)
 
 
-def check_and_download(**kwargs):
+def check_and_download(dest_dir=None, dry_run=False):
     """Do a check for the version and attempt downloading only if needed."""
-    dry_run = kwargs.get('dry_run', False)
-    dest_dir = kwargs.get('dest_dir', None)
-
     rsr = RSRDataBaseClass()
     if rsr.rsr_data_version_uptodate:
         LOG.info("RSR data already the latest!")
     else:
-        if dest_dir:
-            download_rsr(dest_dir=dest_dir, dry_run=dry_run)
-        else:
-            download_rsr(dry_run=dry_run)
+        download_rsr(dest_dir=dest_dir, dry_run=dry_run)
 
 
 def main():
-    """Main."""
-    modis = RelativeSpectralResponse('EOS-Terra', 'modis')
-    del(modis)
+    """Perform basic sanity check of RSR handling."""
+    RelativeSpectralResponse('EOS-Terra', 'modis')
 
 
 if __name__ == "__main__":

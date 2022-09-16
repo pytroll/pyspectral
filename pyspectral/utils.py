@@ -21,9 +21,19 @@
 
 import os
 import logging
+import tarfile
+import warnings
+
 import numpy as np
+import requests
 from pyspectral.config import get_config
 from pyspectral.bandnames import BANDNAMES
+
+TQDM_LOADED = True
+try:
+    from tqdm import tqdm
+except ImportError:
+    TQDM_LOADED = False
 
 LOG = logging.getLogger(__name__)
 
@@ -94,6 +104,7 @@ ATM_CORRECTION_LUT_VERSION['urban_aerosol'] = {'version': 'v1.0.1',
 ATM_CORRECTION_LUT_VERSION['rayleigh_only'] = {'version': 'v1.0.1',
                                                'filename': 'PYSPECTRAL_ATM_CORR_LUT_RO'}
 
+#: Aerosol types available as downloadable LUTs for rayleigh correction
 AEROSOL_TYPES = ['antarctic_aerosol', 'continental_average_aerosol',
                  'continental_clean_aerosol', 'continental_polluted_aerosol',
                  'desert_aerosol', 'marine_clean_aerosol',
@@ -105,15 +116,15 @@ ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
                'tropical': 8, 'us-standard': 9}
 
 HTTPS_RAYLEIGH_LUTS = {}
-URL_PREFIX = "https://zenodo.org/record/1288441/files/pyspectral_atm_correction_luts"
+LUT_URL_PREFIX = "https://zenodo.org/record/1288441/files/pyspectral_atm_correction_luts"
 for atype in AEROSOL_TYPES:
     name = {'rayleigh_only': 'no_aerosol'}.get(atype, atype)
-    url = "{prefix}_{name}.tgz".format(prefix=URL_PREFIX, name=name)
+    url = "{prefix}_{name}.tgz".format(prefix=LUT_URL_PREFIX, name=name)
     HTTPS_RAYLEIGH_LUTS[atype] = url
 
 
 def get_rayleigh_lut_dir(aerosol_type):
-    """Get the rayleight LUT directory for the specified aerosol type."""
+    """Get the rayleigh LUT directory for the specified aerosol type."""
     conf = get_config()
     local_rayleigh_dir = conf.get('rayleigh_dir')
     return os.path.join(local_rayleigh_dir, aerosol_type)
@@ -266,108 +277,104 @@ def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06):
             dset[...] = arr
 
 
-def download_rsr(**kwargs):
+def download_rsr(dest_dir=None, dry_run=False):
     """Download the relative spectral response functions.
 
-    Download the pre-compiled hdf5 formatet relative spectral response functions
-    from the internet
+    Download the pre-compiled HDF5 formatted relative spectral response
+    functions from the internet as tarballs, extracts them, then deletes
+    the tarball.
+
+    See :func:`pyspectral.rsr_reader.check_and_download` for a "smart" version
+    of this process that only downloads the necessary files.
+
+    Args:
+        dest_dir (str): Path to put the temporary tarball and extracted RSR
+            files.
+        dry_run (bool): If True, don't actually download files, only log what
+            URLs would be downloaded. Defaults to False.
 
     """
-    import tarfile
-    import requests
-    TQDM_LOADED = True
-    try:
-        from tqdm import tqdm
-    except ImportError:
-        TQDM_LOADED = False
-
     config = get_config()
     local_rsr_dir = config.get('rsr_dir')
-    dest_dir = kwargs.get('dest_dir', local_rsr_dir)
-    dry_run = kwargs.get('dry_run', False)
+    dest_dir = dest_dir or local_rsr_dir
 
     LOG.info("Download RSR files and store in directory %s", dest_dir)
-
     filename = os.path.join(dest_dir, "pyspectral_rsr_data.tgz")
-    LOG.debug("Get data. URL: %s", HTTP_PYSPECTRAL_RSR)
+    LOG.debug("RSR URL: %s", HTTP_PYSPECTRAL_RSR)
     LOG.debug("Destination = %s", dest_dir)
     if dry_run:
         return
 
-    response = requests.get(HTTP_PYSPECTRAL_RSR)
-    if TQDM_LOADED:
-        with open(filename, "wb") as handle:
-            for data in tqdm(response.iter_content()):
-                handle.write(data)
-    else:
-        with open(filename, "wb") as handle:
-            for data in response.iter_content():
-                handle.write(data)
-
-    tar = tarfile.open(filename)
-    tar.extractall(dest_dir)
-    tar.close()
-    os.remove(filename)
+    _download_tarball_and_extract(HTTP_PYSPECTRAL_RSR, filename, dest_dir)
 
 
-def download_luts(**kwargs):
-    """Download the luts from internet."""
-    import tarfile
-    import requests
-    TQDM_LOADED = True
-    try:
-        from tqdm import tqdm
-    except ImportError:
-        TQDM_LOADED = False
+def download_luts(aerosol_types=None, dry_run=False, aerosol_type=None):
+    """Download the luts from internet.
 
-    dry_run = kwargs.get('dry_run', False)
+    See :func:`pyspectral.rayleigh.check_and_download` for a "smart" version
+    of this process that only downloads the necessary files.
 
-    if 'aerosol_type' in kwargs:
-        if isinstance(kwargs['aerosol_type'], (list, tuple, set)):
-            aerosol_types = kwargs['aerosol_type']
-        else:
-            aerosol_types = [kwargs['aerosol_type'], ]
-    else:
-        aerosol_types = HTTPS_RAYLEIGH_LUTS.keys()
+    Args:
+        aerosol_types (Iterable): Aerosol types to download the LUTs for.
+            Defaults to all aerosol types. See :data:`AEROSOL_TYPES` for the
+            full list.
+        dry_run (bool): If True, don't actually download files, only log what
+            URLs would be downloaded. Defaults to False.
+        aerosol_type (str): Deprecated.
 
-    chunk_size = 1024 * 1024  # 1 MB
+    """
+    aerosol_types = _get_aerosol_types(aerosol_types, aerosol_type)
     for subname in aerosol_types:
-
         LOG.debug('Aerosol type: %s', subname)
-        http = HTTPS_RAYLEIGH_LUTS[subname]
-        LOG.debug('URL = %s', http)
+        lut_tarball_url = HTTPS_RAYLEIGH_LUTS[subname]
+        LOG.debug('Atmospheric LUT URL = %s', lut_tarball_url)
 
         subdir_path = get_rayleigh_lut_dir(subname)
-        try:
-            LOG.debug('Create directory: %s', subdir_path)
-            if not dry_run:
-                os.makedirs(subdir_path)
-        except OSError:
-            if not os.path.isdir(subdir_path):
-                raise
-
+        LOG.debug('Create directory: %s', subdir_path)
+        if not dry_run:
+            os.makedirs(subdir_path, exist_ok=True)
         if dry_run:
             continue
 
-        response = requests.get(http)
-        total_size = int(response.headers['content-length'])
+        local_tarball_pathname = os.path.join(subdir_path, "pyspectral_rayleigh_correction_luts.tgz")
+        _download_tarball_and_extract(lut_tarball_url, local_tarball_pathname, subdir_path)
 
-        filename = os.path.join(
-            subdir_path, "pyspectral_rayleigh_correction_luts.tgz")
-        if TQDM_LOADED:
-            with open(filename, "wb") as handle:
-                for data in tqdm(iterable=response.iter_content(chunk_size=chunk_size),
-                                 total=(int(total_size / chunk_size + 0.5)), unit='kB'):
-                    handle.write(data)
+
+def _get_aerosol_types(aerosol_types, aerosol_type):
+    if aerosol_type is not None:
+        warnings.warn("'aerosol_type' is deprecated, use 'aerosol_types' instead.", UserWarning)
+        if isinstance(aerosol_type, (list, tuple, set)):
+            aerosol_types = aerosol_type
         else:
-            with open(filename, "wb") as handle:
-                for data in response.iter_content():
-                    handle.write(data)
+            aerosol_types = [aerosol_type]
+    elif aerosol_types is None:
+        aerosol_types = list(HTTPS_RAYLEIGH_LUTS.keys())
+    return aerosol_types
 
-        tar = tarfile.open(filename)
-        tar.extractall(subdir_path)
-        tar.close()
-        os.remove(filename)
+
+def _download_tarball_and_extract(tarball_url, local_pathname, extract_dir):
+    chunk_size = 1024 * 1024  # 1 MB
+    response = requests.get(tarball_url)
+    total_size = int(response.headers['content-length'])
+
+    with open(local_pathname, "wb") as handle:
+        for data in _tqdm_or_iter(response.iter_content(chunk_size=chunk_size),
+                                  total=(int(total_size / chunk_size + 0.5)),
+                                  unit='kB'):
+            handle.write(data)
+
+    tar = tarfile.open(local_pathname)
+    tar.extractall(extract_dir)
+    tar.close()
+    os.remove(local_pathname)
+
+
+def _tqdm_or_iter(an_iterable, **tqdm_kwargs):
+    """Wrap an iterable with tqdm if it is available, otherwise return the iterable."""
+    if TQDM_LOADED:
+        return tqdm(iterable=an_iterable, **tqdm_kwargs)
+    else:
+        return an_iterable
 
 
 def debug_on():
