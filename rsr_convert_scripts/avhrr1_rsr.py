@@ -122,6 +122,10 @@ class AvhrrRSR():
 
             ndim = len(wvl) - idx
             wvl = wvl[0:ndim]
+
+            if platform_name == "TIROS-N":
+                wvl = adjust_typo_avhrr1_srf_only_xls_file(platform_name, wvl)
+
             response = sheet.col_values(1, start_rowx=2, end_rowx=2+ndim)
 
             wavelength = np.array(wvl) * scale
@@ -129,6 +133,15 @@ class AvhrrRSR():
 
             self.rsr[platform_name][ch_name]['wavelength'] = wavelength
             self.rsr[platform_name][ch_name]['response'] = response
+
+
+def adjust_typo_avhrr1_srf_only_xls_file(platform_name, wvl):
+    """Adjust typo in wavelength: 640 should most certainly have been 840 in the AVHRR1_SRF_only.xls."""
+    epsilon = 0.01
+    for idx, wavel in enumerate(wvl[1::]):
+        if wvl[idx] > wavel and abs(wavel-640.0) < epsilon:
+            wvl[idx+1] = 840.0
+    return wvl
 
 
 def get_scale_from_unit(unit):
