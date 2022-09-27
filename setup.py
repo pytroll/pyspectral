@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013-2021 Pytroll
+# Copyright (c) 2013-2022 Pytroll
 
 # Author(s):
 
@@ -43,10 +43,8 @@ try:
 except IOError:
     long_description = ''
 
-requires = ['docutils>=0.3', 'numpy>=1.5.1', 'scipy>=0.14',
-            'python-geotiepoints>=1.1.1',
-            'h5py>=2.5', 'requests', 'pyyaml',
-            'appdirs']
+requires = ['docutils>=0.3', 'numpy', 'scipy', 'python-geotiepoints>=1.1.1',
+            'h5py>=2.5', 'requests', 'pyyaml', 'appdirs']
 
 dask_extra = ['dask[array]']
 test_requires = ['pyyaml', 'dask[array]', 'xlrd', 'pytest', 'xarray', 'responses']

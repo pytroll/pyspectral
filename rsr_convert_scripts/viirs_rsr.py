@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2013-2020 Pytroll developers
+# Copyright (c) 2013-2022 Pytroll developers
 #
 # Author(s):
 #
@@ -21,9 +21,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Interface to VIIRS relative spectral responses"""
+"""Interface to read original VIIRS relative spectral responses and write to hdf5 file."""
 
 import os
+import sys
+import h5py
 import numpy as np
 from pyspectral.utils import get_central_wave
 from pyspectral.config import get_config
@@ -37,29 +39,8 @@ VIIRS_BAND_NAMES = ['M1', 'M2', 'M3', 'M4', 'M5',
                     'I1', 'I2', 'I3', 'I4', 'I5',
                     'DNB']
 
-N_HEADER_LINES = {'Suomi-NPP': 1, 'NOAA-20': 5}
-N_HEADER_LINES_DNB = {'Suomi-NPP': 1, 'NOAA-20': 6}
-
 # JPSS-1:  Band   det  SS      wvl_nm       RSR        SNR   SNR_Thresh QF
 # UAID/Swp
-NAMES1 = {'Suomi-NPP': ['bandname',
-                        'detector',
-                        'subsample',
-                        'wavelength',
-                        'band_avg_snr',
-                        'asr',
-                        'response',
-                        'quality_flag',
-                        'xtalk_flag'],
-          'NOAA-20': ['bandname',
-                      'detector',
-                      'subsample',
-                      'wavelength',
-                      'response',
-                      'snr',
-                      'snr_thresh',
-                      'qf',
-                      'uaid_swp']}
 
 DTYPE1 = {'Suomi-NPP': [('bandname', '|S3'),
                         ('detector', '<i4'),
@@ -71,6 +52,15 @@ DTYPE1 = {'Suomi-NPP': [('bandname', '|S3'),
                         ('quality_flag', '<i4'),
                         ('xtalk_flag', '<i4')],
           'NOAA-20': [('bandname', '|S3'),
+                      ('detector', '<i4'),
+                      ('subsample', '<i4'),
+                      ('wavelength', '<f8'),
+                      ('response', '<f8'),
+                      ('snr', '<f8'),
+                      ('snr_thresh', '<f8'),
+                      ('qf', '<i4'),
+                      ('uaid_swp', '<i4')],
+          'NOAA-21': [('bandname', '|S3'),
                       ('detector', '<i4'),
                       ('subsample', '<i4'),
                       ('wavelength', '<f8'),
@@ -104,10 +94,10 @@ _DEFAULT_LOG_FORMAT = '[%(levelname)s: %(asctime)s : %(name)s] %(message)s'
 
 
 class ViirsRSR(object):
-
-    """Container for the (S-NPP/JPSS) VIIRS RSR data"""
+    """Container for the (S-NPP/JPSS) VIIRS RSR data."""
 
     def __init__(self, bandname, platform_name):
+        """Initialize the VIIRS RSR object."""
         self.platform_name = platform_name
         self.bandname = bandname
         self.filename = None
@@ -124,7 +114,7 @@ class ViirsRSR(object):
         self._load()
 
     def _get_bandfilenames(self, **options):
-        """Get filename for each band"""
+        """Get filename for each band."""
         conf = options[self.platform_name + '-viirs']
 
         rootdir = conf['rootdir']
@@ -138,8 +128,7 @@ class ViirsRSR(object):
                     filename, {'bandname': band})
 
     def _get_bandfile(self, **options):
-        """Get the VIIRS rsr filename"""
-
+        """Get the VIIRS rsr filename."""
         # Need to understand why there are A&B files for band M16. FIXME!
         # Anyway, the absolute response differences are small, below 0.05
 
@@ -153,21 +142,16 @@ class ViirsRSR(object):
         self.filename = path
 
     def _load(self, scale=0.001):
-        """Load the VIIRS RSR data for the band requested"""
-        if self.bandname == 'DNB':
-            header_lines_to_skip = N_HEADER_LINES_DNB[self.platform_name]
-        else:
-            header_lines_to_skip = N_HEADER_LINES[self.platform_name]
+        """Load the VIIRS RSR data for the band requested."""
+        header_lines_to_skip = get_header_lines2skip(self.filename, self.platform_name)
 
         try:
             data = np.genfromtxt(self.filename,
-                                 unpack=True, skip_header=header_lines_to_skip,
-                                 names=NAMES1[self.platform_name],
+                                 skip_header=header_lines_to_skip,
                                  dtype=DTYPE1[self.platform_name])
         except ValueError:
             data = np.genfromtxt(self.filename,
-                                 unpack=True, skip_header=N_HEADER_LINES[
-                                     self.platform_name],
+                                 unpack=True, skip_header=header_lines_to_skip,
                                  names=NAMES2[self.platform_name],
                                  dtype=DTYPE2[self.platform_name])
 
@@ -186,11 +170,20 @@ class ViirsRSR(object):
         self.rsr = detectors
 
 
-def main():
-    """Main"""
-    import sys
-    import h5py
+def get_header_lines2skip(filename, platform_name):
+    """Check the file nd find the number of header lines to skip."""
+    with open(filename, 'r') as fpt:
+        nlines_hd = 0
+        line = '% '
+        while line.startswith('%'):
+            line = fpt.readline()
+            nlines_hd = nlines_hd + 1
 
+    return nlines_hd - 1
+
+
+def create_viirs_rsr(platform_name):
+    """Create the VIIRS RSR functions and save to a pyspectral formattet hdf5 file."""
     handler = logging.StreamHandler(sys.stderr)
 
     formatter = logging.Formatter(fmt=_DEFAULT_LOG_FORMAT,
@@ -200,8 +193,6 @@ def main():
     LOG.setLevel(logging.DEBUG)
     LOG.addHandler(handler)
 
-    platform_name = "NOAA-20"
-    # platform_name = "Suomi-NPP"
     viirs = ViirsRSR('M1', platform_name)
     filename = os.path.join(viirs.output_dir,
                             "rsr_viirs_{0}.h5".format(platform_name))
@@ -219,7 +210,7 @@ def main():
             grp.attrs['number_of_detectors'] = len(viirs.rsr.keys())
             # Loop over each detector to check if the sampling wavelengths are
             # identical:
-            det_names = viirs.rsr.keys()
+            det_names = list(viirs.rsr.keys())
             wvl = viirs.rsr[det_names[0]]['wavelength']
             wvl, idx = np.unique(wvl, return_index=True)
             wvl_is_constant = True
@@ -263,4 +254,6 @@ def main():
 
 if __name__ == "__main__":
     LOG = logging.getLogger('viirs_rsr')
-    main()
+    platform_name = "NOAA-21"
+    # platform_name = "Suomi-NPP"
+    create_viirs_rsr(platform_name)
