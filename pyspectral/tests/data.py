@@ -268,4 +268,4 @@ TEST_RAYLEIGH_LUT = np.array([[[[0.08674087,  0.09136106,  0.09747749,  0.104837
 TEST_RAYLEIGH_AZID_COORD = np.array([100.,  110.,  120.,  130.,  140.,  150.,  160.], dtype='float32')
 TEST_RAYLEIGH_SATZ_COORD = np.array([1.,  1.25,  1.5,  1.75,  2.,  2.25], dtype='float32')
 TEST_RAYLEIGH_SUNZ_COORD = np.array([1.,  1.25,  1.5,  1.75,  2.,  2.25,  2.5,  2.75], dtype='float32')
-TEST_RAYLEIGH_WVL_COORD = np.array([440.,  445.], dtype='float32')
+TEST_RAYLEIGH_WVL_COORD = np.array([631.,  636.], dtype='float32')

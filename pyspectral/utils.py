@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2021 Pytroll developers
+# Copyright (c) 2014-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
-#   Panu Lahtinen <panu.lahtinen@fmi.fi>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,139 +21,25 @@
 
 import os
 import logging
-import tempfile
+import tarfile
+import warnings
+
 import numpy as np
+import requests
 from pyspectral.config import get_config
+from pyspectral.bandnames import BANDNAMES
+
+TQDM_LOADED = True
+try:
+    from tqdm import tqdm
+except ImportError:
+    TQDM_LOADED = False
 
 LOG = logging.getLogger(__name__)
 
 WAVE_LENGTH = 'wavelength'
 WAVE_NUMBER = 'wavenumber'
 
-BANDNAMES = {}
-BANDNAMES['generic'] = {'VIS006': 'VIS0.6',
-                        'VIS008': 'VIS0.8',
-                        'IR_016': 'NIR1.6',
-                        'IR_039': 'IR3.9',
-                        'WV_062': 'IR6.2',
-                        'WV_073': 'IR7.3',
-                        'IR_087': 'IR8.7',
-                        'IR_097': 'IR9.7',
-                        'IR_108': 'IR10.8',
-                        'IR_120': 'IR12.0',
-                        'IR_134': 'IR13.4',
-                        'HRV': 'HRV',
-                        'I01': 'I1',
-                        'I02': 'I2',
-                        'I03': 'I3',
-                        'I04': 'I4',
-                        'I05': 'I5',
-                        'M01': 'M1',
-                        'M02': 'M2',
-                        'M03': 'M3',
-                        'M04': 'M4',
-                        'M05': 'M5',
-                        'M06': 'M6',
-                        'M07': 'M7',
-                        'M08': 'M8',
-                        'M09': 'M9',
-                        'C01': 'ch1',
-                        'C02': 'ch2',
-                        'C03': 'ch3',
-                        'C04': 'ch4',
-                        'C05': 'ch5',
-                        'C06': 'ch6',
-                        'C07': 'ch7',
-                        'C08': 'ch8',
-                        'C09': 'ch9',
-                        'C10': 'ch10',
-                        'C11': 'ch11',
-                        'C12': 'ch12',
-                        'C13': 'ch13',
-                        'C14': 'ch14',
-                        'C15': 'ch15',
-                        'C16': 'ch16',
-                        }
-# handle arbitrary channel numbers
-for chan_num in range(1, 37):
-    BANDNAMES['generic'][str(chan_num)] = 'ch{:d}'.format(chan_num)
-
-# MODIS RSR files were made before 'chX' became standard in pyspectral
-BANDNAMES['modis'] = {str(chan_num): str(chan_num) for chan_num in range(1, 37)}
-
-BANDNAMES['avhrr-3'] = {'1': 'ch1',
-                        '2': 'ch2',
-                        '3b': 'ch3b',
-                        '3a': 'ch3a',
-                        '4': 'ch4',
-                        '5': 'ch5'}
-
-BANDNAMES['ahi'] = {'B01': 'ch1',
-                    'B02': 'ch2',
-                    'B03': 'ch3',
-                    'B04': 'ch4',
-                    'B05': 'ch5',
-                    'B06': 'ch6',
-                    'B07': 'ch7',
-                    'B08': 'ch8',
-                    'B09': 'ch9',
-                    'B10': 'ch10',
-                    'B11': 'ch11',
-                    'B12': 'ch12',
-                    'B13': 'ch13',
-                    'B14': 'ch14',
-                    'B15': 'ch15',
-                    'B16': 'ch16'
-                    }
-
-BANDNAMES['ami'] = {'VI004': 'ch1',
-                    'VI005': 'ch2',
-                    'VI006': 'ch3',
-                    'VI008': 'ch4',
-                    'NR013': 'ch5',
-                    'NR016': 'ch6',
-                    'SW038': 'ch7',
-                    'WV063': 'ch8',
-                    'WV069': 'ch9',
-                    'WV073': 'ch10',
-                    'IR087': 'ch11',
-                    'IR096': 'ch12',
-                    'IR105': 'ch13',
-                    'IR112': 'ch14',
-                    'IR123': 'ch15',
-                    'IR133': 'ch16'
-                    }
-
-BANDNAMES['fci'] = {'vis_04': 'ch1',
-                    'vis_05': 'ch2',
-                    'vis_06': 'ch3',
-                    'vis_08': 'ch4',
-                    'vis_09': 'ch5',
-                    'nir_13': 'ch6',
-                    'nir_16': 'ch7',
-                    'nir_22': 'ch8',
-                    'ir_38': 'ch9',
-                    'wv_63': 'ch10',
-                    'wv_73': 'ch11',
-                    'ir_87': 'ch12',
-                    'ir_97': 'ch13',
-                    'ir_105': 'ch14',
-                    'ir_123': 'ch15',
-                    'ir_133': 'ch16'
-                    }
-
-BANDNAMES['slstr'] = {'S1': 'ch1',
-                      'S2': 'ch2',
-                      'S3': 'ch3',
-                      'S4': 'ch4',
-                      'S5': 'ch5',
-                      'S6': 'ch6',
-                      'S7': 'ch7',
-                      'S8': 'ch8',
-                      'S9': 'ch9',
-                      'F1': 'ch7',
-                      'F2': 'ch8',
-                      }
 
 INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'NOAA-18': 'avhrr/3',
@@ -197,10 +79,10 @@ AVHRR_INSTRUMENT_NAME = {'avhrr-3': 'avhrr/3',
                          'avhrr-2': 'avhrr/2',
                          'avhrr-1': 'avhrr/1'}
 
-HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/4305549/files/pyspectral_rsr_data.tgz"
+HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/6557386/files/pyspectral_rsr_data.tgz"
 
 RSR_DATA_VERSION_FILENAME = "PYSPECTRAL_RSR_VERSION"
-RSR_DATA_VERSION = "v1.0.16"
+RSR_DATA_VERSION = "v1.1.0"
 
 ATM_CORRECTION_LUT_VERSION = {}
 ATM_CORRECTION_LUT_VERSION['antarctic_aerosol'] = {'version': 'v1.0.1',
@@ -212,7 +94,7 @@ ATM_CORRECTION_LUT_VERSION['continental_clean_aerosol'] = {'version': 'v1.0.1',
 ATM_CORRECTION_LUT_VERSION['continental_polluted_aerosol'] = {'version': 'v1.0.1',
                                                               'filename': 'PYSPECTRAL_ATM_CORR_LUT_CPA'}
 ATM_CORRECTION_LUT_VERSION['desert_aerosol'] = {'version': 'v1.0.1',
-                                                           'filename': 'PYSPECTRAL_ATM_CORR_LUT_DA'}
+                                                'filename': 'PYSPECTRAL_ATM_CORR_LUT_DA'}
 ATM_CORRECTION_LUT_VERSION['marine_clean_aerosol'] = {'version': 'v1.0.1',
                                                       'filename': 'PYSPECTRAL_ATM_CORR_LUT_MCA'}
 ATM_CORRECTION_LUT_VERSION['marine_polluted_aerosol'] = {'version': 'v1.0.1',
@@ -226,7 +108,7 @@ ATM_CORRECTION_LUT_VERSION['urban_aerosol'] = {'version': 'v1.0.1',
 ATM_CORRECTION_LUT_VERSION['rayleigh_only'] = {'version': 'v1.0.1',
                                                'filename': 'PYSPECTRAL_ATM_CORR_LUT_RO'}
 
-
+#: Aerosol types available as downloadable LUTs for rayleigh correction
 AEROSOL_TYPES = ['antarctic_aerosol', 'continental_average_aerosol',
                  'continental_clean_aerosol', 'continental_polluted_aerosol',
                  'desert_aerosol', 'marine_clean_aerosol',
@@ -237,31 +119,19 @@ ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
                'midlatitude summer': 6, 'midlatitude winter': 7,
                'tropical': 8, 'us-standard': 9}
 
-
 HTTPS_RAYLEIGH_LUTS = {}
-URL_PREFIX = "https://zenodo.org/record/1288441/files/pyspectral_atm_correction_luts"
+LUT_URL_PREFIX = "https://zenodo.org/record/1288441/files/pyspectral_atm_correction_luts"
 for atype in AEROSOL_TYPES:
     name = {'rayleigh_only': 'no_aerosol'}.get(atype, atype)
-    url = "{prefix}_{name}.tgz".format(prefix=URL_PREFIX, name=name)
+    url = "{prefix}_{name}.tgz".format(prefix=LUT_URL_PREFIX, name=name)
     HTTPS_RAYLEIGH_LUTS[atype] = url
 
 
-CONF = get_config()
-LOCAL_RSR_DIR = CONF.get('rsr_dir')
-LOCAL_RAYLEIGH_DIR = CONF.get('rayleigh_dir')
-
-try:
-    os.makedirs(LOCAL_RSR_DIR)
-except OSError:
-    if not os.path.isdir(LOCAL_RSR_DIR):
-        raise
-
-RAYLEIGH_LUT_DIRS = {}
-for sub_dir_name in HTTPS_RAYLEIGH_LUTS:
-    dirname = os.path.join(LOCAL_RAYLEIGH_DIR, sub_dir_name)
-    RAYLEIGH_LUT_DIRS[sub_dir_name] = dirname
-
-TB2RAD_DIR = CONF.get('tb2rad_dir', tempfile.gettempdir())
+def get_rayleigh_lut_dir(aerosol_type):
+    """Get the rayleigh LUT directory for the specified aerosol type."""
+    conf = get_config()
+    local_rayleigh_dir = conf.get('rayleigh_dir')
+    return os.path.join(local_rayleigh_dir, aerosol_type)
 
 
 def convert2wavenumber(rsr):
@@ -411,107 +281,104 @@ def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06):
             dset[...] = arr
 
 
-def download_rsr(**kwargs):
+def download_rsr(dest_dir=None, dry_run=False):
     """Download the relative spectral response functions.
 
-    Download the pre-compiled hdf5 formatet relative spectral response functions
-    from the internet
+    Download the pre-compiled HDF5 formatted relative spectral response
+    functions from the internet as tarballs, extracts them, then deletes
+    the tarball.
+
+    See :func:`pyspectral.rsr_reader.check_and_download` for a "smart" version
+    of this process that only downloads the necessary files.
+
+    Args:
+        dest_dir (str): Path to put the temporary tarball and extracted RSR
+            files.
+        dry_run (bool): If True, don't actually download files, only log what
+            URLs would be downloaded. Defaults to False.
 
     """
-    import tarfile
-    import requests
-    TQDM_LOADED = True
-    try:
-        from tqdm import tqdm
-    except ImportError:
-        TQDM_LOADED = False
-
-    dest_dir = kwargs.get('dest_dir', LOCAL_RSR_DIR)
-    dry_run = kwargs.get('dry_run', False)
+    config = get_config()
+    local_rsr_dir = config.get('rsr_dir')
+    dest_dir = dest_dir or local_rsr_dir
 
     LOG.info("Download RSR files and store in directory %s", dest_dir)
-
     filename = os.path.join(dest_dir, "pyspectral_rsr_data.tgz")
-    LOG.debug("Get data. URL: %s", HTTP_PYSPECTRAL_RSR)
+    LOG.debug("RSR URL: %s", HTTP_PYSPECTRAL_RSR)
     LOG.debug("Destination = %s", dest_dir)
     if dry_run:
         return
 
-    response = requests.get(HTTP_PYSPECTRAL_RSR)
-    if TQDM_LOADED:
-        with open(filename, "wb") as handle:
-            for data in tqdm(response.iter_content()):
-                handle.write(data)
-    else:
-        with open(filename, "wb") as handle:
-            for data in response.iter_content():
-                handle.write(data)
-
-    tar = tarfile.open(filename)
-    tar.extractall(dest_dir)
-    tar.close()
-    os.remove(filename)
+    _download_tarball_and_extract(HTTP_PYSPECTRAL_RSR, filename, dest_dir)
 
 
-def download_luts(**kwargs):
-    """Download the luts from internet."""
-    import tarfile
-    import requests
-    TQDM_LOADED = True
-    try:
-        from tqdm import tqdm
-    except ImportError:
-        TQDM_LOADED = False
+def download_luts(aerosol_types=None, dry_run=False, aerosol_type=None):
+    """Download the luts from internet.
 
-    dry_run = kwargs.get('dry_run', False)
+    See :func:`pyspectral.rayleigh.check_and_download` for a "smart" version
+    of this process that only downloads the necessary files.
 
-    if 'aerosol_type' in kwargs:
-        if isinstance(kwargs['aerosol_type'], (list, tuple, set)):
-            aerosol_types = kwargs['aerosol_type']
-        else:
-            aerosol_types = [kwargs['aerosol_type'], ]
-    else:
-        aerosol_types = HTTPS_RAYLEIGH_LUTS.keys()
+    Args:
+        aerosol_types (Iterable): Aerosol types to download the LUTs for.
+            Defaults to all aerosol types. See :data:`AEROSOL_TYPES` for the
+            full list.
+        dry_run (bool): If True, don't actually download files, only log what
+            URLs would be downloaded. Defaults to False.
+        aerosol_type (str): Deprecated.
 
-    chunk_size = 1024*1024  # 1 MB
-
+    """
+    aerosol_types = _get_aerosol_types(aerosol_types, aerosol_type)
     for subname in aerosol_types:
-
         LOG.debug('Aerosol type: %s', subname)
-        http = HTTPS_RAYLEIGH_LUTS[subname]
-        LOG.debug('URL = %s', http)
+        lut_tarball_url = HTTPS_RAYLEIGH_LUTS[subname]
+        LOG.debug('Atmospheric LUT URL = %s', lut_tarball_url)
 
-        subdir_path = RAYLEIGH_LUT_DIRS[subname]
-        try:
-            LOG.debug('Create directory: %s', subdir_path)
-            if not dry_run:
-                os.makedirs(subdir_path)
-        except OSError:
-            if not os.path.isdir(subdir_path):
-                raise
-
+        subdir_path = get_rayleigh_lut_dir(subname)
+        LOG.debug('Create directory: %s', subdir_path)
+        if not dry_run:
+            os.makedirs(subdir_path, exist_ok=True)
         if dry_run:
             continue
 
-        response = requests.get(http)
-        total_size = int(response.headers['content-length'])
+        local_tarball_pathname = os.path.join(subdir_path, "pyspectral_rayleigh_correction_luts.tgz")
+        _download_tarball_and_extract(lut_tarball_url, local_tarball_pathname, subdir_path)
 
-        filename = os.path.join(
-            subdir_path, "pyspectral_rayleigh_correction_luts.tgz")
-        if TQDM_LOADED:
-            with open(filename, "wb") as handle:
-                for data in tqdm(iterable=response.iter_content(chunk_size=chunk_size),
-                                 total=(int(total_size / chunk_size + 0.5)), unit='kB'):
-                    handle.write(data)
+
+def _get_aerosol_types(aerosol_types, aerosol_type):
+    if aerosol_type is not None:
+        warnings.warn("'aerosol_type' is deprecated, use 'aerosol_types' instead.", UserWarning)
+        if isinstance(aerosol_type, (list, tuple, set)):
+            aerosol_types = aerosol_type
         else:
-            with open(filename, "wb") as handle:
-                for data in response.iter_content():
-                    handle.write(data)
+            aerosol_types = [aerosol_type]
+    elif aerosol_types is None:
+        aerosol_types = list(HTTPS_RAYLEIGH_LUTS.keys())
+    return aerosol_types
 
-        tar = tarfile.open(filename)
-        tar.extractall(subdir_path)
-        tar.close()
-        os.remove(filename)
+
+def _download_tarball_and_extract(tarball_url, local_pathname, extract_dir):
+    chunk_size = 1024 * 1024  # 1 MB
+    response = requests.get(tarball_url)
+    total_size = int(response.headers['content-length'])
+
+    with open(local_pathname, "wb") as handle:
+        for data in _tqdm_or_iter(response.iter_content(chunk_size=chunk_size),
+                                  total=(int(total_size / chunk_size + 0.5)),
+                                  unit='kB'):
+            handle.write(data)
+
+    tar = tarfile.open(local_pathname)
+    tar.extractall(extract_dir)
+    tar.close()
+    os.remove(local_pathname)
+
+
+def _tqdm_or_iter(an_iterable, **tqdm_kwargs):
+    """Wrap an iterable with tqdm if it is available, otherwise return the iterable."""
+    if TQDM_LOADED:
+        return tqdm(iterable=an_iterable, **tqdm_kwargs)
+    else:
+        return an_iterable
 
 
 def debug_on():
@@ -585,8 +452,10 @@ def get_wave_range(in_chan, threshold=0.15):
 
 def convert2str(value):
     """Convert a value to string.
+
     Args:
         value: Either a str, bytes or 1-element numpy array
+
     """
     value = bytes2string(value)
     return np2str(value)
@@ -594,11 +463,13 @@ def convert2str(value):
 
 def np2str(value):
     """Convert an `numpy.string_` to str.
+
     Args:
         value (ndarray): scalar or 1-element numpy array to convert
     Raises:
         ValueError: if value is array larger than 1-element or it is not of
                     type `numpy.string_` or it is not a numpy array
+
     """
     if isinstance(value, str):
         return value
