@@ -49,7 +49,7 @@ requires = ['docutils>=0.3', 'numpy>=1.5.1', 'scipy>=0.14',
             'appdirs']
 
 dask_extra = ['dask[array]']
-test_requires = ['pyyaml', 'dask[array]', 'xlrd', 'pytest', 'xarray']
+test_requires = ['pyyaml', 'dask[array]', 'xlrd', 'pytest', 'xarray', 'responses']
 
 NAME = 'pyspectral'
 

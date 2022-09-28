@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2016-2019 Pytroll developers
+# Copyright (c) 2016-2022 Pytroll developers
 #
 # Author(s):
 #
@@ -25,6 +25,7 @@
 import os
 import logging
 from pyspectral.config import get_config
+from pathlib import Path
 
 LOG = logging.getLogger(__name__)
 
@@ -48,14 +49,15 @@ class InstrumentRSR(object):
 
         self.output_dir = None
         self.path = None
+        self.filename = None
         self.options = {}
-        self.requested_band_filename = None
 
     def _get_options_from_config(self):
         """Get configuration settings from configuration file."""
         options = get_config()
         self.output_dir = options.get('rsr_dir', './')
-        self.path = options[self.platform_name + '-' + self.instrument]['path']
+        self.path = Path(options[self.platform_name + '-' + self.instrument]['path'])
+        self.filename = options[self.platform_name + '-' + self.instrument].get('filename')
         self.options = options
 
     def _get_bandfilenames(self):

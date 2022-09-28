@@ -1,3 +1,16 @@
+## Version <v0.11.0> (2022/03/01)
+
+
+### Pull Requests Merged
+
+#### Features added
+
+* [PR 144](https://github.com/pytroll/pyspectral/pull/144) - Add converter for Electro-L N2 MSU/GS spectral response functions
+* [PR 133](https://github.com/pytroll/pyspectral/pull/133) - Refactor rayleigh correction to be more dask friendly
+
+In this release 2 pull requests were closed.
+
+
 ## Version <v0.10.6> (2021/12/22)
 
 ### Issues Closed

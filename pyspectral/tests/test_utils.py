@@ -22,10 +22,18 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Do the unit testing for the utils library."""
+import contextlib
+import os
+import re
+import tarfile
+import warnings
+from io import BytesIO
 
 import pytest
 import unittest
 import numpy as np
+import responses
+
 
 from pyspectral import utils
 from pyspectral.utils import np2str, bytes2string
@@ -181,74 +189,158 @@ class TestUtils(unittest.TestCase):
         np.testing.assert_allclose(wvl_range, expected_range)
 
 
-def test_np2str_byte_object():
-    """Test the np2str function on a byte object."""
-    # byte object
-    npstring = np.string_('hey')
-    assert np2str(npstring) == 'hey'
+@pytest.mark.parametrize(
+    ("input_value", "exp_except"),
+    [
+        (np.string_("hey"), False),
+        (np.array([np.string_("hey")]), False),
+        (np.array(np.string_("hey")), False),
+        ("hey", False),
+        (np.array([np.string_("hey"), np.string_("hey")]), True),
+        (5, True),
+    ],
+)
+def test_np2str(input_value, exp_except):
+    """Test the np2str function on different inputs."""
+    if exp_except:
+        with pytest.raises(ValueError):
+            np2str(input_value)
+    else:
+        assert np2str(input_value) == "hey"
 
 
-def test_np2str_single_element_array():
-    """Test the np2str function."""
-    # single element numpy array
-    npstring = np.string_('Hej')
-    np_arr = np.array([npstring])
-    assert np2str(np_arr) == 'Hej'
+@pytest.mark.parametrize(
+    ("input_value", "exp_result"),
+    [
+        (b"Hello", "Hello"),
+        ("Hello", "Hello"),
+        (np.string_("Hello"), "Hello"),
+        (np.array(np.string_("Hello")), np.array(np.string_("Hello"))),
+    ]
+)
+def test_bytes2string(input_value, exp_result):
+    """Test the bytes2string function with different inputs."""
+    assert bytes2string(input_value) == exp_result
 
 
-def test_np2str_single_element_scalar():
-    """Test the np2str function on a scalar."""
-    # scalar numpy array
-    npstring = np.string_('hej')
-    np_arr = np.array(npstring)
-    assert np2str(np_arr) == 'hej'
+def test_download_rsr_dry_run():
+    """Test dry run of the download_rsr function."""
+    with unittest.mock.patch("pyspectral.utils.requests") as requests_mock:
+        utils.download_rsr(dry_run=True)
+    requests_mock.assert_not_called()
 
 
-def test_np2str_multi_element():
-    """Test the np2str function on a multi-element array."""
-    # multi-element array
-    npstring = np.string_('hej')
-    npstring = np.array([npstring, npstring])
-    with pytest.raises(ValueError):
-        _ = np2str(npstring)
+def test_download_rsr(tmp_path):
+    """Test basic usage of the download_rsr function."""
+    tar_data = _create_fake_rsr_tarball_bytes()
+    with responses.RequestsMock() as rsps:
+        rsps.add(
+            "GET",
+            utils.HTTP_PYSPECTRAL_RSR,
+            body=tar_data,
+            status=200,
+            content_type="application/octet-stream",
+            headers={
+                "Content-Length": str(len(tar_data)),
+            },
+        )
+        utils.download_rsr(dest_dir=str(tmp_path))
+    assert os.path.isfile(tmp_path / "PYSPECTRAL_RSR_VERSION")
 
 
-def test_np2str_scalar():
-    """Test the np2str function inputting a scalar value."""
-    # non-array-non-string
-    with pytest.raises(ValueError):
-        _ = np2str(5)
+def _create_fake_rsr_tarball_bytes():
+    file_obj = BytesIO()
+
+    with tarfile.open(mode="w:gz", fileobj=file_obj) as rsr_tar:
+        info = tarfile.TarInfo(utils.RSR_DATA_VERSION_FILENAME)
+        info.size = len(utils.RSR_DATA_VERSION)
+        rsr_tar.addfile(info, BytesIO(utils.RSR_DATA_VERSION.encode("ascii")))
+
+    file_obj.seek(0)
+    return file_obj.read()
 
 
-def test_np2str_pure_string():
-    """Test the np2str function inputting a pure string."""
-    # pure string
-    pure_str = 'HEJ'
-    assert np2str(pure_str) is pure_str
+def test_download_luts_dry_run():
+    """Test a dry run of the download_luts function."""
+    with unittest.mock.patch("pyspectral.utils.requests") as requests_mock:
+        utils.download_luts(dry_run=True)
+    requests_mock.assert_not_called()
 
 
-def test_bytes2string_bytes_string():
-    """Test the bytes2string function inputting a bytes string."""
-    # bytes string
-    pure_str = b'Hello'
-    assert bytes2string(pure_str) == 'Hello'
+@pytest.mark.parametrize(
+    ("aerosol_types", "aerosol_type", "exp_warning"),
+    [
+        (None, None, False),
+        (["desert_aerosol"], None, False),
+        (None, "desert_aerosol", True),
+    ]
+)
+def test_download_luts(tmp_path, aerosol_types, aerosol_type, exp_warning):
+    """Test basic usage of the download_luts function."""
+    atypes_to_create = _atypes_to_create(aerosol_types, aerosol_type)
+    tar_data = _create_fake_lut_tarball_bytes(aerosol_types=atypes_to_create)
+    with responses.RequestsMock() as rsps:
+        rsps.add(
+            "GET",
+            re.compile(re.escape(utils.LUT_URL_PREFIX) + r"_.+\.tgz"),
+            body=tar_data,
+            status=200,
+            content_type="application/octet-stream",
+            headers={
+                "Content-Length": str(len(tar_data)),
+            },
+        )
+        with _fake_get_config(tmp_path), warnings.catch_warnings(record=True) as warns:
+            utils.download_luts(aerosol_types=aerosol_types, aerosol_type=aerosol_type)
+    _check_user_warning(warns, exp_warning)
+    _check_expected_aerosol_files(atypes_to_create, tmp_path)
 
 
-def test_bytes2string_pure_string():
-    """Test the bytes2string function inputting a pure string."""
-    # pure string
-    pure_str = 'Hello'
-    assert bytes2string(pure_str) == 'Hello'
+def _atypes_to_create(aerosol_types, aerosol_type):
+    if aerosol_types:
+        return aerosol_types
+    if aerosol_type is None:
+        return utils.AEROSOL_TYPES
+    return [aerosol_type]
 
 
-def test_bytes2string_numpy_string():
-    """Test the bytes2string function inputting numpy string."""
-    npstring = np.string_('HELLO')
-    assert bytes2string(npstring) == 'HELLO'
+def _create_fake_lut_tarball_bytes(aerosol_types):
+    file_obj = BytesIO()
+
+    with tarfile.open(mode="w:gz", fileobj=file_obj) as rsr_tar:
+        for aerosol_type in aerosol_types:
+            version_fn = utils.ATM_CORRECTION_LUT_VERSION[aerosol_type]["filename"]
+            version_value = utils.ATM_CORRECTION_LUT_VERSION[aerosol_type]["version"]
+            info = tarfile.TarInfo(version_fn)
+            info.size = len(version_value)
+            rsr_tar.addfile(info, BytesIO(version_value.encode("ascii")))
+
+    file_obj.seek(0)
+    return file_obj.read()
 
 
-def test_bytes2string_numpy_string_array():
-    """Test the bytes2string function inputting numpy string array."""
-    npstring = np.string_('HELLO')
-    np_arr = np.array(npstring)
-    assert bytes2string(np_arr) == np_arr
+@contextlib.contextmanager
+def _fake_get_config(tmp_path):
+    def _get_config():
+        return {
+            "rayleigh_dir": str(tmp_path),
+            "rsr_dir": str(tmp_path),
+        }
+    with unittest.mock.patch("pyspectral.utils.get_config") as get_config:
+        get_config.side_effect = _get_config
+        yield
+
+
+def _check_user_warning(warns, exp_warning):
+    all_user_warnings = [warn_msg for warn_msg in warns if issubclass(warn_msg.category, UserWarning)]
+    all_matching_warnings = [warn_msg for warn_msg in all_user_warnings if "aerosol_type" in str(warn_msg.message)]
+    assert len(all_matching_warnings) == (1 if exp_warning else 0)
+
+
+def _check_expected_aerosol_files(atypes_to_create, tmp_path):
+    for aerosol_type in utils.AEROSOL_TYPES:
+        atype_fn = tmp_path / aerosol_type / utils.ATM_CORRECTION_LUT_VERSION[aerosol_type]["filename"]
+        if aerosol_type in atypes_to_create:
+            assert atype_fn.is_file()
+        else:
+            assert not atype_fn.is_file()
