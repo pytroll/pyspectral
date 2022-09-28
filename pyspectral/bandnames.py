@@ -195,7 +195,7 @@ BANDNAMES['slstr'] = {'S1': 'ch1',
                       'F2': 'ch8',
                       }
 
-BANDNAMES['mersi-2'] = {chan_num: chan_num for chan_num in range(26)}
+BANDNAMES['mersi-2'] = {str(chan_num): str(chan_num) for chan_num in range(26)}
 
 BANDNAMES['VII'] = {'vii_443': 'ch1',
                     'vii_555': 'ch2',
