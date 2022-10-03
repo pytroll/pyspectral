@@ -60,7 +60,7 @@ class RSRDict(dict):
         try:
             val = dict.__getitem__(self, key)
         except KeyError:
-            if key in BANDNAMES[self.instrument]:
+            if self.instrument in BANDNAMES and key in BANDNAMES[self.instrument]:
                 val = dict.__getitem__(self, BANDNAMES[self.instrument][key])
             elif key in BANDNAMES['generic']:
                 val = dict.__getitem__(self, BANDNAMES['generic'][key])
