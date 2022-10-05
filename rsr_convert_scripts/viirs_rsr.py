@@ -253,7 +253,5 @@ def create_viirs_rsr(platform_name):
 
 
 if __name__ == "__main__":
-    LOG = logging.getLogger('viirs_rsr')
     platform_name = "NOAA-21"
-    # platform_name = "Suomi-NPP"
     create_viirs_rsr(platform_name)
