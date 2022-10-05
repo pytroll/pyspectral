@@ -449,6 +449,12 @@ class TestPopulateRSRObject(unittest.TestCase):
         with self.assertRaises(KeyError):
             print('d', test_rsr['VIS030'])
 
+    def test_rsr_unconfigured_sensor(self):
+        """Test RSRDict finds generic band conversions when specific sensor is not configured."""
+        test_rsr = RSRDict(instrument="i dont exist")
+        test_rsr["ch1"] = 2
+        assert test_rsr['1'] == 2
+
 
 @pytest.mark.parametrize(
     ("version", "exp_download"),
