@@ -2,7 +2,7 @@
 #
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2013-2018, 2020 Pytroll developers
+# Copyright (c) 2013-2022 Pytroll developers
 #
 # Author(s):
 #
@@ -22,9 +22,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Interface to the SEVIRI spectral response functions for all four MSG
-satellites
-"""
+"""Interface to the SEVIRI spectral response functions for all four MSG satellites."""
 
 import os
 from xlrd import open_workbook
@@ -38,17 +36,14 @@ DATA_PATH = pkg_resources.resource_filename('pyspectral', 'data/')
 
 
 class Seviri(object):
-
-    """Class for Seviri RSR"""
+    """Class for Seviri RSR."""
 
     def __init__(self, wavespace='wavelength'):
         """
-        Read the seviri relative spectral responses for all channels and all
-        MSG satellites.
+        Read the seviri relative spectral responses for all channels and all MSG satellites.
 
         Optional input: 'wavespace'. Equals 'wavelength' (units of micron's) on
         default. Can be 'wavenumber' in which case the unit is in cm-1.
-
         """
         options = get_config()
 
@@ -79,7 +74,7 @@ class Seviri(object):
         self.get_centrals()
 
     def _load(self, filename=None):
-        """Read the SEVIRI rsr data"""
+        """Read the SEVIRI rsr data."""
         if not filename:
             filename = self.seviri_path
 
@@ -161,7 +156,7 @@ class Seviri(object):
             self.rsr[ch_name]['wavelength'] = wvl
 
     def convert2wavenumber(self):
-        """Convert from wavelengths to wavenumber"""
+        """Convert from wavelengths to wavenumber."""
         for chname in self.rsr.keys():
             elems = [k for k in self.rsr[chname].keys()]
             for sat in elems:
@@ -184,8 +179,11 @@ class Seviri(object):
         self.unit = 'cm-1'
 
     def get_centrals(self):
-        """Get the central wavenumbers or central wavelengths of all channels,
-        depending on the given 'wavespace'
+        """Get the central wavenumbers or central wavelengths of all channels.
+
+        The unit (wavelength or wavenumber) depends on the 'wave space' given by
+        the attribute *wavespace*.
+
         """
         result = {}
         for chname in self.rsr.keys():
@@ -213,15 +211,14 @@ class Seviri(object):
 
 
 def get_central_wave(wavl, resp):
-    """Calculate the central wavelength or the central wavenumber,
-    depending on what is input
-    """
+    """Calculate the central wavelength (or the central wavenumber if inputs are wave numbers)."""
     return np.trapz(resp * wavl, wavl) / np.trapz(resp, wavl)
 
 
 def generate_seviri_file(seviri, platform_name):
-    """Generate the pyspectral internal common format relative response
-    function file for one SEVIRI
+    """Generate the relative response function file for one SEVIRI sensor.
+
+    The file format is the pyspectral internal common format.
     """
     import h5py
 
@@ -257,14 +254,9 @@ def generate_seviri_file(seviri, platform_name):
             dset[...] = arr
 
 
-def main():
-    """Main"""
+if __name__ == "__main__":
     sev_obj = Seviri()
 
     for satnum in [8, 9, 10, 11]:
         generate_seviri_file(sev_obj, 'Meteosat-{0:d}'.format(satnum))
         print("Meteosat-{0:d} done...".format(satnum))
-
-
-if __name__ == "__main__":
-    main()
