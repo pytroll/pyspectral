@@ -48,7 +48,7 @@ As the Rayleigh scattering, which is the dominating part we are correcting for
 under normal situations (when there is no excessive pollution or aerosols in
 the line of sight) is proportional to :math:`\frac{1}{{\lambda}^4}` the
 effective wavelength is derived by convolution of the spectral response with
-:math:`\frac{1}{{\lambda}^4}`. 
+:math:`\frac{1}{{\lambda}^4}`.
 
 To get the atmospheric contribution for an arbitrary band, first the
 solar zenith, satellite zenith and the sun-satellite azimuth difference angles
@@ -80,9 +80,9 @@ provide a more gentle scaling in cases of high reflectances (above 20%):
 
 In case you want to bypass the reading of the sensor response functions or you have
 a sensor for which there are no RSR data available in PySpectral it is still possible
-to derive an atmospheric correction for that band. All what is needed is the effective
-wavelength of the band, given in micrometers (`:math: \mu m`). This wavelength is
-normally calculated by PySPectral from the RSR data when passing the name of the band
+to derive an atmospheric correction for that band. All that is needed is the effective
+wavelength of the band, given in micrometers (:math:`\mu m`). This wavelength is
+normally calculated by PySpectral from the RSR data when passing the name of the band
 as above.
 
   >>> from pyspectral.rayleigh import Rayleigh
@@ -110,9 +110,32 @@ if you want another setup, e.g.:
   [[ 10.01281363   9.65488615]
    [  9.78070046   9.70335278]]
 
+At high solar zenith angles the assumptions used in the simulations begin to break
+down, which can lead to unrealistic correction values. In particular, for true color
+imagery this often results in the red channel being too bright compared to the
+green and / or blue channels.
+We have implemented an optional scaling method to minimise this overcorrection at
+high solar zeniths, `reduce_rayleigh`:
+
+  >>> from pyspectral.rayleigh import Rayleigh
+  >>> import numpy as np
+  >>> viirs = Rayleigh('Suomi-NPP', 'viirs', atmosphere='midlatitude summer', rural_aerosol=True)
+  >>> sunz = np.array([[32., 40.], [80., 88.]])
+  >>> satz = np.array([[45., 20.], [46., 21.]])
+  >>> ssadiff = np.array([[110, 170], [120, 180]])
+  >>> refl_cor_m2 = viirs.get_reflectance(sunz, satz, ssadiff, 0.45, redband)
+  [[ 10.40291763 9.654881]
+   [ 30.9275331  39.41288558]]
+  >>> reduced_refl_cor_m2 = viirs.reduce_rayleigh_highzenith(sunz, refl_cor_m2, 70., 90., 1.)
+  [[ 10.40291763 9.654881],
+   [ 15.46376655 3.94128856]]
+
+These reduced atmospheric correction (primarily due to increased Rayleigh
+scattering in the clear atmosphere) values can then be used to correct the
+original satellite reflectance data to produce more visually pleasing imagery,
+also at low sun elevations. Due to the nature of this reduction method they
+should not be used for any scientific analysis.
 
 .. _Satpy: http://www.github.com/pytroll/satpy
 .. _zenodo: https://doi.org/10.5281/zenodo.1288441
 .. _`scientific paper`: https://doi.org/10.3390/rs10040560
-
-

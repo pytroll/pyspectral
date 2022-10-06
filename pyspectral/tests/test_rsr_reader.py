@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2017-2020 Pytroll developers
+# Copyright (c) 2017-2021 Pytroll developers
 #
 # Author(s):
 #
-#   Adam.Dybbroe <a000680@c20671.ad.smhi.se>
+#   Adam Dybbroe <adam.dybbroe@smhi.se>
+#   Simon Proud
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,27 +22,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Unit testing the generic rsr hdf5 reader."""
-
-import sys
+import contextlib
 import os.path
 import numpy as np
 import xarray as xr
+import unittest
+from unittest.mock import patch
 import pytest
-from pyspectral.rsr_reader import RelativeSpectralResponse
-from pyspectral.utils import WAVE_NUMBER
-from pyspectral.utils import RSR_DATA_VERSION
+
+from pyspectral.rsr_reader import RelativeSpectralResponse, RSRDict
+from pyspectral.utils import WAVE_NUMBER, RSR_DATA_VERSION_FILENAME, RSR_DATA_VERSION
 from pyspectral.tests.unittest_helpers import assertNumpyArraysEqual
-
-
-if sys.version_info < (2, 7):
-    import unittest2 as unittest
-else:
-    import unittest
-
-if sys.version_info < (3,):
-    from mock import patch
-else:
-    from unittest.mock import patch
 
 TEST_RSR = {'20': {}, }
 TEST_RSR['20']['det-1'] = {}
@@ -174,7 +165,10 @@ class TestRsrReader(unittest.TestCase):
 
 
 class MyHdf5Mock(object):
+    """A Mock for the RSR data normally stored in a HDF5 file."""
+
     def __init__(self, attrs):
+        """Initialize the mock class."""
         self.attrs = attrs
 
 
@@ -237,7 +231,6 @@ class TestPopulateRSRObject(unittest.TestCase):
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
     def test_create_rsr_instance(self, check_instrument, get_filename, check_filename_exist, load):
         """Test creating the instance."""
-
         load.return_value = None
         check_filename_exist.return_value = None
         get_filename.return_value = None
@@ -256,7 +249,6 @@ class TestPopulateRSRObject(unittest.TestCase):
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
     def test_set_description(self, check_instrument, get_filename, check_filename_exist, load):
         """Test setting the description."""
-
         load.return_value = None
         check_filename_exist.return_value = None
         get_filename.return_value = None
@@ -278,7 +270,6 @@ class TestPopulateRSRObject(unittest.TestCase):
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
     def test_set_platform_name(self, check_instrument, get_filename, check_filename_exist, load):
         """Test setting the platform name."""
-
         load.return_value = None
         check_filename_exist.return_value = None
         get_filename.return_value = None
@@ -323,7 +314,6 @@ class TestPopulateRSRObject(unittest.TestCase):
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
     def test_set_instrument(self, check_instrument, get_filename, check_filename_exist, load):
         """Test setting the instrument name."""
-
         load.return_value = None
         check_filename_exist.return_value = None
         get_filename.return_value = None
@@ -353,7 +343,6 @@ class TestPopulateRSRObject(unittest.TestCase):
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
     def test_set_band_names(self, check_instrument, get_filename, check_filename_exist, load):
         """Test setting the band names."""
-
         load.return_value = None
         check_filename_exist.return_value = None
         get_filename.return_value = None
@@ -372,7 +361,6 @@ class TestPopulateRSRObject(unittest.TestCase):
                                                       check_instrument, get_filename,
                                                       check_filename_exist, load):
         """Test setting the band specific central wavelength for a detector."""
-
         load.return_value = None
         check_filename_exist.return_value = None
         get_filename.return_value = None
@@ -399,7 +387,6 @@ class TestPopulateRSRObject(unittest.TestCase):
                                                check_instrument, get_filename,
                                                check_filename_exist, load):
         """Test setting the band wavelengths for a detector."""
-
         load.return_value = None
         check_filename_exist.return_value = None
         get_filename.return_value = None
@@ -428,7 +415,6 @@ class TestPopulateRSRObject(unittest.TestCase):
                                              check_instrument, get_filename,
                                              check_filename_exist, load):
         """Test setting the band responses for a detector."""
-
         load.return_value = None
         check_filename_exist.return_value = None
         get_filename.return_value = None
@@ -447,3 +433,64 @@ class TestPopulateRSRObject(unittest.TestCase):
 
         expected = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
         assertNumpyArraysEqual(test_rsr.rsr['M1']['det-1']['response'].data, expected)
+
+    def test_rsr_dict(self):
+        """Test finding correct band names from utils dicts."""
+        test_rsr = RSRDict(instrument='viirs')
+        test_rsr['M1'] = 0
+        test_rsr['VIS0.6'] = 1
+        # Check for correct band name
+        self.assertEqual(test_rsr['M1'], 0)
+        # Check for alternative band name on same instrument
+        self.assertEqual(test_rsr['M01'], 0)
+        # Check for generic band name
+        self.assertEqual(test_rsr['VIS006'], 1)
+        # Check exception raised if incorrect band name given
+        with self.assertRaises(KeyError):
+            print('d', test_rsr['VIS030'])
+
+    def test_rsr_unconfigured_sensor(self):
+        """Test RSRDict finds generic band conversions when specific sensor is not configured."""
+        test_rsr = RSRDict(instrument="i dont exist")
+        test_rsr["ch1"] = 2
+        assert test_rsr['1'] == 2
+
+
+@pytest.mark.parametrize(
+    ("version", "exp_download"),
+    [
+        (RSR_DATA_VERSION, False),
+        ("v1.0.0", True),
+    ],
+)
+def test_check_and_download(tmp_path, version, exp_download):
+    """Test that check_and_download only downloads when necessary."""
+    from pyspectral.rsr_reader import check_and_download
+    with _fake_rsr_dir(tmp_path, version), unittest.mock.patch("pyspectral.rsr_reader.download_rsr") as download:
+        check_and_download()
+        if exp_download:
+            download.assert_called()
+        else:
+            download.assert_not_called()
+
+
+@contextlib.contextmanager
+def _fake_rsr_dir(tmp_path, rsr_version):
+    with _fake_get_config(tmp_path):
+        version_filename = str(tmp_path / RSR_DATA_VERSION_FILENAME)
+        with open(version_filename, "w") as version_file:
+            version_file.write(rsr_version)
+        yield
+
+
+@contextlib.contextmanager
+def _fake_get_config(tmp_path):
+    def _get_config():
+        return {
+            "rayleigh_dir": str(tmp_path),
+            "rsr_dir": str(tmp_path),
+            "download_from_internet": True,
+        }
+    with unittest.mock.patch("pyspectral.rsr_reader.get_config") as get_config:
+        get_config.side_effect = _get_config
+        yield

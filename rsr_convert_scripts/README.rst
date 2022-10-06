@@ -172,9 +172,13 @@ the pyspectral.yaml file:
      filename: J1_VIIRS_Detector_RSR_V2/J1_VIIRS_RSR_DNBLGS_Detector_Fused_V2S.txt
      bands: [DNB]
 
+.. code::
 
-Adam Dybbroe
-Sat Dec  1 17:39:48 2018
+   %> python msu_gs_reader.py
+
+Converts RSRs for the MSU-GS sensor aboard Electro-L N2. RSRs were retrieved from the NWP-SAF.
+Filenames look like:
+``rtcoef_electro-l_2_msugs_srf_ch01.txt``
 
 .. code::
 
@@ -184,4 +188,7 @@ Converting the FY-3B or FY-3C VIRR spectral responses to HDF5. Original files
 for FY-3B come as ``.prn`` text files for each channel (ex. ``ch1.prn``). For
 FY-3C they come as ``.txt`` text files for channels 1, 2, 6, 7, 8, 9, and 10
 only with names like ``FY3C_VIRR_CH01.txt``.
+
+PyTroll developers
+
 
