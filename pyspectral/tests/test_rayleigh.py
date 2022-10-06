@@ -44,6 +44,7 @@ TEST_RAYLEIGH_RESULT1 = np.array([10.339923,    8.64748], dtype='float32')
 TEST_RAYLEIGH_RESULT2 = np.array([9.653559, 8.464997], dtype='float32')
 TEST_RAYLEIGH_RESULT3 = np.array([5.488735, 8.533125], dtype='float32')
 TEST_RAYLEIGH_RESULT4 = np.array([0.0,    8.64748], dtype='float32')
+TEST_RAYLEIGH_RESULT5 = np.array([9.653559, np.nan], dtype='float32')
 TEST_RAYLEIGH_RESULT_R1 = np.array([16.66666667, 20.83333333, 25.], dtype='float32')
 TEST_RAYLEIGH_RESULT_R2 = np.array([0., 6.25, 12.5], dtype='float32')
 
@@ -322,6 +323,8 @@ class TestRayleigh:
              TEST_RAYLEIGH_RESULT1),
             (np.array([60., 20.]), np.array([49., 26.]), np.array([140., 130.]), np.array([12., 8.]),
              TEST_RAYLEIGH_RESULT2),
+            (np.array([60., 20.]), np.array([49., 26.]), np.array([140., 130.]), np.array([12., np.nan]),
+             TEST_RAYLEIGH_RESULT5),
         ]
     )
     def test_get_reflectance(self, fake_lut_hdf5, sun_zenith, sat_zenith, azidiff, redband_refl, exp_result):
