@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2021 Pytroll developers
+# Copyright (c) 2014-2022 Pytroll developers
 #
 # Author(s):
 #
@@ -23,11 +23,22 @@
 
 """Utility functions."""
 
-import os
 import logging
+import os
+import tarfile
 import tempfile
+
 import numpy as np
+import requests
+
 from pyspectral.config import get_config
+
+TQDM_LOADED = True
+try:
+    from tqdm import tqdm
+except ImportError:
+    TQDM_LOADED = False
+
 
 LOG = logging.getLogger(__name__)
 
@@ -193,9 +204,9 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'MTG-I1': 'fci'
                }
 
-AVHRR_INSTRUMENT_NAME = {'avhrr-3': 'avhrr/3',
-                         'avhrr-2': 'avhrr/2',
-                         'avhrr-1': 'avhrr/1'}
+# AVHRR_INSTRUMENT_NAME = {'avhrr-3': 'avhrr/3',
+#                          'avhrr-2': 'avhrr/2',
+#                          'avhrr-1': 'avhrr/1'}
 
 HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/4305549/files/pyspectral_rsr_data.tgz"
 
@@ -419,6 +430,7 @@ def download_rsr(**kwargs):
 
     """
     import tarfile
+
     import requests
     TQDM_LOADED = True
     try:
@@ -455,14 +467,6 @@ def download_rsr(**kwargs):
 
 def download_luts(**kwargs):
     """Download the luts from internet."""
-    import tarfile
-    import requests
-    TQDM_LOADED = True
-    try:
-        from tqdm import tqdm
-    except ImportError:
-        TQDM_LOADED = False
-
     dry_run = kwargs.get('dry_run', False)
 
     if 'aerosol_type' in kwargs:
@@ -621,3 +625,19 @@ def bytes2string(var):
     if isinstance(var, bytes):
         return var.decode('utf-8')
     return var
+
+
+def check_and_adjust_instrument_name(platform_name, instrument):
+    """Check instrument name and try fix if inconsistent.
+
+    It checks against the possible listed instrument names for each platform.
+    It also makes an adjustment replacing names like avhrr/1 with avhrr1,
+    removing the '/'.
+    """
+    instr = INSTRUMENTS.get(platform_name, instrument.lower())
+    if instr != instrument.lower():
+        instrument = instr
+        LOG.warning("Inconsistent instrument/satellite input - " +
+                    "instrument set to %s", instrument)
+
+    return instrument.lower().replace('/', '')

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2021 Pytroll developers
+# Copyright (c) 2014-2022 Pytroll developers
 #
 # Author(s):
 #
@@ -23,21 +23,20 @@
 
 """Reading the spectral responses in the internal pyspectral hdf5 format."""
 
+import logging
 import os
-import numpy as np
 from glob import glob
 from os.path import expanduser
+
+import numpy as np
+
 from pyspectral.config import get_config
-from pyspectral.utils import WAVE_NUMBER
-from pyspectral.utils import WAVE_LENGTH
-from pyspectral.utils import (INSTRUMENTS, AVHRR_INSTRUMENT_NAME)
-from pyspectral.utils import download_rsr
-from pyspectral.utils import (RSR_DATA_VERSION_FILENAME, RSR_DATA_VERSION)
-from pyspectral.utils import (convert2wavenumber, get_central_wave)
-from pyspectral.utils import convert2str
+from pyspectral.utils import (INSTRUMENTS, RSR_DATA_VERSION,
+                              RSR_DATA_VERSION_FILENAME, WAVE_LENGTH,
+                              WAVE_NUMBER, check_and_adjust_instrument_name,
+                              convert2str, convert2wavenumber, download_rsr,
+                              get_central_wave)
 
-
-import logging
 LOG = logging.getLogger(__name__)
 
 OSCAR_PLATFORM_NAMES = {'eos-2': 'EOS-Aqua',
@@ -104,7 +103,6 @@ class RelativeSpectralResponse(RSRDataBaseClass):
         super(RelativeSpectralResponse, self).__init__()
 
         self.platform_name = platform_name
-        self.instrument = AVHRR_INSTRUMENT_NAME.get(instrument, instrument)
         self.filename = None
         if not self.instrument or not self.platform_name:
             if 'filename' in kwargs:
@@ -123,13 +121,7 @@ class RelativeSpectralResponse(RSRDataBaseClass):
 
     def _check_instrument(self):
         """Check and try fix instrument name if needed."""
-        instr = INSTRUMENTS.get(self.platform_name, self.instrument.lower())
-        if instr != self.instrument.lower():
-            self.instrument = instr
-            LOG.warning("Inconsistent instrument/satellite input - " +
-                        "instrument set to %s", self.instrument)
-
-        self.instrument = self.instrument.lower().replace('/', '')
+        self.instrument = check_and_adjust_instrument_name(self.platform_name, self.instrument)
 
     def _get_filename(self):
         """Get the rsr filname from platform and instrument names, and download if not available."""
@@ -159,7 +151,6 @@ class RelativeSpectralResponse(RSRDataBaseClass):
 
     def _check_filename_exist(self):
         """Check that the file exist."""
-
         if not os.path.exists(self.filename) or not os.path.isfile(self.filename):
             errmsg = ('pyspectral RSR file does not exist! Filename = ' +
                       str(self.filename))
@@ -330,11 +321,6 @@ def check_and_download(**kwargs):
             download_rsr(dry_run=dry_run)
 
 
-def main():
-    """Main."""
-    modis = RelativeSpectralResponse('EOS-Terra', 'modis')
-    del(modis)
-
-
 if __name__ == "__main__":
-    main()
+    modis = RelativeSpectralResponse('EOS-Terra', 'modis')
+    del modis

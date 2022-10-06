@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2020 Pytroll developers
+# Copyright (c) 2014-2020, 2022 Pytroll developers
 #
 # Author(s):
 #
@@ -23,13 +23,14 @@
 
 """Do the unit testing for the utils library."""
 
-import pytest
 import unittest
+
 import numpy as np
+import pytest
 
 from pyspectral import utils
-from pyspectral.utils import np2str, bytes2string
-
+from pyspectral.utils import (bytes2string, check_and_adjust_instrument_name,
+                              np2str)
 
 TEST_RSR = {'20': {}, }
 TEST_RSR['20']['det-1'] = {}
@@ -252,3 +253,11 @@ def test_bytes2string_numpy_string_array():
     npstring = np.string_('HELLO')
     np_arr = np.array(npstring)
     assert bytes2string(np_arr) == np_arr
+
+
+def test_check_and_adjust_instrument_name():
+    """Test the checking and adjusting of the instrument name."""
+    platform_name = 'NOAA-19'
+    instrument_name = 'avhrr/3'
+    res = check_and_adjust_instrument_name(platform_name, instrument_name)
+    assert res == 'avhrr3'
