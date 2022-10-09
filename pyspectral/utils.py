@@ -502,7 +502,7 @@ def check_and_adjust_instrument_name(platform_name, instrument):
     instr = INSTRUMENTS.get(platform_name, instrument.lower())
     if instr != instrument.lower():
         instrument = instr
-        LOG.warning("Inconsistent instrument/satellite input - " +
-                    "instrument set to %s", instrument)
+        LOG.warning("Inconsistent instrument/satellite input - instrument set to %s",
+                    instrument)
 
     return instrument.lower().replace('/', '')

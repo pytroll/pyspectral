@@ -346,9 +346,16 @@ def _check_expected_aerosol_files(atypes_to_create, tmp_path):
             assert not atype_fn.is_file()
 
 
-def test_check_and_adjust_instrument_name():
+@pytest.mark.parametrize(
+    ("platform_name", "input_value_sensor", "exp_sensor_name"),
+    [
+        ('Metop-C', 'avhrr/3', 'avhrr3'),
+        ('NOAA-19', 'avhrr/3', 'avhrr3'),
+        ('NOAA-12', 'avhrr/2', 'avhrr2'),
+        ('TIROS-N', 'avhrr/1', 'avhrr1'),
+    ],
+)
+def test_check_and_adjust_instrument_name(platform_name, input_value_sensor, exp_sensor_name):
     """Test the checking and adjusting of the instrument name."""
-    platform_name = 'NOAA-19'
-    instrument_name = 'avhrr/3'
-    res = check_and_adjust_instrument_name(platform_name, instrument_name)
-    assert res == 'avhrr3'
+    res = check_and_adjust_instrument_name(platform_name, input_value_sensor)
+    assert res == exp_sensor_name

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2017-2021 Pytroll developers
+# Copyright (c) 2017-2022 Pytroll developers
 #
 # Author(s):
 #
@@ -24,15 +24,17 @@
 """Unit testing the generic rsr hdf5 reader."""
 import contextlib
 import os.path
-import numpy as np
-import xarray as xr
 import unittest
 from unittest.mock import patch
+
+import numpy as np
 import pytest
+import xarray as xr
 
 from pyspectral.rsr_reader import RelativeSpectralResponse, RSRDict
-from pyspectral.utils import WAVE_NUMBER, RSR_DATA_VERSION_FILENAME, RSR_DATA_VERSION
 from pyspectral.tests.unittest_helpers import assertNumpyArraysEqual
+from pyspectral.utils import (RSR_DATA_VERSION, RSR_DATA_VERSION_FILENAME,
+                              WAVE_NUMBER)
 
 TEST_RSR = {'20': {}, }
 TEST_RSR['20']['det-1'] = {}
@@ -86,8 +88,12 @@ class TestRsrReader(unittest.TestCase):
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
     @patch('pyspectral.rsr_reader.download_rsr')
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_rsr_data_version')
-    def test_rsr_response(self, get_rsr_version, download_rsr, load, isfile, exists):
-        """Test the RelativeSpectralResponse class initialisation."""
+    def test_get_rsr_from_platform_name_and_instrument(self, get_rsr_version,
+                                                       download_rsr, load, isfile, exists):
+        """Test the RelativeSpectralResponse class initialisation.
+
+        Test getting the rsr from platform_name and instrument.
+        """
         load.return_code = None
         download_rsr.return_code = None
         isfile.return_code = True
@@ -99,6 +105,7 @@ class TestRsrReader(unittest.TestCase):
                 test_rsr = RelativeSpectralResponse('GOES-16')
                 test_rsr = RelativeSpectralResponse(instrument='ABI')
 
+        with patch('pyspectral.rsr_reader.get_config', return_value=TEST_CONFIG):
             test_rsr = RelativeSpectralResponse('GOES-16', 'AbI')
             self.assertEqual(test_rsr.platform_name, 'GOES-16')
             self.assertEqual(test_rsr.instrument, 'abi')
@@ -112,6 +119,22 @@ class TestRsrReader(unittest.TestCase):
         self.assertEqual(test_rsr.instrument, 'abi')
         self.assertEqual(
             test_rsr.filename, os.path.join(TEST_RSR_DIR, 'rsr_abi_GOES-16.h5'))
+
+    @patch('os.path.exists')
+    @patch('os.path.isfile')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
+    @patch('pyspectral.rsr_reader.download_rsr')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_rsr_data_version')
+    def test_get_rsr_from_filename(self, get_rsr_version, download_rsr, load, isfile, exists):
+        """Test the RelativeSpectralResponse class initialisation.
+
+        Test getting the rsr from filename only.
+        """
+        load.return_code = None
+        download_rsr.return_code = None
+        isfile.return_code = True
+        exists.return_code = True
+        get_rsr_version.return_code = RSR_DATA_VERSION
 
         with patch('pyspectral.rsr_reader.get_config', return_value=TEST_CONFIG):
             test_rsr = RelativeSpectralResponse(
@@ -240,7 +263,7 @@ class TestPopulateRSRObject(unittest.TestCase):
             _ = RelativeSpectralResponse('MyPlatform')
 
         exception_raised = exec_info.value
-        expected_value = 'platform name and sensor or filename must be specified'
+        expected_value = 'Either platform name and sensor, or filename, must be specified'
         self.assertEqual(str(exception_raised), expected_value)
 
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')

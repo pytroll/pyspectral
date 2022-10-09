@@ -115,7 +115,7 @@ class RSRDataBaseClass(object):
 class RelativeSpectralResponse(RSRDataBaseClass):
     """Container for the relative spectral response functions for various satellite imagers."""
 
-    def __init__(self, platform_name=None, instrument=None, **kwargs):
+    def __init__(self, platform_name=None, instrument=None, filename=None):
         """Initialize the class instance.
 
         Create the instance either from platform name and instrument or from
@@ -125,22 +125,19 @@ class RelativeSpectralResponse(RSRDataBaseClass):
         super(RelativeSpectralResponse, self).__init__()
 
         self.platform_name = platform_name
-        self.filename = None
-        self.rsr.instrument = self.instrument
-        if not self.instrument or not self.platform_name:
-            if 'filename' in kwargs:
-                self.filename = kwargs['filename']
-            else:
-                raise AttributeError(
-                    "platform name and sensor or filename must be specified")
-        else:
-            self._check_instrument()
-
+        self.instrument = instrument
+        self.filename = filename
         if not self.filename:
+            if not self.instrument or not self.platform_name:
+                raise AttributeError(
+                    "Either platform name and sensor, or filename, must be specified")
+
+            self._check_instrument()
             self._get_filename()
 
         self._check_filename_exist()
         self.load()
+        self.rsr.instrument = self.instrument
 
     def _check_instrument(self):
         """Check and try fix instrument name if needed."""
