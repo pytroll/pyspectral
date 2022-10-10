@@ -292,7 +292,7 @@ def download_rsr(dest_dir=None, dry_run=False):
     Args:
         dest_dir (str): Path to put the temporary tarball and extracted RSR
             files.
-        dry_run(bool): If True, don't actually download files, only log what
+        dry_run (bool): If True, don't actually download files, only log what
             URLs would be downloaded. Defaults to False.
 
     """
