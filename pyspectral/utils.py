@@ -317,7 +317,7 @@ def download_luts(aerosol_types=None, dry_run=False, aerosol_type=None):
     of this process that only downloads the necessary files.
 
     Args:
-        aerosol_types(Iterable): Aerosol types to download the LUTs for.
+        aerosol_types (Iterable): Aerosol types to download the LUTs for.
             Defaults to all aerosol types. See: data: `AEROSOL_TYPES` for the
             full list.
         dry_run(bool): If True, don't actually download files, only log what
