@@ -15,4 +15,3 @@ repos:
 ci:
   # To trigger manually, comment on a pull request with "pre-commit.ci autofix"
   autofix_prs: false
-  skip: [bandit]
