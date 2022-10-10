@@ -286,7 +286,7 @@ def download_rsr(dest_dir=None, dry_run=False):
     functions from the internet as tarballs, extracts them, then deletes
     the tarball.
 
-    See: func: `pyspectral.rsr_reader.check_and_download` for a "smart" version
+    See :func: `pyspectral.rsr_reader.check_and_download` for a "smart" version
     of this process that only downloads the necessary files.
 
     Args:
