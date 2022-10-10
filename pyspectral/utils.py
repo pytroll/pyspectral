@@ -322,7 +322,7 @@ def download_luts(aerosol_types=None, dry_run=False, aerosol_type=None):
             full list.
         dry_run (bool): If True, don't actually download files, only log what
             URLs would be downloaded. Defaults to False.
-        aerosol_type(str): Deprecated.
+        aerosol_type (str): Deprecated.
 
     """
     aerosol_types = _get_aerosol_types(aerosol_types, aerosol_type)
