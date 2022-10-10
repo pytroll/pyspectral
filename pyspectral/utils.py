@@ -313,7 +313,7 @@ def download_rsr(dest_dir=None, dry_run=False):
 def download_luts(aerosol_types=None, dry_run=False, aerosol_type=None):
     """Download the luts from internet.
 
-    See :func: `pyspectral.rayleigh.check_and_download` for a "smart" version
+    See :func:`pyspectral.rayleigh.check_and_download` for a "smart" version
     of this process that only downloads the necessary files.
 
     Args:
