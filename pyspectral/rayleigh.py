@@ -267,7 +267,7 @@ class Rayleigh(RayleighConfigBaseClass):
                                              dtype=res.dtype,
                                              chunks=getattr(res, "chunks", None))
 
-        res = np.clip(np.nan_to_num(res), 0, 100)
+        res = np.clip(res, 0, 100)
         if compute:
             res = res.compute()
         return res

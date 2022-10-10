@@ -44,6 +44,7 @@ TEST_RAYLEIGH_RESULT1 = np.array([10.339923,    8.64748], dtype='float32')
 TEST_RAYLEIGH_RESULT2 = np.array([9.653559, 8.464997], dtype='float32')
 TEST_RAYLEIGH_RESULT3 = np.array([5.488735, 8.533125], dtype='float32')
 TEST_RAYLEIGH_RESULT4 = np.array([0.0,    8.64748], dtype='float32')
+TEST_RAYLEIGH_RESULT5 = np.array([9.653559, np.nan], dtype='float32')
 TEST_RAYLEIGH_RESULT_R1 = np.array([16.66666667, 20.83333333, 25.], dtype='float32')
 TEST_RAYLEIGH_RESULT_R2 = np.array([0., 6.25, 12.5], dtype='float32')
 
@@ -315,28 +316,25 @@ class TestRayleigh:
         np.testing.assert_allclose(refl_corr2, refl_corr3)
 
     @patch('pyspectral.rayleigh.da', None)
-    def test_get_reflectance(self, fake_lut_hdf5):
+    @pytest.mark.parametrize(
+        ("sun_zenith", "sat_zenith", "azidiff", "redband_refl", "exp_result"),
+        [
+            (np.array([67., 32.]), np.array([45., 18.]), np.array([150., 110.]), np.array([14., 5.]),
+             TEST_RAYLEIGH_RESULT1),
+            (np.array([60., 20.]), np.array([49., 26.]), np.array([140., 130.]), np.array([12., 8.]),
+             TEST_RAYLEIGH_RESULT2),
+            (np.array([60., 20.]), np.array([49., 26.]), np.array([140., 130.]), np.array([12., np.nan]),
+             TEST_RAYLEIGH_RESULT5),
+        ]
+    )
+    def test_get_reflectance(self, fake_lut_hdf5, sun_zenith, sat_zenith, azidiff, redband_refl, exp_result):
         """Test getting the reflectance correction."""
-        sun_zenith = np.array([67., 32.])
-        sat_zenith = np.array([45., 18.])
-        azidiff = np.array([150., 110.])
-        redband_refl = np.array([14., 5.])
         rayl = _create_rayleigh()
         with mocked_rsr():
             refl_corr = rayl.get_reflectance(
                 sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
-        np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT1)
-
-        sun_zenith = np.array([60., 20.])
-        sat_zenith = np.array([49., 26.])
-        azidiff = np.array([140., 130.])
-        redband_refl = np.array([12., 8.])
-        with mocked_rsr():
-            refl_corr = rayl.get_reflectance(
-                sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
-
         assert isinstance(refl_corr, np.ndarray)
-        np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT2)
+        np.testing.assert_allclose(refl_corr, exp_result)
 
     @patch('pyspectral.rayleigh.da', None)
     def test_get_reflectance_no_rsr(self, fake_lut_hdf5):
