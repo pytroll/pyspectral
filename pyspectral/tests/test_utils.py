@@ -24,6 +24,7 @@
 
 """Do the unit testing for the utils library."""
 import contextlib
+import logging
 import os
 import re
 import tarfile
@@ -36,8 +37,7 @@ import pytest
 import responses
 
 from pyspectral import utils
-from pyspectral.utils import (bytes2string, check_and_adjust_instrument_name,
-                              np2str)
+from pyspectral.utils import bytes2string, check_and_adjust_instrument_name, np2str
 
 TEST_RSR = {'20': {}, }
 TEST_RSR['20']['det-1'] = {}
@@ -353,9 +353,32 @@ def _check_expected_aerosol_files(atypes_to_create, tmp_path):
         ('NOAA-19', 'avhrr/3', 'avhrr3'),
         ('NOAA-12', 'avhrr/2', 'avhrr2'),
         ('TIROS-N', 'avhrr/1', 'avhrr1'),
+        ('Metop-C', 'avhrr-3', 'avhrr3'),
+        ('NOAA-12', 'avhrr-2', 'avhrr2'),
+        ('TIROS-N', 'avhrr-1', 'avhrr1'),
     ],
 )
-def test_check_and_adjust_instrument_name(platform_name, input_value_sensor, exp_sensor_name):
+def test_check_and_adjust_instrument_name_instrument_okay(platform_name, input_value_sensor, exp_sensor_name):
     """Test the checking and adjusting of the instrument name."""
     res = check_and_adjust_instrument_name(platform_name, input_value_sensor)
     assert res == exp_sensor_name
+
+
+@pytest.mark.parametrize(
+    ("platform_name", "input_value_sensor", "exp_sensor_name"),
+    [
+        ('GOES-16', 'Idontknow', 'abi'),
+        ('FY-4B', 'unknown', 'agri'),
+        ('Meteosat-12', 'seviri', 'fci'),
+    ],
+)
+def test_check_and_adjust_instrument_name_instrument_name_inconsistent(caplog,
+                                                                       platform_name,
+                                                                       input_value_sensor,
+                                                                       exp_sensor_name):
+    """Test the checking and adjusting of the instrument name."""
+    with caplog.at_level(logging.WARNING):
+        _ = check_and_adjust_instrument_name(platform_name, input_value_sensor)
+
+    log_output = "Inconsistent instrument/satellite input - instrument set to {instr}".format(instr=exp_sensor_name)
+    assert log_output in caplog.text

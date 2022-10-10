@@ -64,6 +64,7 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'NOAA-20': 'viirs',
                'EOS-Aqua': 'modis',
                'EOS-Terra': 'modis',
+               'FY-3E': 'mersi-2',
                'FY-3D': 'mersi-2',
                'FY-3C': 'virr',
                'FY-3B': 'virr',
@@ -73,9 +74,19 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'Meteosat-9': 'seviri',
                'Meteosat-8': 'seviri',
                'FY-4A': 'agri',
+               'FY-4B': 'agri',
                'GEO-KOMPSAT-2A': 'ami',
-               'MTG-I1': 'fci'
+               'MTG-I1': 'fci',
+               'Meteosat-12': 'fci',
+               'GOES-16': 'abi',
+               'GOES-17': 'abi',
+               'GOES-18': 'abi'
                }
+
+INSTRUMENT_TRANSLATION_DASH2SLASH = {'avhrr-1': 'avhrr/1',
+                                     'avhrr-2': 'avhrr/2',
+                                     'avhrr-3': 'avhrr/3'}
+
 
 HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/7116653/files/pyspectral_rsr_data.tgz"
 
@@ -500,9 +511,24 @@ def check_and_adjust_instrument_name(platform_name, instrument):
     removing the '/'.
     """
     instr = INSTRUMENTS.get(platform_name, instrument.lower())
-    if instr != instrument.lower():
+    if not are_instruments_identical(instr, instrument.lower()):
         instrument = instr
         LOG.warning("Inconsistent instrument/satellite input - instrument set to %s",
                     instrument)
 
-    return instrument.lower().replace('/', '')
+    return instrument.lower().replace('/', '').replace('-', '')
+
+
+def are_instruments_identical(name1, name2):
+    """Given two instrument names check if they are both describing the same instrument.
+
+    Takes care of the case of AVHRR where the internal pyspectral naming
+    (following WMO Oscar) is is with a slash as in 'avhrr/1', but where a
+    naming using a dash instead is equally accepted, as in 'avhrr-1'.
+    """
+    if name1 == name2:
+        return True
+    if name1 == INSTRUMENT_TRANSLATION_DASH2SLASH.get(name2):
+        return True
+
+    return False
