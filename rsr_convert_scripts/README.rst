@@ -174,7 +174,12 @@ the pyspectral.yaml file:
 
 .. code::
 
-   %> python msu_gs_reader.py
+   %> python msu_gsa_reader.py
+
+Converts RSRs for the MSU-GS/A sensors aboard Arctica-M N1 satellite.
+RSRs were retrieved from Roshydromet. Filenames look like:
+
+``rtcoef_electro-l_2_msugs_srf_ch01.txt``
 
 Converts RSRs for the MSU-GS sensor aboard Electro-L N2. RSRs were retrieved from the NWP-SAF.
 Filenames look like:

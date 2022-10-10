@@ -28,6 +28,7 @@ import logging
 import os
 import re
 import tarfile
+import tempfile
 import unittest
 import warnings
 from io import BytesIO
@@ -40,6 +41,7 @@ from pyspectral import utils
 from pyspectral.utils import bytes2string, check_and_adjust_instrument_name, np2str
 
 TEST_RSR = {'20': {}, }
+TEST_RSR2 = {'20': {}, }
 TEST_RSR['20']['det-1'] = {}
 TEST_RSR['20']['det-1']['central_wavelength'] = 3.75
 TEST_RSR['20']['det-1']['wavelength'] = np.array([
@@ -59,6 +61,8 @@ TEST_RSR['20']['det-1']['response'] = np.array([
     0.95687, 0.91037, 0.91058, 0.94256, 0.94719, 0.94808,
     1., 0.92676, 0.67429, 0.44715, 0.27762, 0.14852,
     0.07141, 0.04151, 0.02925, 0.02085, 0.01414, 0.01], dtype='float32')
+
+TEST_RSR2['20'] = TEST_RSR['20']['det-1']
 
 RESULT_RSR = {'20': {}}
 RESULT_RSR['20']['det-1'] = {}
@@ -82,6 +86,20 @@ RESULT_RSR['20']['det-1']['response'] = np.array([
     0.92855, 0.96077, 0.81815, 0.59106, 0.33792, 0.16645,
     0.0849, 0.05028, 0.03226, 0.01987, 0.0118, 0.01],
     dtype='float32')
+
+
+class _MockedRSR:
+    def __init__(self, usedet=True):
+        self.instrument = 'test_sensor'
+        if usedet:
+            self.tmp_rsr = TEST_RSR
+        else:
+            self.tmp_rsr = TEST_RSR2
+        self.output_dir = tempfile.mkdtemp()
+
+    def __call__(self, chan, plat):
+        self.rsr = self.tmp_rsr[chan]
+        return self
 
 
 class RsrTestData(object):
@@ -135,6 +153,26 @@ class TestUtils(unittest.TestCase):
         wvn_res = RESULT_RSR['20']['det-1']['wavenumber']
         wvn = newrsr['20']['det-1']['wavenumber']
         self.assertTrue(np.allclose(wvn_res, wvn))
+
+    def test_convert2hdf5(self):
+        """Test the conversion utility from original RSR to HDF5."""
+        mocked_rsr_nodet = _MockedRSR(usedet=False)
+        utils.convert2hdf5(mocked_rsr_nodet, 'Test_SAT', ['20'])
+        fname = f'{mocked_rsr_nodet.output_dir}/rsr_test_sensor_Test_SAT.h5'
+        self.assertTrue(os.path.exists(fname))
+        try:
+            os.remove(fname)
+        except OSError:
+            pass
+
+        mocked_rsr_det = _MockedRSR(usedet=True)
+        utils.convert2hdf5(mocked_rsr_det, 'Test_SAT', ['20'], detectors=['det-1'])
+        fname = f'{mocked_rsr_det.output_dir}/rsr_test_sensor_Test_SAT.h5'
+        self.assertTrue(os.path.exists(fname))
+        try:
+            os.remove(fname)
+        except OSError:
+            pass
 
     def test_get_bandname_from_wavelength(self):
         """Test the right bandname is found provided the wavelength in micro meters."""

@@ -80,7 +80,8 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'Meteosat-12': 'fci',
                'GOES-16': 'abi',
                'GOES-17': 'abi',
-               'GOES-18': 'abi'
+               'GOES-18': 'abi',
+               'Arctica-M-N1': 'msu-gsa'
                }
 
 INSTRUMENT_TRANSLATION_DASH2SLASH = {'avhrr-1': 'avhrr/1',
@@ -253,7 +254,7 @@ def sort_data(x_vals, y_vals):
     return x_vals, y_vals
 
 
-def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06):
+def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06, detectors=None):
     """Retrieve original RSR data and convert to internal hdf5 format.
 
     *scale* is the number which has to be multiplied to the wavelength data in
@@ -277,17 +278,37 @@ def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06):
         for chname in bandnames:
             sensor = ClassIn(chname, platform_name)
             grp = h5f.create_group(chname)
-            wvl = sensor.rsr['wavelength'][~np.isnan(sensor.rsr['wavelength'])]
-            rsp = sensor.rsr['response'][~np.isnan(sensor.rsr['wavelength'])]
-            grp.attrs['central_wavelength'] = get_central_wave(wvl, rsp)
-            arr = sensor.rsr['wavelength']
+
+            # If multiple detectors, assume all have same wavelength range in SRF.
+            if detectors is not None:
+                wvl = sensor.rsr[detectors[0]]['wavelength'][~np.isnan(sensor.rsr[detectors[0]]['wavelength'])]
+                arr = sensor.rsr[detectors[0]]['wavelength']
+                grp.attrs['number_of_detectors'] = len(detectors)
+            else:
+                wvl = sensor.rsr['wavelength'][~np.isnan(sensor.rsr['wavelength'])]
+                arr = sensor.rsr['wavelength']
+
+            # Save wavelengths to file
             dset = grp.create_dataset('wavelength', arr.shape, dtype='f')
             dset.attrs['unit'] = 'm'
             dset.attrs['scale'] = scale
             dset[...] = arr
-            arr = sensor.rsr['response']
-            dset = grp.create_dataset('response', arr.shape, dtype='f')
-            dset[...] = arr
+
+            # Now to do the responses
+            if detectors is None:
+                rsp = sensor.rsr['response'][~np.isnan(sensor.rsr['wavelength'])]
+                grp.attrs['central_wavelength'] = get_central_wave(wvl, rsp)
+                arr = sensor.rsr['response']
+                dset = grp.create_dataset('response', arr.shape, dtype='f')
+                dset[...] = arr
+            else:
+                for cur_det in detectors:
+                    det_grp = grp.create_group(cur_det)
+                    rsp = sensor.rsr[cur_det]['response'][~np.isnan(sensor.rsr[cur_det]['wavelength'])]
+                    det_grp.attrs['central_wavelength'] = get_central_wave(wvl, rsp)
+                    arr = sensor.rsr[cur_det]['response']
+                    dset = det_grp.create_dataset('response', arr.shape, dtype='f')
+                    dset[...] = arr
 
 
 def download_rsr(dest_dir=None, dry_run=False):
