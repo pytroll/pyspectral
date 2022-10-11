@@ -1,3 +1,38 @@
+## Version <v0.12.0> (2022/10/11)
+
+### Issues Closed
+
+* [Issue 127](https://github.com/pytroll/pyspectral/issues/127) - AVHRR instrument naming - allow avhrr-# ([PR 136](https://github.com/pytroll/pyspectral/pull/136) by [@adybbroe](https://github.com/adybbroe))
+
+In this release 1 issue was closed.
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 159](https://github.com/pytroll/pyspectral/pull/159) - Revert np.nan_to_num usage on rayleigh correction array
+* [PR 158](https://github.com/pytroll/pyspectral/pull/158) - Fix RSR band name retrieval for unconfigured sensors
+* [PR 157](https://github.com/pytroll/pyspectral/pull/157) - Fix noaa6 rsr
+* [PR 153](https://github.com/pytroll/pyspectral/pull/153) - Fix a minor formatting bug in the atm-correction RTD pages
+* [PR 136](https://github.com/pytroll/pyspectral/pull/136) - Fix avhrr instrument naming ([127](https://github.com/pytroll/pyspectral/issues/127))
+
+#### Features added
+
+* [PR 156](https://github.com/pytroll/pyspectral/pull/156) - Add support for NOAA-21 VIIRS
+* [PR 152](https://github.com/pytroll/pyspectral/pull/152) - EPS-SG VII (METimage) channel names added
+* [PR 150](https://github.com/pytroll/pyspectral/pull/150) - Add AGRI bands to the BANDNAMES dict
+* [PR 148](https://github.com/pytroll/pyspectral/pull/148) - Updated the FCI spectral responses as of April 2022
+* [PR 145](https://github.com/pytroll/pyspectral/pull/145) - Add converter for Arctica-M N1 RSR data.
+* [PR 136](https://github.com/pytroll/pyspectral/pull/136) - Fix avhrr instrument naming ([127](https://github.com/pytroll/pyspectral/issues/127))
+
+#### Documentation changes
+
+* [PR 154](https://github.com/pytroll/pyspectral/pull/154) - Cleanup RSR and LUT download functions for clearer usage
+* [PR 153](https://github.com/pytroll/pyspectral/pull/153) - Fix a minor formatting bug in the atm-correction RTD pages
+
+In this release 13 pull requests were closed.
+
+
 ## Version <v0.11.0> (2022/03/01)
 
 
