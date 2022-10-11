@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2020 Pytroll developers
+# Copyright (c) 2014-2022 Pytroll developers
 #
 # Author(s):
 #
@@ -23,21 +23,20 @@
 
 """Reading the spectral responses in the internal pyspectral hdf5 format."""
 
+import logging
 import os
-import numpy as np
 from glob import glob
 from os.path import expanduser
+
+import numpy as np
+
 from pyspectral.config import get_config
-from pyspectral.utils import WAVE_NUMBER
-from pyspectral.utils import WAVE_LENGTH
-from pyspectral.utils import BANDNAMES
-from pyspectral.utils import (INSTRUMENTS, download_rsr)
-from pyspectral.utils import (RSR_DATA_VERSION_FILENAME, RSR_DATA_VERSION)
-from pyspectral.utils import (convert2wavenumber, get_central_wave)
-from pyspectral.utils import convert2str
+from pyspectral.utils import (BANDNAMES, INSTRUMENTS, RSR_DATA_VERSION,
+                              RSR_DATA_VERSION_FILENAME, WAVE_LENGTH,
+                              WAVE_NUMBER, check_and_adjust_instrument_name,
+                              convert2str, convert2wavenumber, download_rsr,
+                              get_central_wave)
 
-
-import logging
 LOG = logging.getLogger(__name__)
 
 OSCAR_PLATFORM_NAMES = {'eos-2': 'EOS-Aqua',
@@ -116,7 +115,7 @@ class RSRDataBaseClass(object):
 class RelativeSpectralResponse(RSRDataBaseClass):
     """Container for the relative spectral response functions for various satellite imagers."""
 
-    def __init__(self, platform_name=None, instrument=None, **kwargs):
+    def __init__(self, platform_name=None, instrument=None, filename=None):
         """Initialize the class instance.
 
         Create the instance either from platform name and instrument or from
@@ -127,32 +126,22 @@ class RelativeSpectralResponse(RSRDataBaseClass):
 
         self.platform_name = platform_name
         self.instrument = instrument
-        self.filename = None
-        self.rsr.instrument = self.instrument
-        if not self.instrument or not self.platform_name:
-            if 'filename' in kwargs:
-                self.filename = kwargs['filename']
-            else:
-                raise AttributeError(
-                    "platform name and sensor or filename must be specified")
-        else:
-            self._check_instrument()
-
+        self.filename = filename
         if not self.filename:
+            if not self.instrument or not self.platform_name:
+                raise AttributeError(
+                    "Either platform name and sensor, or filename, must be specified")
+
+            self._check_instrument()
             self._get_filename()
 
         self._check_filename_exist()
         self.load()
+        self.rsr.instrument = self.instrument
 
     def _check_instrument(self):
         """Check and try fix instrument name if needed."""
-        instr = INSTRUMENTS.get(self.platform_name, self.instrument.lower())
-        if instr != self.instrument.lower():
-            self.instrument = instr
-            LOG.warning("Inconsistent instrument/satellite input - " +
-                        "instrument set to %s", self.instrument)
-
-        self.instrument = self.instrument.lower().replace('/', '')
+        self.instrument = check_and_adjust_instrument_name(self.platform_name, self.instrument)
 
     def _get_filename(self):
         """Get the rsr filname from platform and instrument names, and download if not available."""
@@ -346,10 +335,6 @@ def check_and_download(dest_dir=None, dry_run=False):
         download_rsr(dest_dir=dest_dir, dry_run=dry_run)
 
 
-def main():
-    """Perform basic sanity check of RSR handling."""
-    RelativeSpectralResponse('EOS-Terra', 'modis')
-
-
 if __name__ == "__main__":
-    main()
+    modis = RelativeSpectralResponse('EOS-Terra', 'modis')
+    del modis
