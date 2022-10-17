@@ -55,4 +55,4 @@ if __name__ == "__main__":
     else:
         logging_off()
 
-    check_and_download(aerosol_type=aerosol_types, dry_run=dry_run)
+    check_and_download(aerosol_types=aerosol_types, dry_run=dry_run)
