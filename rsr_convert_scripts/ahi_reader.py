@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2015-2017, 2021 Pytroll developers
+# Copyright (c) 2015-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <a000680@c14526.ad.smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,18 +17,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Read the Himawari AHI spectral response functions. Data from
-http://www.data.jma.go.jp/mscweb/en/himawari89/space_segment/spsg_ahi.html#srf
+"""Read the Himawari AHI spectral response functions.
+
+Data from http://www.data.jma.go.jp/mscweb/en/himawari89/space_segment/spsg_ahi.html#srf
 
 """
 
 import logging
 import os
+
 import numpy as np
 from xlrd import open_workbook
 
-from pyspectral.utils import get_central_wave
 from pyspectral.config import get_config
+from pyspectral.utils import get_central_wave
 
 LOG = logging.getLogger(__name__)
 
@@ -61,12 +60,10 @@ _DEFAULT_LOG_FORMAT = '[%(levelname)s: %(asctime)s : %(name)s] %(message)s'
 
 
 class AhiRSR(object):
-
-    """Container for the Himawari AHI relative spectral response data"""
+    """Container for the Himawari AHI relative spectral response data."""
 
     def __init__(self, platform_name, wavespace='wavelength'):
-        """
-        """
+        """Initialize the AHI RSR class."""
         self.platform_name = platform_name
         self.filename = None
         self.rsr = None
@@ -84,8 +81,7 @@ class AhiRSR(object):
                           str(self.bandname))
 
     def _load(self, filename=None):
-        """Load the Himawari AHI RSR data for the band requested
-        """
+        """Load the Himawari AHI RSR data for the band requested."""
         if not filename:
             filename = self.filename
 
@@ -109,8 +105,7 @@ class AhiRSR(object):
 
 
 def convert2hdf5(platform_name):
-    """Retrieve original RSR data and convert to internal hdf5 format"""
-
+    """Retrieve original RSR data and convert to internal hdf5 format."""
     import h5py
 
     ahi = AhiRSR(platform_name)
@@ -141,16 +136,7 @@ def convert2hdf5(platform_name):
             dset[...] = arr
 
 
-def main():
-    """Main"""
-
-    for satnum in [8, 9]:
-        convert2hdf5('Himawari-{0:d}'.format(satnum))
-        print("Himawari-{0:d} done...".format(satnum))
-
-
 if __name__ == "__main__":
-
     import sys
     LOG = logging.getLogger('ahi_rsr')
     handler = logging.StreamHandler(sys.stderr)
@@ -162,4 +148,6 @@ if __name__ == "__main__":
     LOG.setLevel(logging.DEBUG)
     LOG.addHandler(handler)
 
-    main()
+    for satnum in [8, 9]:
+        convert2hdf5('Himawari-{0:d}'.format(satnum))
+        print("Himawari-{0:d} done...".format(satnum))

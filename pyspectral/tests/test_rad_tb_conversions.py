@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2020 Pytroll developers
+# Copyright (c) 2014-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,11 +19,13 @@
 
 """Testing the radiance to brightness temperature conversion."""
 
-from pyspectral.radiance_tb_conversion import RadTbConverter
-from pyspectral.radiance_tb_conversion import SeviriRadTbConverter
-from pyspectral.utils import get_central_wave
-import numpy as np
 import sys
+
+import numpy as np
+
+from pyspectral.radiance_tb_conversion import RadTbConverter, SeviriRadTbConverter
+from pyspectral.utils import get_central_wave
+
 if sys.version_info < (2, 7):
     import unittest2 as unittest
 else:

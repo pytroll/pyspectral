@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2013-2021 Pytroll developers
+# Copyright (c) 2013-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,11 +19,12 @@
 
 """Unit testing the 3.7 micron reflectance calculations."""
 
-import numpy as np
 import unittest
 from unittest.mock import patch
-from pyspectral.near_infrared_reflectance import Calculator, TERMINATOR_LIMIT
 
+import numpy as np
+
+from pyspectral.near_infrared_reflectance import TERMINATOR_LIMIT, Calculator, get_as_array
 
 TEST_RSR = {'20': {},
             '99': {}}
@@ -217,9 +215,7 @@ class TestReflectance(unittest.TestCase):
 
 
 def test_get_as_array_from_scalar_input_dask():
-    """Test the function to return an array when input is a scalar - using Dask"""
-    from pyspectral.near_infrared_reflectance import get_as_array
-
+    """Test the function to return an array when input is a scalar - using Dask."""
     res = get_as_array(2.3)
     if hasattr(res, 'compute'):
         assert res.compute()[0] == 2.3
@@ -228,10 +224,7 @@ def test_get_as_array_from_scalar_input_dask():
 
 
 def test_get_as_array_from_scalar_input_numpy():
-    """Test the function to return an array when input is a scalar - using Numpy"""
-    from pyspectral.near_infrared_reflectance import get_as_array
-    import numpy as np
-
+    """Test the function to return an array when input is a scalar - using Numpy."""
     with patch('pyspectral.near_infrared_reflectance.asanyarray', new=np.asanyarray):
         res = get_as_array(2.3)
 
@@ -239,11 +232,8 @@ def test_get_as_array_from_scalar_input_numpy():
 
 
 def test_get_as_array_from_numpy_array_input_dask():
-    """Test the function to return an array when input is a numpy array - using Dask"""
-    from pyspectral.near_infrared_reflectance import get_as_array
-
+    """Test the function to return an array when input is a numpy array - using Dask."""
     res = get_as_array(np.array([1.0, 2.0]))
-
     if hasattr(res, 'compute'):
         np.testing.assert_allclose(res.compute(), np.array([1.0, 2.0]), 5)
     else:
@@ -251,7 +241,7 @@ def test_get_as_array_from_numpy_array_input_dask():
 
 
 def test_get_as_array_from_numpy_array_input_numpy():
-    """Test the function to return an array when input is a numpy array - using Numpy"""
+    """Test the function to return an array when input is a numpy array - using Numpy."""
     from pyspectral.near_infrared_reflectance import get_as_array
 
     with patch('pyspectral.near_infrared_reflectance.asanyarray', new=np.asanyarray):
@@ -261,11 +251,8 @@ def test_get_as_array_from_numpy_array_input_numpy():
 
 
 def test_get_as_array_from_list_input_dask():
-    """Test the function to return an array when input is a list - using Dask"""
-    from pyspectral.near_infrared_reflectance import get_as_array
-
+    """Test the function to return an array when input is a list - using Dask."""
     res = get_as_array([1.0, 2.0])
-
     if hasattr(res, 'compute'):
         np.testing.assert_allclose(res.compute(), np.array([1.0, 2.0]), 5)
     else:
@@ -273,9 +260,7 @@ def test_get_as_array_from_list_input_dask():
 
 
 def test_get_as_array_from_list_input_numpy():
-    """Test the function to return an array when input is a list - using Numpy"""
-    from pyspectral.near_infrared_reflectance import get_as_array
-
+    """Test the function to return an array when input is a list - using Numpy."""
     with patch('pyspectral.near_infrared_reflectance.asanyarray', new=np.asanyarray):
         res = get_as_array([1.1, 2.2])
 

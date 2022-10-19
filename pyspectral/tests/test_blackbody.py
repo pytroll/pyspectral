@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2013 - 2019 Pytroll developers
+# Copyright (c) 2013-2012, 2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,14 +19,12 @@
 
 """Unit testing the Blackbody/Plack radiation derivation."""
 
-from pyspectral.blackbody import (blackbody, blackbody_wn,
-                                  blackbody_wn_rad2temp,
-                                  blackbody_rad2temp)
-
-from pyspectral.tests.unittest_helpers import assertNumpyArraysEqual
-
 import unittest
+
 import numpy as np
+
+from pyspectral.blackbody import blackbody, blackbody_rad2temp, blackbody_wn, blackbody_wn_rad2temp
+from pyspectral.tests.unittest_helpers import assertNumpyArraysEqual
 
 RAD_11MICRON_300KELVIN = 9573176.935507433
 RAD_11MICRON_301KELVIN = 9714686.576498277

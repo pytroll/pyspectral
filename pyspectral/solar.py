@@ -2,12 +2,8 @@
 #
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2013-2020 Pytroll developers
+# Copyright (c) 2013-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
-#   Panu Lahtinen <panu.lahtinen@fmi.fi>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,10 +25,11 @@ Module to read solar irradiance spectra and calculate the solar flux over
 various instrument bands given their relative spectral response functions
 """
 
+import logging
+
 import numpy as np
 from pkg_resources import resource_filename
 
-import logging
 LOG = logging.getLogger(__name__)
 
 # STANDARD SPECTRA from Air Mass Zero: http://rredc.nrel.gov/solar/spectra/am0/

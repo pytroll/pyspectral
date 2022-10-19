@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2016 - 2020 Pytroll developers
+# Copyright (c) 2016-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,8 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Convert NOAA 15 Spectral responses to new NOAA STAR format
-"""
+"""Convert NOAA 15 Spectral responses to new NOAA STAR format."""
 
 import numpy as np
 import pandas as pd
@@ -42,6 +38,7 @@ OUTPUT_FILES = {'wvl1': 'NOAA_15_A302xx01.txt',
 
 
 def unpack_data(filename, fields):
+    """Read the CSV ascii data from file and extract the fields specified."""
     data = pd.read_csv(filename,
                        delim_whitespace=True,
                        names=fields,
@@ -65,6 +62,5 @@ def unpack_data(filename, fields):
 
 
 if __name__ == "__main__":
-
     unpack_data(IR_FILE, IR_FIELDS)
     unpack_data(VIS_FILE, VIS_FIELDS)

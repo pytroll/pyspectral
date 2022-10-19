@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2018, 2019, 2022 Pytroll developers
+# Copyright (c) 2018-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Xin.Zhang <xinzhang1215@gmail.com>
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,11 +22,13 @@
 Data from http://fy4.nsmc.org.cn/portal/cn/fycv/srf.html
 """
 import os
+
 import numpy as np
+
+from pyspectral.raw_reader import InstrumentRSR
 from pyspectral.utils import INSTRUMENTS
 from pyspectral.utils import convert2hdf5 as tohdf5
-from pyspectral.raw_reader import InstrumentRSR
-from pyspectral.utils import logging_on, get_logger
+from pyspectral.utils import get_logger, logging_on
 
 FY4_AGRI_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'ch7', 'ch8',
                        'ch9', 'ch10', 'ch11', 'ch12', 'ch13', 'ch14', 'ch15']

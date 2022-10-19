@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2018 Pytroll developers
+# Copyright (c) 2018-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <a000680@c20671.ad.smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,19 +17,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-Reading the original agency formattet Sentinel-2 MSI relative spectral responses
+"""Reading the original agency formattet Sentinel-2 MSI relative spectral responses.
+
+See:
 
 https://earth.esa.int/documents/247904/685211/S2-SRF_COPE-GSEG-EOPG-TN-15-0007_3.0.xlsx
 
 """
 
-import os
-from xlrd import open_workbook
-import numpy as np
-from pyspectral.utils import convert2hdf5 as tohdf5
-from pyspectral.raw_reader import InstrumentRSR
 import logging
+import os
+
+import numpy as np
+from xlrd import open_workbook
+
+from pyspectral.raw_reader import InstrumentRSR
+from pyspectral.utils import convert2hdf5 as tohdf5
+
 LOG = logging.getLogger(__name__)
 
 
@@ -72,14 +73,10 @@ PLATFORM_SHORT_NAME = {'Sentinel-2A': 'S2A',
 
 
 class MsiRSR(InstrumentRSR):
-
-    """Class for Sentinel-2 MSI RSR"""
+    """Class for Sentinel-2 MSI RSR."""
 
     def __init__(self, bandname, platform_name):
-        """
-        Read the Sentinel-2 MSI relative spectral responses for all channels.
-
-        """
+        """Read the Sentinel-2 MSI relative spectral responses for all channels."""
         super(MsiRSR, self).__init__(bandname, platform_name)
 
         self.instrument = 'msi'
@@ -93,9 +90,7 @@ class MsiRSR(InstrumentRSR):
                           str(self.bandname))
 
     def _load(self, scale=0.001):
-        """Load the Sentinel-2 MSI relative spectral responses
-        """
-
+        """Load the Sentinel-2 MSI relative spectral responses."""
         with open_workbook(self.path) as wb_:
             for sheet in wb_.sheets():
                 if sheet.name not in SHEET_HEADERS.keys():
@@ -127,8 +122,7 @@ class MsiRSR(InstrumentRSR):
                 break
 
 
-def main():
-    """Main"""
+if __name__ == "__main__":
     bands = MSI_BAND_NAMES['S2A'].values()
     bands.sort()
     for platform_name in ['Sentinel-2A', ]:
@@ -138,7 +132,3 @@ def main():
     bands.sort()
     for platform_name in ['Sentinel-2B', ]:
         tohdf5(MsiRSR, platform_name, bands)
-
-
-if __name__ == "__main__":
-    main()

@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2018 Pytroll developers
+# Copyright (c) 2014-2012, 2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
-#   Panu Lahtinen <panu.lahtinen@fmi.fi>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,16 +18,19 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Read the NOAA/Metop AVHRR relative spectral response functions.
-Data from NOAA STAR.
+
+Data from NOAA STAR:
 https://www.star.nesdis.noaa.gov/smcd/spb/fwu/homepage/AVHRR/spec_resp_func/index.html
 """
 
+import logging
 import os
+
 import numpy as np
+
+from pyspectral.raw_reader import InstrumentRSR
 from pyspectral.utils import INSTRUMENTS
 from pyspectral.utils import convert2hdf5 as tohdf5
-from pyspectral.raw_reader import InstrumentRSR
-import logging
 
 LOG = logging.getLogger(__name__)
 
@@ -41,11 +40,10 @@ AVHRR_BAND_NAMES = {'avhrr/3': ['ch1', 'ch2', 'ch3a', 'ch3b', 'ch4', 'ch5'],
 
 
 class AvhrrRSR(InstrumentRSR):
-
-    """Container for the NOAA/Metop AVHRR RSR data"""
+    """Container for the NOAA/Metop AVHRR RSR data."""
 
     def __init__(self, bandname, platform_name):
-
+        """Initialize the class."""
         super(AvhrrRSR, self).__init__(
             bandname, platform_name,
             AVHRR_BAND_NAMES[INSTRUMENTS[platform_name]])
@@ -71,7 +69,7 @@ class AvhrrRSR(InstrumentRSR):
         self.filename = self.requested_band_filename
 
     def _load(self, scale=1.0):
-        """Load the AVHRR RSR data for the band requested"""
+        """Load the AVHRR RSR data for the band requested."""
         data = np.genfromtxt(self.requested_band_filename,
                              unpack=True,
                              names=['wavelength',
@@ -84,16 +82,8 @@ class AvhrrRSR(InstrumentRSR):
         self.rsr = {'wavelength': wavelength, 'response': response}
 
 
-def main():
-    """Main"""
-    # for platform_name in ["NOAA-17", "NOAA-16", "NOAA-14", "NOAA-12",
-    #                       "NOAA-11", "NOAA-9", "NOAA-7",
-    #                       "NOAA-10", "NOAA-8", "NOAA-6", "TIROS-N",
-    #                       "NOAA-15"]:
-    for platform_name in ["Metop-C", ]:
-        tohdf5(AvhrrRSR, platform_name, AVHRR_BAND_NAMES[
-               INSTRUMENTS[platform_name]])
-
-
 if __name__ == "__main__":
-    main()
+    for platform_name in ["Metop-C", ]:
+        instrument = INSTRUMENTS.get(platform_name)
+        if instrument:
+            tohdf5(AvhrrRSR, platform_name, AVHRR_BAND_NAMES.get(instrument))

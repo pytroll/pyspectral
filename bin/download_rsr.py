@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2018, 2019 Pytroll developers
+# Copyright (c) 2018 - 2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,19 +17,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Script to download the RSR files from internet
-"""
+"""Script to download the RSR data from internet."""
 
-import logging
 import argparse
-from pyspectral.utils import logging_on, logging_off
+import logging
+
 from pyspectral.rsr_reader import check_and_download
+from pyspectral.utils import logging_off, logging_on
 
 LOG = logging.getLogger(__name__)
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser(
         description='Download relative spectral response data in hdf5')
     parser.add_argument("-o", "--destination", help=("Destination path where to store the files"),

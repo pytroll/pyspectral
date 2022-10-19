@@ -3,10 +3,6 @@
 #
 # Copyright (c) 2017-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam Dybbroe <adam.dybbroe@smhi.se>
-#   Simon Proud
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,8 +29,7 @@ import xarray as xr
 
 from pyspectral.rsr_reader import RelativeSpectralResponse, RSRDict
 from pyspectral.tests.unittest_helpers import assertNumpyArraysEqual
-from pyspectral.utils import (RSR_DATA_VERSION, RSR_DATA_VERSION_FILENAME,
-                              WAVE_NUMBER)
+from pyspectral.utils import RSR_DATA_VERSION, RSR_DATA_VERSION_FILENAME, WAVE_NUMBER
 
 TEST_RSR = {'20': {}, }
 TEST_RSR['20']['det-1'] = {}

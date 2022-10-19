@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2019, 2020 Pytroll developers
+# Copyright (c) 2019-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,16 +17,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Read the Geo-Kompsat-2a AMI spectral response functions. Data from the NWPSAF:
+"""Read the Geo-Kompsat-2a AMI spectral response functions.
+
+Data from the NWPSAF:
 https://nwpsaf.eu/downloads/rtcoef_rttov12/ir_srf/rtcoef_gkompsat2_1_ami_srf.html
 
 """
 
-import os
-import numpy as np
-from pyspectral.utils import convert2hdf5 as tohdf5
-from pyspectral.raw_reader import InstrumentRSR
 import logging
+import os
+
+import numpy as np
+
+from pyspectral.raw_reader import InstrumentRSR
+from pyspectral.utils import convert2hdf5 as tohdf5
+
 LOG = logging.getLogger(__name__)
 
 
@@ -46,11 +48,10 @@ _DEFAULT_LOG_FORMAT = '[%(levelname)s: %(asctime)s : %(name)s] %(message)s'
 
 
 class AmiRSR(InstrumentRSR):
-
-    """Container for the Geo-Kompsat-2A AMI relative spectral response data"""
+    """Container for the Geo-Kompsat-2A AMI relative spectral response data."""
 
     def __init__(self, bandname, platform_name):
-
+        """Initialize the AMI RSR class."""
         super(AmiRSR, self).__init__(
             bandname, platform_name, AMI_BAND_NAMES)
 
@@ -74,7 +75,7 @@ class AmiRSR(InstrumentRSR):
         self.wavespace = 'wavelength'
 
     def _load(self, scale=10000.0):
-        """Load the AMI RSR data for the band requested"""
+        """Load the AMI RSR data for the band requested."""
         data = np.genfromtxt(self.requested_band_filename,
                              unpack=True,
                              names=['wavenumber',
@@ -90,14 +91,7 @@ class AmiRSR(InstrumentRSR):
         self.rsr = {'wavelength': wavelength, 'response': response}
 
 
-def main():
-    """Main"""
-    for platform_name in ['GEO-KOMPSAT-2A', ]:
-        tohdf5(AmiRSR, platform_name, AMI_BAND_NAMES)
-
-
 if __name__ == "__main__":
-
     import sys
     LOG = logging.getLogger('ami_rsr')
     handler = logging.StreamHandler(sys.stderr)
@@ -109,4 +103,5 @@ if __name__ == "__main__":
     LOG.setLevel(logging.DEBUG)
     LOG.addHandler(handler)
 
-    main()
+    for platform_name in ['GEO-KOMPSAT-2A', ]:
+        tohdf5(AmiRSR, platform_name, AMI_BAND_NAMES)

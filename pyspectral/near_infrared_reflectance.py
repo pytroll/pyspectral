@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2021 Pytroll developers
+# Copyright (c) 2014-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
-#   Panu Lahtinen <panu.lahtinen@fmi.fi>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,21 +25,21 @@ thermal range (usually the 3.7-3.9 micron band) using a thermal atmospheric
 window channel (usually around 11-12 microns).
 """
 
-import os
 import logging
+import os
 import tempfile
+
 import numpy as np
+
 try:
-    from dask.array import where, logical_or, asanyarray, isnan
+    from dask.array import asanyarray, isnan, logical_or, where
 except ImportError:
     from numpy import where, logical_or, asanyarray, isnan
 
-from pyspectral.solar import (SolarIrradianceSpectrum,
-                              TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
-from pyspectral.utils import BANDNAMES, get_bandname_from_wavelength
-from pyspectral.utils import WAVE_LENGTH
-from pyspectral.radiance_tb_conversion import RadTbConverter
 from pyspectral.config import get_config
+from pyspectral.radiance_tb_conversion import RadTbConverter
+from pyspectral.solar import TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, SolarIrradianceSpectrum
+from pyspectral.utils import BANDNAMES, WAVE_LENGTH, get_bandname_from_wavelength
 
 LOG = logging.getLogger(__name__)
 

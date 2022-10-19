@@ -3,9 +3,6 @@
 #
 # Copyright (c) 2020-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,10 +24,13 @@ https://sftp.eumetsat.int/public/folder/UsCVknVOOkSyCdgpMimJNQ/User-Materials/MT
 """
 
 import logging
+
 from netCDF4 import Dataset
-from pyspectral.utils import convert2hdf5 as tohdf5
-from pyspectral.raw_reader import InstrumentRSR
+
 from pyspectral.bandnames import BANDNAMES
+from pyspectral.raw_reader import InstrumentRSR
+from pyspectral.utils import convert2hdf5 as tohdf5
+
 LOG = logging.getLogger(__name__)
 
 FCI_BAND_NAMES = list(BANDNAMES['fci'].values())

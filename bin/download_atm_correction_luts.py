@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2018, 2019 Pytroll developers
+# Copyright (c) 2018 - 2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,16 +17,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Script to download the the LUT files for atmospheric correction in the SW
-spectral range
+"""Download the atmospheric corrections Look-Up Tables.
+
+Script to download the the LUT files for atmospheric correction in the Short
+Wave spectral range.
 
 """
 
-import logging
 import argparse
-from pyspectral.utils import AEROSOL_TYPES
-from pyspectral.utils import logging_on, logging_off
+import logging
+
 from pyspectral.rayleigh import check_and_download
+from pyspectral.utils import AEROSOL_TYPES, logging_off, logging_on
 
 LOG = logging.getLogger(__name__)
 

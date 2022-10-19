@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2016 - 2021 Pytroll developers
+# Copyright (c) 2016 - 2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam Dybbroe <Firstname.Lastname@smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,11 +26,13 @@ https://ncc.nesdis.noaa.gov/GOESR/ABI.php
 
 """
 
-import os
-import numpy as np
-from pyspectral.utils import convert2hdf5 as tohdf5
-from pyspectral.raw_reader import InstrumentRSR
 import logging
+import os
+
+import numpy as np
+
+from pyspectral.raw_reader import InstrumentRSR
+from pyspectral.utils import convert2hdf5 as tohdf5
 
 LOG = logging.getLogger(__name__)
 

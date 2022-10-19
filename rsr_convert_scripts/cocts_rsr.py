@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2019, 2021 Pytroll developers
+# Copyright (c) 2019-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,32 +17,33 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Read the HY-1C COCTS relative spectral responses. Data from
-lwk1542@hotmail.com
+"""Read the HY-1C COCTS relative spectral responses.
+
+Data from lwk1542@hotmail.com
 
 NB! The two IR bands are NOT included.
 
-See issue
-https://github.com/pytroll/pyspectral/issues/61
+See issue: https://github.com/pytroll/pyspectral/issues/61
 """
+import logging
 import os
+
 import numpy as np
+
+from pyspectral.raw_reader import InstrumentRSR
 from pyspectral.utils import INSTRUMENTS
 from pyspectral.utils import convert2hdf5 as tohdf5
-from pyspectral.raw_reader import InstrumentRSR
 
-import logging
 LOG = logging.getLogger(__name__)
 
 COCTS_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'ch7', 'ch8']
 
 
 class COCTS_RSR(InstrumentRSR):
-
-    """Container for the HY-1C COCTS RSR data"""
+    """Container for the HY-1C COCTS RSR data."""
 
     def __init__(self, bandname, platform_name):
-
+        """Initialize the class."""
         super(COCTS_RSR, self).__init__(bandname, platform_name, COCTS_BAND_NAMES)
 
         self.instrument = INSTRUMENTS.get(platform_name, 'cocts')
@@ -67,7 +65,8 @@ class COCTS_RSR(InstrumentRSR):
 
     def _load(self, bandname, scale=0.001):
         """Load the COCTS RSR data for the band requested.
-           Wavelength is given in nanometers.
+
+        Wavelength is given in nanometers.
         """
         data = np.genfromtxt(self.requested_band_filename,
                              unpack=True,
@@ -80,11 +79,6 @@ class COCTS_RSR(InstrumentRSR):
         self.rsr = {'wavelength': wavelength, 'response': response}
 
 
-def main():
-    """Main"""
+if __name__ == "__main__":
     for platform_name in ["HY-1C", ]:
         tohdf5(COCTS_RSR, platform_name, COCTS_BAND_NAMES)
-
-
-if __name__ == "__main__":
-    main()

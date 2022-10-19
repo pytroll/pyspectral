@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2020 Pytroll developers
+# Copyright (c) 2020-2022 Pytroll developers
 #
-# Author(s):
-#
-#   simon.proud@physics.ox.ac.uk <simon.proud@physics.ox.ac.uk>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,6 +20,7 @@
 """Retrieve channel wavelength ranges for a given sensor."""
 
 import argparse
+
 from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.utils import get_wave_range
 

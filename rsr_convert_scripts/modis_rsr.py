@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2019 Pytroll developers
+# Copyright (c) 2014-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <a000680@c14526.ad.smhi.se>
-#   Panu Lahtinen <panu.lahtinen@fmi.fi>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,12 +19,13 @@
 
 """Read the Terra/Aqua MODIS relative spectral response functions."""
 
-import os
-import numpy as np
 import logging
-from pyspectral.utils import sort_data
-from pyspectral.utils import get_central_wave
+import os
+
+import numpy as np
+
 from pyspectral.config import get_config
+from pyspectral.utils import get_central_wave, sort_data
 
 LOG = logging.getLogger(__name__)
 
@@ -37,12 +34,10 @@ SHORTWAVE_BANDS = [str(i) for i in list(range(1, 20)) + [26]]
 
 
 class ModisRSR(object):
-
-    """Container for the Terra/Aqua RSR data"""
+    """Container for the Terra/Aqua RSR data."""
 
     def __init__(self, bandname, platform_name, sort=True):
-        """Init Modis RSR
-        """
+        """Initialize the Modis RSR class."""
         self.platform_name = platform_name
         self.bandname = bandname
         self.filenames = {}
@@ -71,7 +66,7 @@ class ModisRSR(object):
                           str(self.bandname))
 
     def _get_bandfilenames(self):
-        """Get the MODIS rsr filenames"""
+        """Get the MODIS rsr filenames."""
         path = self.path
 
         for band in MODIS_BAND_NAMES:
@@ -91,7 +86,7 @@ class ModisRSR(object):
             self.filenames[band] = filename
 
     def _load(self):
-        """Load the MODIS RSR data for the band requested"""
+        """Load the MODIS RSR data for the band requested."""
         if self.is_sw or self.platform_name == 'EOS-Aqua':
             scale = 0.001
         else:
@@ -102,9 +97,7 @@ class ModisRSR(object):
             self.sort()
 
     def sort(self):
-        """Sort the data so that x is monotonically increasing and contains
-        no duplicates.
-        """
+        """Sort the data so that x is monotonically increasing and contains no duplicates."""
         if 'wavelength' in self.rsr:
             # Only one detector apparently:
             self.rsr['wavelength'], self.rsr['response'] = \
@@ -118,9 +111,11 @@ class ModisRSR(object):
 
 
 def read_modis_response(filename, scale=1.0):
-    """Read the Terra/Aqua MODIS relative spectral responses. Be aware that
-    MODIS has several detectors (more than one) compared to e.g. AVHRR which
-    has always only one.
+    """Read the Terra/Aqua MODIS relative spectral responses.
+
+    Be aware that MODIS has several detectors (more than one) compared to
+    e.g. AVHRR which has always only one.
+
     """
     with open(filename, "r") as fid:
         lines = fid.readlines()
@@ -151,7 +146,7 @@ def read_modis_response(filename, scale=1.0):
 
 
 def convert2hdf5(platform_name):
-    """Retrieve original RSR data and convert to internal hdf5 format"""
+    """Retrieve original RSR data and convert to internal hdf5 format."""
     import h5py
 
     modis = ModisRSR('20', platform_name)
@@ -209,11 +204,6 @@ def convert2hdf5(platform_name):
                 dset[...] = arr
 
 
-def main():
-    """Main"""
+if __name__ == "__main__":
     for sat in ['EOS-Terra', 'EOS-Aqua']:
         convert2hdf5(sat)
-
-
-if __name__ == "__main__":
-    main()

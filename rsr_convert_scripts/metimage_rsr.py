@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2019 Pytroll developers
+# Copyright (c) 2019-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,15 +18,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Read the preliminary MetImage relative spectral response functions.
-Data from the NWPSAF, These are simulated function.
 
+Data from the NWPSAF. These are simulated function.
 """
 
-import os
-import numpy as np
-from pyspectral.utils import get_central_wave
-from pyspectral.raw_reader import InstrumentRSR
 import logging
+import os
+
+import numpy as np
+
+from pyspectral.raw_reader import InstrumentRSR
+from pyspectral.utils import get_central_wave
 
 LOG = logging.getLogger(__name__)
 
@@ -40,11 +39,10 @@ METIMAGE_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5',
 
 
 class MetImageRSR(InstrumentRSR):
-
-    """Container for the EPS-SG MetImage RSR data"""
+    """Container for the EPS-SG MetImage RSR data."""
 
     def __init__(self, bandname, platform_name):
-
+        """Initialize the class."""
         super(MetImageRSR, self).__init__(
             bandname, platform_name, METIMAGE_BAND_NAMES)
 
@@ -68,7 +66,7 @@ class MetImageRSR(InstrumentRSR):
         self.wavespace = 'wavelength'
 
     def _load(self, scale=0.001):
-        """Load the MetImage RSR data for the band requested"""
+        """Load the MetImage RSR data for the band requested."""
         data = np.genfromtxt(self.requested_band_filename,
                              unpack=True,
                              names=['wavelength',
@@ -89,8 +87,7 @@ class MetImageRSR(InstrumentRSR):
 
 
 def generate_metimage_file(platform_name):
-    """Retrieve original RSR data and convert to internal hdf5 format.
-    """
+    """Retrieve original RSR data and convert to internal hdf5 format."""
     import h5py
 
     bandnames = METIMAGE_BAND_NAMES
@@ -154,11 +151,6 @@ def generate_metimage_file(platform_name):
                 dset[...] = rsp
 
 
-def main():
-    """Main"""
+if __name__ == "__main__":
     for platform_name in ["Metop-SG-A1", ]:
         generate_metimage_file(platform_name)
-
-
-if __name__ == "__main__":
-    main()

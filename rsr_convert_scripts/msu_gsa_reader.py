@@ -3,6 +3,7 @@
 #
 # Copyright (c) 2022 Pytroll developers
 #
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -17,14 +18,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Read the Arctica-M N1 MSU-GS/A spectral response functions.
+
 Data from Roshydromet via personal communication.
 """
 
-from pyspectral.utils import convert2hdf5 as tohdf5
-from pyspectral.raw_reader import InstrumentRSR
-from pyspectral.config import get_config
-import pandas as pd
 import logging
+
+import pandas as pd
+
+from pyspectral.config import get_config
+from pyspectral.raw_reader import InstrumentRSR
+from pyspectral.utils import convert2hdf5 as tohdf5
 
 LOG = logging.getLogger(__name__)
 
@@ -44,10 +48,10 @@ _DEFAULT_LOG_FORMAT = '[%(levelname)s: %(asctime)s : %(name)s] %(message)s'
 
 
 class MsugsaRSR(InstrumentRSR):
-    """Container for the Arctica-M-N1 MSU-GS/A relative spectral response data"""
+    """Container for the Arctica-M-N1 MSU-GS/A relative spectral response data."""
 
     def __init__(self, bandname, platform_name):
-
+        """Initialize the MSU-GS/A RSR class."""
         super(MsugsaRSR, self).__init__(
             bandname, platform_name, MSUGSA_BAND_NAMES)
 
@@ -64,7 +68,7 @@ class MsugsaRSR(InstrumentRSR):
         self._load()
 
     def _load(self, scale=10000.0):
-        """Load the MSU-GS/A RSR data for the band requested"""
+        """Load the MSU-GS/A RSR data for the band requested."""
         detectors = {}
         # The Arctica satellites have two instruments on them. Pyspectral isn't set up
         # to handle this, so instead we call them separate detectors.
@@ -85,12 +89,6 @@ class MsugsaRSR(InstrumentRSR):
         self.rsr = detectors
 
 
-def main():
-    """Main"""
-    for platform_name in ['Arctica-M-N1', ]:
-        tohdf5(MsugsaRSR, platform_name, MSUGSA_BAND_NAMES, detectors=['det-1', 'det-2'])
-
-
 if __name__ == "__main__":
     import sys
     LOG = logging.getLogger('msu_gsa_rsr')
@@ -103,4 +101,5 @@ if __name__ == "__main__":
     LOG.setLevel(logging.DEBUG)
     LOG.addHandler(handler)
 
-    main()
+    for platform_name in ['Arctica-M-N1', ]:
+        tohdf5(MsugsaRSR, platform_name, MSUGSA_BAND_NAMES, detectors=['det-1', 'det-2'])

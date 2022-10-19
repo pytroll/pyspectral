@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2013-2019 Pytroll developers
+# Copyright (c) 2013-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <a000680@c14526.ad.smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,12 +19,12 @@
 
 """Unit testing the solar_flux calculations."""
 
-from pyspectral.solar import (SolarIrradianceSpectrum,
-                              TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
-
 import os
 import unittest
+
 import numpy as np
+
+from pyspectral.solar import TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, SolarIrradianceSpectrum
 
 TEST_RSR = {}
 TEST_RSR['det-1'] = {}

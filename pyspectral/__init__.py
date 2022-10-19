@@ -1,14 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013 - 2019 PyTroll Community
-
-
-# Author(s):
-
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
-#   Panu Lahtinen <panu.lahtinen@fmi.fi>
-
+# Copyright (c) 2013-2022 Pytroll Developers
+#
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -24,7 +19,8 @@
 
 """Pyspectral package init."""
 
-from pkg_resources import get_distribution, DistributionNotFound
+from pkg_resources import DistributionNotFound, get_distribution
+
 try:
     __version__ = get_distribution(__name__).version
 except DistributionNotFound:

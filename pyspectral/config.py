@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2017, 2018, 2019 Pytroll developers
+# Copyright (c) 2017-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <a000680@c20671.ad.smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,14 +22,17 @@
 import logging
 import os
 from os.path import expanduser
-from appdirs import AppDirs
+
 import yaml
+from appdirs import AppDirs
+
 try:
     # python 3.3+
     from collections.abc import Mapping
 except ImportError:
     # deprecated (above can't be done in 2.7)
     from collections import Mapping
+
 import pkg_resources
 
 try:

@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2016, 2018 Adam.Dybbroe
+# Copyright (c) 2016-2022 Adam.Dybbroe
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,18 +17,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Sentinel-3 SLSTR spectral response function interface.
+
+See:
+https://sentinel.esa.int/web/
+sentinel/technical-guides/sentinel-3-slstr/instrument/measured-spectral-response-function-data
+
 """
-Sentinel-3 SLSTR spectral response function interface
 
-https://sentinel.esa.int/web/sentinel/technical-guides/sentinel-3-slstr/instrument/measured-spectral-response-function-data
-
-"""
-
-import os
-from netCDF4 import Dataset
-from pyspectral.utils import convert2hdf5 as tohdf5
-from pyspectral.raw_reader import InstrumentRSR
 import logging
+import os
+
+from netCDF4 import Dataset
+
+from pyspectral.raw_reader import InstrumentRSR
+from pyspectral.utils import convert2hdf5 as tohdf5
 
 LOG = logging.getLogger(__name__)
 
@@ -40,14 +40,10 @@ SLSTR_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4',
 
 
 class SlstrRSR(InstrumentRSR):
-
-    """Class for Sentinel-3 SLSTR RSR"""
+    """Class for Sentinel-3 SLSTR RSR."""
 
     def __init__(self, bandname, platform_name):
-        """
-        Read the SLSTR relative spectral responses for all channels.
-
-        """
+        """Read the SLSTR relative spectral responses for all channels."""
         super(SlstrRSR, self).__init__(bandname, platform_name,
                                        SLSTR_BAND_NAMES)
 
@@ -67,9 +63,7 @@ class SlstrRSR(InstrumentRSR):
         self.filename = self.requested_band_filename
 
     def _load(self, scale=1.0):
-        """Load the SLSTR relative spectral responses
-        """
-
+        """Load the SLSTR relative spectral responses."""
         LOG.debug("File: %s", str(self.requested_band_filename))
         ncf = Dataset(self.requested_band_filename, 'r')
 
@@ -79,11 +73,6 @@ class SlstrRSR(InstrumentRSR):
         self.rsr = {'wavelength': wvl, 'response': resp}
 
 
-def main():
-    """Main"""
+if __name__ == "__main__":
     for platform_name in ['Sentinel-3B', ]:
         tohdf5(SlstrRSR, platform_name, SLSTR_BAND_NAMES)
-
-
-if __name__ == "__main__":
-    main()
