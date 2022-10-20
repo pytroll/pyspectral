@@ -17,4 +17,4 @@ The following people have made contributions to this project:
 - [Martin Raspaud (mraspaud)](https://github.com/mraspaud)
 - [Ronald Scheirer](https://github.com/)
 - [Xin Zhang (zxdawn)](https://github.com/zxdawn)
-- [Rolf Helge ...](https://github.com/HelgeCPH)
+- [Rolf Helge Pfeiffer](https://github.com/HelgeCPH)
