@@ -3,9 +3,6 @@
 #
 # Copyright (c) 2016-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <a000680@c20671.ad.smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,10 +19,11 @@
 
 """Base class for reading raw instrument spectral responses."""
 
-import os
 import logging
-from pyspectral.config import get_config
+import os
 from pathlib import Path
+
+from pyspectral.config import get_config
 
 LOG = logging.getLogger(__name__)
 

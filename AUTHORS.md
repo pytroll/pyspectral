@@ -12,8 +12,9 @@ The following people have made contributions to this project:
 - [David Hoese (djhoese)](https://github.com/djhoese)
 - [Christian Kliche](https://github.com/chk)
 - [Panu Lahtinen (pnuu)](https://github.com/pnuu)
+- [Thomas Leppelt (m4sth0)](https://github.com/m4sth0) - Deutscher Wetterdienst
 - [Simon R. Proud (simonrp84)](https://github.com/simonrp84)
 - [Martin Raspaud (mraspaud)](https://github.com/mraspaud)
 - [Ronald Scheirer](https://github.com/)
 - [Xin Zhang (zxdawn)](https://github.com/zxdawn)
-- [Rolf Helge ...](https://github.com/HelgeCPH)
+- [Rolf Helge Pfeiffer](https://github.com/HelgeCPH)

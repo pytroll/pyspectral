@@ -3,10 +3,6 @@
 #
 # Copyright (c) 2014-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
-#   Panu Lahtinen <panu.lahtinen@fmi.fi>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,11 +27,19 @@ from os.path import expanduser
 import numpy as np
 
 from pyspectral.config import get_config
-from pyspectral.utils import (BANDNAMES, INSTRUMENTS, RSR_DATA_VERSION,
-                              RSR_DATA_VERSION_FILENAME, WAVE_LENGTH,
-                              WAVE_NUMBER, check_and_adjust_instrument_name,
-                              convert2str, convert2wavenumber, download_rsr,
-                              get_central_wave)
+from pyspectral.utils import (
+    BANDNAMES,
+    INSTRUMENTS,
+    RSR_DATA_VERSION,
+    RSR_DATA_VERSION_FILENAME,
+    WAVE_LENGTH,
+    WAVE_NUMBER,
+    check_and_adjust_instrument_name,
+    convert2str,
+    convert2wavenumber,
+    download_rsr,
+    get_central_wave,
+)
 
 LOG = logging.getLogger(__name__)
 

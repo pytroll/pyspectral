@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2018, 2020 Pytroll developers
+# Copyright (c) 2018-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,13 +23,15 @@ Data available from NSMC:
 http://gsics.nsmc.org.cn/portal/en/fycv/srf.html
 http://gsics.nsmc.org.cn/download/documents/SRF/FY3D_MERSI_SRF_Pub.zip
 """
+import logging
 import os
+
 import numpy as np
+
+from pyspectral.raw_reader import InstrumentRSR
 from pyspectral.utils import INSTRUMENTS
 from pyspectral.utils import convert2hdf5 as tohdf5
-from pyspectral.raw_reader import InstrumentRSR
 
-import logging
 LOG = logging.getLogger(__name__)
 
 MERSI2_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'ch7', 'ch8',
@@ -42,11 +41,10 @@ MERSI2_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'ch7', 'ch8',
 
 
 class Mersi2RSR(InstrumentRSR):
-
-    """Container for the FY3D MERSI-II RSR data"""
+    """Container for the FY3D MERSI-II RSR data."""
 
     def __init__(self, bandname, platform_name):
-
+        """Initialize the MERSI-2 RSR class."""
         super(Mersi2RSR, self).__init__(bandname, platform_name, MERSI2_BAND_NAMES)
 
         self.instrument = INSTRUMENTS.get(platform_name, 'mersi-2')
@@ -68,7 +66,8 @@ class Mersi2RSR(InstrumentRSR):
 
     def _load(self, scale=0.001):
         """Load the MERSI-2 RSR data for the band requested.
-           Wavelength is given in nanometers.
+
+        Wavelength is given in nanometers.
         """
         data = np.genfromtxt(self.requested_band_filename,
                              unpack=True,
@@ -82,11 +81,6 @@ class Mersi2RSR(InstrumentRSR):
         self.rsr = {'wavelength': wavelength, 'response': response}
 
 
-def main():
-    """Main"""
+if __name__ == "__main__":
     for platform_name in ["FY-3D", ]:
         tohdf5(Mersi2RSR, platform_name, MERSI2_BAND_NAMES)
-
-
-if __name__ == "__main__":
-    main()

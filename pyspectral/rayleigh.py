@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2016-2021 Pytroll developers
+# Copyright (c) 2016-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
-#   Martin Raspaud <martin.raspaud@smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,9 +19,9 @@
 
 """Atmospheric correction of shortwave imager bands in the wavelength range 400 to 800 nm."""
 
-import os
 import logging
 import numbers
+import os
 
 import h5py
 import numpy as np
@@ -36,13 +32,19 @@ except ImportError:
     da = None
 
 from geotiepoints.multilinear import MultilinearInterpolator
-from pyspectral.rsr_reader import RelativeSpectralResponse
-from pyspectral.utils import (INSTRUMENTS, get_rayleigh_lut_dir,
-                              AEROSOL_TYPES, ATMOSPHERES,
-                              BANDNAMES,
-                              ATM_CORRECTION_LUT_VERSION,
-                              download_luts, get_central_wave)
+
 from pyspectral.config import get_config
+from pyspectral.rsr_reader import RelativeSpectralResponse
+from pyspectral.utils import (
+    AEROSOL_TYPES,
+    ATM_CORRECTION_LUT_VERSION,
+    ATMOSPHERES,
+    BANDNAMES,
+    INSTRUMENTS,
+    download_luts,
+    get_central_wave,
+    get_rayleigh_lut_dir,
+)
 
 LOG = logging.getLogger(__name__)
 

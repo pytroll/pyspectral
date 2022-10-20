@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2016-2020 Pytroll developers
+# Copyright (c) 2016-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,20 +17,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""A very basic (example) plotting program to display spectral responses for a
-set of satellite instruments for a give wavelength range
+"""A very basic (example) plotting program for relative spectral responses.
+
+Displaying relatve spectral responses for a set of satellite instruments for a
+give wavelength range.
 
 """
 
 import matplotlib.pyplot as plt
-from pyspectral.rsr_reader import RelativeSpectralResponse
-from pyspectral.utils import get_bandname_from_wavelength
-from pyspectral.utils import logging_on, logging_off, get_logger
 import numpy as np
+
+from pyspectral.rsr_reader import RelativeSpectralResponse
+from pyspectral.utils import get_bandname_from_wavelength, get_logger, logging_off, logging_on
 
 
 def plot_band(plt_in, band_name, rsr_obj, **kwargs):
-    """Do the plotting of one band"""
+    """Do the plotting of one band."""
     if 'platform_name_in_legend' in kwargs:
         platform_name_in_legend = kwargs['platform_name_in_legend']
     else:
@@ -60,7 +59,7 @@ def plot_band(plt_in, band_name, rsr_obj, **kwargs):
 
 
 def get_arguments():
-    """Get the command line arguments"""
+    """Get the command line arguments."""
     import argparse
     parser = argparse.ArgumentParser(
         description='Plot spectral responses for a set of satellite imagers')

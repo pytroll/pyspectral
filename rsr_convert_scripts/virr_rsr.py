@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2019 Pytroll developers
+# Copyright (c) 2019-2022 Pytroll developers
 #
-# Author(s):
-#
-#   David Hoese <david.hoese@ssec.wisc.edu>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,13 +22,15 @@ Data from http://gsics.nsmc.org.cn/portal/en/fycv/srf.html
 
 """
 
+import logging
 import os
+
 import numpy as np
+
+from pyspectral.raw_reader import InstrumentRSR
 from pyspectral.utils import INSTRUMENTS
 from pyspectral.utils import convert2hdf5 as tohdf5
-from pyspectral.raw_reader import InstrumentRSR
 
-import logging
 LOG = logging.getLogger(__name__)
 
 VIRR_BAND_NAMES = {
@@ -79,11 +78,6 @@ class VirrRSR(InstrumentRSR):
         self.rsr = {'wavelength': wavelength, 'response': response}
 
 
-def main():
-    """Main"""
+if __name__ == "__main__":
     for platform_name, band_names in VIRR_BAND_NAMES.items():
         tohdf5(VirrRSR, platform_name, band_names)
-
-
-if __name__ == "__main__":
-    main()

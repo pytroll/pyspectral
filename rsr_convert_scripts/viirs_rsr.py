@@ -3,10 +3,6 @@
 #
 # Copyright (c) 2013-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
-#   Panu Lahtinen <panu.lahtinen@fmi.fi>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,14 +19,17 @@
 
 """Interface to read original VIIRS relative spectral responses and write to hdf5 file."""
 
+import logging
 import os
 import sys
+
 import h5py
 import numpy as np
-from pyspectral.utils import get_central_wave
-from pyspectral.config import get_config
 from trollsift.parser import compose
-import logging
+
+from pyspectral.config import get_config
+from pyspectral.utils import get_central_wave
+
 LOG = logging.getLogger(__name__)
 
 VIIRS_BAND_NAMES = ['M1', 'M2', 'M3', 'M4', 'M5',

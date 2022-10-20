@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2020 Pytroll developers
+# Copyright (c) 2014-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
-#   Panu Lahtinen <panu.lahtinen@fmi.fi>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,20 +24,16 @@ Conversion between radiances and brightness temperatures for the IR bands of
 various satellite sensors
 """
 
-import numpy as np
-from pyspectral.blackbody import (H_PLANCK, K_BOLTZMANN, C_SPEED)
-from pyspectral.blackbody import blackbody, blackbody_wn
-from pyspectral.utils import WAVE_NUMBER
-from pyspectral.utils import WAVE_LENGTH
-from pyspectral.utils import BANDNAMES
-from pyspectral.utils import get_bandname_from_wavelength
-from pyspectral.utils import convert2wavenumber
-from pyspectral.rsr_reader import RelativeSpectralResponse
-
+import logging
 from numbers import Number
+
+import numpy as np
 from scipy import integrate
 
-import logging
+from pyspectral.blackbody import C_SPEED, H_PLANCK, K_BOLTZMANN, blackbody, blackbody_wn
+from pyspectral.rsr_reader import RelativeSpectralResponse
+from pyspectral.utils import BANDNAMES, WAVE_LENGTH, WAVE_NUMBER, convert2wavenumber, get_bandname_from_wavelength
+
 LOG = logging.getLogger(__name__)
 
 BLACKBODY_FUNC = {WAVE_LENGTH: blackbody,

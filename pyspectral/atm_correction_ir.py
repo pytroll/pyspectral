@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2017, 2019 Pytroll developers
+# Copyright (c) 2017-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
-#   Thomas Lepellt, DWD
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -59,6 +55,7 @@ from this time are not longer at DWD.'
 
 
 import numpy as np
+
 try:
     import dask.array as da
 except ImportError:

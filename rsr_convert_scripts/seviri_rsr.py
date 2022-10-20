@@ -4,10 +4,6 @@
 #
 # Copyright (c) 2013-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
-#   Panu Lahtinen <panu.lahtinen@fmi.fi>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,12 +20,14 @@
 
 """Interface to the SEVIRI spectral response functions for all four MSG satellites."""
 
-import os
-from xlrd import open_workbook
-import numpy as np
-from pyspectral.config import get_config
-import pkg_resources
 import logging
+import os
+
+import numpy as np
+import pkg_resources
+from xlrd import open_workbook
+
+from pyspectral.config import get_config
 
 LOG = logging.getLogger(__name__)
 DATA_PATH = pkg_resources.resource_filename('pyspectral', 'data/')

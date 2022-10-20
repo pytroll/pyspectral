@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2017 - 2019 Pytroll developers
+# Copyright (c) 2017-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,10 +20,13 @@
 """Unit tests of the atmospherical correction in the ir spectral range."""
 
 
-import numpy as np
-import dask.array as da
-from pyspectral.atm_correction_ir import AtmosphericalCorrection
 import sys
+
+import dask.array as da
+import numpy as np
+
+from pyspectral.atm_correction_ir import AtmosphericalCorrection
+
 if sys.version_info < (2, 7):
     import unittest2 as unittest
 else:

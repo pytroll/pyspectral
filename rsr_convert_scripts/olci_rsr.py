@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2016 - 2019 Pytroll developers
+# Copyright (c) 2016 - 2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <adam.dybbro@smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,20 +17,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-Reading the Sentinel-3 OLCI relative spectral responses
+"""Reading the Sentinel-3 OLCI relative spectral responses.
 
 https://sentinel.esa.int/documents/247904/322304/OLCI+SRF+%28NetCDF%29/
 
-https://sentinel.esa.int/web/sentinel/technical-guides/sentinel-3-olci/olci-instrument/spectral-response-function-data
+https://sentinel.esa.int/web/sentinel/technical-guides/
+sentinel-3-olci/olci-instrument/spectral-response-function-data
 
 """
 
-from netCDF4 import Dataset
-import os.path
-from pyspectral.utils import convert2hdf5 as tohdf5
-from pyspectral.raw_reader import InstrumentRSR
 import logging
+import os.path
+
+from netCDF4 import Dataset
+
+from pyspectral.raw_reader import InstrumentRSR
+from pyspectral.utils import convert2hdf5 as tohdf5
 
 LOG = logging.getLogger(__name__)
 
@@ -50,14 +49,10 @@ OLCI_BAND_NAMES = ['Oa01', 'Oa02', 'Oa03', 'Oa04',
 
 
 class OlciRSR(InstrumentRSR):
-
-    """Class for Sentinel OLCI RSR"""
+    """Class for Sentinel OLCI RSR."""
 
     def __init__(self, bandname, platform_name):
-        """
-        Read the OLCI relative spectral responses for all channels.
-
-        """
+        """Read the OLCI relative spectral responses for all channels."""
         super(OlciRSR, self).__init__(bandname, platform_name)
 
         self.instrument = 'olci'
@@ -71,9 +66,7 @@ class OlciRSR(InstrumentRSR):
                           str(self.bandname))
 
     def _load(self, scale=0.001):
-        """Load the OLCI relative spectral responses
-        """
-
+        """Load the OLCI relative spectral responses."""
         ncf = Dataset(self.path, 'r')
 
         bandnum = OLCI_BAND_NAMES.index(self.bandname)
@@ -91,23 +84,18 @@ class OlciRSR(InstrumentRSR):
         self.rsr = {'wavelength': wvl, 'response': resp}
 
 
-def main():
-    """Main"""
-    # for platform_name in ['Sentinel-3A', 'Sentinel-3B']:
-    for platform_name in ['Sentinel-3B', ]:
-        tohdf5(OlciRSR, platform_name, OLCI_BAND_NAMES)
-
-
 def testplot():
-    """Just making a plot of the OLCI spectral response functions"""
+    """Just making a plot of the OLCI spectral response functions.
 
-    this = Dataset(RSRFILE, 'r')
-    # There are 21 bands
-    # For each band there are 5 cameras and 3 views (west, centre and east)
-    # Band 1:
-
+    There are 21 bands.
+    For each band there are 5 cameras and 3 views (west, centre and east).
+    Doing band 1 here, only.
+    """
     import pylab
     from matplotlib import rcParams
+
+    this = Dataset(RSRFILE, 'r')
+
     rcParams['text.usetex'] = True
     rcParams['text.latex.unicode'] = True
 
@@ -127,8 +115,8 @@ def testplot():
     ax.set_xlim(380, 430)
     ax.legend()
     fig.savefig('olci_band1.png')
-    # pylab.show()
 
 
 if __name__ == "__main__":
-    main()
+    for platform_name in ['Sentinel-3B', ]:
+        tohdf5(OlciRSR, platform_name, OLCI_BAND_NAMES)

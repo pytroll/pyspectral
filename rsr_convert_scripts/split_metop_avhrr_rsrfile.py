@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2018 Pytroll developers
+# Copyright (c) 2018-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <a000680@c20671.ad.smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,14 +17,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Take the 'original' Metop-C AVHRR spectral responses from the file
+"""Spitting original Metop-C AVHRR RSR data to one file per band.
+
+Take the 'original' Metop-C AVHRR spectral responses from the file
 AVHRR_A309_METOPC_SRF_PRELIMINARY.TXT and split it in one file per band and
 convert the wavenumbers to wavelengths.
 
 """
 
-import numpy as np
 import os
+
+import numpy as np
 
 DATAFILE = "/home/a000680/data/SpectralResponses/avhrr/AVHRR_A309_METOPC_SRF_PRELIMINARY.TXT"
 OUTPUT_DIR = "/home/a000680/data/SpectralResponses/avhrr"

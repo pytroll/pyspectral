@@ -2,11 +2,8 @@
 # -*- coding: utf-8 -*-
 
 # Copyright (c) 2013-2022 Pytroll
-
-# Author(s):
-
-#   Adam Dybbroe <adam.dybbroe@smhi.se>
-
+#
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -23,7 +20,8 @@
 """Setup for the Pyspectral package."""
 
 import os.path
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 try:
     # HACK: https://github.com/pypa/setuptools_scm/issues/190#issuecomment-351181286

@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013-2019 Adam.Dybbroe
-
-# Author(s):
-
-#   Adam.Dybbroe <adam.dybbroe@smhi.se>
-
+# Copyright (c) 2013-2022 Pytroll Developers
+#
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -24,11 +21,10 @@
 
 import doctest
 import os
-from pyspectral import (blackbody,
-                        near_infrared_reflectance,
-                        solar)
-
 import sys
+
+from pyspectral import blackbody, near_infrared_reflectance, solar
+
 if sys.version_info < (2, 7):
     import unittest2 as unittest
 else:

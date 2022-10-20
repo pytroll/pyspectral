@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2016-2019, 2021 Pytroll developers
+# Copyright (c) 2016-2022 Pytroll developers
 #
-# Author(s):
-#
-#   Adam.Dybbroe <a000680@c20671.ad.smhi.se>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,21 +21,22 @@
 import contextlib
 import os
 import unittest
+from unittest.mock import patch
 
-import numpy as np
 import dask.array as da
 import h5py
+import numpy as np
 import pytest
+
 from pyspectral import rayleigh, utils
 from pyspectral.tests.data import (
-    TEST_RAYLEIGH_LUT,
     TEST_RAYLEIGH_AZID_COORD,
-    TEST_RAYLEIGH_SUNZ_COORD,
+    TEST_RAYLEIGH_LUT,
     TEST_RAYLEIGH_SATZ_COORD,
-    TEST_RAYLEIGH_WVL_COORD)
+    TEST_RAYLEIGH_SUNZ_COORD,
+    TEST_RAYLEIGH_WVL_COORD,
+)
 from pyspectral.utils import ATM_CORRECTION_LUT_VERSION
-
-from unittest.mock import patch
 
 TEST_RAYLEIGH_RESULT1 = np.array([10.339923,    8.64748], dtype='float32')
 TEST_RAYLEIGH_RESULT2 = np.array([9.653559, 8.464997], dtype='float32')
