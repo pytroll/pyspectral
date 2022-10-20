@@ -1,3 +1,19 @@
+## Version <v0.12.1> (2022/10/20)
+
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 162](https://github.com/pytroll/pyspectral/pull/162) - Fix: check_and_download() got an unexpected keyword argument 'aerosol_type'
+
+#### Features added
+
+* [PR 163](https://github.com/pytroll/pyspectral/pull/163) - Remove author names from headers and tidy up for flake8 issues
+
+In this release 2 pull requests were closed.
+
+
 ## Version <v0.12.0> (2022/10/11)
 
 ### Issues Closed
