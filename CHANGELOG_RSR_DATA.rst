@@ -1,6 +1,14 @@
 Changelog for the Relative Spectral Response data
 =================================================
 
+
+Version <v1.2.1> (Mon Oct 24 16:26:14 2022)
+-------------------------------------------
+
+ * Changed name of the FY-3D MERSI-2 RSR file, removing the hyphen:
+   New name = rsr_mersi2_FY-3D.h5
+
+
 Version <v1.2.0> (Tue Sep 27 21:08:13 2022)
 -------------------------------------------
 
