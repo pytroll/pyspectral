@@ -123,7 +123,7 @@ class RelativeSpectralResponse(RSRDataBaseClass):
         """Initialize the class instance.
 
         Create the instance either from platform name and instrument or from
-        filename and load the data.
+        filename, and then load the data from file.
 
         """
         super(RelativeSpectralResponse, self).__init__()
@@ -131,6 +131,14 @@ class RelativeSpectralResponse(RSRDataBaseClass):
         self.platform_name = platform_name
         self.instrument = instrument
         self.filename = filename
+
+        self._check_consistent_input()
+
+        self.load()
+        self.rsr.instrument = self.instrument
+
+    def _check_consistent_input(self):
+        """Check consistent input concerning platform name, instrument and RSR file name."""
         if not self.filename:
             if not self.instrument or not self.platform_name:
                 raise AttributeError(
@@ -140,8 +148,6 @@ class RelativeSpectralResponse(RSRDataBaseClass):
             self._get_filename()
 
         self._check_filename_exist()
-        self.load()
-        self.rsr.instrument = self.instrument
 
     def _check_instrument(self):
         """Check and try fix instrument name if needed."""
