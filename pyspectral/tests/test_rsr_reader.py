@@ -97,46 +97,10 @@ class TestRsrReader(unittest.TestCase):
 
         with patch('pyspectral.rsr_reader.get_config', return_value=TEST_CONFIG):
             with self.assertRaises(AttributeError):
-                test_rsr = RelativeSpectralResponse('GOES-16')
-                test_rsr = RelativeSpectralResponse(instrument='ABI')
+                _ = RelativeSpectralResponse('GOES-16')
 
-        with patch('pyspectral.rsr_reader.get_config', return_value=TEST_CONFIG):
-            test_rsr = RelativeSpectralResponse('GOES-16', 'AbI')
-            self.assertEqual(test_rsr.platform_name, 'GOES-16')
-            self.assertEqual(test_rsr.instrument, 'abi')
-            test_rsr = RelativeSpectralResponse('GOES-16', 'ABI')
-            self.assertEqual(test_rsr.instrument, 'abi')
-
-        with patch('pyspectral.rsr_reader.get_config', return_value=TEST_CONFIG):
-            test_rsr = RelativeSpectralResponse('GOES-16', 'abi')
-
-        self.assertEqual(test_rsr.platform_name, 'GOES-16')
-        self.assertEqual(test_rsr.instrument, 'abi')
-        self.assertEqual(
-            test_rsr.filename, os.path.join(TEST_RSR_DIR, 'rsr_abi_GOES-16.h5'))
-
-    @patch('os.path.exists')
-    @patch('os.path.isfile')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-    @patch('pyspectral.rsr_reader.download_rsr')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_rsr_data_version')
-    def test_get_rsr_from_filename(self, get_rsr_version, download_rsr, load, isfile, exists):
-        """Test the RelativeSpectralResponse class initialisation.
-
-        Test getting the rsr from filename only.
-        """
-        load.return_code = None
-        download_rsr.return_code = None
-        isfile.return_code = True
-        exists.return_code = True
-        get_rsr_version.return_code = RSR_DATA_VERSION
-
-        with patch('pyspectral.rsr_reader.get_config', return_value=TEST_CONFIG):
-            test_rsr = RelativeSpectralResponse(
-                filename=os.path.join(TEST_RSR_DIR, 'rsr_abi_GOES-16.h5'))
-
-        self.assertEqual(
-            test_rsr.filename, os.path.join(TEST_RSR_DIR, 'rsr_abi_GOES-16.h5'))
+            with self.assertRaises(AttributeError):
+                _ = RelativeSpectralResponse(instrument='ABI')
 
     @patch('os.path.exists')
     @patch('os.path.isfile')
@@ -262,15 +226,11 @@ class TestPopulateRSRObject(unittest.TestCase):
         self.assertEqual(str(exception_raised), expected_value)
 
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_filename_exist')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_filename')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
-    def test_set_description(self, check_instrument, get_filename, check_filename_exist, load):
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_consistent_input')
+    def test_set_description(self, check_consistent_input, load):
         """Test setting the description."""
         load.return_value = None
-        check_filename_exist.return_value = None
-        get_filename.return_value = None
-        check_instrument.return_value = None
+        check_consistent_input.return_value = None
 
         test_rsr = RelativeSpectralResponse('NOAA-20', 'viirs')
         test_rsr.set_description(self.h5f_noaa20_viirs)
@@ -283,15 +243,11 @@ class TestPopulateRSRObject(unittest.TestCase):
         self.assertEqual(test_rsr.description, 'Relative Spectral Responses for MODIS')
 
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_filename_exist')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_filename')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
-    def test_set_platform_name(self, check_instrument, get_filename, check_filename_exist, load):
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_consistent_input')
+    def test_set_platform_name(self, check_consistent_input, load):
         """Test setting the platform name."""
         load.return_value = None
-        check_filename_exist.return_value = None
-        get_filename.return_value = None
-        check_instrument.return_value = None
+        check_consistent_input.return_value = None
 
         test_rsr = RelativeSpectralResponse('EOS-Aqua', 'modis')
         test_rsr.set_platform_name(self.h5f_aqua_modis)
@@ -327,15 +283,11 @@ class TestPopulateRSRObject(unittest.TestCase):
         self.assertEqual(test_rsr.platform_name, None)
 
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_filename_exist')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_filename')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
-    def test_set_instrument(self, check_instrument, get_filename, check_filename_exist, load):
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_consistent_input')
+    def test_set_instrument(self, check_consistent_input, load):
         """Test setting the instrument name."""
         load.return_value = None
-        check_filename_exist.return_value = None
-        get_filename.return_value = None
-        check_instrument.return_value = None
+        check_consistent_input.return_value = None
 
         test_rsr = RelativeSpectralResponse('EOS-Aqua', 'modis')
         test_rsr.set_instrument(self.h5f_aqua_modis)
@@ -356,15 +308,11 @@ class TestPopulateRSRObject(unittest.TestCase):
         self.assertEqual(test_rsr.instrument, 'viirs')
 
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_filename_exist')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_filename')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
-    def test_set_band_names(self, check_instrument, get_filename, check_filename_exist, load):
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_consistent_input')
+    def test_set_band_names(self, check_consistent_input, load):
         """Test setting the band names."""
         load.return_value = None
-        check_filename_exist.return_value = None
-        get_filename.return_value = None
-        check_instrument.return_value = None
+        check_consistent_input.return_value = None
 
         test_rsr = RelativeSpectralResponse('EOS-Aqua', 'modis')
         test_rsr.set_band_names(self.h5f_aqua_modis)
@@ -372,17 +320,12 @@ class TestPopulateRSRObject(unittest.TestCase):
         self.assertCountEqual(test_rsr.band_names, expected)
 
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_filename_exist')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_filename')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_consistent_input')
     def test_set_band_central_wavelength_per_detector(self,
-                                                      check_instrument, get_filename,
-                                                      check_filename_exist, load):
+                                                      check_consistent_input, load):
         """Test setting the band specific central wavelength for a detector."""
         load.return_value = None
-        check_filename_exist.return_value = None
-        get_filename.return_value = None
-        check_instrument.return_value = None
+        check_consistent_input.return_value = None
 
         test_rsr = RelativeSpectralResponse('NOAA-20', 'viirs')
 
@@ -398,17 +341,12 @@ class TestPopulateRSRObject(unittest.TestCase):
         self.assertEqual(test_rsr.rsr['M1']['det-1']['central_wavelength'], 100.)
 
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_filename_exist')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_filename')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_consistent_input')
     def test_set_band_wavelengths_per_detector(self,
-                                               check_instrument, get_filename,
-                                               check_filename_exist, load):
+                                               check_consistent_input, load):
         """Test setting the band wavelengths for a detector."""
         load.return_value = None
-        check_filename_exist.return_value = None
-        get_filename.return_value = None
-        check_instrument.return_value = None
+        check_consistent_input.return_value = None
 
         test_rsr = RelativeSpectralResponse('NOAA-20', 'viirs')
 
@@ -426,17 +364,12 @@ class TestPopulateRSRObject(unittest.TestCase):
         assertNumpyArraysEqual(test_rsr.rsr['M1']['det-1']['wavelength'].data, expected)
 
     @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_filename_exist')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_filename')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_consistent_input')
     def test_set_band_responses_per_detector(self,
-                                             check_instrument, get_filename,
-                                             check_filename_exist, load):
+                                             check_consistent_input, load):
         """Test setting the band responses for a detector."""
         load.return_value = None
-        check_filename_exist.return_value = None
-        get_filename.return_value = None
-        check_instrument.return_value = None
+        check_consistent_input.return_value = None
 
         test_rsr = RelativeSpectralResponse('NOAA-20', 'viirs')
 
@@ -472,6 +405,42 @@ class TestPopulateRSRObject(unittest.TestCase):
         test_rsr = RSRDict(instrument="i dont exist")
         test_rsr["ch1"] = 2
         assert test_rsr['1'] == 2
+
+
+@patch('os.path.exists')
+@patch('os.path.isfile')
+@patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
+@patch('pyspectral.rsr_reader.download_rsr')
+@patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_rsr_data_version')
+@pytest.mark.parametrize(
+    ("platform_name", "instrument", "exp_filename", "exp_instrument"),
+    [
+        ('FY-3D', 'mersi-2', 'rsr_mersi2_FY-3D.h5', 'mersi2'),
+        ('TIROS-N', 'avhrr-1', 'rsr_avhrr1_TIROS-N.h5', 'avhrr1'),
+        ('NOAA-12', 'avhrr-2', 'rsr_avhrr2_NOAA-12.h5', 'avhrr2'),
+        ('NOAA-12', 'avhrr/2',  'rsr_avhrr2_NOAA-12.h5', 'avhrr2'),
+        ('NOAA-19', 'avhrr/3',  'rsr_avhrr3_NOAA-19.h5', 'avhrr3'),
+        ('GOES-16', 'abi', 'rsr_abi_GOES-16.h5', 'abi'),
+        ('GOES-16', 'ABI', 'rsr_abi_GOES-16.h5', 'abi'),
+        ('GOES-18', 'AbI', 'rsr_abi_GOES-18.h5', 'abi'),
+    ]
+)
+def test_get_rsr_from_platform_and_instrument(get_rsr_version,
+                                              download_rsr, load, isfile, exists,
+                                              platform_name, instrument,
+                                              exp_filename, exp_instrument):
+    """Test getting the rsr filename correct when specifying the platform and instrument names."""
+    load.return_code = None
+    download_rsr.return_code = None
+    isfile.return_code = True
+    exists.return_code = True
+    get_rsr_version.return_code = RSR_DATA_VERSION
+
+    with patch('pyspectral.rsr_reader.get_config', return_value=TEST_CONFIG):
+        test_rsr = RelativeSpectralResponse(platform_name, instrument)
+        assert test_rsr.platform_name == platform_name
+        assert test_rsr.instrument == exp_instrument
+        assert os.path.basename(test_rsr.filename) == exp_filename
 
 
 @pytest.mark.parametrize(
