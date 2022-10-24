@@ -1,3 +1,20 @@
+## Version <v0.12.2> (2022/10/24)
+
+### Issues Closed
+
+* [Issue 164](https://github.com/pytroll/pyspectral/issues/164) - Pyspectral is trying to read wrong RSR file for FY-3D/MERSI-2 ([PR 165](https://github.com/pytroll/pyspectral/pull/165) by [@adybbroe](https://github.com/adybbroe))
+
+In this release 1 issue was closed.
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 165](https://github.com/pytroll/pyspectral/pull/165) - Bugfix Mersi-2 RSR filename ([164](https://github.com/pytroll/pyspectral/issues/164))
+
+In this release 1 pull request was closed.
+
+
 ## Version <v0.12.1> (2022/10/20)
 
 
