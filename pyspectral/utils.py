@@ -532,7 +532,7 @@ def check_and_adjust_instrument_name(platform_name, instrument):
     """
     instr = INSTRUMENTS.get(platform_name, instrument.lower())
     if not are_instruments_identical(instr, instrument.lower()):
-        if type(instr) is list:
+        if isinstance(instr, list):
             instrument = instr[0]
         else:
             instrument = instr
@@ -554,10 +554,10 @@ def are_instruments_identical(name1, name2):
         return True
     if name1 == INSTRUMENT_TRANSLATION_DASH2SLASH.get(name2):
         return True
-    if type(name1) is list and type(name2) is str:
+    if isinstance(name1, list) and isinstance(name2, str):
         if name2 in name1:
             return True
-    if type(name2) is list and type(name1) is str:
+    if isinstance(name2, list) and isinstance(name1, str):
         if name1 in name2:
             return True
 

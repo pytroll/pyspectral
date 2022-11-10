@@ -153,7 +153,7 @@ class Rayleigh(RayleighConfigBaseClass):
         # Try to fix instrument naming
         instr = INSTRUMENTS.get(platform_name, sensor)
         if instr != sensor:
-            if type(instr) is list:
+            if isinstance(instr, list):
                 if sensor not in instr:
                     sensor = instr[0]
                     LOG.warning("Inconsistent sensor/satellite input - " +
