@@ -71,6 +71,8 @@ class AGRIRSR(InstrumentRSR):
         super(AGRIRSR, self).__init__(bandname, platform_name, FY4_AGRI_BAND_NAMES)
 
         self.instrument = INSTRUMENTS.get(platform_name, 'agri')
+        if type(self.instrument) is list:
+            self.instrument = 'agri'
 
         self._get_options_from_config()
         self._get_bandfilenames()
@@ -105,14 +107,22 @@ class AGRIRSR(InstrumentRSR):
 
 
         wavelength = data[0] * scale
-        response = data[1] / 100.
+        response = data[1]
+        print(response.shape)
+
+        # Cut unneeded points
+        pts = np.argwhere(response > 0.001)
+
+        wavelength = np.squeeze(wavelength[pts])
+        response = np.squeeze(response[pts]) * 100.
+        print(response.shape)
 
         self.rsr = {'wavelength': wavelength, 'response': response}
 
 
 def convert_agri():
     """Read original AGRI RSR data and convert to common Pyspectral hdf5 format."""
-    for platform_name in ["FY-4A", "FY-4B"]:
+    for platform_name in [ "FY-4B"]:
         tohdf5(AGRIRSR, platform_name, FY4_AGRI_BAND_NAMES)
 
 
