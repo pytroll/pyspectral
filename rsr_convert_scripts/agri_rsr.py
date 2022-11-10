@@ -17,9 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Read the FY-4A AGRI relative spectral responses.
+"""Read the FY-4A/B AGRI relative spectral responses.
 
-Data from http://fy4.nsmc.org.cn/portal/cn/fycv/srf.html
+Data from http://satellite.nsmc.org.cn/PortalSite/StaticContent/DocumentDownload.aspx?TypeID=590
 """
 import os
 
@@ -98,13 +98,14 @@ class AGRIRSR(InstrumentRSR):
         Wavelength is given in nanometers.
         """
         data = np.genfromtxt(self.requested_band_filename,
-                             unpack=True,
+                             unpack=True, delimiter='\t',
                              names=['wavelength',
                                     'response'],
-                             skip_header=0)
+                             skip_header=1)
 
-        wavelength = data['wavelength'] * scale
-        response = data['response'] / 100.
+
+        wavelength = data[0] * scale
+        response = data[1] / 100.
 
         self.rsr = {'wavelength': wavelength, 'response': response}
 
