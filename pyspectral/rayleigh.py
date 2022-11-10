@@ -150,12 +150,19 @@ class Rayleigh(RayleighConfigBaseClass):
         self.sensor = sensor
         self.coeff_filename = None
 
-        # Try fix instrument naming
+        # Try to fix instrument naming
         instr = INSTRUMENTS.get(platform_name, sensor)
         if instr != sensor:
-            sensor = instr
-            LOG.warning("Inconsistent sensor/satellite input - " +
-                        "sensor set to %s", sensor)
+            if type(instr) is list:
+                if sensor not in instr:
+                    sensor = instr[0]
+                    print(sensor, instr)
+                    LOG.warning("Inconsistent sensor/satellite input - " +
+                                "sensor set to %s", sensor)
+            else:
+                sensor = instr
+                LOG.warning("Inconsistent sensor/satellite input - " +
+                            "sensor set to %s", sensor)
 
         self.sensor = sensor.replace('/', '')
 

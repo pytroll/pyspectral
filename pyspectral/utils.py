@@ -74,7 +74,7 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'Meteosat-9': 'seviri',
                'Meteosat-8': 'seviri',
                'FY-4A': 'agri',
-               'FY-4B': 'agri',
+               'FY-4B': ['agri', 'ghi'],
                'GEO-KOMPSAT-2A': 'ami',
                'MTG-I1': 'fci',
                'Meteosat-12': 'fci',
@@ -536,6 +536,7 @@ def check_and_adjust_instrument_name(platform_name, instrument):
         LOG.warning("Inconsistent instrument/satellite input - instrument set to %s",
                     instrument)
 
+
     return instrument.lower().replace('/', '').replace('-', '')
 
 
@@ -550,5 +551,11 @@ def are_instruments_identical(name1, name2):
         return True
     if name1 == INSTRUMENT_TRANSLATION_DASH2SLASH.get(name2):
         return True
+    if type(name1) is list and type(name2) is str:
+        if name2 in name1:
+            return True
+    if type(name2) is list and type(name1) is str:
+        if name1 in name2:
+            return True
 
     return False
