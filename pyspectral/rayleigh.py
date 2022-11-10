@@ -156,7 +156,6 @@ class Rayleigh(RayleighConfigBaseClass):
             if type(instr) is list:
                 if sensor not in instr:
                     sensor = instr[0]
-                    print(sensor, instr)
                     LOG.warning("Inconsistent sensor/satellite input - " +
                                 "sensor set to %s", sensor)
             else:

@@ -532,7 +532,10 @@ def check_and_adjust_instrument_name(platform_name, instrument):
     """
     instr = INSTRUMENTS.get(platform_name, instrument.lower())
     if not are_instruments_identical(instr, instrument.lower()):
-        instrument = instr
+        if type(instr) is list:
+            instrument = instr[0]
+        else:
+            instrument = instr
         LOG.warning("Inconsistent instrument/satellite input - instrument set to %s",
                     instrument)
 
