@@ -107,14 +107,12 @@ class AGRIRSR(InstrumentRSR):
 
         wavelength = data[0] * scale
         response = data[1]
-        print(response.shape)
 
         # Cut unneeded points
         pts = np.argwhere(response > 0.001)
 
         wavelength = np.squeeze(wavelength[pts])
         response = np.squeeze(response[pts]) * 100.
-        print(response.shape)
 
         self.rsr = {'wavelength': wavelength, 'response': response}
 
