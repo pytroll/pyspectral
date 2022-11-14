@@ -33,7 +33,7 @@ import pytest
 import responses
 
 from pyspectral import utils
-from pyspectral.utils import bytes2string, check_and_adjust_instrument_name, np2str
+from pyspectral.utils import bytes2string, check_and_adjust_instrument_name, are_instruments_identical, np2str
 
 TEST_RSR = {'20': {}, }
 TEST_RSR2 = {'20': {}, }
@@ -415,3 +415,28 @@ def test_check_and_adjust_instrument_name_instrument_name_inconsistent(caplog,
 
     log_output = "Inconsistent instrument/satellite input - instrument set to {instr}".format(instr=exp_sensor_name)
     assert log_output in caplog.text
+
+
+@pytest.mark.parametrize(
+    ("platform_name", "input_value_sensor", "exp_sensor_name"),
+    [
+        ('GOES-16', 'abi', 'abi'),
+        ('FY-4B', 'ghi', 'ghi'),
+        ('Meteosat-12', 'fci', 'fci'),
+    ],
+)
+def test_check_and_adjust_instrument_name_correct(platform_name, input_value_sensor, exp_sensor_name):
+    """Check instrument name is not changed if correct."""
+    assert check_and_adjust_instrument_name(platform_name, input_value_sensor) == exp_sensor_name
+
+
+
+def test_are_instruments_identical():
+    """Test that error is raised if non-string is passed to the function."""
+    res = are_instruments_identical('thing1', 'thing1')
+    assert res is True
+    res = are_instruments_identical('thing1', 'thing2')
+    assert res is False
+
+    with pytest.raises(ValueError):
+        are_instruments_identical(['thing1', 'thing3'], 'thing2')
