@@ -523,6 +523,14 @@ def bytes2string(var):
     return var
 
 
+def _replace_inst_name(instruments):
+    """Replace an instrument name if it's not available on a platform."""
+    if isinstance(instruments, list):
+        return instruments[0]
+    else:
+        return instruments
+
+
 def check_and_adjust_instrument_name(platform_name, instrument):
     """Check instrument name and try fix if inconsistent.
 
@@ -531,14 +539,18 @@ def check_and_adjust_instrument_name(platform_name, instrument):
     removing the '/'.
     """
     instr = INSTRUMENTS.get(platform_name, instrument.lower())
-    if not are_instruments_identical(instr, instrument.lower()):
-        if isinstance(instr, list):
-            instrument = instr[0]
-        else:
-            instrument = instr
+    if isinstance(instr, list):
+        for inst in instr:
+            goodinst = are_instruments_identical(inst, instrument.lower())
+            if goodinst:
+                break
+    else:
+        goodinst = are_instruments_identical(instr, instrument.lower())
+
+    if not goodinst:
+        instrument = _replace_inst_name(instr)
         LOG.warning("Inconsistent instrument/satellite input - instrument set to %s",
                     instrument)
-
 
     return instrument.lower().replace('/', '').replace('-', '')
 
@@ -550,15 +562,11 @@ def are_instruments_identical(name1, name2):
     (following WMO Oscar) is is with a slash as in 'avhrr/1', but where a
     naming using a dash instead is equally accepted, as in 'avhrr-1'.
     """
+    if not isinstance(name1, str) or not isinstance(name2, str):
+        raise ValueError("Instrument names must be strings.")
+
     if name1 == name2:
         return True
     if name1 == INSTRUMENT_TRANSLATION_DASH2SLASH.get(name2):
         return True
-    if isinstance(name1, list) and isinstance(name2, str):
-        if name2 in name1:
-            return True
-    if isinstance(name2, list) and isinstance(name1, str):
-        if name1 in name2:
-            return True
-
     return False

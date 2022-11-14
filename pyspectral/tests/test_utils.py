@@ -430,7 +430,6 @@ def test_check_and_adjust_instrument_name_correct(platform_name, input_value_sen
     assert check_and_adjust_instrument_name(platform_name, input_value_sensor) == exp_sensor_name
 
 
-
 def test_are_instruments_identical():
     """Test that error is raised if non-string is passed to the function."""
     res = are_instruments_identical('thing1', 'thing1')

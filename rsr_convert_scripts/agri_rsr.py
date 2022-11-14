@@ -105,7 +105,6 @@ class AGRIRSR(InstrumentRSR):
                                     'response'],
                              skip_header=1)
 
-
         wavelength = data[0] * scale
         response = data[1]
         print(response.shape)
@@ -122,7 +121,7 @@ class AGRIRSR(InstrumentRSR):
 
 def convert_agri():
     """Read original AGRI RSR data and convert to common Pyspectral hdf5 format."""
-    for platform_name in [ "FY-4B"]:
+    for platform_name in ["FY-4B"]:
         tohdf5(AGRIRSR, platform_name, FY4_AGRI_BAND_NAMES)
 
 
