@@ -282,14 +282,21 @@ class TestRayleigh:
 
     def test_rayleigh_getname(self):
         """Test logic for Rayleigh instrument selection."""
-        rayl = _create_rayleigh(platform='FY-4A')
+
+        with pytest.raises(ValueError):
+            _create_rayleigh(platform='FY-4B')
+
+        rayl = _create_rayleigh(platform='FY-4A', sensor='agri')
         assert rayl.sensor == 'agri'
-        rayl = _create_rayleigh(platform='FY-4B')
+
+        rayl = _create_rayleigh(platform='FY-4B', sensor='agri')
         assert rayl.sensor == 'agri'
+
         rayl = _create_rayleigh(platform='FY-4B', sensor='ghi')
         assert rayl.sensor == 'ghi'
-        rayl = _create_rayleigh(platform='FY-4B', sensor='nosensor')
-        assert rayl.sensor == 'agri'
+
+        with pytest.raises(ValueError):
+            _create_rayleigh(platform='FY-4B', sensor='nosensor')
 
     @patch('pyspectral.rayleigh.da', None)
     def test_get_reflectance_redband_outside_clip(self, fake_lut_hdf5):
