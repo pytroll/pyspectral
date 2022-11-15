@@ -2,6 +2,14 @@ Changelog for the Relative Spectral Response data
 =================================================
 
 
+Version <v1.2.2> (Tue Nov 15 14:44:03 2022)
+-------------------------------------------
+
+ * Added RSR file for AGRI onboard FY-4B
+ * Corrected RSR file for AGRI onboard FY-3B
+   Values were between 0 and 100, now scaled to between 0 and 1
+
+
 Version <v1.2.1> (Mon Oct 24 16:26:14 2022)
 -------------------------------------------
 
