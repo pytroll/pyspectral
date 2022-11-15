@@ -17,9 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Read the FY-4A AGRI relative spectral responses.
+"""Read the FY-4A/B AGRI relative spectral responses.
 
-Data from http://fy4.nsmc.org.cn/portal/cn/fycv/srf.html
+Data from http://satellite.nsmc.org.cn/PortalSite/StaticContent/DocumentDownload.aspx?TypeID=590
 """
 import os
 
@@ -68,12 +68,18 @@ class AGRIRSR(InstrumentRSR):
 
     def __init__(self, bandname, platform_name):
         """Initialise the FY-4 AGRI relative spectral response data."""
-        super(AGRIRSR, self).__init__(bandname, platform_name, FY4_AGRI_BAND_NAMES)
+        if platform_name == 'FY-4A':
+            super(AGRIRSR, self).__init__(bandname, platform_name, FY4_AGRI_BAND_NAMES[:-1])
+        else:
+            super(AGRIRSR, self).__init__(bandname, platform_name, FY4_AGRI_BAND_NAMES)
 
         self.instrument = INSTRUMENTS.get(platform_name, 'agri')
+        if type(self.instrument) is list:
+            self.instrument = 'agri'
 
         self._get_options_from_config()
         self._get_bandfilenames()
+
 
         LOG.debug("Filenames: %s", str(self.filenames))
         if self.filenames[bandname] and os.path.exists(self.filenames[bandname]):
@@ -98,21 +104,34 @@ class AGRIRSR(InstrumentRSR):
         Wavelength is given in nanometers.
         """
         data = np.genfromtxt(self.requested_band_filename,
-                             unpack=True,
+                             unpack=True, delimiter='\t',
                              names=['wavelength',
                                     'response'],
-                             skip_header=0)
+                             skip_header=1)
 
-        wavelength = data['wavelength'] * scale
-        response = data['response'] / 100.
+        wavelength = data[0] * scale
+        response = data[1]
+
+        # Response can be either 0-1 or 0-100 depending on RSR source - this scales to 0-1 range.
+        if np.nanmax(response > 1):
+            response = response / 100.
+
+        # Cut unneeded points
+        pts = np.argwhere(response > 0.001)
+
+        wavelength = np.squeeze(wavelength[pts])
+        response = np.squeeze(response[pts])
 
         self.rsr = {'wavelength': wavelength, 'response': response}
 
 
 def convert_agri():
     """Read original AGRI RSR data and convert to common Pyspectral hdf5 format."""
-    for platform_name in ["FY-4A", "FY-4B"]:
-        tohdf5(AGRIRSR, platform_name, FY4_AGRI_BAND_NAMES)
+    # For FY-4A
+    # tohdf5(AGRIRSR, 'FY-4A', FY4_AGRI_BAND_NAMES[:-1])
+
+    # For FY-4B
+    tohdf5(AGRIRSR, 'FY-4B', FY4_AGRI_BAND_NAMES)
 
 
 if __name__ == "__main__":
