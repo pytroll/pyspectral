@@ -120,8 +120,8 @@ def _create_fake_lut_hdf5_file(base_dir, atm_type) -> str:
     return filename
 
 
-def _create_rayleigh():
-    rayl = rayleigh.Rayleigh('NOAA-20', 'viirs', atmosphere='midlatitude summer')
+def _create_rayleigh(platform='NOAA-20', sensor='VIIRS'):
+    rayl = rayleigh.Rayleigh(platform, sensor, atmosphere='midlatitude summer')
     return rayl
 
 
@@ -279,6 +279,24 @@ class TestRayleigh:
         # Test case where extreme reduction is performed.
         retv = rayleigh.Rayleigh.reduce_rayleigh_highzenith(sun_zenith, in_rayleigh, 30., 90., 1.5)
         np.testing.assert_allclose(retv, TEST_RAYLEIGH_RESULT_R2)
+
+    def test_rayleigh_getname(self):
+        """Test logic for Rayleigh instrument selection."""
+
+        with pytest.raises(ValueError):
+            _create_rayleigh(platform='FY-4B')
+
+        rayl = _create_rayleigh(platform='FY-4A', sensor='agri')
+        assert rayl.sensor == 'agri'
+
+        rayl = _create_rayleigh(platform='FY-4B', sensor='agri')
+        assert rayl.sensor == 'agri'
+
+        rayl = _create_rayleigh(platform='FY-4B', sensor='ghi')
+        assert rayl.sensor == 'ghi'
+
+        with pytest.raises(ValueError):
+            _create_rayleigh(platform='FY-4B', sensor='nosensor')
 
     @patch('pyspectral.rayleigh.da', None)
     def test_get_reflectance_redband_outside_clip(self, fake_lut_hdf5):
