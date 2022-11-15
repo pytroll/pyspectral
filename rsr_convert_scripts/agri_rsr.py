@@ -128,7 +128,7 @@ class AGRIRSR(InstrumentRSR):
 def convert_agri():
     """Read original AGRI RSR data and convert to common Pyspectral hdf5 format."""
     # For FY-4A
-    #tohdf5(AGRIRSR, 'FY-4A', FY4_AGRI_BAND_NAMES[:-1])
+    # tohdf5(AGRIRSR, 'FY-4A', FY4_AGRI_BAND_NAMES[:-1])
 
     # For FY-4B
     tohdf5(AGRIRSR, 'FY-4B', FY4_AGRI_BAND_NAMES)
