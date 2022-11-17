@@ -385,6 +385,20 @@ class TestPopulateRSRObject(unittest.TestCase):
         expected = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
         assertNumpyArraysEqual(test_rsr.rsr['M1']['det-1']['response'].data, expected)
 
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
+    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_consistent_input')
+    def test_get_bandname_from_rsr(self,
+                                   check_consistent_input, load):
+        """Test get the matching band name from the rsr object."""
+        load.return_value = None
+        check_consistent_input.return_value = None
+
+        test_rsr = RelativeSpectralResponse('EOS-Aqua', 'modis')
+        test_rsr.rsr = TEST_RSR
+
+        myband = test_rsr.get_bandname_from_wavelength(3.75)
+        assert myband == '20'
+
     def test_rsr_dict(self):
         """Test finding correct band names from utils dicts."""
         test_rsr = RSRDict(instrument='viirs')
@@ -441,6 +455,16 @@ def test_get_rsr_from_platform_and_instrument(get_rsr_version,
         assert test_rsr.platform_name == platform_name
         assert test_rsr.instrument == exp_instrument
         assert os.path.basename(test_rsr.filename) == exp_filename
+
+    # def test_get_bandname_from_wavelength_inconsistent_instrument_name(self):
+    #     """Test the right bandname is found provided the wavelength in micro meters.
+
+    #     Here we test that if you enter with a sensor name different from what
+    #     is set in the RSR object, an error is raised.
+
+    #     """
+    #     with pytest.raises(AttributeError):
+    #         bname = utils.get_bandname_from_wavelength('ahi', 0.4, self.rsr)
 
 
 @pytest.mark.parametrize(

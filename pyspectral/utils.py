@@ -62,6 +62,9 @@ INSTRUMENTS = {'NOAA-19': 'avhrr/3',
                'Metop-C': 'avhrr/3',
                'Suomi-NPP': 'viirs',
                'NOAA-20': 'viirs',
+               'NOAA-21': 'viirs',
+               'Sentinel-3A': ['olci', 'slstr'],
+               'Sentinel-3B': ['olci', 'slstr'],
                'EOS-Aqua': 'modis',
                'EOS-Terra': 'modis',
                'FY-3E': 'mersi-2',
@@ -212,8 +215,6 @@ def get_central_wave(wav, resp, weight=1.0):
 
 def get_bandname_from_wavelength(sensor, wavelength, rsr, epsilon=0.1, multiple_bands=False):
     """Get the bandname from h5 rsr provided the approximate wavelength."""
-    # channel_list = [channel for channel in rsr.rsr if abs(
-    # rsr.rsr[channel]['det-1']['central_wavelength'] - wavelength) < epsilon]
     chdist_min = 2.0
     chfound = []
     for channel in rsr:

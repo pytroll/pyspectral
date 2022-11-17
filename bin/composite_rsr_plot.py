@@ -28,7 +28,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from pyspectral.rsr_reader import RelativeSpectralResponse
-from pyspectral.utils import get_bandname_from_wavelength, get_logger, logging_off, logging_on
+from pyspectral.utils import INSTRUMENTS, get_logger, logging_off, logging_on
 
 
 def plot_band(plt_in, band_name, rsr_obj, **kwargs):
@@ -149,6 +149,8 @@ if __name__ == "__main__":
 
     for platform in platform_names:
         for sensor in sensors:
+            if platform in INSTRUMENTS and sensor not in INSTRUMENTS.get(platform):
+                continue
             try:
                 rsr = RelativeSpectralResponse(platform, sensor)
             except IOError:
@@ -165,7 +167,7 @@ if __name__ == "__main__":
         LOG.debug("Platform name %s and Sensor: %s", str(rsr.platform_name), str(rsr.instrument))
 
         if req_wvl:
-            bands = get_bandname_from_wavelength(sensor, req_wvl, rsr.rsr, 0.25, multiple_bands=True)
+            bands = rsr.get_bandname_from_wavelength(req_wvl, 0.25, multiple_bands=True)
             if not bands:
                 continue
             if isinstance(bands, list):
@@ -184,7 +186,7 @@ if __name__ == "__main__":
             wvlx = wvlmin
             prev_band = None
             while wvlx < wvlmax:
-                bands = get_bandname_from_wavelength(sensor, wvlx, rsr.rsr, wavel_res, multiple_bands=True)
+                bands = rsr.get_bandname_from_wavelength(wvlx, wavel_res, multiple_bands=True)
 
                 if isinstance(bands, list):
                     b__ = bands[0]
