@@ -26,9 +26,9 @@ from os.path import expanduser
 
 import numpy as np
 
+from pyspectral.bandnames import BANDNAMES
 from pyspectral.config import get_config
 from pyspectral.utils import (
-    BANDNAMES,
     INSTRUMENTS,
     RSR_DATA_VERSION,
     RSR_DATA_VERSION_FILENAME,
@@ -38,6 +38,7 @@ from pyspectral.utils import (
     convert2str,
     convert2wavenumber,
     download_rsr,
+    get_bandname_from_wavelength,
     get_central_wave,
 )
 
@@ -334,6 +335,11 @@ class RelativeSpectralResponse(RSRDataBaseClass):
                 self.set_band_responses_per_detector(h5f, bandname, dname)
                 self.set_band_wavelengths_per_detector(h5f, bandname, dname)
                 self.set_band_central_wavelength_per_detector(h5f, bandname, dname)
+
+    def get_bandname_from_wavelength(self, wavelength, epsilon=0.1, multiple_bands=False):
+        """Get the band name from the wavelength."""
+        return get_bandname_from_wavelength(self.instrument, wavelength, self.rsr,
+                                            epsilon=epsilon, multiple_bands=multiple_bands)
 
 
 def check_and_download(dest_dir=None, dry_run=False):

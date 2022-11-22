@@ -25,7 +25,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from pyspectral.rsr_reader import RelativeSpectralResponse
-from pyspectral.utils import get_bandname_from_wavelength
 
 if __name__ == "__main__":
 
@@ -69,7 +68,7 @@ if __name__ == "__main__":
         band = args.bandname
     else:
         wavelength = args.wavelength
-        band = get_bandname_from_wavelength(sensor, wavelength, rsr.rsr)
+        band = rsr.get_bandname_from_wavelength(wavelength)
 
     detectors = rsr.rsr[band].keys()
     for det in detectors:
