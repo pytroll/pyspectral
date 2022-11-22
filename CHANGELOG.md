@@ -1,3 +1,29 @@
+## Version <v0.12.3> (2022/11/22)
+
+### Issues Closed
+
+* [Issue 172](https://github.com/pytroll/pyspectral/issues/172) - Bug plotting spectral responses with MODIS ([PR 174](https://github.com/pytroll/pyspectral/pull/174) by [@adybbroe](https://github.com/adybbroe))
+* [Issue 166](https://github.com/pytroll/pyspectral/issues/166) - raise keyerror when loading B07 of himawari_ahi using DataQuery
+* [Issue 155](https://github.com/pytroll/pyspectral/issues/155) - NOAA-6 spectral responses are wrong for channel 1 & 2
+* [Issue 149](https://github.com/pytroll/pyspectral/issues/149) - Add FY4B AGRI bands
+* [Issue 143](https://github.com/pytroll/pyspectral/issues/143) - Implement RSRs for AGRI aboard FengYun-4B ([PR 171](https://github.com/pytroll/pyspectral/pull/171) by [@simonrp84](https://github.com/simonrp84))
+
+In this release 5 issues were closed.
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 174](https://github.com/pytroll/pyspectral/pull/174) - Fix bug getting bandname from RSR data ([172](https://github.com/pytroll/pyspectral/issues/172))
+
+#### Features added
+
+* [PR 173](https://github.com/pytroll/pyspectral/pull/173) - Fix4agri on fy4a and fy4b
+* [PR 171](https://github.com/pytroll/pyspectral/pull/171) - Update for FY-4B ([143](https://github.com/pytroll/pyspectral/issues/143))
+
+In this release 3 pull requests were closed.
+
+
 ## Version <v0.12.2> (2022/10/24)
 
 ### Issues Closed
