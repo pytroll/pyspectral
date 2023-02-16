@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2013-2022 Pytroll developers
+# Copyright (c) 2013-2023 Pytroll developers
 #
 #
 # This program is free software: you can redistribute it and/or modify
@@ -227,7 +227,7 @@ def blackbody_wn(wavenumber, temp):
             Unit = W/m^2 sr^-1 (m^-1)^-1 = W/m sr^-1
 
             Converting from SI units to mW/m^2 sr^-1 (cm^-1)^-1:
-            1.0 W/m^2 sr^-1 (m^-1)^-1 = 0.1 mW/m^2 sr^-1 (cm^-1)^-1
+            1.0 W/m^2 sr^-1 (m^-1)^-1 = 1.0e5 mW/m^2 sr^-1 (cm^-1)^-1
 
     """
     return planck(wavenumber, temp, wavelength=False)
