@@ -1,0 +1,13 @@
+name: readthedocs
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pytest
+  - sphinx
+  - sphinx_rtd_theme
+  - sphinxcontrib-apidoc
+  - pip:
+    - graphviz
+    - ..  # relative path to the satpy project
