@@ -30,11 +30,11 @@ jobs:
       - name: Setup Conda Environment
         uses: conda-incubator/setup-miniconda@v2
         with:
-          miniconda-version: "latest"
-          python-version: ${{ matrix.python-version }}
-          mamba-version: "*"
-          channels: conda-forge,defaults
           environment-file: continuous_integration/environment.yaml
+          miniforge-variant: Mambaforge
+          miniforge-version: latest
+          use-mamba: true
+          python-version: ${{ matrix.python-version }}
           activate-environment: test-environment
 
       - name: Install unstable dependencies
@@ -45,7 +45,7 @@ jobs:
           gcc \
           python3-dev; \
           python -m pip install \
-          -f https://7933911d6844c6c53a7d-47bd50c35cd79bd838daf386af554a83.ssl.cf2.rackcdn.com \
+          -f https://pypi.anaconda.org/scientific-python-nightly-wheels/simple/ \
           --no-deps --pre --upgrade \
           matplotlib \
           numpy \
