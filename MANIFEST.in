@@ -3,6 +3,7 @@ exclude *
 graft doc
 recursive-exclude doc/_build *
 graft pyspectral
+graft bin
 recursive-exclude pyspectral/data/modis *
 include LICENSE.txt
 include README.md
