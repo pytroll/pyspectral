@@ -25,4 +25,4 @@ except ModuleNotFoundError:
     raise ModuleNotFoundError(
         "No module named pyspectral.version. This could mean "
         "you didn't install 'pyspectral' properly. Try reinstalling ('pip "
-        "install').")
+        "install pyspectral').")
