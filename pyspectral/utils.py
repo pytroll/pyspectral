@@ -383,7 +383,8 @@ def download_luts(aerosol_types=None, dry_run=False, aerosol_type=None):
 
 def _get_aerosol_types(aerosol_types, aerosol_type):
     if aerosol_type is not None:
-        warnings.warn("'aerosol_type' is deprecated, use 'aerosol_types' instead.", UserWarning)
+        warnings.warn("'aerosol_type' is deprecated, use 'aerosol_types' instead.", UserWarning,
+                      stacklevel=3)
         if isinstance(aerosol_type, (list, tuple, set)):
             aerosol_types = aerosol_type
         else:
