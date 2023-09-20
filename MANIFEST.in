@@ -1,6 +1,13 @@
-include pyspectral/etc/*
-include pyspectral/data/e490_00a.dat
-include pyspectral/data/MSG_SEVIRI_Spectral_Response_Characterisation.XLS
+prune *
+exclude *
+graft doc
+recursive-exclude doc/_build *
+graft pyspectral
+recursive-exclude pyspectral/data/modis *
 include LICENSE.txt
-include versioneer.py
+include README.md
+include AUTHORS.md
+include CHANGELOG.md
+include CHANGELOG_RSR_DATA.md
 include pyspectral/version.py
+global-exclude *.py[cod]
