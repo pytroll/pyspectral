@@ -15,17 +15,20 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""Read the Electro-L N2 MSU-GS spectral response functions.
 
-"""Read the Electro-L N2 MSU-GS spectral response functions. Data from the NWPSAF:
+Data from the NWPSAF:
 https://nwp-saf.eumetsat.int/downloads/rtcoef_rttov13/ir_srf/rtcoef_electro-l_2_msugs_srf.html
 
 """
 
-import os
-import numpy as np
-from pyspectral.utils import convert2hdf5 as tohdf5
-from pyspectral.raw_reader import InstrumentRSR
 import logging
+import os
+
+import numpy as np
+
+from pyspectral.raw_reader import InstrumentRSR
+from pyspectral.utils import convert2hdf5 as tohdf5
 
 LOG = logging.getLogger(__name__)
 
@@ -40,12 +43,11 @@ _DEFAULT_LOG_FORMAT = '[%(levelname)s: %(asctime)s : %(name)s] %(message)s'
 
 
 class MsugsRSR(InstrumentRSR):
-    """Container for the Electro-L N2 MSU-GS relative spectral response data"""
+    """Container for the Electro-L N2 MSU-GS relative spectral response data."""
 
     def __init__(self, bandname, platform_name):
-
-        super(MsugsRSR, self).__init__(
-            bandname, platform_name, MSUGS_BAND_NAMES)
+        """Load files."""
+        super(MsugsRSR, self).__init__(bandname, platform_name, MSUGS_BAND_NAMES)
 
         self.instrument = 'msu-gs'
         self._get_options_from_config()
@@ -67,7 +69,7 @@ class MsugsRSR(InstrumentRSR):
         self.wavespace = 'wavelength'
 
     def _load(self, scale=10000.0):
-        """Load the MSU-GS RSR data for the band requested"""
+        """Load the MSU-GS RSR data for the band requested."""
         data = np.genfromtxt(self.requested_band_filename,
                              unpack=True,
                              names=['wavenumber',
@@ -84,7 +86,7 @@ class MsugsRSR(InstrumentRSR):
 
 
 def main():
-    """Main"""
+    """Run main script."""
     for platform_name in ['Electro-L-N2', ]:
         tohdf5(MsugsRSR, platform_name, MSUGS_BAND_NAMES)
 

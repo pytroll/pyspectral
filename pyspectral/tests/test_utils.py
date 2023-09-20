@@ -33,7 +33,7 @@ import pytest
 import responses
 
 from pyspectral import utils
-from pyspectral.utils import bytes2string, check_and_adjust_instrument_name, are_instruments_identical, np2str
+from pyspectral.utils import are_instruments_identical, bytes2string, check_and_adjust_instrument_name, np2str
 
 TEST_RSR = {'20': {}, }
 TEST_RSR2 = {'20': {}, }

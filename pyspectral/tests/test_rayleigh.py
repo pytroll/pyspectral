@@ -282,7 +282,6 @@ class TestRayleigh:
 
     def test_rayleigh_getname(self):
         """Test logic for Rayleigh instrument selection."""
-
         with pytest.raises(ValueError):
             _create_rayleigh(platform='FY-4B')
 

@@ -23,20 +23,11 @@ import os.path
 
 from setuptools import find_packages, setup
 
-try:
-    # HACK: https://github.com/pypa/setuptools_scm/issues/190#issuecomment-351181286
-    # Stop setuptools_scm from including all repository files
-    import setuptools_scm.integration
-    setuptools_scm.integration.find_files = lambda _: []
-except ImportError:
-    pass
-
-
 description = ('Reading and manipulaing satellite sensor spectral responses and the '
                'solar spectrum, to perfom various corrections to VIS and NIR band data')
 
 try:
-    with open('./README', 'r') as fd:
+    with open('./README.md', 'r') as fd:
         long_description = fd.read()
 except IOError:
     long_description = ''
@@ -62,8 +53,8 @@ setup(name=NAME,
                    'Topic :: Scientific/Engineering'],
       url='https://github.com/pytroll/pyspectral',
       long_description=long_description,
+      long_description_content_type="text/markdown",
       license='GPLv3',
-
       packages=find_packages(),
       include_package_data=True,
       package_data={
@@ -93,5 +84,4 @@ setup(name=NAME,
       tests_require=test_requires,
       python_requires='>=3.7',
       zip_safe=False,
-      use_scm_version=True
       )
