@@ -10,4 +10,7 @@ include AUTHORS.md
 include CHANGELOG.md
 include CHANGELOG_RSR_DATA.rst
 include pyspectral/version.py
+include pyproject.toml
+include setup.py
+include setup.cfg
 global-exclude *.py[cod]
