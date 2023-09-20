@@ -8,6 +8,6 @@ include LICENSE.txt
 include README.md
 include AUTHORS.md
 include CHANGELOG.md
-include CHANGELOG_RSR_DATA.md
+include CHANGELOG_RSR_DATA.rst
 include pyspectral/version.py
 global-exclude *.py[cod]
