@@ -1,3 +1,14 @@
+## Version <v0.12.5> (2023/09/21)
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 195](https://github.com/pytroll/pyspectral/pull/195) - Fix rayleigh not preserving input dtype
+
+In this release 1 pull request was closed.
+
+
 ## Version <v0.12.4> (2023/09/20)
 
 ### Issues Closed
