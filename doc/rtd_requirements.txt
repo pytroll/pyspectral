@@ -1,5 +1,5 @@
 python-geotiepoints>=1.1.1
-numpy>=1.5.1
+numpy>=1.22.2
 scipy>=0.14
 h5py>=2.5
 six
