@@ -85,13 +85,21 @@ class EpicRSR(InstrumentRSR):
                             sheet_name='Data',
                             skiprows=4,
                             engine='openpyxl')
+        # Remove empty row from the data
         df1.drop(df1.index[0], inplace=True)
+        # Column names don't match band names - so we use a dict to find correct
+        # columns. We also need to find the column with the wavelength data.
+        # This is the column before the actual RSR data for each band.
         col_pos = df1.columns.get_loc(EPIC_BAND_NAMES[self.bandname])
         wvl_data = df1.iloc[:, col_pos - 1]
         srf_data = df1.iloc[:, col_pos]
 
+        # Not all bands have an identical number of RSR points, so we need to
+        # remove NaNs from the data.
         wvl_data.dropna(inplace=True)
         srf_data.dropna(inplace=True)
+
+        # Data is in nanometers, so we need to convert to micrometers.
         self.rsr = {'wavelength': np.array(wvl_data) / 1000,
                     'response': np.array(srf_data)}
 
