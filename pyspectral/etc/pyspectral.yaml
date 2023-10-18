@@ -50,6 +50,9 @@ download_from_internet: True
 #   path: /home/a000680/data/SpectralResponses/modis/aqua
 #   tb2rad_lut_filename: /path/to/radiance/tb/lut/data/tb2rad_lut_aqua_modis_ir3.7.npz
 
+#dscovr-epic:
+#   path: C:/Users/Simon/Downloads/EPIC_Filters_Original_Data.xlsx
+
 
 # NOAA-20-viirs:
 #   # J1_VIIRS_RSR_M1_Detector_Fused_V2.txt
