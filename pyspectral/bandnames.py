@@ -70,7 +70,6 @@ for chan_num in range(1, 37):
 # MODIS RSR files were made before 'chX' became standard in pyspectral
 BANDNAMES['modis'] = {str(chan_num): str(chan_num) for chan_num in range(1, 37)}
 
-
 BANDNAMES['seviri'] = {'VIS006': 'VIS0.6',
                        'VIS008': 'VIS0.8',
                        'IR_016': 'NIR1.6',
@@ -186,7 +185,7 @@ BANDNAMES['epic'] = {'B317': 'T(317.5) %',
                      'B680': 'T(680) %',
                      'B688': 'T(687.75) %',
                      'B764': 'T(764) %',
-                     'B780': 'T(779.5) %',}
+                     'B780': 'T(779.5) %'}
 
 BANDNAMES['fci'] = {'vis_04': 'VIS0.4',
                     'vis_05': 'VIS0.5',
