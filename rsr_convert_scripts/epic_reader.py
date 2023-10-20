@@ -101,7 +101,7 @@ class EpicRSR(InstrumentRSR):
 
         # Data is in nanometers, so we need to convert to micrometers.
         self.rsr = {'wavelength': np.array(wvl_data) / 1000,
-                    'response': np.array(srf_data)}
+                    'response': np.array(srf_data) / np.nanmax(srf_data)}
 
 
 if __name__ == "__main__":
@@ -116,5 +116,5 @@ if __name__ == "__main__":
     LOG.setLevel(logging.DEBUG)
     LOG.addHandler(handler)
 
-    for platform_name in ['dscovr', ]:
+    for platform_name in ['DSCOVR', ]:
         tohdf5(EpicRSR, platform_name, list(EPIC_BAND_NAMES.keys()))
