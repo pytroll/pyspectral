@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2022 Pytroll developers
+# Copyright (c) 2014-2023 Pytroll developers
 #
 #
 # This program is free software: you can redistribute it and/or modify
@@ -91,7 +91,8 @@ INSTRUMENTS = {'Envisat': 'aatsr',
                'NOAA-21': 'viirs',
                'Suomi-NPP': 'viirs',
                'FY-3B': 'virr',
-               'FY-3C': 'virr'}
+               'FY-3C': 'virr',
+               'DSCOVR': 'epic'}
 
 
 INSTRUMENT_TRANSLATION_DASH2SLASH = {'avhrr-1': 'avhrr/1',
@@ -99,9 +100,11 @@ INSTRUMENT_TRANSLATION_DASH2SLASH = {'avhrr-1': 'avhrr/1',
                                      'avhrr-3': 'avhrr/3'}
 
 HTTP_PYSPECTRAL_RSR = "https://zenodo.org/record/7311143/files/pyspectral_rsr_data.tgz"
+HTTP_PYSPECTRAL_RSR = "https://zenodo.org/records/10026657/files/pyspectral_rsr_data.tgz"
+
 
 RSR_DATA_VERSION_FILENAME = "PYSPECTRAL_RSR_VERSION"
-RSR_DATA_VERSION = "v1.2.2"
+RSR_DATA_VERSION = "v1.2.3"
 
 ATM_CORRECTION_LUT_VERSION = {}
 ATM_CORRECTION_LUT_VERSION['antarctic_aerosol'] = {'version': 'v1.0.1',

@@ -2,6 +2,12 @@ Changelog for the Relative Spectral Response data
 =================================================
 
 
+Version <v1.2.3> (Fri Oct 20 01:58:29 2023)
+-------------------------------------------
+
+ * Added RSR file for EPIC on DSCOVR (responses not normalized)
+
+
 Version <v1.2.2> (Tue Nov 15 14:44:03 2022)
 -------------------------------------------
 
