@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2021-2022 Adam.Dybbroe
+# Copyright (c) 2021-2023 Pytroll developers
 #
 #
 # This program is free software: you can redistribute it and/or modify
