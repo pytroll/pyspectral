@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2021-2022 Adam.Dybbroe
+# Copyright (c) 2021-2023 Pytroll developers
 #
 #
 # This program is free software: you can redistribute it and/or modify
@@ -69,7 +69,6 @@ for chan_num in range(1, 37):
 
 # MODIS RSR files were made before 'chX' became standard in pyspectral
 BANDNAMES['modis'] = {str(chan_num): str(chan_num) for chan_num in range(1, 37)}
-
 
 BANDNAMES['seviri'] = {'VIS006': 'VIS0.6',
                        'VIS008': 'VIS0.8',
