@@ -80,7 +80,6 @@ class AGRIRSR(InstrumentRSR):
         self._get_options_from_config()
         self._get_bandfilenames()
 
-
         LOG.debug("Filenames: %s", str(self.filenames))
         if self.filenames[bandname] and os.path.exists(self.filenames[bandname]):
             self.requested_band_filename = self.filenames[bandname]

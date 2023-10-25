@@ -19,10 +19,10 @@
 
 """Pyspectral package init."""
 
-from pkg_resources import DistributionNotFound, get_distribution
-
 try:
-    __version__ = get_distribution(__name__).version
-except DistributionNotFound:
-    # package is not installed
-    pass
+    from pyspectral.version import version as __version__  # noqa
+except ModuleNotFoundError:
+    raise ModuleNotFoundError(
+        "No module named pyspectral.version. This could mean "
+        "you didn't install 'pyspectral' properly. Try reinstalling ('pip "
+        "install pyspectral').")

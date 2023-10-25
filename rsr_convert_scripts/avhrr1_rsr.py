@@ -22,15 +22,16 @@
 Data from NOAA: AVHRR1_SRF_only.xls
 """
 
+import logging
 import os
-from xlrd import open_workbook
-from pyspectral.config import get_config
-from pyspectral.utils import get_central_wave
+
+import h5py
 import numpy as np
 import pkg_resources
-import logging
-import h5py
+from xlrd import open_workbook
 
+from pyspectral.config import get_config
+from pyspectral.utils import get_central_wave
 
 LOG = logging.getLogger(__name__)
 

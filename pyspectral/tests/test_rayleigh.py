@@ -158,26 +158,31 @@ class TestRayleighDask:
         np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT4)
         assert isinstance(refl_corr, da.Array)
 
-    def test_get_reflectance_dask(self, fake_lut_hdf5):
+    @pytest.mark.parametrize("dtype", [np.float32, np.float64])
+    def test_get_reflectance_dask(self, fake_lut_hdf5, dtype):
         """Test getting the reflectance correction with dask inputs."""
-        sun_zenith = da.array([67., 32.])
-        sat_zenith = da.array([45., 18.])
-        azidiff = da.array([150., 110.])
-        redband_refl = da.array([14., 5.])
+        sun_zenith = da.array([67., 32.], dtype=dtype)
+        sat_zenith = da.array([45., 18.], dtype=dtype)
+        azidiff = da.array([150., 110.], dtype=dtype)
+        redband_refl = da.array([14., 5.], dtype=dtype)
         rayl = _create_rayleigh()
         with mocked_rsr():
             refl_corr = rayl.get_reflectance(sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
-        np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT1)
+        np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT1.astype(dtype), atol=4.0e-06)
         assert isinstance(refl_corr, da.Array)
+        assert refl_corr.dtype == dtype  # check that the dask array's dtype is equal
+        assert refl_corr.compute().dtype == dtype  # check that the final numpy array's dtype is equal
 
-        sun_zenith = da.array([60., 20.])
-        sat_zenith = da.array([49., 26.])
-        azidiff = da.array([140., 130.])
-        redband_refl = da.array([12., 8.])
+        sun_zenith = da.array([60., 20.], dtype=dtype)
+        sat_zenith = da.array([49., 26.], dtype=dtype)
+        azidiff = da.array([140., 130.], dtype=dtype)
+        redband_refl = da.array([12., 8.], dtype=dtype)
         with mocked_rsr():
             refl_corr = rayl.get_reflectance(sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
-        np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT2)
+        np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT2.astype(dtype), atol=4.0e-06)
         assert isinstance(refl_corr, da.Array)
+        assert refl_corr.dtype == dtype  # check that the dask array's dtype is equal
+        assert refl_corr.compute().dtype == dtype  # check that the final numpy array's dtype is equal
 
     def test_get_reflectance_numpy_dask(self, fake_lut_hdf5):
         """Test getting the reflectance correction with dask inputs."""
@@ -282,7 +287,6 @@ class TestRayleigh:
 
     def test_rayleigh_getname(self):
         """Test logic for Rayleigh instrument selection."""
-
         with pytest.raises(ValueError):
             _create_rayleigh(platform='FY-4B')
 

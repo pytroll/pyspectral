@@ -8,6 +8,12 @@ dependencies:
   - sphinx
   - sphinx_rtd_theme
   - sphinxcontrib-apidoc
+  - dask
+  - scipy
+  - trollsift
+  - h5py
+  - tqdm
+  - xlrd
   - pip:
     - graphviz
     - ..  # relative path to the satpy project

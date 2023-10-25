@@ -220,6 +220,9 @@ class Rayleigh(RayleighConfigBaseClass):
                                         rayleigh_refl, reflectance_lut_filename):
         azid_coord, satz_sec_coord, sunz_sec_coord = get_reflectance_lut_from_file(
             reflectance_lut_filename)
+        azid_coord = azid_coord.astype(rayleigh_refl.dtype, copy=False)
+        satz_sec_coord = satz_sec_coord.astype(rayleigh_refl.dtype, copy=False)
+        sunz_sec_coord = sunz_sec_coord.astype(rayleigh_refl.dtype, copy=False)
 
         sun_zenith = _clip_angles_inside_coordinate_range(sun_zenith, sunz_sec_coord.max())
         sunzsec = 1. / np.cos(np.deg2rad(sun_zenith))
@@ -229,11 +232,10 @@ class Rayleigh(RayleighConfigBaseClass):
 
         smin = [sunz_sec_coord[0], azid_coord[0], satz_sec_coord[0]]
         smax = [sunz_sec_coord[-1], azid_coord[-1], satz_sec_coord[-1]]
-        orders = [
-            len(sunz_sec_coord), len(azid_coord), len(satz_sec_coord)]
+        orders = [len(sunz_sec_coord), len(azid_coord), len(satz_sec_coord)]
         f_3d_grid = np.atleast_2d(rayleigh_refl.ravel())
 
-        minterp = MultilinearInterpolator(smin, smax, orders)
+        minterp = MultilinearInterpolator(smin, smax, orders, dtype=rayleigh_refl.dtype)
         minterp.set_values(f_3d_grid)
         interp_points2 = np.vstack((sunzsec.ravel(), 180 - azidiff.ravel(), satzsec.ravel()))
         res = minterp(interp_points2)
@@ -248,6 +250,7 @@ class Rayleigh(RayleighConfigBaseClass):
         compute = da is not None and not isinstance(sun_zenith, da.Array)
 
         wvl, band_name = self._get_effective_wavelength_and_band_name(band_name_or_wavelength)
+        repr_arr = sun_zenith if redband is None else redband
         try:
             rayleigh_refl = _get_wavelength_adjusted_lut_rayleigh_reflectance(
                 self.reflectance_lut_filename, wvl)
@@ -255,15 +258,15 @@ class Rayleigh(RayleighConfigBaseClass):
             LOG.warning("Effective wavelength for band %s outside "
                         "nominal 400-800 nm range!", str(band_name))
             LOG.info("Setting the rayleigh/aerosol reflectance contribution to zero!")
-            repr_arr = sun_zenith if redband is None else redband
             zeros_like = np.zeros_like if isinstance(repr_arr, np.ndarray) else da.zeros_like
             res = zeros_like(repr_arr)
         else:
+            rayleigh_refl = rayleigh_refl.astype(repr_arr.dtype, copy=False)
             res = _map_blocks_or_direct_call(self._interp_rayleigh_refl_by_angles,
                                              sun_zenith, sat_zenith, azidiff, rayleigh_refl,
                                              self.reflectance_lut_filename,
-                                             meta=np.array((), dtype=rayleigh_refl.dtype),
-                                             dtype=rayleigh_refl.dtype,
+                                             meta=np.array((), dtype=repr_arr.dtype),
+                                             dtype=repr_arr.dtype,
                                              chunks=getattr(azidiff, "chunks", None))
 
         if redband is not None:

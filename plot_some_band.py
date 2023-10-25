@@ -19,14 +19,15 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-"""Plot relative spectral responses for a list of sensors"""
+"""Plot relative spectral responses for a list of sensors."""
 
 import argparse
+
 import matplotlib.pyplot as plt
+import numpy as np
+
 from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.utils import get_bandname_from_wavelength
-import numpy as np
 
 platforms = ['Himawari-8', 'GOES-16', 'Meteosat-10',
              'EOS-Aqua', 'Sentinel-3A', 'Sentinel-3A',

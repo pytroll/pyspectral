@@ -1,3 +1,36 @@
+## Version <v0.12.5> (2023/09/21)
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 195](https://github.com/pytroll/pyspectral/pull/195) - Fix rayleigh not preserving input dtype
+
+In this release 1 pull request was closed.
+
+
+## Version <v0.12.4> (2023/09/20)
+
+### Issues Closed
+
+* [Issue 177](https://github.com/pytroll/pyspectral/issues/177) - Unit Convert Error in the Doc. ([PR 180](https://github.com/pytroll/pyspectral/pull/180) by [@adybbroe](https://github.com/adybbroe))
+
+In this release 1 issue was closed.
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 197](https://github.com/pytroll/pyspectral/pull/197) - Overhaul build process with setuptools_scm and written version file
+* [PR 180](https://github.com/pytroll/pyspectral/pull/180) - Bugfix in function doc header ([177](https://github.com/pytroll/pyspectral/issues/177))
+
+#### Documentation changes
+
+* [PR 180](https://github.com/pytroll/pyspectral/pull/180) - Bugfix in function doc header ([177](https://github.com/pytroll/pyspectral/issues/177))
+
+In this release 3 pull requests were closed.
+
+
 ## Version <v0.12.3> (2022/11/22)
 
 ### Issues Closed
