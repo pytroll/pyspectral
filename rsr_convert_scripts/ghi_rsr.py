@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2018-2022 Pytroll developers
+# Copyright (c) 2018-2023 Pytroll developers
 #
 #
 # This program is free software: you can redistribute it and/or modify
@@ -19,7 +19,7 @@
 
 """Read the FY-4B GHI relative spectral responses.
 
-Data from http://satellite.nsmc.org.cn/PortalSite/StaticContent/FileDownload.aspx?CategoryID=1&LinkID=687
+Data from https://satellite.nsmc.org.cn/PortalSite/StaticContent/FileDownload.aspx?CategoryID=1&LinkID=687
 """
 import os
 
