@@ -249,6 +249,16 @@ download_from_internet: True
 #     ch14: FY4B_AGRI_SRF_CH14_Pub.txt
 #     ch15: FY4B_AGRI_SRF_CH15_Pub.txt
 
+# FY-4B-ghi:
+    # path: D:/satpy_config/FY4B_GHI_SRF
+    # ch1: FY4B_GHI_SRF_CH01_Pub.txt
+    # ch2: FY4B_GHI_SRF_CH02_Pub.txt
+    # ch3: FY4B_GHI_SRF_CH03_Pub.txt
+    # ch4: FY4B_GHI_SRF_CH04_Pub.txt
+    # ch5: FY4B_GHI_SRF_CH05_Pub.txt
+    # ch6: FY4B_GHI_SRF_CH06_Pub.txt
+    # ch7: FY4B_GHI_SRF_CH07_Pub.txt
+
 #Electro-L-N2-msu-gs:
 #     path: /path/to/rsrs/rtcoef_electro-l_2_msugs_srf/
 #     ch1: rtcoef_electro-l_2_msugs_srf_ch01.txt
