@@ -48,14 +48,20 @@ class SolarIrradianceSpectrum(object):
     in units of W/m^2/micron
     """
 
-    def __init__(self, filename, **options):
+    def __init__(self, filename=TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, **options):
         """Initialize the top of atmosphere solar irradiance spectrum object from file.
 
+        By default, this will use the following spectra:
+        2000 ASTM Standard Extraterrestrial Spectrum Reference E-490-00
+
+        To use a different spectra, specify the `filename` when initialising the class.
+
         Input:
-        filename: Filename of the solar irradiance spectrum
+        filename: Filename of the solar irradiance spectrum (default: 2000 ASTM)
         dlambda:
         Delta wavelength: the step in wavelength defining the resolution on
         which to integrate/convolute.
+
 
         """
         self.wavelength = None
