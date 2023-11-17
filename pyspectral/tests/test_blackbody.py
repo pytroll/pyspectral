@@ -107,7 +107,7 @@ class TestBlackbody(unittest.TestCase):
         temp2 = blackbody_wn_rad2temp(wavenumber, black[1])
         self.assertAlmostEqual(temp2, 301.0, 4)
 
-        t__ = blackbody_wn_rad2temp(wavenumber, [0.001, 0.0009])
+        t__ = blackbody_wn_rad2temp(wavenumber, np.array([0.001, 0.0009]))
         expected = [290.3276916, 283.76115441]
         self.assertAlmostEqual(t__[0], expected[0])
         self.assertAlmostEqual(t__[1], expected[1])
