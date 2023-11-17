@@ -20,6 +20,7 @@
 """Testing the radiance to brightness temperature conversion."""
 
 import unittest
+import warnings
 from unittest.mock import patch
 
 import numpy as np
@@ -350,24 +351,75 @@ class TestRadTbConversions(unittest.TestCase):
         res = self.modis.tb2radiance(200.1, lut=False)
         assert res['radiance'] == pytest.approx(865.09759706)
 
-    def test_rad2tb_arrays_and_types(self):
-        """Unit testing the radiance to brightness temperature conversion."""
-        # 1d rads
-        rad = TRUE_RADS
-        central_wavelength = TEST_RSR['20']['det-1']['central_wavelength'] * 1e-6
-        tbs = radiance2tb(rad, central_wavelength)
-        np.testing.assert_allclose(tbs, TEST_TBS, atol=0.25)
 
-        # 2d rads
-        rad = np.vstack((TRUE_RADS, TRUE_RADS))
-        tbs = radiance2tb(rad, central_wavelength)
-        assert tbs.shape == rad.shape
+def test_rad2tb_types():
+    """Test radiance to brightness temperature conversion preserves shape and type."""
+    # 1d rads
+    rad = TRUE_RADS
+    central_wavelength = TEST_RSR['20']['det-1']['central_wavelength'] * 1e-6
+    tbs = radiance2tb(rad, central_wavelength)
+    np.testing.assert_allclose(tbs, TEST_TBS, atol=0.25)
 
-        xr = pytest.importorskip("xarray")
-        rad = xr.DataArray(TRUE_RADS, dims=["x"])
+    # 2d rads
+    rad_2d = np.vstack((TRUE_RADS, TRUE_RADS))
+    tbs = radiance2tb(rad_2d, central_wavelength)
+    assert tbs.shape == rad_2d.shape
+
+    tbs = radiance2tb(rad_2d.astype(np.float32), central_wavelength)
+    assert tbs.dtype == np.float32
+
+
+def test_rad2tb_xarray_types():
+    """Test radiance to brightness temperature conversion works with xarray."""
+    xr = pytest.importorskip("xarray")
+
+    central_wavelength = 3.78e-6
+
+    rad_2d = np.vstack((TRUE_RADS, TRUE_RADS))
+    rad = xr.DataArray(rad_2d, dims=["y", "x"])
+    tbs = radiance2tb(rad, central_wavelength)
+    assert isinstance(tbs, xr.DataArray)
+
+    rad = xr.DataArray(rad_2d.astype(np.float32), dims=["y", "x"])
+    tbs = radiance2tb(rad, central_wavelength)
+    assert tbs.dtype == np.float32
+
+
+def test_rad2tb_does_not_warn_about_invalid_log_values():
+    """Test that radiance to temp does not warn about invalid log values."""
+    xr = pytest.importorskip("xarray")
+
+    central_wavelength = 3.78e-6
+
+    rad = xr.DataArray(np.array([-1, 2, 3]).astype(np.float32), dims=["x"])
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
         tbs = radiance2tb(rad, central_wavelength)
+        assert np.isnan(tbs[0])
+
+    da = pytest.importorskip("dask.array")
+
+    rad = da.from_array(np.array([-1, 2, 3]), chunks=2).astype(np.float32)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        tbs = da.map_blocks(radiance2tb, rad, wavelength=central_wavelength)
+        assert np.isnan(tbs[0])
+
+    rad = xr.DataArray(da.from_array(np.array([-1, 2, 3]), chunks=2).astype(np.float32), dims=["x"])
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        tbs = xr.map_blocks(radiance2tb, rad, kwargs=dict(wavelength=central_wavelength))
+        assert np.isnan(tbs[0])
+
+    rad = da.from_array(np.array([-1, 2, 3]), chunks=2).astype(np.float32)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        tbs = radiance2tb(rad, central_wavelength)
+        assert np.isnan(tbs[0])
+
+    rad = xr.DataArray(da.from_array(np.array([-1, 2, 3]), chunks=2).astype(np.float32), dims=["x"])
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        tbs = radiance2tb(rad, central_wavelength)
+        assert np.isnan(tbs[0])
         assert isinstance(tbs, xr.DataArray)
-
-        rad = xr.DataArray(TRUE_RADS.astype(np.float32), dims=["x"])
-        tbs = radiance2tb(rad, central_wavelength)
-        assert tbs.dtype == np.float32
