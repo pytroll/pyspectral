@@ -19,18 +19,14 @@
 
 """Testing the radiance to brightness temperature conversion."""
 
-import sys
+import unittest
+from unittest.mock import patch
 
 import numpy as np
 import pytest
 
 from pyspectral.radiance_tb_conversion import RadTbConverter, SeviriRadTbConverter, radiance2tb
 from pyspectral.utils import get_central_wave
-
-import unittest
-
-from unittest.mock import patch
-
 
 TEST_TBS = np.array([200., 270., 300., 302., 350.], dtype='float32')
 

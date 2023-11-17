@@ -53,7 +53,6 @@ def blackbody_rad2temp(wavelength, radiance):
     return const1 / (wavelength * np.log(const2 / (radiance * wavelength**5) + 1.0))
 
 
-
 def blackbody_wn_rad2temp(wavenumber, radiance):
     """Derive brightness temperatures from radiance using the inverse Planck function.
 
