@@ -205,11 +205,16 @@ class TestReflectance(unittest.TestCase):
 
         try:
             import dask.array as da
-            sunz = da.from_array([50.], chunks=10)
-            tb3 = da.from_array([300.], chunks=10)
-            tb4 = da.from_array([285.], chunks=10)
-            refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
-            self.assertTrue(hasattr(refl, 'compute'))
+            import dask.config
+
+            from pyspectral.tests.unittest_helpers import CustomScheduler
+
+            with dask.config.set(scheduler=CustomScheduler(max_computes=0)):
+                sunz = da.from_array([50.], chunks=10)
+                tb3 = da.from_array([300.], chunks=10)
+                tb4 = da.from_array([285.], chunks=10)
+                refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
+                self.assertTrue(hasattr(refl, 'compute'))
         except ImportError:
             pass
 
