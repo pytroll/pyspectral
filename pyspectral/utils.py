@@ -585,7 +585,10 @@ def are_instruments_identical(name1, name2):
 
 
 def use_map_blocks_on(argument_to_run_map_blocks_on):
-    """Use map blocks on a given argument."""
+    """Use map blocks on a given argument.
+
+    This decorator assumes only one of the arguments of the decorated function is chunked.
+    """
     def decorator(f):
         argspec = getfullargspec(f)
         argument_index = argspec.args.index(argument_to_run_map_blocks_on)
