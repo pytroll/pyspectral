@@ -242,12 +242,12 @@ class Calculator(RadTbConverter):
 
         # Assume rsr is in microns!!!
         # FIXME!
-        self._rad3x_t11 = self.tb2radiance(tb_therm, lut=lut)['radiance']
-        thermal_emiss_one = self._rad3x_t11 * self.rsr_integral
-
-        l_nir = self.tb2radiance(tb_nir, lut=lut)['radiance']
+        self._rad3x_t11 = self.tb2radiance(tb_therm, lut=lut)['radiance'].astype(tb_nir.dtype)
+        rsr_integral = tb_therm.dtype.type(self.rsr_integral)
+        thermal_emiss_one = self._rad3x_t11 * rsr_integral
+        l_nir = self.tb2radiance(tb_nir, lut=lut)['radiance'].astype(tb_nir.dtype)
         self._rad3x = l_nir.copy()
-        l_nir *= self.rsr_integral
+        l_nir *= rsr_integral
 
         if thermal_emiss_one.ravel().shape[0] < 10:
             LOG.info('thermal_emiss_one = %s', str(thermal_emiss_one))
@@ -268,7 +268,8 @@ class Calculator(RadTbConverter):
             self.derive_rad39_corr(tb_therm, tbco2)
             LOG.info("CO2 correction applied...")
         else:
-            self._rad3x_correction = 1.0
+            self._rad3x_correction = np.float64(1.0)
+        self._rad3x_correction = self._rad3x_correction.astype(tb_nir.dtype)
 
         corrected_thermal_emiss_one = thermal_emiss_one * self._rad3x_correction
         nomin = l_nir - corrected_thermal_emiss_one

@@ -203,6 +203,13 @@ class TestReflectance(unittest.TestCase):
         refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
         self.assertTrue(hasattr(refl, 'mask'))
 
+        sunz = np.array([80.], dtype=np.float32)
+        tb3 = np.array([295.], dtype=np.float32)
+        tb4 = np.array([282.], dtype=np.float32)
+        refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
+        np.testing.assert_allclose(refl, np.array([0.45249779], np.float32))
+        assert refl.dtype == np.float32
+
         try:
             import dask.array as da
             import dask.config
