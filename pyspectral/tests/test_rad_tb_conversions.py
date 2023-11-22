@@ -29,7 +29,7 @@ import pytest
 from pyspectral.radiance_tb_conversion import RadTbConverter, SeviriRadTbConverter, radiance2tb
 from pyspectral.utils import get_central_wave
 
-TEST_TBS = np.array([200., 270., 300., 302., 350.], dtype='float32')
+TEST_TBS = np.array([200., 270., 300., 302., 350.])
 
 TRUE_RADS = np.array([856.937353205, 117420.385297,
                       479464.582505, 521412.9511, 2928735.18944],
@@ -38,8 +38,7 @@ TRUE_RADS_SEVIRI = np.array([2.391091e-08,
                              2.559173e-06,
                              9.797091e-06,
                              1.061431e-05,
-                             5.531423e-05],
-                            dtype='float64')
+                             5.531423e-05])
 
 TEST_RSR = {'20': {}}
 TEST_RSR['20']['det-1'] = {}
@@ -240,32 +239,38 @@ class TestSeviriConversions:
 
         self.sev2 = SeviriRadTbConverter('Meteosat-9', 'IR3.9')
 
-    def test_rad2tb(self):
+    @pytest.mark.parametrize("dtype", (np.float32, np.float64, float))
+    def test_rad2tb(self, dtype):
         """Unit testing the radiance to brightness temperature conversion."""
-        res = self.sev1.tb2radiance(TEST_TBS, lut=False)
-        np.testing.assert_allclose(TRUE_RADS_SEVIRI, res['radiance'], atol=1e-8)
+        res = self.sev1.tb2radiance(TEST_TBS.astype(dtype), lut=False)
+        assert res['radiance'].dtype == dtype
+        np.testing.assert_allclose(TRUE_RADS_SEVIRI.astype(dtype), res['radiance'], atol=1e-8)
 
-    def test_conversion_simple(self):
+    @pytest.mark.parametrize("dtype", (np.float32, np.float64, float))
+    def test_conversion_simple(self, dtype):
         """Test the conversion based on the non-linear approximation (SEVIRI).
 
         Test the tb2radiance function to convert radiances to Tb's
         using tabulated coefficients based on a non-linear approximation
 
         """
-        retv = self.sev2.tb2radiance(TEST_TBS)
+        retv = self.sev2.tb2radiance(TEST_TBS.astype(dtype))
         rads = retv['radiance']
         # Units space = wavenumber (cm-1):
-        tbs = self.sev2.radiance2tb(rads)
-        np.testing.assert_allclose(TEST_TBS, tbs, rtol=1e-6)
+        tbs = self.sev2.radiance2tb(rads.astype(dtype))
+        assert tbs['radiance'].dtype == dtype
+        np.testing.assert_allclose(TEST_TBS.astype(dtype), tbs, rtol=1e-6)
 
         np.random.seed()
         tbs1 = 200.0 + np.random.random(50) * 150.0
         retv = self.sev2.tb2radiance(tbs1)
         rads = retv['radiance']
         tbs = self.sev2.radiance2tb(rads)
+        assert tbs['radiance'].dtype == dtype
         np.testing.assert_allclose(tbs1, tbs, rtol=1e-6)
 
-    def test_conversions_methods(self):
+    @pytest.mark.parametrize("dtype", (np.float32, np.float64, float))
+    def test_conversions_methods(self, dtype):
         """Test the conversion methods.
 
         Using the two diferent conversion methods to verify that they give
@@ -274,11 +279,13 @@ class TestSeviriConversions:
 
         """
         # Units space = wavenumber (cm-1):
-        retv2 = self.sev2.tb2radiance(TEST_TBS)
-        retv1 = self.sev1.tb2radiance(TEST_TBS)
+        retv2 = self.sev2.tb2radiance(TEST_TBS.astype(dtype))
+        retv1 = self.sev1.tb2radiance(TEST_TBS.astype(dtype))
 
         rads1 = retv1['radiance']
         rads2 = retv2['radiance']
+        assert rads1.dtype == dtype
+        assert rads2.dtype == dtype
         np.testing.assert_allclose(rads1, rads2, atol=1e-8)
 
 
