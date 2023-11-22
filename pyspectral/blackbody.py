@@ -99,24 +99,17 @@ def planck(wave, temperature, wavelength=True):
         LOG.debug("Using {0} when calculating the Blackbody radiance".format(
             units[(wavelength is True) - 1]))
 
-    if np.isscalar(temperature):
-        temperature = np.array([temperature, ], dtype='float64')
-    elif isinstance(temperature, (list, tuple)):
-        temperature = np.array(temperature, dtype='float64')
-
+    temperature = _scalar_tuple_list_to_numpy(temperature)
     shape = temperature.shape
-    if np.isscalar(wave):
-        wln = np.array([wave, ], dtype='float64')
-    else:
-        wln = np.array(wave, dtype='float64')
+    wave = _scalar_tuple_list_to_numpy(wave)
 
     if wavelength:
         const = 2 * H_PLANCK * C_SPEED ** 2
-        nom = const / wln ** 5
-        arg1 = H_PLANCK * C_SPEED / (K_BOLTZMANN * wln)
+        nom = const / wave ** 5
+        arg1 = H_PLANCK * C_SPEED / (K_BOLTZMANN * wave)
     else:
-        nom = 2 * H_PLANCK * (C_SPEED ** 2) * (wln ** 3)
-        arg1 = H_PLANCK * C_SPEED * wln / K_BOLTZMANN
+        nom = 2 * H_PLANCK * (C_SPEED ** 2) * (wave ** 3)
+        arg1 = H_PLANCK * C_SPEED * wave / K_BOLTZMANN
 
     with np.errstate(divide='ignore', invalid='ignore'):
         # use dask functions when needed
@@ -132,7 +125,7 @@ def planck(wave, temperature, wavelength=True):
                   str(np.nanmax(arg2)), str(np.nanmin(arg2)))
 
     try:
-        exp_arg = np.multiply(arg1.astype('float64'), arg2.astype('float64'))
+        exp_arg = np.multiply(arg1, arg2)
     except MemoryError:
         LOG.warning(("Dimensions used in numpy.multiply probably reached "
                      "limit!\n"
@@ -153,7 +146,7 @@ def planck(wave, temperature, wavelength=True):
         denom = np.exp(exp_arg) - 1
         rad = nom / denom
         radshape = rad.shape
-        if wln.shape[0] == 1:
+        if wave.shape[0] == 1:
             if temperature.shape[0] == 1:
                 return rad[0, 0]
             else:
@@ -166,6 +159,14 @@ def planck(wave, temperature, wavelength=True):
                     return rad.reshape((shape[0], radshape[1]))
                 else:
                     return rad.reshape((shape[0], shape[1], radshape[1]))
+
+
+def _scalar_tuple_list_to_numpy(val):
+    if np.isscalar(val):
+        return np.array([val, ], dtype='float64')
+    if isinstance(val, (list, tuple)):
+        val = np.array(val, dtype='float64')
+    return val
 
 
 def blackbody_wn(wavenumber, temp):

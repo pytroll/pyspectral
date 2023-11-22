@@ -19,9 +19,10 @@
 
 """Unit testing the Blackbody/Plack radiation derivation."""
 
-import unittest
-
+import dask
+import dask.array as da
 import numpy as np
+import pytest
 
 from pyspectral.blackbody import blackbody, blackbody_rad2temp, blackbody_wn, blackbody_wn_rad2temp
 from pyspectral.tests.unittest_helpers import assertNumpyArraysEqual
@@ -80,19 +81,21 @@ class TestBlackbody:
         black = blackbody((10. * 1E-6, 11.e-6), tb_therm)
         assert isinstance(black, np.ndarray)
 
-    def test_blackbody_dask(self):
+    def test_blackbody_dask_wave_tuple(self):
         """Calculate the blackbody radiation from wavelengths and temperatures with dask arrays."""
-        import dask
-        import dask.array as da
-        tb_therm = da.from_array([[300., 301], [299, 298], [279, 286]], chunks=2)
+        tb_therm = da.array([[300., 301], [299, 298], [279, 286]])
         with dask.config.set(scheduler=CustomScheduler(0)):
             black = blackbody((10. * 1E-6, 11.e-6), tb_therm)
         assert isinstance(black, da.Array)
+        assert black.dtype == np.float64
 
-        tb_therm = da.from_array([[300., 301], [0., 298], [279, 286]], chunks=2)
+    @pytest.mark.parametrize("dtype", (np.float32, np.float64, float))
+    def test_blackbody_dask_wave_array(self, dtype):
+        tb_therm = da.array([[300., 301], [0., 298], [279, 286]], dtype=dtype)
         with dask.config.set(scheduler=CustomScheduler(0)):
-            black = blackbody((10. * 1E-6, 11.e-6), tb_therm)
+            black = blackbody(da.array([10. * 1E-6, 11.e-6], dtype=dtype), tb_therm)
         assert isinstance(black, da.Array)
+        assert black.dtype == dtype
 
     def test_blackbody_wn(self):
         """Calculate the blackbody radiation from wavenumbers and temperatures."""
