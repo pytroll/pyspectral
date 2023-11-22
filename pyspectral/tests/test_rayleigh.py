@@ -219,7 +219,7 @@ class TestRayleighDask:
             refl_corr = rayl.get_reflectance(sun_zenith, sat_zenith, azidiff, 1.2, redband_refl)
             np.testing.assert_allclose(refl_corr, 0)
             assert isinstance(refl_corr, da.Array)
-            assert rsr_obj.not_called()
+            rsr_obj.assert_not_called()
 
 
 class TestRayleigh:
@@ -385,7 +385,7 @@ class TestRayleigh:
             refl_corr = rayl.get_reflectance(sun_zenith, sat_zenith, azidiff, 0.634, redband_refl)
             np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT3)
             assert isinstance(refl_corr, np.ndarray)
-            assert rsr_obj.not_called()
+            rsr_obj.assert_not_called()
 
     @patch('pyspectral.rayleigh.da', None)
     def test_get_reflectance_wvl_outside_range(self, fake_lut_hdf5):
@@ -402,7 +402,7 @@ class TestRayleigh:
             refl_corr = rayl.get_reflectance(sun_zenith, sat_zenith, azidiff, 1.2, redband_refl)
             np.testing.assert_allclose(refl_corr, 0)
             assert isinstance(refl_corr, np.ndarray)
-            assert rsr_obj.not_called()
+            rsr_obj.assert_not_called()
 
     def test_get_reflectance_no_lut(self, fake_lut_hdf5):
         """Test that missing a LUT causes an exception.."""
