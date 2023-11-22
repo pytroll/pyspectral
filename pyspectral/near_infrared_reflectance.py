@@ -242,10 +242,10 @@ class Calculator(RadTbConverter):
 
         # Assume rsr is in microns!!!
         # FIXME!
-        self._rad3x_t11 = self.tb2radiance(tb_therm, lut=lut)['radiance'].astype(tb_nir.dtype)
+        self._rad3x_t11 = self.tb2radiance(tb_therm, lut=lut)['radiance']
         rsr_integral = tb_therm.dtype.type(self.rsr_integral)
         thermal_emiss_one = self._rad3x_t11 * rsr_integral
-        l_nir = self.tb2radiance(tb_nir, lut=lut)['radiance'].astype(tb_nir.dtype)
+        l_nir = self.tb2radiance(tb_nir, lut=lut)['radiance']
         self._rad3x = l_nir.copy()
         l_nir *= rsr_integral
 
