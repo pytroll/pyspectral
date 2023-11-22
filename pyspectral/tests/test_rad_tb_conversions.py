@@ -258,15 +258,15 @@ class TestSeviriConversions:
         rads = retv['radiance']
         # Units space = wavenumber (cm-1):
         tbs = self.sev2.radiance2tb(rads.astype(dtype))
-        assert tbs['radiance'].dtype == dtype
+        assert tbs.dtype == dtype
         np.testing.assert_allclose(TEST_TBS.astype(dtype), tbs, rtol=1e-6)
 
         np.random.seed()
         tbs1 = 200.0 + np.random.random(50) * 150.0
-        retv = self.sev2.tb2radiance(tbs1)
+        retv = self.sev2.tb2radiance(tbs1.astype(dtype))
         rads = retv['radiance']
         tbs = self.sev2.radiance2tb(rads)
-        assert tbs['radiance'].dtype == dtype
+        assert tbs.dtype == dtype
         np.testing.assert_allclose(tbs1, tbs, rtol=1e-6)
 
     @pytest.mark.parametrize("dtype", (np.float32, np.float64, float))
