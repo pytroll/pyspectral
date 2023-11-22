@@ -224,10 +224,10 @@ class RSRTestDataModis(object):
         self.rsr = TEST_RSR
 
 
-class TestSeviriConversions(unittest.TestCase):
+class TestSeviriConversions:
     """Testing the conversions between radiances and brightness temperatures."""
 
-    def setUp(self):
+    def setup_method(self):
         """Set up."""
         with patch('pyspectral.radiance_tb_conversion.RelativeSpectralResponse') as mymock:
             instance = mymock.return_value
@@ -243,7 +243,7 @@ class TestSeviriConversions(unittest.TestCase):
     def test_rad2tb(self):
         """Unit testing the radiance to brightness temperature conversion."""
         res = self.sev1.tb2radiance(TEST_TBS, lut=False)
-        self.assertTrue(np.allclose(TRUE_RADS_SEVIRI, res['radiance']))
+        np.testing.assert_allclose(TRUE_RADS_SEVIRI, res['radiance'], atol=1e-8)
 
     def test_conversion_simple(self):
         """Test the conversion based on the non-linear approximation (SEVIRI).
@@ -256,14 +256,14 @@ class TestSeviriConversions(unittest.TestCase):
         rads = retv['radiance']
         # Units space = wavenumber (cm-1):
         tbs = self.sev2.radiance2tb(rads)
-        self.assertTrue(np.allclose(TEST_TBS, tbs))
+        np.testing.assert_allclose(TEST_TBS, tbs, rtol=1e-6)
 
         np.random.seed()
         tbs1 = 200.0 + np.random.random(50) * 150.0
         retv = self.sev2.tb2radiance(tbs1)
         rads = retv['radiance']
         tbs = self.sev2.radiance2tb(rads)
-        self.assertTrue(np.allclose(tbs1, tbs))
+        np.testing.assert_allclose(tbs1, tbs, rtol=1e-6)
 
     def test_conversions_methods(self):
         """Test the conversion methods.
@@ -279,7 +279,7 @@ class TestSeviriConversions(unittest.TestCase):
 
         rads1 = retv1['radiance']
         rads2 = retv2['radiance']
-        self.assertTrue(np.allclose(rads1, rads2))
+        np.testing.assert_allclose(rads1, rads2, atol=1e-8)
 
 
 class TestRadTbConversions(unittest.TestCase):
