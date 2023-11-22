@@ -53,32 +53,32 @@ class CustomScheduler(object):
         return dask.get(dsk, keys, **kwargs)
 
 
-class TestBlackbody(unittest.TestCase):
+class TestBlackbody:
     """Unit testing the blackbody function."""
 
     def test_blackbody(self):
         """Calculate the blackbody radiation from wavelengths and temperatures."""
         wavel = 11. * 1E-6
         black = blackbody((wavel, ), [300., 301])
-        self.assertEqual(black.shape[0], 2)
-        self.assertAlmostEqual(black[0], RAD_11MICRON_300KELVIN)
-        self.assertAlmostEqual(black[1], RAD_11MICRON_301KELVIN)
+        assert black.shape[0] == 2
+        np.testing.assert_almost_equal(black[0], RAD_11MICRON_300KELVIN)
+        np.testing.assert_almost_equal(black[1], RAD_11MICRON_301KELVIN)
 
         temp1 = blackbody_rad2temp(wavel, black[0])
-        self.assertAlmostEqual(temp1, 300.0, 4)
+        np.testing.assert_almost_equal(temp1, 300.0, 4)
         temp2 = blackbody_rad2temp(wavel, black[1])
-        self.assertAlmostEqual(temp2, 301.0, 4)
+        np.testing.assert_almost_equal(temp2, 301.0, 4)
 
         black = blackbody(13. * 1E-6, 200.)
-        self.assertTrue(np.isscalar(black))
+        assert np.isscalar(black)
 
         tb_therm = np.array([[300., 301], [299, 298], [279, 286]])
         black = blackbody((10. * 1E-6, 11.e-6), tb_therm)
-        self.assertIsInstance(black, np.ndarray)
+        assert isinstance(black, np.ndarray)
 
         tb_therm = np.array([[300., 301], [0., 298], [279, 286]])
         black = blackbody((10. * 1E-6, 11.e-6), tb_therm)
-        self.assertIsInstance(black, np.ndarray)
+        assert isinstance(black, np.ndarray)
 
     def test_blackbody_dask(self):
         """Calculate the blackbody radiation from wavelengths and temperatures with dask arrays."""
@@ -87,41 +87,41 @@ class TestBlackbody(unittest.TestCase):
         tb_therm = da.from_array([[300., 301], [299, 298], [279, 286]], chunks=2)
         with dask.config.set(scheduler=CustomScheduler(0)):
             black = blackbody((10. * 1E-6, 11.e-6), tb_therm)
-        self.assertIsInstance(black, da.Array)
+        assert isinstance(black, da.Array)
 
         tb_therm = da.from_array([[300., 301], [0., 298], [279, 286]], chunks=2)
         with dask.config.set(scheduler=CustomScheduler(0)):
             black = blackbody((10. * 1E-6, 11.e-6), tb_therm)
-        self.assertIsInstance(black, da.Array)
+        assert isinstance(black, da.Array)
 
     def test_blackbody_wn(self):
         """Calculate the blackbody radiation from wavenumbers and temperatures."""
         wavenumber = 90909.1  # 11 micron band
         black = blackbody_wn((wavenumber, ), [300., 301])
-        self.assertEqual(black.shape[0], 2)
-        self.assertAlmostEqual(black[0], WN_RAD_11MICRON_300KELVIN)
-        self.assertAlmostEqual(black[1], WN_RAD_11MICRON_301KELVIN)
+        assert black.shape[0] == 2
+        np.testing.assert_almost_equal(black[0], WN_RAD_11MICRON_300KELVIN)
+        np.testing.assert_almost_equal(black[1], WN_RAD_11MICRON_301KELVIN)
 
         temp1 = blackbody_wn_rad2temp(wavenumber, black[0])
-        self.assertAlmostEqual(temp1, 300.0, 4)
+        np.testing.assert_almost_equal(temp1, 300.0, 4)
         temp2 = blackbody_wn_rad2temp(wavenumber, black[1])
-        self.assertAlmostEqual(temp2, 301.0, 4)
+        np.testing.assert_almost_equal(temp2, 301.0, 4)
 
         t__ = blackbody_wn_rad2temp(wavenumber, np.array([0.001, 0.0009]))
         expected = [290.3276916, 283.76115441]
-        self.assertAlmostEqual(t__[0], expected[0])
-        self.assertAlmostEqual(t__[1], expected[1])
+        np.testing.assert_almost_equal(t__[0], expected[0])
+        np.testing.assert_almost_equal(t__[1], expected[1])
 
         radiances = np.array([0.001, 0.0009, 0.0012, 0.0018]).reshape(2, 2)
         t__ = blackbody_wn_rad2temp(wavenumber, radiances)
         expected = np.array([290.3276916, 283.76115441,
                              302.4181330, 333.1414164]).reshape(2, 2)
-        self.assertAlmostEqual(t__[1, 1], expected[1, 1], 5)
-        self.assertAlmostEqual(t__[0, 0], expected[0, 0], 5)
-        self.assertAlmostEqual(t__[0, 1], expected[0, 1], 5)
-        self.assertAlmostEqual(t__[1, 0], expected[1, 0], 5)
+        np.testing.assert_almost_equal(t__[1, 1], expected[1, 1], 5)
+        np.testing.assert_almost_equal(t__[0, 0], expected[0, 0], 5)
+        np.testing.assert_almost_equal(t__[0, 1], expected[0, 1], 5)
+        np.testing.assert_almost_equal(t__[1, 0], expected[1, 0], 5)
 
-        assertNumpyArraysEqual(t__, expected)
+        np.testing.assert_allclose(t__, expected)
 
     def test_blackbody_wn_dask(self):
         """Test that blackbody rad2temp preserves dask arrays."""
@@ -131,13 +131,13 @@ class TestBlackbody(unittest.TestCase):
         radiances = da.from_array([0.001, 0.0009, 0.0012, 0.0018], chunks=2).reshape(2, 2)
         with dask.config.set(scheduler=CustomScheduler(0)):
             t__ = blackbody_wn_rad2temp(wavenumber, radiances)
-        self.assertIsInstance(t__, da.Array)
+        assert isinstance(t__, da.Array)
         t__ = t__.compute()
         expected = np.array([290.3276916, 283.76115441,
                              302.4181330, 333.1414164]).reshape(2, 2)
-        self.assertAlmostEqual(t__[1, 1], expected[1, 1], 5)
-        self.assertAlmostEqual(t__[0, 0], expected[0, 0], 5)
-        self.assertAlmostEqual(t__[0, 1], expected[0, 1], 5)
-        self.assertAlmostEqual(t__[1, 0], expected[1, 0], 5)
+        np.testing.assert_almost_equal(t__[1, 1], expected[1, 1], 5)
+        np.testing.assert_almost_equal(t__[0, 0], expected[0, 0], 5)
+        np.testing.assert_almost_equal(t__[0, 1], expected[0, 1], 5)
+        np.testing.assert_almost_equal(t__[1, 0], expected[1, 0], 5)
 
-        assertNumpyArraysEqual(t__, expected)
+        np.testing.assert_allclose(t__, expected)
