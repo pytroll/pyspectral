@@ -25,7 +25,6 @@ import numpy as np
 import pytest
 
 from pyspectral.blackbody import blackbody, blackbody_rad2temp, blackbody_wn, blackbody_wn_rad2temp
-from pyspectral.tests.unittest_helpers import assertNumpyArraysEqual
 
 RAD_11MICRON_300KELVIN = 9573176.935507433
 RAD_11MICRON_301KELVIN = 9714686.576498277
@@ -91,6 +90,7 @@ class TestBlackbody:
 
     @pytest.mark.parametrize("dtype", (np.float32, np.float64, float))
     def test_blackbody_dask_wave_array(self, dtype):
+        """Test blackbody calculations with dask arrays as inputs."""
         tb_therm = da.array([[300., 301], [0., 298], [279, 286]], dtype=dtype)
         with dask.config.set(scheduler=CustomScheduler(0)):
             black = blackbody(da.array([10. * 1E-6, 11.e-6], dtype=dtype), tb_therm)
