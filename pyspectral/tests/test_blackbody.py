@@ -60,14 +60,14 @@ class TestBlackbody:
         """Calculate the blackbody radiation from wavelengths and temperatures."""
         wavel = 11. * 1E-6
         black = blackbody(wavel, 300.)
-        np.testing.assert_almost_equal(black[0], RAD_11MICRON_300KELVIN)
+        assert black == pytest.approx(RAD_11MICRON_300KELVIN)
         temp1 = blackbody_rad2temp(wavel, black)
-        np.testing.assert_almost_equal(temp1, 300.0, 4)
+        assert temp1 == pytest.approx(300.0, 4)
 
         black = blackbody(wavel, 301.)
-        np.testing.assert_almost_equal(black, RAD_11MICRON_301KELVIN)
+        assert black == pytest.approx(RAD_11MICRON_301KELVIN)
         temp2 = blackbody_rad2temp(wavel, black)
-        np.testing.assert_almost_equal(temp2, 301.0, 4)
+        assert temp2 == pytest.approx(301.0, 4)
 
         tb_therm = np.array([[300., 301], [299, 298], [279, 286]])
         black = blackbody(10. * 1E-6, tb_therm)
@@ -94,29 +94,23 @@ class TestBlackbody:
         """Calculate the blackbody radiation from wavenumbers and temperatures."""
         wavenumber = 90909.1  # 11 micron band
         black = blackbody_wn(wavenumber, 300.)
-        np.testing.assert_almost_equal(black, WN_RAD_11MICRON_300KELVIN)
+        assert black == pytest.approx(WN_RAD_11MICRON_300KELVIN)
         temp1 = blackbody_wn_rad2temp(wavenumber, black)
-        np.testing.assert_almost_equal(temp1, 300.0, 4)
+        assert temp1 == pytest.approx(300.0, 4)
 
         black = blackbody_wn(wavenumber, 301.)
-        np.testing.assert_almost_equal(black, WN_RAD_11MICRON_301KELVIN)
+        assert black == pytest.approx(WN_RAD_11MICRON_301KELVIN)
         temp2 = blackbody_wn_rad2temp(wavenumber, black)
-        np.testing.assert_almost_equal(temp2, 301.0, 4)
+        assert temp2 == pytest.approx(301.0, 4)
 
         t__ = blackbody_wn_rad2temp(wavenumber, np.array([0.001, 0.0009]))
         expected = [290.3276916, 283.76115441]
-        np.testing.assert_almost_equal(t__[0], expected[0])
-        np.testing.assert_almost_equal(t__[1], expected[1])
+        np.testing.assert_allclose(t__, expected)
 
         radiances = np.array([0.001, 0.0009, 0.0012, 0.0018]).reshape(2, 2)
         t__ = blackbody_wn_rad2temp(wavenumber, radiances)
         expected = np.array([290.3276916, 283.76115441,
                              302.4181330, 333.1414164]).reshape(2, 2)
-        np.testing.assert_almost_equal(t__[1, 1], expected[1, 1], 5)
-        np.testing.assert_almost_equal(t__[0, 0], expected[0, 0], 5)
-        np.testing.assert_almost_equal(t__[0, 1], expected[0, 1], 5)
-        np.testing.assert_almost_equal(t__[1, 0], expected[1, 0], 5)
-
         np.testing.assert_allclose(t__, expected)
 
     def test_blackbody_wn_dask(self):
@@ -131,9 +125,4 @@ class TestBlackbody:
         t__ = t__.compute()
         expected = np.array([290.3276916, 283.76115441,
                              302.4181330, 333.1414164]).reshape(2, 2)
-        np.testing.assert_almost_equal(t__[1, 1], expected[1, 1], 5)
-        np.testing.assert_almost_equal(t__[0, 0], expected[0, 0], 5)
-        np.testing.assert_almost_equal(t__[0, 1], expected[0, 1], 5)
-        np.testing.assert_almost_equal(t__[1, 0], expected[1, 0], 5)
-
         np.testing.assert_allclose(t__, expected)
