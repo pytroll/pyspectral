@@ -59,32 +59,25 @@ class TestBlackbody:
     def test_blackbody(self):
         """Calculate the blackbody radiation from wavelengths and temperatures."""
         wavel = 11. * 1E-6
-        black = blackbody((wavel, ), [300., 301])
-        assert black.shape[0] == 2
+        black = blackbody(wavel, 300.)
         np.testing.assert_almost_equal(black[0], RAD_11MICRON_300KELVIN)
-        np.testing.assert_almost_equal(black[1], RAD_11MICRON_301KELVIN)
-
-        temp1 = blackbody_rad2temp(wavel, black[0])
+        temp1 = blackbody_rad2temp(wavel, black)
         np.testing.assert_almost_equal(temp1, 300.0, 4)
-        temp2 = blackbody_rad2temp(wavel, black[1])
+
+        black = blackbody(wavel, 301.)
+        np.testing.assert_almost_equal(black, RAD_11MICRON_301KELVIN)
+        temp2 = blackbody_rad2temp(wavel, black)
         np.testing.assert_almost_equal(temp2, 301.0, 4)
 
-        black = blackbody(13. * 1E-6, 200.)
-        assert np.isscalar(black)
-
         tb_therm = np.array([[300., 301], [299, 298], [279, 286]])
-        black = blackbody((10. * 1E-6, 11.e-6), tb_therm)
-        assert isinstance(black, np.ndarray)
-
-        tb_therm = np.array([[300., 301], [0., 298], [279, 286]])
-        black = blackbody((10. * 1E-6, 11.e-6), tb_therm)
+        black = blackbody(10. * 1E-6, tb_therm)
         assert isinstance(black, np.ndarray)
 
     def test_blackbody_dask_wave_tuple(self):
         """Calculate the blackbody radiation from wavelengths and temperatures with dask arrays."""
         tb_therm = da.array([[300., 301], [299, 298], [279, 286]])
         with dask.config.set(scheduler=CustomScheduler(0)):
-            black = blackbody((10. * 1E-6, 11.e-6), tb_therm)
+            black = blackbody(10. * 1E-6, tb_therm)
         assert isinstance(black, da.Array)
         assert black.dtype == np.float64
 
@@ -100,14 +93,14 @@ class TestBlackbody:
     def test_blackbody_wn(self):
         """Calculate the blackbody radiation from wavenumbers and temperatures."""
         wavenumber = 90909.1  # 11 micron band
-        black = blackbody_wn((wavenumber, ), [300., 301])
-        assert black.shape[0] == 2
-        np.testing.assert_almost_equal(black[0], WN_RAD_11MICRON_300KELVIN)
-        np.testing.assert_almost_equal(black[1], WN_RAD_11MICRON_301KELVIN)
-
-        temp1 = blackbody_wn_rad2temp(wavenumber, black[0])
+        black = blackbody_wn(wavenumber, 300.)
+        np.testing.assert_almost_equal(black, WN_RAD_11MICRON_300KELVIN)
+        temp1 = blackbody_wn_rad2temp(wavenumber, black)
         np.testing.assert_almost_equal(temp1, 300.0, 4)
-        temp2 = blackbody_wn_rad2temp(wavenumber, black[1])
+
+        black = blackbody_wn(wavenumber, 301.)
+        np.testing.assert_almost_equal(black, WN_RAD_11MICRON_301KELVIN)
+        temp2 = blackbody_wn_rad2temp(wavenumber, black)
         np.testing.assert_almost_equal(temp2, 301.0, 4)
 
         t__ = blackbody_wn_rad2temp(wavenumber, np.array([0.001, 0.0009]))

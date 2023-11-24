@@ -99,10 +99,6 @@ def planck(wave, temperature, wavelength=True):
         LOG.debug("Using {0} when calculating the Blackbody radiance".format(
             units[(wavelength is True) - 1]))
 
-    temperature = _scalar_tuple_list_to_numpy(temperature)
-    shape = temperature.shape
-    wave = _scalar_tuple_list_to_numpy(wave)
-
     if wavelength:
         nom = PLANCK_C2 / wave ** 5
         arg1 = PLANCK_C1 / wave
@@ -143,29 +139,7 @@ def planck(wave, temperature, wavelength=True):
 
     with np.errstate(over='ignore'):
         denom = np.exp(exp_arg) - 1
-        rad = nom / denom
-        radshape = rad.shape
-        if wave.shape[0] == 1:
-            if temperature.shape[0] == 1:
-                return rad[0, 0]
-            else:
-                return rad[:, 0].reshape(shape)
-        else:
-            if temperature.shape[0] == 1:
-                return rad[0, :]
-            else:
-                if len(shape) == 1:
-                    return rad.reshape((shape[0], radshape[1]))
-                else:
-                    return rad.reshape((shape[0], shape[1], radshape[1]))
-
-
-def _scalar_tuple_list_to_numpy(val):
-    if np.isscalar(val):
-        return np.array([val, ], dtype='float64')
-    if isinstance(val, (list, tuple)):
-        val = np.array(val, dtype='float64')
-    return val
+        return nom / denom
 
 
 def blackbody_wn(wavenumber, temp):
