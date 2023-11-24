@@ -214,9 +214,9 @@ class TestReflectance(unittest.TestCase):
             import dask.array as da
             import dask.config
 
-            from pyspectral.tests.unittest_helpers import CustomScheduler
+            from pyspectral.tests.unittest_helpers import ComputeCountingScheduler
 
-            with dask.config.set(scheduler=CustomScheduler(max_computes=0)):
+            with dask.config.set(scheduler=ComputeCountingScheduler(max_computes=0)):
                 sunz = da.from_array([50.], chunks=10)
                 tb3 = da.from_array([300.], chunks=10)
                 tb4 = da.from_array([285.], chunks=10)

@@ -30,7 +30,7 @@ def assertNumpyArraysEqual(self, other):
         raise AssertionError("Elements don't match!")
 
 
-class CustomScheduler(object):
+class ComputeCountingScheduler:
     """Scheduler raising an exception if data are computed too many times."""
 
     def __init__(self, max_computes=1):

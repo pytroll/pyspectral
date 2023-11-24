@@ -25,6 +25,7 @@ import numpy as np
 import pytest
 
 from pyspectral.blackbody import blackbody, blackbody_rad2temp, blackbody_wn, blackbody_wn_rad2temp
+from pyspectral.tests.unittest_helpers import ComputeCountingScheduler
 
 RAD_11MICRON_300KELVIN = 9573176.935507433
 RAD_11MICRON_301KELVIN = 9714686.576498277
@@ -34,23 +35,6 @@ WN_RAD_11MICRON_300KELVIN = 0.00115835441353
 WN_RAD_11MICRON_301KELVIN = 0.00117547716523
 
 __unittest = True
-
-
-class CustomScheduler(object):
-    """Custom dask scheduler that raises an exception if dask is computed too many times."""
-
-    def __init__(self, max_computes=1):
-        """Set starting and maximum compute counts."""
-        self.max_computes = max_computes
-        self.total_computes = 0
-
-    def __call__(self, dsk, keys, **kwargs):
-        """Compute dask task and keep track of number of times we do so."""
-        import dask
-        self.total_computes += 1
-        if self.total_computes > self.max_computes:
-            raise RuntimeError("Too many dask computations were scheduled: {}".format(self.total_computes))
-        return dask.get(dsk, keys, **kwargs)
 
 
 class TestBlackbody:
@@ -76,7 +60,7 @@ class TestBlackbody:
     def test_blackbody_dask_wave_tuple(self):
         """Calculate the blackbody radiation from wavelengths and temperatures with dask arrays."""
         tb_therm = da.array([[300., 301], [299, 298], [279, 286]])
-        with dask.config.set(scheduler=CustomScheduler(0)):
+        with dask.config.set(scheduler=ComputeCountingScheduler(0)):
             black = blackbody(10. * 1E-6, tb_therm)
         assert isinstance(black, da.Array)
         assert black.dtype == np.float64
@@ -85,7 +69,7 @@ class TestBlackbody:
     def test_blackbody_dask_wave_array(self, dtype):
         """Test blackbody calculations with dask arrays as inputs."""
         tb_therm = da.array([[300., 301], [0., 298], [279, 286]], dtype=dtype)
-        with dask.config.set(scheduler=CustomScheduler(0)):
+        with dask.config.set(scheduler=ComputeCountingScheduler(0)):
             black = blackbody(da.array([10. * 1E-6, 11.e-6], dtype=dtype), tb_therm)
         assert isinstance(black, da.Array)
         assert black.dtype == dtype
@@ -119,7 +103,7 @@ class TestBlackbody:
         import dask.array as da
         wavenumber = 90909.1  # 11 micron band
         radiances = da.from_array([0.001, 0.0009, 0.0012, 0.0018], chunks=2).reshape(2, 2)
-        with dask.config.set(scheduler=CustomScheduler(0)):
+        with dask.config.set(scheduler=ComputeCountingScheduler(0)):
             t__ = blackbody_wn_rad2temp(wavenumber, radiances)
         assert isinstance(t__, da.Array)
         t__ = t__.compute()
