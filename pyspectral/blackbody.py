@@ -104,12 +104,11 @@ def planck(wave, temperature, wavelength=True):
     wave = _scalar_tuple_list_to_numpy(wave)
 
     if wavelength:
-        const = 2 * H_PLANCK * C_SPEED ** 2
-        nom = const / wave ** 5
-        arg1 = H_PLANCK * C_SPEED / (K_BOLTZMANN * wave)
+        nom = PLANCK_C2 / wave ** 5
+        arg1 = PLANCK_C1 / wave
     else:
-        nom = 2 * H_PLANCK * (C_SPEED ** 2) * (wave ** 3)
-        arg1 = H_PLANCK * C_SPEED * wave / K_BOLTZMANN
+        nom = PLANCK_C2 * wave ** 3
+        arg1 = PLANCK_C1 * wave
 
     with np.errstate(divide='ignore', invalid='ignore'):
         # use dask functions when needed
