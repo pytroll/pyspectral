@@ -23,6 +23,8 @@ import logging
 import os
 import tarfile
 import warnings
+from functools import wraps
+from inspect import getfullargspec
 
 import numpy as np
 import requests
@@ -580,3 +582,35 @@ def are_instruments_identical(name1, name2):
     if name1 == INSTRUMENT_TRANSLATION_DASH2SLASH.get(name2):
         return True
     return False
+
+
+def use_map_blocks_on(argument_to_run_map_blocks_on):
+    """Use map blocks on a given argument.
+
+    This decorator assumes only one of the arguments of the decorated function is chunked.
+    """
+    def decorator(f):
+        argspec = getfullargspec(f)
+        argument_index = argspec.args.index(argument_to_run_map_blocks_on)
+
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            array = args[argument_index]
+            chunks = getattr(array, "chunks", None)
+            if chunks is None:
+                return f(*args, **kwargs)
+            import dask.array as da
+            import xarray as xr
+            if isinstance(array, da.Array):
+                return da.map_blocks(f, *args, **kwargs)
+            elif isinstance(array, xr.DataArray):
+                new_array = array.copy()
+                new_args = list(args)
+                new_args[argument_index] = array.data
+                new_data = da.map_blocks(f, *new_args, **kwargs)
+                new_array.data = new_data
+                return new_array
+            else:
+                raise NotImplementedError(f"Don't know how to map_blocks on {type(array)}")
+        return wrapper
+    return decorator
