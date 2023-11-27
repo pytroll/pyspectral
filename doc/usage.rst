@@ -35,9 +35,9 @@ Now, you can work with the data as you wish, make some simple plot for instance:
 A simple use case:
 
   >>> from pyspectral.rsr_reader import RelativeSpectralResponse
-  >>> from pyspectral.solar import (SolarIrradianceSpectrum, TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
+  >>> from pyspectral.solar import SolarIrradianceSpectrum
   >>> modis = RelativeSpectralResponse('EOS-Aqua', 'modis')
-  >>> solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, dlambda=0.005)
+  >>> solar_irr = SolarIrradianceSpectrum(dlambda=0.005)
   >>> sflux = solar_irr.inband_solarflux(modis.rsr['20'])
   >>> print("Solar flux over Band: {sflux}".format(sflux=round(sflux, 6)))
   Solar flux over Band: 2.002928

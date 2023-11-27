@@ -123,9 +123,9 @@ would be:
 where :math:`S(\lambda)` is the spectral solar irradiance.
 
   >>> from pyspectral.rsr_reader import RelativeSpectralResponse
-  >>> from pyspectral.solar import (SolarIrradianceSpectrum, TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
+  >>> from pyspectral.solar import SolarIrradianceSpectrum
   >>> viirs = RelativeSpectralResponse('Suomi-NPP', 'viirs')
-  >>> solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, dlambda=0.005)
+  >>> solar_irr = SolarIrradianceSpectrum(dlambda=0.005)
   >>> sflux = solar_irr.inband_solarflux(viirs.rsr['M12'])
   >>> print(np.round(sflux, 7))
   2.2428119

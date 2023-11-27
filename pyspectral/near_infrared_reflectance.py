@@ -38,7 +38,7 @@ except ImportError:
 
 from pyspectral.config import get_config
 from pyspectral.radiance_tb_conversion import RadTbConverter
-from pyspectral.solar import TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, SolarIrradianceSpectrum
+from pyspectral.solar import SolarIrradianceSpectrum
 from pyspectral.utils import BANDNAMES, WAVE_LENGTH, get_bandname_from_wavelength
 
 LOG = logging.getLogger(__name__)
@@ -161,8 +161,7 @@ class Calculator(RadTbConverter):
     def _get_solarflux(self):
         """Derive the in-band solar flux from rsr over the Near IR band (3.7 or 3.9 microns)."""
         solar_spectrum = \
-            SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM,
-                                    dlambda=0.0005,
+            SolarIrradianceSpectrum(dlambda=0.0005,
                                     wavespace=self.wavespace)
         self.solar_flux = solar_spectrum.inband_solarflux(self.rsr[self.bandname])
 
