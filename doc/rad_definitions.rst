@@ -156,8 +156,8 @@ TOA Solar irradiance and solar constant
 
 First, the TOA solar irradiance in wavelength space:
 
-  >>> from pyspectral.solar import (SolarIrradianceSpectrum, TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
-  >>> solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, dlambda=0.0005) 
+  >>> from pyspectral.solar import SolarIrradianceSpectrum
+  >>> solar_irr = SolarIrradianceSpectrum(dlambda=0.0005)
   >>> print("Solar irradiance = {}".format(round(solar_irr.solar_constant(), 3)))
   Solar irradiance = 1366.091
   >>> solar_irr.plot('/tmp/solar_irradiance.png')
@@ -201,8 +201,8 @@ In python code it may look like this:
    >>> from pyspectral.utils import convert2wavenumber, get_central_wave
    >>> seviri = RelativeSpectralResponse('Meteosat-8', 'seviri')
    >>> rsr, info = convert2wavenumber(seviri.rsr)
-   >>> from pyspectral.solar import (SolarIrradianceSpectrum, TOTAL_IRRADIANCE_SPECTRUM_2000ASTM)
-   >>> solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, dlambda=0.0005, wavespace='wavenumber')
+   >>> from pyspectral.solar import SolarIrradianceSpectrum
+   >>> solar_irr = SolarIrradianceSpectrum(dlambda=0.0005, wavespace='wavenumber')
    >>> print("Solar Irradiance (SEVIRI band VIS008) = {sflux:12.6f}".format(sflux=solar_irr.inband_solarflux(rsr['VIS0.8'])))
    Solar Irradiance (SEVIRI band VIS008) = 63767.908405
 

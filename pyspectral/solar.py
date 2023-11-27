@@ -2,7 +2,7 @@
 #
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2013-2022 Pytroll developers
+# Copyright (c) 2013-2023 Pytroll developers
 #
 #
 # This program is free software: you can redistribute it and/or modify
@@ -47,14 +47,26 @@ class SolarIrradianceSpectrum(object):
     in units of W/m^2/micron
     """
 
-    def __init__(self, filename, **options):
+    def __init__(self, filename=TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, **options):
         """Initialize the top of atmosphere solar irradiance spectrum object from file.
 
+        By default, this will use the following spectra:
+        2000 ASTM Standard Extraterrestrial Spectrum Reference E-490-00
+
+        To use a different spectra, specify the `filename` when initialising the class.
+
         Input:
-        filename: Filename of the solar irradiance spectrum
-        dlambda:
-        Delta wavelength: the step in wavelength defining the resolution on
-        which to integrate/convolute.
+        filename: Filename of the solar irradiance spectrum (default: 2000 ASTM)
+        options:
+          dlambda:
+            Delta wavelength: the step in wavelength defining the resolution on
+            which to integrate/convolute.
+            Default is 0.005 if 'wavespace' is 'wavelength' and 2.0 if 'wavenumber'.
+          wavespace:
+            It is possible to specify if the solar irradiance spectrum should
+            be given in terms of wavelength (default) or in terms of
+            wavenumber. If the latter is desired 'wavespace' should be set to
+            'wavenumber'.
 
         """
         self.wavelength = None
