@@ -82,4 +82,4 @@ def _get_env_or_builtin_config_path() -> Path:
                       f"'PSP_CONFIG_FILE' is not a file or does not exist!")
     if config_file is None:
         return BUILTIN_CONFIG_FILE
-    return config_file
+    return Path(config_file)
