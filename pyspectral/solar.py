@@ -26,17 +26,16 @@ various instrument bands given their relative spectral response functions
 """
 
 import logging
+from pathlib import Path
 
 import numpy as np
-from pkg_resources import resource_filename
 
 LOG = logging.getLogger(__name__)
 
 # STANDARD SPECTRA from Air Mass Zero: http://rredc.nrel.gov/solar/spectra/am0/
 #    * 2000 ASTM Standard Extraterrestrial Spectrum Reference E-490-00
 #      (119.5 - 1,000,000.0 nm)
-TOTAL_IRRADIANCE_SPECTRUM_2000ASTM = resource_filename(__name__,
-                                                       'data/e490_00a.dat')
+TOTAL_IRRADIANCE_SPECTRUM_2000ASTM = Path(__file__).resolve().parent / "data" / "e490_00a.dat"
 
 
 class SolarIrradianceSpectrum(object):
