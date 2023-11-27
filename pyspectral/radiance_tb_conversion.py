@@ -201,15 +201,16 @@ class RadTbConverter(object):
             scale = 1.0
 
         if lut:
+            lut_radiance = lut['radiance'].astype(tb_.dtype)
             ntb = (tb_ * self.tb_scale).astype('int16')
             start = int(lut['tb'][0] * self.tb_scale)
             retv = {}
-            bounds = 0, lut['radiance'].shape[0] - 1
+            bounds = 0, lut_radiance.shape[0] - 1
             index = (ntb - start).clip(bounds[0], bounds[1])
             try:
-                retv['radiance'] = index.map_blocks(self._getitem, lut['radiance'], dtype=lut['radiance'].dtype)
+                retv['radiance'] = index.map_blocks(self._getitem, lut_radiance, dtype=lut_radiance.dtype)
             except AttributeError:
-                retv['radiance'] = lut['radiance'][index]
+                retv['radiance'] = lut_radiance[index]
             try:
                 retv['radiance'] = retv['radiance'].item()
             except (ValueError, AttributeError):
