@@ -2,7 +2,7 @@
 #
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2013-2022 Pytroll developers
+# Copyright (c) 2013-2023 Pytroll developers
 #
 #
 # This program is free software: you can redistribute it and/or modify
@@ -58,10 +58,16 @@ class SolarIrradianceSpectrum(object):
 
         Input:
         filename: Filename of the solar irradiance spectrum (default: 2000 ASTM)
-        dlambda:
-        Delta wavelength: the step in wavelength defining the resolution on
-        which to integrate/convolute.
-
+        options:
+          dlambda:
+            Delta wavelength: the step in wavelength defining the resolution on
+            which to integrate/convolute.
+            Default is 0.005 if 'wavespace' is 'wavelength' and 2.0 if 'wavenumber'.
+          wavespace:
+            It is possible to specify if the solar irradiance spectrum should
+            be given in terms of wavelength (default) or in terms of
+            wavenumber. If the latter is desired 'wavespace' should be set to
+            'wavenumber'.
 
         """
         self.wavelength = None
