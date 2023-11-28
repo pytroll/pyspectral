@@ -101,7 +101,6 @@ class GHIRSR(InstrumentRSR):
 
 def convert_ghi():
     """Read original GHI RSR data and convert to common Pyspectral hdf5 format."""
-
     # For FY-4B
     tohdf5(GHIRSR, 'FY-4B', FY4_GHI_BAND_NAMES)
 
