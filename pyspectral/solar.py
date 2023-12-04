@@ -2,7 +2,7 @@
 #
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2013-2022 Pytroll developers
+# Copyright (c) 2013-2023 Pytroll developers
 #
 #
 # This program is free software: you can redistribute it and/or modify
@@ -26,17 +26,16 @@ various instrument bands given their relative spectral response functions
 """
 
 import logging
+from pathlib import Path
 
 import numpy as np
-from pkg_resources import resource_filename
 
 LOG = logging.getLogger(__name__)
 
 # STANDARD SPECTRA from Air Mass Zero: http://rredc.nrel.gov/solar/spectra/am0/
 #    * 2000 ASTM Standard Extraterrestrial Spectrum Reference E-490-00
 #      (119.5 - 1,000,000.0 nm)
-TOTAL_IRRADIANCE_SPECTRUM_2000ASTM = resource_filename(__name__,
-                                                       'data/e490_00a.dat')
+TOTAL_IRRADIANCE_SPECTRUM_2000ASTM = Path(__file__).resolve().parent / "data" / "e490_00a.dat"
 
 
 class SolarIrradianceSpectrum(object):
@@ -48,14 +47,26 @@ class SolarIrradianceSpectrum(object):
     in units of W/m^2/micron
     """
 
-    def __init__(self, filename, **options):
+    def __init__(self, filename=TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, **options):
         """Initialize the top of atmosphere solar irradiance spectrum object from file.
 
+        By default, this will use the following spectra:
+        2000 ASTM Standard Extraterrestrial Spectrum Reference E-490-00
+
+        To use a different spectra, specify the `filename` when initialising the class.
+
         Input:
-        filename: Filename of the solar irradiance spectrum
-        dlambda:
-        Delta wavelength: the step in wavelength defining the resolution on
-        which to integrate/convolute.
+        filename: Filename of the solar irradiance spectrum (default: 2000 ASTM)
+        options:
+          dlambda:
+            Delta wavelength: the step in wavelength defining the resolution on
+            which to integrate/convolute.
+            Default is 0.005 if 'wavespace' is 'wavelength' and 2.0 if 'wavenumber'.
+          wavespace:
+            It is possible to specify if the solar irradiance spectrum should
+            be given in terms of wavelength (default) or in terms of
+            wavenumber. If the latter is desired 'wavespace' should be set to
+            'wavenumber'.
 
         """
         self.wavelength = None

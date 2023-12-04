@@ -21,19 +21,12 @@
 
 import logging
 import os
+from collections.abc import Mapping
 from os.path import expanduser
+from pathlib import Path
 
 import yaml
 from appdirs import AppDirs
-
-try:
-    # python 3.3+
-    from collections.abc import Mapping
-except ImportError:
-    # deprecated (above can't be done in 2.7)
-    from collections import Mapping
-
-import pkg_resources
 
 try:
     from yaml import UnsafeLoader
@@ -43,16 +36,7 @@ except ImportError:
 
 LOG = logging.getLogger(__name__)
 
-BUILTIN_CONFIG_FILE = pkg_resources.resource_filename(__name__,
-                                                      os.path.join('etc', 'pyspectral.yaml'))
-
-
-CONFIG_FILE = os.environ.get('PSP_CONFIG_FILE')
-
-if CONFIG_FILE is not None and (not os.path.exists(CONFIG_FILE) or
-                                not os.path.isfile(CONFIG_FILE)):
-    raise IOError(str(CONFIG_FILE) + " pointed to by the environment " +
-                  "variable PSP_CONFIG_FILE is not a file or does not exist!")
+BUILTIN_CONFIG_FILE = Path(__file__).resolve().parent / "etc" / "pyspectral.yaml"
 
 
 def recursive_dict_update(d, u):
@@ -72,15 +56,13 @@ def recursive_dict_update(d, u):
     return d
 
 
-def get_config():
-    """Get the configuration from file."""
-    if CONFIG_FILE is not None:
-        configfile = CONFIG_FILE
-    else:
-        configfile = BUILTIN_CONFIG_FILE
+def get_config(config_file: str | Path = None) -> dict:
+    """Get configuration options from YAML file."""
+    if config_file is None:
+        config_file = _get_env_or_builtin_config_path()
 
     config = {}
-    with open(configfile, 'r') as fp_:
+    with open(config_file, 'r') as fp_:
         config = recursive_dict_update(config, yaml.load(fp_, Loader=UnsafeLoader))
 
     app_dirs = AppDirs('pyspectral', 'pytroll')
@@ -91,3 +73,13 @@ def get_config():
     os.makedirs(config['rayleigh_dir'], exist_ok=True)
 
     return config
+
+
+def _get_env_or_builtin_config_path() -> Path:
+    config_file = os.environ.get('PSP_CONFIG_FILE')
+    if config_file is not None and not os.path.isfile(config_file):
+        raise IOError(f"{config_file} pointed to by the environment variable "
+                      f"'PSP_CONFIG_FILE' is not a file or does not exist!")
+    if config_file is None:
+        return BUILTIN_CONFIG_FILE
+    return Path(config_file)

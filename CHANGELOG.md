@@ -1,3 +1,26 @@
+## Version <v0.13.0> (2023/11/27)
+
+### Issues Closed
+
+* [Issue 205](https://github.com/pytroll/pyspectral/issues/205) - Near infrared reflectance calculation does not preserve input dtype ([PR 206](https://github.com/pytroll/pyspectral/pull/206) by [@pnuu](https://github.com/pnuu))
+* [Issue 201](https://github.com/pytroll/pyspectral/issues/201) - blackbody functions not dask friendly, trigger early dask computation
+
+In this release 2 issues were closed.
+
+### Pull Requests Merged
+
+#### Features added
+
+* [PR 208](https://github.com/pytroll/pyspectral/pull/208) - Update the solar spectrum code to use the included reference spectra
+* [PR 207](https://github.com/pytroll/pyspectral/pull/207) - Remove pkg_resources usage in config handling
+* [PR 206](https://github.com/pytroll/pyspectral/pull/206) - Return 3.x um reflectance with the same dtype as the NIR data ([205](https://github.com/pytroll/pyspectral/issues/205))
+* [PR 204](https://github.com/pytroll/pyspectral/pull/204) - Bump up python versions
+* [PR 203](https://github.com/pytroll/pyspectral/pull/203) - Allow dataarrays and preserve dtype in rad2temp
+* [PR 202](https://github.com/pytroll/pyspectral/pull/202) - Update the solar spectrum code to use the included reference spectra
+
+In this release 6 pull requests were closed.
+
+
 ## Version <v0.12.5> (2023/09/21)
 
 ### Pull Requests Merged

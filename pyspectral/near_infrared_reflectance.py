@@ -38,7 +38,7 @@ except ImportError:
 
 from pyspectral.config import get_config
 from pyspectral.radiance_tb_conversion import RadTbConverter
-from pyspectral.solar import TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, SolarIrradianceSpectrum
+from pyspectral.solar import SolarIrradianceSpectrum
 from pyspectral.utils import BANDNAMES, WAVE_LENGTH, get_bandname_from_wavelength
 
 LOG = logging.getLogger(__name__)
@@ -161,8 +161,7 @@ class Calculator(RadTbConverter):
     def _get_solarflux(self):
         """Derive the in-band solar flux from rsr over the Near IR band (3.7 or 3.9 microns)."""
         solar_spectrum = \
-            SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM,
-                                    dlambda=0.0005,
+            SolarIrradianceSpectrum(dlambda=0.0005,
                                     wavespace=self.wavespace)
         self.solar_flux = solar_spectrum.inband_solarflux(self.rsr[self.bandname])
 
@@ -243,11 +242,11 @@ class Calculator(RadTbConverter):
         # Assume rsr is in microns!!!
         # FIXME!
         self._rad3x_t11 = self.tb2radiance(tb_therm, lut=lut)['radiance']
-        thermal_emiss_one = self._rad3x_t11 * self.rsr_integral
-
+        rsr_integral = tb_therm.dtype.type(self.rsr_integral)
+        thermal_emiss_one = self._rad3x_t11 * rsr_integral
         l_nir = self.tb2radiance(tb_nir, lut=lut)['radiance']
         self._rad3x = l_nir.copy()
-        l_nir *= self.rsr_integral
+        l_nir *= rsr_integral
 
         if thermal_emiss_one.ravel().shape[0] < 10:
             LOG.info('thermal_emiss_one = %s', str(thermal_emiss_one))
@@ -268,7 +267,8 @@ class Calculator(RadTbConverter):
             self.derive_rad39_corr(tb_therm, tbco2)
             LOG.info("CO2 correction applied...")
         else:
-            self._rad3x_correction = 1.0
+            self._rad3x_correction = np.float64(1.0)
+        self._rad3x_correction = self._rad3x_correction.astype(tb_nir.dtype)
 
         corrected_thermal_emiss_one = thermal_emiss_one * self._rad3x_correction
         nomin = l_nir - corrected_thermal_emiss_one

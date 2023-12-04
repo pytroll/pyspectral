@@ -24,7 +24,7 @@ import unittest
 
 import numpy as np
 
-from pyspectral.solar import TOTAL_IRRADIANCE_SPECTRUM_2000ASTM, SolarIrradianceSpectrum
+from pyspectral.solar import SolarIrradianceSpectrum
 
 TEST_RSR = {}
 TEST_RSR['det-1'] = {}
@@ -59,8 +59,7 @@ class TestSolarflux(unittest.TestCase):
 
     def setUp(self):
         """Set up."""
-        self.solar_irr = SolarIrradianceSpectrum(TOTAL_IRRADIANCE_SPECTRUM_2000ASTM,
-                                                 dlambda=0.005)
+        self.solar_irr = SolarIrradianceSpectrum(dlambda=0.005)
         self.rsr = TEST_RSR
 
     def test_read(self):
