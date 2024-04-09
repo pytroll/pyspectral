@@ -47,7 +47,7 @@ jobs:
           python -m pip install \
           -f https://pypi.anaconda.org/scientific-python-nightly-wheels/simple/ \
           --no-deps --pre --upgrade \
-          matplotlib \
+          matplotlib; \
           python -m pip install \
           --no-deps --upgrade \
           git+https://github.com/numpy/numpy \
