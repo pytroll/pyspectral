@@ -48,11 +48,11 @@ jobs:
           -f https://pypi.anaconda.org/scientific-python-nightly-wheels/simple/ \
           --no-deps --pre --upgrade \
           matplotlib \
-          numpy \
-          pandas \
           scipy; \
           python -m pip install \
           --no-deps --upgrade \
+          git+https://github.com/numpy/numpy \
+          git+https://github.com/pandas-dev/pandas \
           git+https://github.com/dask/dask \
           git+https://github.com/dask/distributed \
           git+https://github.com/Unidata/cftime \
