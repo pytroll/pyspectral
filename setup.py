@@ -33,7 +33,7 @@ except IOError:
     long_description = ''
 
 requires = ['docutils>=0.3', 'numpy', 'scipy', 'python-geotiepoints>=1.1.1',
-            'h5py>=2.5', 'requests', 'pyyaml', 'appdirs']
+            'h5py>=2.5', 'requests', 'pyyaml', 'platformdirs']
 
 dask_extra = ['dask[array]']
 test_requires = ['pyyaml', 'dask[array]', 'xlrd', 'pytest', 'xarray', 'responses']
