@@ -19,7 +19,7 @@
 
 """Read the FY-3G MERSI-RM relative spectral responses.
 
-Data from https://img.nsmc.org.cn/PORTAL/NSMC/DATASERVICE/SRF/FY4B/FY4B_GHI_SRF.zip
+Data from https://img.nsmc.org.cn/PORTAL/NSMC/DATASERVICE/SRF/FY3G/FY-3G_MERSI-RM_SRF.zip
 """
 import os
 
@@ -30,7 +30,7 @@ from pyspectral.utils import INSTRUMENTS
 from pyspectral.utils import convert2hdf5 as tohdf5
 from pyspectral.utils import get_logger, logging_on
 
-FY3_MERSIRM_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'ch7']
+FY3_MERSIRM_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'ch7', 'ch8']
 
 
 class MersiRMRSR(InstrumentRSR):
@@ -41,8 +41,6 @@ class MersiRMRSR(InstrumentRSR):
         super(MersiRMRSR, self).__init__(bandname, platform_name, FY3_MERSIRM_BAND_NAMES)
 
         self.instrument = INSTRUMENTS.get(platform_name, 'mersi-rm')
-        if type(self.instrument) is list:
-            self.instrument = 'mersi-rm'
 
         self._get_options_from_config()
         self._get_bandfilenames()
@@ -64,7 +62,7 @@ class MersiRMRSR(InstrumentRSR):
         Wavelength is given in nanometers.
         """
         data = np.genfromtxt(self.requested_band_filename,
-                             unpack=True, delimiter='\t',
+                             unpack=True,
                              names=['wavelength',
                                     'response'],
                              skip_header=1)
