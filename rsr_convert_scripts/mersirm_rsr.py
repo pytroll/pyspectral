@@ -56,7 +56,7 @@ class MersiRMRSR(InstrumentRSR):
 
         self.filename = self.requested_band_filename
 
-    def _load(self, scale=1):
+    def _load(self, scale=0.001):
         """Load the MERSI-RM RSR data for the band requested.
 
         Wavelength is given in nanometers.
