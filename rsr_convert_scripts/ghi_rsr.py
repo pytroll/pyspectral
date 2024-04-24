@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Read the FY-4B GHI relative spectral responses
+"""Read the FY-4B GHI relative spectral responses.
 
 Data from https://img.nsmc.org.cn/PORTAL/NSMC/DATASERVICE/SRF/FY4B/FY4B_GHI_SRF.zip
 """
