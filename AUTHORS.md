@@ -18,4 +18,5 @@ The following people have made contributions to this project:
 - [Ronald Scheirer](https://github.com/)
 - [Xin Zhang (zxdawn)](https://github.com/zxdawn)
 - [Rolf Helge Pfeiffer](https://github.com/HelgeCPH)
+- [Antonio Valentino](https://github.com/avalentino)
 - [Lu Liu (yukaribbba)](https://github.com/yukaribbba)
