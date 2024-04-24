@@ -26,7 +26,7 @@ from os.path import expanduser
 from pathlib import Path
 
 import yaml
-from appdirs import AppDirs
+from platformdirs import AppDirs
 
 try:
     from yaml import UnsafeLoader

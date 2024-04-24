@@ -21,7 +21,7 @@ dependencies:
   - pytest
   - pytest-cov
   - responses
-  - appdirs
+  - platformdirs
   - python-geotiepoints
   - pip
   - pip:

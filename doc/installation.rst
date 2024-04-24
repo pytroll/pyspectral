@@ -36,7 +36,7 @@ correction in the short wave spectral range.
 Both these datasets downloads automagically from `zenodo.org`_ when needed.
 
 On default these static data will reside in the platform specific standard
-destination for storing user data, via the use of the appdirs_ package. On
+destination for storing user data, via the use of the platformdirs_ package. On
 Linux this will be under *~/.local/share/pyspectral*. See further down.
 
 
@@ -174,5 +174,5 @@ And then adjust the *pyspectral.yaml* so data downloading will not be attempted 
 .. _GCC: http://www.star.nesdis.noaa.gov/smcd/GCC/index.php
 .. _instrument response data: http://www.star.nesdis.noaa.gov/smcd/GCC/instrInfo-srf.php
 .. _github: http://github.com/pytroll/pyspectral
-.. _appdirs: https://github.com/ActiveState/appdirs
+.. _platformdirs: https://github.com/platformdirs/platformdirs
 .. _zenodo.org: https://zenodo.org
