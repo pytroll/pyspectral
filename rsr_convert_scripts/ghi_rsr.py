@@ -19,7 +19,7 @@
 
 """Read the FY-4B GHI relative spectral responses.
 
-Data from https://satellite.nsmc.org.cn/PortalSite/StaticContent/FileDownload.aspx?CategoryID=1&LinkID=687
+Data from https://img.nsmc.org.cn/PORTAL/NSMC/DATASERVICE/SRF/FY4B/FY4B_GHI_SRF.zip
 """
 import os
 
