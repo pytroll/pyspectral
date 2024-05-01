@@ -92,8 +92,9 @@ INSTRUMENTS = {'Envisat': 'aatsr',
                'NOAA-20': 'viirs',
                'NOAA-21': 'viirs',
                'Suomi-NPP': 'viirs',
-               'FY-3B': 'virr',
-               'FY-3C': 'virr',
+               'FY-3A': ['virr', "mersi-1"],
+               'FY-3B': ['virr', "mersi-1"],
+               'FY-3C': ['virr', "mersi-1"],
                'DSCOVR': 'epic'}
 
 
