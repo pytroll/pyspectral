@@ -16,7 +16,7 @@
 download_from_internet: True
 
 # Everything below this line should not need to be changed!
-# Changes may be done if you want to change the name of the radiance<->Tb LUT filrnames,
+# Changes may be done if you want to change the name of the radiance<->Tb LUT filenames,
 # or if you want to store those files in different directories dependning on the platform/sensor.
 # Also, if you want to read the original agency specific spectral responses you 
 # can specify their file names and directory paths here.
@@ -50,9 +50,11 @@ download_from_internet: True
 #   path: /home/a000680/data/SpectralResponses/modis/aqua
 #   tb2rad_lut_filename: /path/to/radiance/tb/lut/data/tb2rad_lut_aqua_modis_ir3.7.npz
 
-#DSCOVR-epic:
-#  path: C:/Users/Simon/Downloads/EPIC_Filters_Original_Data.xlsx
+# DSCOVR-epic:
+#  path: /path/to/srf/EPIC_Filters_Original_Data.xlsx
 
+# GK-2B-goci2:
+#  path: /path/to/original/gk2b/goci2/data/GOCI-II_SRF_Measured.csv
 
 # NOAA-20-viirs:
 #   # J1_VIIRS_RSR_M1_Detector_Fused_V2.txt
