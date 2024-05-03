@@ -18,7 +18,7 @@ download_from_internet: True
 # Everything below this line should not need to be changed!
 # Changes may be done if you want to change the name of the radiance<->Tb LUT filrnames,
 # or if you want to store those files in different directories dependning on the platform/sensor.
-# Also, if you want to read the original agency specific spectral responses you 
+# Also, if you want to read the original agency specific spectral responses you
 # can specify their file names and directory paths here.
 # Adam Dybbroe, 2018-03-20
 
@@ -61,7 +61,7 @@ download_from_internet: True
 
 #   rootdir: /path/to/original/jpss1/viirs/data
 #   tb2rad_lut_filename: /path/to/radiance/tb/lut/data/tb2rad_lut_noaa20_viirs_ir3.7.npz
-  
+
 #   section1:
 #     filename: J1_VIIRS_Detector_RSR_V2/J1_VIIRS_RSR_{bandname}_Detector_Fused_V2.txt
 #     bands: [M1, M2, M3, M4, M5, M6, M7]
@@ -73,11 +73,11 @@ download_from_internet: True
 #   section3:
 #     filename: J1_VIIRS_V1_RSR_used_in_V2/J1_VIIRS_RSR_M8_Det_V1.txt
 #     bands: [M8]
-    
+
 #   section4:
 #     filename: J1_VIIRS_Detector_RSR_V2.1/J1_VIIRS_RSR_M9_Det_V2.1.txt
 #     bands: [M9]
-  
+
 #   section5:
 #     filename: J1_VIIRS_V1_RSR_used_in_V2/J1_VIIRS_RSR_{bandname}_Det_V1.txt
 #     bands: [M10, M11, M12, M14, M15]
@@ -105,7 +105,7 @@ download_from_internet: True
 #   tb2rad_lut_filename:
 #     m12: /path/to/radiance/tb/lut/data/tb2rad_lut_snpp_viirs_m12.npz
 #     i4: /path/to/radiance/tb/lut/data/tb2rad_lut_snpp_viirs_i4.npz
-  
+
 #   section1:
 #     filename: GT_F1_SC_RSR_Release1.0_Best_Mbands/GT_F1_SC_RSR_Release1.0_Best_{bandname}_V2.71_ib_oob.txt
 #     bands: [M1, M2, M3, M4, M5, M6, M7]
@@ -313,6 +313,16 @@ download_from_internet: True
 #   ch24: FY3D_MERSI_SRF_CH24_Pub.txt
 #   ch25: FY3D_MERSI_SRF_CH25_Pub.txt
 
+# FY-3G-mersi-rm:
+  # path: D:/FY-3G_MERSI-RM_SRF
+  # ch1: SRF_FY3G_SRF_CH01.txt
+  # ch2: SRF_FY3G_SRF_CH02.txt
+  # ch3: SRF_FY3G_SRF_CH03.txt
+  # ch4: SRF_FY3G_SRF_CH04.txt
+  # ch5: SRF_FY3G_SRF_CH05.txt
+  # ch6: SRF_FY3G_SRF_CH06.txt
+  # ch7: SRF_FY3G_SRF_CH07.txt
+  # ch8: SRF_FY3G_SRF_CH08.txt
 
 # NOAA-19-avhrr/3:
 #   path: /path/to/original/noaa19/avhrr/data
