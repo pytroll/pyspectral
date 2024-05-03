@@ -22,6 +22,8 @@
 Data from the Korea Ocean Satellite Centre website:
 https://kosc.kiost.ac.kr/index.nm?menuCd=44&lang=en
 
+The direct link to the SRFs is: https://kosc.kiost.ac.kr/upload/GOCI-II_SRF_Measured.csv
+
 """
 
 import logging
