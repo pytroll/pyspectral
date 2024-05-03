@@ -16,7 +16,7 @@
 download_from_internet: True
 
 # Everything below this line should not need to be changed!
-# Changes may be done if you want to change the name of the radiance<->Tb LUT filrnames,
+# Changes may be done if you want to change the name of the radiance<->Tb LUT filenames,
 # or if you want to store those files in different directories dependning on the platform/sensor.
 # Also, if you want to read the original agency specific spectral responses you
 # can specify their file names and directory paths here.
@@ -50,9 +50,11 @@ download_from_internet: True
 #   path: /home/a000680/data/SpectralResponses/modis/aqua
 #   tb2rad_lut_filename: /path/to/radiance/tb/lut/data/tb2rad_lut_aqua_modis_ir3.7.npz
 
-#DSCOVR-epic:
-#  path: C:/Users/Simon/Downloads/EPIC_Filters_Original_Data.xlsx
+# DSCOVR-epic:
+#  path: /path/to/srf/EPIC_Filters_Original_Data.xlsx
 
+# GK-2B-goci2:
+#  path: /path/to/original/gk2b/goci2/data/GOCI-II_SRF_Measured.csv
 
 # NOAA-20-viirs:
 #   # J1_VIIRS_RSR_M1_Detector_Fused_V2.txt
@@ -261,6 +263,74 @@ download_from_internet: True
 #     ch8: rtcoef_electro-l_2_msugs_srf_ch08.txt
 #     ch9: rtcoef_electro-l_2_msugs_srf_ch09.txt
 #     ch10: rtcoef_electro-l_2_msugs_srf_ch10.txt
+
+# FY-3A-mersi-1:
+   # path: D:/MERSI1
+   # ch1: FY3A_mersi_srf_func_b01.txt
+   # ch2: FY3A_mersi_srf_func_b02.txt
+   # ch3: FY3A_mersi_srf_func_b03.txt
+   # ch4: FY3A_mersi_srf_func_b04.txt
+   # ch5: FY3A_mersi_srf_func_b05.txt
+   # ch6: FY3A_mersi_srf_func_b06.txt
+   # ch7: FY3A_mersi_srf_func_b07.txt
+   # ch8: FY3A_mersi_srf_func_b08.txt
+   # ch9: FY3A_mersi_srf_func_b09.txt
+   # ch10: FY3A_mersi_srf_func_b10.txt
+   # ch11: FY3A_mersi_srf_func_b11.txt
+   # ch12: FY3A_mersi_srf_func_b12.txt
+   # ch13: FY3A_mersi_srf_func_b13.txt
+   # ch14: FY3A_mersi_srf_func_b14.txt
+   # ch15: FY3A_mersi_srf_func_b15.txt
+   # ch16: FY3A_mersi_srf_func_b16.txt
+   # ch17: FY3A_mersi_srf_func_b17.txt
+   # ch18: FY3A_mersi_srf_func_b18.txt
+   # ch19: FY3A_mersi_srf_func_b19.txt
+   # ch20: FY3A_mersi_srf_func_b20.txt
+
+# FY-3B-mersi-1:
+   # path: D:/MERSI1
+   # ch1: FY3B_mersi_srf_B1-4_B8-20.txt
+   # ch2: FY3B_mersi_srf_B1-4_B8-20.txt
+   # ch3: FY3B_mersi_srf_B1-4_B8-20.txt
+   # ch4: FY3B_mersi_srf_B1-4_B8-20.txt
+   # ch6: FY3B_mersi_srf_B6-7.txt
+   # ch7: FY3B_mersi_srf_B6-7.txt
+   # ch8: FY3B_mersi_srf_B1-4_B8-20.txt
+   # ch9: FY3B_mersi_srf_B1-4_B8-20.txt
+   # ch10: FY3B_mersi_srf_B1-4_B8-20.txt
+   # ch11: FY3B_mersi_srf_B1-4_B8-20.txt
+   # ch12: FY3B_mersi_srf_B1-4_B8-20.txt
+   # ch13: FY3B_mersi_srf_B1-4_B8-20.txt
+   # ch14: FY3B_mersi_srf_B1-4_B8-20.txt
+   # ch15: FY3B_mersi_srf_B1-4_B8-20.txt
+   # ch16: FY3B_mersi_srf_B1-4_B8-20.txt
+   # ch17: FY3B_mersi_srf_B1-4_B8-20.txt
+   # ch18: FY3B_mersi_srf_B1-4_B8-20.txt
+   # ch19: FY3B_mersi_srf_B1-4_B8-20.txt
+   # ch20: FY3B_mersi_srf_B1-4_B8-20.txt
+
+# FY-3C-mersi-1:
+   # path: D:/MERSI1
+   # ch1:  FY3C_mersi_srf_b01.txt
+   # ch2: FY3C_mersi_srf_b02.txt
+   # ch3: FY3C_mersi_srf_b03.txt
+   # ch4: FY3C_mersi_srf_b04.txt
+   # ch5: FY3C_mersi_srf_b05.txt
+   # ch6: FY3C_mersi_srf_b06.txt
+   # ch7: FY3C_mersi_srf_b07.txt
+   # ch8: FY3C_mersi_srf_b08.txt
+   # ch9: FY3C_mersi_srf_b09.txt
+   # ch10: FY3C_mersi_srf_b10.txt
+   # ch11: FY3C_mersi_srf_b11.txt
+   # ch12: FY3C_mersi_srf_b12.txt
+   # ch13: FY3C_mersi_srf_b13.txt
+   # ch14: FY3C_mersi_srf_b14.txt
+   # ch15: FY3C_mersi_srf_b15.txt
+   # ch16: FY3C_mersi_srf_b16.txt
+   # ch17: FY3C_mersi_srf_b17.txt
+   # ch18: FY3C_mersi_srf_b18.txt
+   # ch19: FY3C_mersi_srf_b19.txt
+   # ch20: FY3C_mersi_srf_b20.txt
 
 #FY-3B-virr:
 #  path: /Users/davidh/repos/git/pyspectral/virr_srf/FY3B-VIRR
