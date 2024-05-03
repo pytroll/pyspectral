@@ -2,6 +2,14 @@ Changelog for the Relative Spectral Response data
 =================================================
 
 
+Version <v1.3.0> (Fri May  3 04:11:43 PM CEST 2024)
+-------------------------------------------
+
+ * Added SRFs (RSRs) for the Mersi-1 sensor onboard FY-3A/B/C
+ * Added SRFs for the Mersi-RM sensor onboard FY-3G
+ * Added SRFs for the GHI (Geostationary High-speed Imager) sensor onboard FY-4B
+ * Added SRFs for GOCI-II (Geostationary Ocean Color Imager: Follow-on) sensor onboard GK-2B (GEO-KOMPSAT-2B)
+
 
 Version <v1.2.4> (Sat Oct 21 12:25:00 PM CEST 2023)
 -------------------------------------------
