@@ -46,8 +46,7 @@ GOCI2_BAND_NAMES = {"L380": "B1 (380 nm)",
                     "L680": "B9 (680 nm)",
                     "L709": "B10 (709 nm)",
                     "L745": "B11 (745 nm)",
-                    "L865": "B12 (865 nm)"
-                   }
+                    "L865": "B12 (865 nm)"}
 
 #: Default time format
 _DEFAULT_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -73,8 +72,6 @@ class GOCI2RSR(InstrumentRSR):
         else:
             LOG.warning("Couldn't find an existing file for this band: %s",
                         str(self.bandname))
-            
-        print(self.path)
 
         # To be compatible with VIIRS....
         self.filename = self.requested_band_filename
