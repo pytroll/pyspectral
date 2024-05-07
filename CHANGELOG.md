@@ -1,3 +1,25 @@
+## Version <v0.13.1> (2024/05/07)
+
+### Issues Closed
+
+* [Issue 219](https://github.com/pytroll/pyspectral/issues/219) - [Question] Using red-band for the representation
+* [Issue 193](https://github.com/pytroll/pyspectral/issues/193) - Question: Is there any details about LUT?
+
+In this release 2 issues were closed.
+
+### Pull Requests Merged
+
+#### Features added
+
+* [PR 225](https://github.com/pytroll/pyspectral/pull/225) - Add fengyun and geo-kompsat-2b sensor support
+* [PR 224](https://github.com/pytroll/pyspectral/pull/224) - Add support and RSR converter for the GOCI2 instrument aboard GK-2B
+* [PR 223](https://github.com/pytroll/pyspectral/pull/223) - Add RSR convert script for MERSI-1 on FY-3A/B/C
+* [PR 222](https://github.com/pytroll/pyspectral/pull/222) - Add a RSR convert script for FY-3G MERSI-RM sensor
+* [PR 192](https://github.com/pytroll/pyspectral/pull/192) - Add a RSR convert script for FY-4B GHI sensor
+
+In this release 5 pull requests were closed.
+
+
 ## Version <v0.13.0> (2023/11/27)
 
 ### Issues Closed
