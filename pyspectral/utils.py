@@ -75,8 +75,6 @@ INSTRUMENTS = {'Envisat': 'aatsr',
                'HY-1C': 'cocts',
                'Meteosat-12': 'fci',
                'MTG-I1': 'fci',
-               'FY-3D': 'mersi-2',
-               'FY-3G': 'mersi-rm',
                'Metop-SG-A1': 'metimage',
                'EOS-Aqua': 'modis',
                'EOS-Terra': 'modis',
@@ -97,6 +95,9 @@ INSTRUMENTS = {'Envisat': 'aatsr',
                'FY-3A': ['virr', 'mersi-1'],
                'FY-3B': ['virr', 'mersi-1'],
                'FY-3C': ['virr', 'mersi-1'],
+               'FY-3D': 'mersi-2',
+               'FY-3F': 'mersi-3',
+               'FY-3G': 'mersi-rm',
                'DSCOVR': 'epic'}
 
 
