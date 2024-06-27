@@ -28,11 +28,15 @@ import logging
 from numbers import Number
 
 import numpy as np
-from scipy import integrate
 
 from pyspectral.blackbody import C_SPEED, H_PLANCK, K_BOLTZMANN, blackbody, blackbody_wn
 from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.utils import BANDNAMES, WAVE_LENGTH, WAVE_NUMBER, convert2wavenumber, get_bandname_from_wavelength
+
+try:
+    from scipy.integrate import trapezoid
+except ImportError:
+    from scipy.integrate import trapz as trapezoid
 
 LOG = logging.getLogger(__name__)
 
@@ -221,9 +225,9 @@ class RadTbConverter(object):
 
         planck = self.blackbody_function(self.wavelength_or_wavenumber, tb_) * self.response
         if normalized:
-            radiance = integrate.trapz(planck, self.wavelength_or_wavenumber) / self.rsr_integral
+            radiance = trapezoid(planck, self.wavelength_or_wavenumber) / self.rsr_integral
         else:
-            radiance = integrate.trapz(planck, self.wavelength_or_wavenumber)
+            radiance = trapezoid(planck, self.wavelength_or_wavenumber)
 
         return {'radiance': radiance,
                 'unit': unit,
