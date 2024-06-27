@@ -506,20 +506,23 @@ def convert2str(value):
 
 
 def np2str(value):
-    """Convert an `numpy.string_` to str.
+    """Convert an ``numpy.bytes_`` to str.
+
+    Note: ``numpy.string_`` was deprecated in numpy 2.0 in favor of
+    ``numpy.bytes_``.
 
     Args:
         value (ndarray): scalar or 1-element numpy array to convert
     Raises:
         ValueError: if value is array larger than 1-element or it is not of
-                    type `numpy.string_` or it is not a numpy array
+                    type `numpy.bytes_` or it is not a numpy array
 
     """
     if isinstance(value, str):
         return value
 
     if hasattr(value, 'dtype') and \
-            issubclass(value.dtype.type, (np.str_, np.string_, np.object_)) \
+            issubclass(value.dtype.type, (np.str_, np.bytes_, np.object_)) \
             and value.size == 1:
         value = value.item()
         # python 3 - was scalar numpy array of bytes

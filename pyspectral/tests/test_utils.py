@@ -225,11 +225,11 @@ class TestUtils(unittest.TestCase):
 @pytest.mark.parametrize(
     ("input_value", "exp_except"),
     [
-        (np.string_("hey"), False),
-        (np.array([np.string_("hey")]), False),
-        (np.array(np.string_("hey")), False),
+        (np.bytes_("hey"), False),
+        (np.array([np.bytes_("hey")]), False),
+        (np.array(np.bytes_("hey")), False),
         ("hey", False),
-        (np.array([np.string_("hey"), np.string_("hey")]), True),
+        (np.array([np.bytes_("hey"), np.bytes_("hey")]), True),
         (5, True),
     ],
 )
@@ -247,8 +247,8 @@ def test_np2str(input_value, exp_except):
     [
         (b"Hello", "Hello"),
         ("Hello", "Hello"),
-        (np.string_("Hello"), "Hello"),
-        (np.array(np.string_("Hello")), np.array(np.string_("Hello"))),
+        (np.bytes_("Hello"), "Hello"),
+        (np.array(np.bytes_("Hello")), np.array(np.bytes_("Hello"))),
     ]
 )
 def test_bytes2string(input_value, exp_result):
