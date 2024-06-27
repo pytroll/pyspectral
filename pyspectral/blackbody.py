@@ -54,6 +54,9 @@ def blackbody_rad2temp(wavelength, radiance):
         The derived temperature in Kelvin.
 
     """
+    if getattr(wavelength, "dtype", None) != radiance.dtype:
+        # avoid a wavelength numpy scalar upcasting radiances (ex. 32-bit to 64-bit float)
+        wavelength = radiance.dtype.type(wavelength)
     with np.errstate(invalid='ignore'):
         return PLANCK_C1 / (wavelength * np.log(PLANCK_C2 / (radiance * wavelength**5) + 1.0))
 
