@@ -334,15 +334,19 @@ class TestRayleigh:
              TEST_RAYLEIGH_RESULT5),
         ]
     )
-    def test_get_reflectance(self, fake_lut_hdf5, sun_zenith, sat_zenith, azidiff, redband_refl, exp_result):
+    @pytest.mark.parametrize("dtype", [np.float32, np.float64])
+    def test_get_reflectance(self, fake_lut_hdf5, sun_zenith, sat_zenith, azidiff, redband_refl, exp_result, dtype):
         """Test getting the reflectance correction."""
         rayl = _create_rayleigh()
         with mocked_rsr():
             refl_corr = rayl.get_reflectance(
-                sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
+                sun_zenith.astype(dtype),
+                sat_zenith.astype(dtype),
+                azidiff.astype(dtype),
+                'ch3',
+                redband_refl.astype(dtype))
         assert isinstance(refl_corr, np.ndarray)
-        print(refl_corr.dtype)
-        np.testing.assert_allclose(refl_corr, exp_result)
+        np.testing.assert_allclose(refl_corr, exp_result.astype(dtype), atol=4.0e-06)
 
     @patch('pyspectral.rayleigh.da', None)
     def test_get_reflectance_no_rsr(self, fake_lut_hdf5):
