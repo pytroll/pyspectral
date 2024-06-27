@@ -136,6 +136,10 @@ def mocked_rsr():
         yield mymock
 
 
+def _create_dask_array(input_data, dtype):
+    return da.from_array(np.array(input_data, dtype=dtype))
+
+
 class TestRayleighDask:
     """Class for testing pyspectral.rayleigh - with dask-arrays as input."""
 
@@ -159,52 +163,44 @@ class TestRayleighDask:
         assert isinstance(refl_corr, da.Array)
 
     @pytest.mark.parametrize("dtype", [np.float32, np.float64])
-    def test_get_reflectance_dask(self, fake_lut_hdf5, dtype):
+    @pytest.mark.parametrize("use_dask", [False, True])
+    def test_get_reflectance(self, fake_lut_hdf5, dtype, use_dask):
         """Test getting the reflectance correction with dask inputs."""
-        sun_zenith = da.array([67., 32.], dtype=dtype)
-        sat_zenith = da.array([45., 18.], dtype=dtype)
-        azidiff = da.array([150., 110.], dtype=dtype)
-        redband_refl = da.array([14., 5.], dtype=dtype)
+        array_func = np.array if not use_dask else _create_dask_array
+        sun_zenith = array_func([67., 32.], dtype=dtype)
+        sat_zenith = array_func([45., 18.], dtype=dtype)
+        azidiff = array_func([150., 110.], dtype=dtype)
+        redband_refl = array_func([14., 5.], dtype=dtype)
         rayl = _create_rayleigh()
         with mocked_rsr():
             refl_corr = rayl.get_reflectance(sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
-        np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT1.astype(dtype), atol=4.0e-06)
-        assert isinstance(refl_corr, da.Array)
-        assert refl_corr.dtype == dtype  # check that the dask array's dtype is equal
-        assert refl_corr.compute().dtype == dtype  # check that the final numpy array's dtype is equal
 
-        sun_zenith = da.array([60., 20.], dtype=dtype)
-        sat_zenith = da.array([49., 26.], dtype=dtype)
-        azidiff = da.array([140., 130.], dtype=dtype)
-        redband_refl = da.array([12., 8.], dtype=dtype)
-        with mocked_rsr():
-            refl_corr = rayl.get_reflectance(sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
-        np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT2.astype(dtype), atol=4.0e-06)
-        assert isinstance(refl_corr, da.Array)
-        assert refl_corr.dtype == dtype  # check that the dask array's dtype is equal
-        assert refl_corr.compute().dtype == dtype  # check that the final numpy array's dtype is equal
+        if use_dask:
+            assert isinstance(refl_corr, da.Array)
+            refl_corr_np = refl_corr.compute()
+            assert refl_corr_np.dtype == refl_corr.dtype  # check that the final numpy array's dtype is equal
+            refl_corr = refl_corr_np
 
-    @pytest.mark.parametrize("dtype", [np.float32, np.float64])
-    def test_get_reflectance_numpy(self, fake_lut_hdf5, dtype):
-        """Test getting the reflectance correction with dask inputs."""
-        sun_zenith = np.array([67., 32.], dtype=dtype)
-        sat_zenith = np.array([45., 18.], dtype=dtype)
-        azidiff = np.array([150., 110.], dtype=dtype)
-        redband_refl = np.array([14., 5.], dtype=dtype)
-        rayl = _create_rayleigh()
-        with mocked_rsr():
-            refl_corr = rayl.get_reflectance(sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
-        np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT1.astype(dtype), atol=4.0e-06)
         assert isinstance(refl_corr, np.ndarray)
+        np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT1.astype(dtype), atol=4.0e-06)
+        assert refl_corr.dtype == dtype  # check that the dask array's dtype is equal
 
-        sun_zenith = np.array([60., 20.], dtype=dtype)
-        sat_zenith = np.array([49., 26.], dtype=dtype)
-        azidiff = np.array([140., 130.], dtype=dtype)
-        redband_refl = np.array([12., 8.], dtype=dtype)
+        sun_zenith = array_func([60., 20.], dtype=dtype)
+        sat_zenith = array_func([49., 26.], dtype=dtype)
+        azidiff = array_func([140., 130.], dtype=dtype)
+        redband_refl = array_func([12., 8.], dtype=dtype)
         with mocked_rsr():
             refl_corr = rayl.get_reflectance(sun_zenith, sat_zenith, azidiff, 'ch3', redband_refl)
+
+        if use_dask:
+            assert isinstance(refl_corr, da.Array)
+            refl_corr_np = refl_corr.compute()
+            assert refl_corr_np.dtype == refl_corr.dtype  # check that the final numpy array's dtype is equal
+            refl_corr = refl_corr_np
+
         np.testing.assert_allclose(refl_corr, TEST_RAYLEIGH_RESULT2.astype(dtype), atol=4.0e-06)
         assert isinstance(refl_corr, np.ndarray)
+        assert refl_corr.dtype == dtype  # check that the dask array's dtype is equal
 
     def test_get_reflectance_wvl_outside_range(self, fake_lut_hdf5):
         """Test getting the reflectance correction with wavelength outside correction range."""
