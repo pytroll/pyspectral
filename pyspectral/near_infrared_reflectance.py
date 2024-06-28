@@ -259,7 +259,7 @@ class Calculator(RadTbConverter):
         mu0 = np.cos(np.deg2rad(sunz))
 
         # mu0 = np.where(np.less(mu0, 0.1), 0.1, mu0)
-        self._solar_radiance = self.solar_flux * mu0 / np.pi
+        self._solar_radiance = (self.solar_flux * mu0 / np.pi).astype(tb_nir.dtype)
 
         # CO2 correction to the 3.9 radiance, only if tbs of a co2 band around
         # 13.4 micron is provided:
