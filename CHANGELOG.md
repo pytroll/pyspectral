@@ -1,3 +1,20 @@
+## Version <0.13.2> (2024/06/27)
+
+### Issues Closed
+
+* [Issue 227](https://github.com/pytroll/pyspectral/issues/227) - Pyspectral 0.13.1 not compatible with SciPy 1.14.x -> update dependencies ([PR 228](https://github.com/pytroll/pyspectral/pull/228) by [@djhoese](https://github.com/djhoese))
+
+In this release 1 issue was closed.
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 228](https://github.com/pytroll/pyspectral/pull/228) - Fix scipy 1.14 compatibility and trapz usage ([227](https://github.com/pytroll/pyspectral/issues/227))
+
+In this release 1 pull request was closed.
+
+
 ## Version <v0.13.1> (2024/05/07)
 
 ### Issues Closed
