@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2018-2022 Pytroll developers
+# Copyright (c) 2018-2022, 2024 Pytroll developers
 #
 #
 # This program is free software: you can redistribute it and/or modify
@@ -28,7 +28,6 @@ import os
 import numpy as np
 
 from pyspectral.raw_reader import InstrumentRSR
-from pyspectral.utils import INSTRUMENTS
 from pyspectral.utils import convert2hdf5 as tohdf5
 
 LOG = logging.getLogger(__name__)
@@ -43,10 +42,10 @@ class Mersi3RSR(InstrumentRSR):
     """Container for the FY3D MERSI-II RSR data."""
 
     def __init__(self, bandname, platform_name):
-        """Initialize the MERSI-2 RSR class."""
+        """Initialize the MERSI-3 RSR class."""
         super(Mersi3RSR, self).__init__(bandname, platform_name, MERSI3_BAND_NAMES)
 
-        self.instrument = INSTRUMENTS.get(platform_name, 'mersi-3')
+        self.instrument = 'mersi3'
 
         self._get_options_from_config()
         self._get_bandfilenames()
