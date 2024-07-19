@@ -24,8 +24,7 @@ import os
 from glob import glob
 from os.path import expanduser
 
-import numpy as np
-
+from pyspectral._compat import np_trapezoid
 from pyspectral.bandnames import BANDNAMES
 from pyspectral.config import get_config
 from pyspectral.utils import (
@@ -214,7 +213,7 @@ class RelativeSpectralResponse(RSRDataBaseClass):
         for det in self.rsr[bandname].keys():
             wvl = self.rsr[bandname][det]['wavelength']
             resp = self.rsr[bandname][det]['response']
-            intg[det] = np.trapz(resp, wvl)
+            intg[det] = np_trapezoid(resp, wvl)
         return intg
 
     def convert(self):

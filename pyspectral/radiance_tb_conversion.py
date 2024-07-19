@@ -29,6 +29,7 @@ from numbers import Number
 
 import numpy as np
 
+from pyspectral._compat import np_trapezoid
 from pyspectral.blackbody import C_SPEED, H_PLANCK, K_BOLTZMANN, blackbody, blackbody_wn
 from pyspectral.rsr_reader import RelativeSpectralResponse
 from pyspectral.utils import BANDNAMES, WAVE_LENGTH, WAVE_NUMBER, convert2wavenumber, get_bandname_from_wavelength
@@ -159,7 +160,7 @@ class RadTbConverter(object):
                                          self._wave_si_scale)
         self.response = self.rsr[self.bandname][self.detector]['response']
         # Get the integral of the spectral response curve:
-        self.rsr_integral = np.trapz(self.response, self.wavelength_or_wavenumber)
+        self.rsr_integral = np_trapezoid(self.response, self.wavelength_or_wavenumber)
 
     def _getsatname(self):
         """Get the satellite name used in the rsr-reader, from the platform and number."""

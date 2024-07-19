@@ -30,6 +30,8 @@ from pathlib import Path
 
 import numpy as np
 
+from pyspectral._compat import np_trapezoid
+
 LOG = logging.getLogger(__name__)
 
 # STANDARD SPECTRA from Air Mass Zero: http://rredc.nrel.gov/solar/spectra/am0/
@@ -121,9 +123,9 @@ class SolarIrradianceSpectrum(object):
     def solar_constant(self):
         """Calculate the solar constant."""
         if self.wavenumber is not None:
-            return np.trapz(self.irradiance, self.wavenumber)
+            return np_trapezoid(self.irradiance, self.wavenumber)
         if self.wavelength is not None:
-            return np.trapz(self.irradiance, self.wavelength)
+            return np_trapezoid(self.irradiance, self.wavelength)
 
         raise TypeError('Neither wavelengths nor wavenumbers available!')
 
@@ -204,10 +206,10 @@ class SolarIrradianceSpectrum(object):
 
         # Calculate the solar-flux: (w/m2)
         if flux:
-            return np.trapz(irr * resp_ipol, wvl)
+            return np_trapezoid(irr * resp_ipol, wvl)
 
         # Divide by the equivalent band width:
-        return np.trapz(irr * resp_ipol, wvl) / np.trapz(resp_ipol, wvl)
+        return np_trapezoid(irr * resp_ipol, wvl) / np_trapezoid(resp_ipol, wvl)
 
     def interpolate(self, **options):
         """Interpolate Irradiance to a specified evenly spaced resolution/grid.

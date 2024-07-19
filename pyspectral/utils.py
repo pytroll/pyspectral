@@ -21,6 +21,7 @@
 
 import logging
 import os
+import sys
 import tarfile
 import warnings
 from functools import wraps
@@ -29,6 +30,7 @@ from inspect import getfullargspec
 import numpy as np
 import requests
 
+from pyspectral._compat import np_trapezoid
 from pyspectral.bandnames import BANDNAMES
 from pyspectral.config import get_config
 
@@ -224,7 +226,7 @@ def get_central_wave(wav, resp, weight=1.0):
     # if info['unit'].find('-1') > 0:
     # Wavenumber:
     #     res *=
-    return np.trapz(resp * wav * weight, wav) / np.trapz(resp * weight, wav)
+    return np_trapezoid(resp * wav * weight, wav) / np_trapezoid(resp * weight, wav)
 
 
 def get_bandname_from_wavelength(sensor, wavelength, rsr, epsilon=0.1, multiple_bands=False):
@@ -413,7 +415,8 @@ def _download_tarball_and_extract(tarball_url, local_pathname, extract_dir):
             handle.write(data)
 
     tar = tarfile.open(local_pathname)
-    tar.extractall(extract_dir)
+    tar_kwargs = {} if sys.version_info < (3, 12) else {"filter": "data"}
+    tar.extractall(extract_dir, **tar_kwargs)
     tar.close()
     os.remove(local_pathname)
 
