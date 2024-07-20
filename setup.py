@@ -26,13 +26,10 @@ from setuptools import find_packages, setup
 description = ('Reading and manipulaing satellite sensor spectral responses and the '
                'solar spectrum, to perfom various corrections to VIS and NIR band data')
 
-try:
-    with open('./README.md', 'r') as fd:
-        long_description = fd.read()
-except IOError:
-    long_description = ''
+with open('./README.md', 'r') as fd:
+    long_description = fd.read()
 
-requires = ['docutils>=0.3', 'numpy', 'scipy', 'python-geotiepoints>=1.1.1',
+requires = ['numpy', 'scipy', 'python-geotiepoints>=1.1.1',
             'h5py>=2.5', 'requests', 'pyyaml', 'platformdirs']
 
 dask_extra = ['dask[array]']
@@ -74,14 +71,13 @@ setup(name=NAME,
                       'matplotlib': ['matplotlib'],
                       'pandas': ['pandas'],
                       'tqdm': ['tqdm'],
+                      'test': test_requires,
                       'dask': dask_extra},
       scripts=['bin/plot_rsr.py', 'bin/composite_rsr_plot.py',
                'bin/download_atm_correction_luts.py',
                'bin/download_rsr.py'],
       data_files=[('share', ['pyspectral/data/e490_00a.dat',
                              'pyspectral/data/MSG_SEVIRI_Spectral_Response_Characterisation.XLS'])],
-      test_suite='pyspectral.tests.suite',
-      tests_require=test_requires,
       python_requires='>=3.10',
       zip_safe=False,
       )

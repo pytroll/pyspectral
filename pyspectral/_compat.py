@@ -1,8 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-#
-# Copyright (c) 2013-2022 Pytroll Developers
-#
+# Copyright (c) 2024 Pytroll developers
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,4 +12,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""The tests package."""
+"""Various helpers for backwards and forwards compatibility."""
+
+import numpy as np
+
+np_trapezoid = np.trapezoid if hasattr(np, "trapezoid") else np.trapz
