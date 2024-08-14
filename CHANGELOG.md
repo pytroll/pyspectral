@@ -1,3 +1,21 @@
+## Version v0.13.4 (2024/08/14)
+
+### Issues Closed
+
+* [Issue 229](https://github.com/pytroll/pyspectral/issues/229) - Deprecate old scipy and remove use of trapz (numpy and scipy) ([PR 233](https://github.com/pytroll/pyspectral/pull/233) by [@djhoese](https://github.com/djhoese))
+
+In this release 1 issue was closed.
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 233](https://github.com/pytroll/pyspectral/pull/233) - Replace deprecated numpy trapezoid/trapz usage with scipy trapezoid ([229](https://github.com/pytroll/pyspectral/issues/229))
+* [PR 232](https://github.com/pytroll/pyspectral/pull/232) - Cleanup unused dependencies and deprecated code
+
+In this release 2 pull requests were closed.
+
+
 ## Version v0.13.3 (2024/07/17)
 
 ### Pull Requests Merged
