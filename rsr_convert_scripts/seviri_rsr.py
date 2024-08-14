@@ -25,6 +25,7 @@ import os
 
 import numpy as np
 import pkg_resources
+from scipy.integrate import trapezoid
 from xlrd import open_workbook
 
 from pyspectral.config import get_config
@@ -210,7 +211,7 @@ class Seviri(object):
 
 def get_central_wave(wavl, resp):
     """Calculate the central wavelength (or the central wavenumber if inputs are wave numbers)."""
-    return np.trapz(resp * wavl, wavl) / np.trapz(resp, wavl)
+    return trapezoid(resp * wavl, wavl) / trapezoid(resp, wavl)
 
 
 def generate_seviri_file(seviri, platform_name):
