@@ -29,8 +29,7 @@ import logging
 from pathlib import Path
 
 import numpy as np
-
-from pyspectral._compat import np_trapezoid
+from scipy.integrate import trapezoid
 
 LOG = logging.getLogger(__name__)
 
@@ -123,9 +122,9 @@ class SolarIrradianceSpectrum(object):
     def solar_constant(self):
         """Calculate the solar constant."""
         if self.wavenumber is not None:
-            return np_trapezoid(self.irradiance, self.wavenumber)
+            return trapezoid(self.irradiance, self.wavenumber)
         if self.wavelength is not None:
-            return np_trapezoid(self.irradiance, self.wavelength)
+            return trapezoid(self.irradiance, self.wavelength)
 
         raise TypeError('Neither wavelengths nor wavenumbers available!')
 
@@ -206,10 +205,10 @@ class SolarIrradianceSpectrum(object):
 
         # Calculate the solar-flux: (w/m2)
         if flux:
-            return np_trapezoid(irr * resp_ipol, wvl)
+            return trapezoid(irr * resp_ipol, wvl)
 
         # Divide by the equivalent band width:
-        return np_trapezoid(irr * resp_ipol, wvl) / np_trapezoid(resp_ipol, wvl)
+        return trapezoid(irr * resp_ipol, wvl) / trapezoid(resp_ipol, wvl)
 
     def interpolate(self, **options):
         """Interpolate Irradiance to a specified evenly spaced resolution/grid.

@@ -29,8 +29,8 @@ from inspect import getfullargspec
 
 import numpy as np
 import requests
+from scipy.integrate import trapezoid
 
-from pyspectral._compat import np_trapezoid
 from pyspectral.bandnames import BANDNAMES
 from pyspectral.config import get_config
 
@@ -226,7 +226,7 @@ def get_central_wave(wav, resp, weight=1.0):
     # if info['unit'].find('-1') > 0:
     # Wavenumber:
     #     res *=
-    return np_trapezoid(resp * wav * weight, wav) / np_trapezoid(resp * weight, wav)
+    return trapezoid(resp * wav * weight, wav) / trapezoid(resp * weight, wav)
 
 
 def get_bandname_from_wavelength(sensor, wavelength, rsr, epsilon=0.1, multiple_bands=False):
