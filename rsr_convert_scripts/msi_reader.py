@@ -79,7 +79,6 @@ class MsiRSR(InstrumentRSR):
 
     def _load(self, scale=0.001):
         """Load the Sentinel-2 MSI relative spectral responses."""
-
         bname = MSI_BAND_NAMES.get(self.bandname)
         df = pd.read_excel(self.path, engine='openpyxl', sheet_name=SHEET_HEADERS[self.short_plat])
         wvl = np.array(df['SR_WL'])
@@ -92,7 +91,6 @@ class MsiRSR(InstrumentRSR):
         wvl = wvl_mask.compressed()
         resp = np.ma.masked_array(resp, mask=wvl_mask.mask).compressed()
         self.rsr = {"wavelength": wvl / 1000., "response": resp}
-
 
 
 if __name__ == "__main__":
