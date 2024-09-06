@@ -28,48 +28,35 @@ https://earth.esa.int/documents/247904/685211/S2-SRF_COPE-GSEG-EOPG-TN-15-0007_3
 import logging
 import os
 
+import pandas as pd
 import numpy as np
-from xlrd import open_workbook
 
 from pyspectral.raw_reader import InstrumentRSR
 from pyspectral.utils import convert2hdf5 as tohdf5
 
 LOG = logging.getLogger(__name__)
 
+MSI_BAND_NAMES = {"B01": "B1",
+                  "B02": "B2",
+                  "B03": "B3",
+                  "B04": "B4",
+                  "B05": "B5",
+                  "B06": "B6",
+                  "B07": "B7",
+                  "B08": "B8",
+                  "B8A": "B8A",
+                  "B09": "B9",
+                  "B10": "B10",
+                  "B11": "B11",
+                  "B12": "B12"}
 
-MSI_BAND_NAMES = {}
-MSI_BAND_NAMES['S2A'] = {'S2A_SR_AV_B1': 'B01',
-                         'S2A_SR_AV_B2': 'B02',
-                         'S2A_SR_AV_B3': 'B03',
-                         'S2A_SR_AV_B4': 'B04',
-                         'S2A_SR_AV_B5': 'B05',
-                         'S2A_SR_AV_B6': 'B06',
-                         'S2A_SR_AV_B7': 'B07',
-                         'S2A_SR_AV_B8': 'B08',
-                         'S2A_SR_AV_B8A': 'B8A',
-                         'S2A_SR_AV_B9': 'B09',
-                         'S2A_SR_AV_B10': 'B10',
-                         'S2A_SR_AV_B11': 'B11',
-                         'S2A_SR_AV_B12': 'B12'}
-MSI_BAND_NAMES['S2B'] = {'S2B_SR_AV_B1': 'B01',
-                         'S2B_SR_AV_B2': 'B02',
-                         'S2B_SR_AV_B3': 'B03',
-                         'S2B_SR_AV_B4': 'B04',
-                         'S2B_SR_AV_B5': 'B05',
-                         'S2B_SR_AV_B6': 'B06',
-                         'S2B_SR_AV_B7': 'B07',
-                         'S2B_SR_AV_B8': 'B08',
-                         'S2B_SR_AV_B8A': 'B8A',
-                         'S2B_SR_AV_B9': 'B09',
-                         'S2B_SR_AV_B10': 'B10',
-                         'S2B_SR_AV_B11': 'B11',
-                         'S2B_SR_AV_B12': 'B12'}
+SHEET_HEADERS = {"S2A": "Spectral Responses (S2A)",
+                 "S2B": "Spectral Responses (S2B)",
+                 "S2C": "Spectral Responses (S2C)"}
 
-SHEET_HEADERS = {'Spectral Responses (S2A)': 'S2A',
-                 'Spectral Responses (S2B)': 'S2B'}
-
-PLATFORM_SHORT_NAME = {'Sentinel-2A': 'S2A',
-                       'Sentinel-2B': 'S2B'}
+PLATFORM_SHORT_NAME = {"Sentinel-2A": "S2A",
+                       "Sentinel-2B": "S2B",
+                       "Sentinel-2C": "S2C"}
 
 
 class MsiRSR(InstrumentRSR):
@@ -79,56 +66,36 @@ class MsiRSR(InstrumentRSR):
         """Read the Sentinel-2 MSI relative spectral responses for all channels."""
         super(MsiRSR, self).__init__(bandname, platform_name)
 
-        self.instrument = 'msi'
+        self.instrument = "msi"
+        self.platform_name = platform_name
+        self.short_plat = PLATFORM_SHORT_NAME[platform_name]
         self._get_options_from_config()
 
-        LOG.debug("Filename: %s", str(self.path))
+        LOG.debug(f"Filename: {self.path}")
         if os.path.exists(self.path):
-            self._load()
+            self._load(platform_name)
         else:
-            raise IOError("Couldn't find an existing file for this band: " +
-                          str(self.bandname))
+            raise IOError(f"Couldn't find an existing file for this band: {str(self.bandname)}")
 
     def _load(self, scale=0.001):
         """Load the Sentinel-2 MSI relative spectral responses."""
-        with open_workbook(self.path) as wb_:
-            for sheet in wb_.sheets():
-                if sheet.name not in SHEET_HEADERS.keys():
-                    continue
 
-                plt_short_name = PLATFORM_SHORT_NAME.get(self.platform_name)
-                if plt_short_name != SHEET_HEADERS.get(sheet.name):
-                    continue
+        bname = MSI_BAND_NAMES.get(self.bandname)
+        df = pd.read_excel(self.path, engine='openpyxl', sheet_name=SHEET_HEADERS[self.short_plat])
+        wvl = np.array(df['SR_WL'])
+        resp = np.array(df[f"{self.short_plat}_SR_AV_{bname}"])
 
-                wvl = sheet.col_values(0, 1)
-                for idx in range(1, sheet.row_len(0)):
-                    ch_name = MSI_BAND_NAMES[plt_short_name].get(str(sheet.col_values(idx, 0, 1)[0]))
-                    if ch_name != self.bandname:
-                        continue
+        mask = np.less_equal(resp, 0.00001)
+        wvl0 = np.ma.masked_array(wvl, mask=mask)
+        wvl_mask = np.ma.masked_outside(wvl, wvl0.min() - 2, wvl0.max() + 2)
 
-                    resp = sheet.col_values(idx, 1)
-                    resp = np.array(resp)
-                    resp = np.where(resp == '', 0, resp).astype('float32')
-                    mask = np.less_equal(resp, 0.00001)
-                    wvl0 = np.ma.masked_array(wvl, mask=mask)
-                    wvl_mask = np.ma.masked_outside(wvl, wvl0.min() - 2, wvl0.max() + 2)
+        wvl = wvl_mask.compressed()
+        resp = np.ma.masked_array(resp, mask=wvl_mask.mask).compressed()
+        self.rsr = {"wavelength": wvl / 1000., "response": resp}
 
-                    wvl = wvl_mask.compressed()
-                    resp = np.ma.masked_array(resp, mask=wvl_mask.mask).compressed()
-                    self.rsr = {'wavelength': wvl / 1000., 'response': resp}
-
-                    break
-
-                break
 
 
 if __name__ == "__main__":
-    bands = MSI_BAND_NAMES['S2A'].values()
-    bands.sort()
-    for platform_name in ['Sentinel-2A', ]:
-        tohdf5(MsiRSR, platform_name, bands)
 
-    bands = MSI_BAND_NAMES['S2B'].values()
-    bands.sort()
-    for platform_name in ['Sentinel-2B', ]:
-        tohdf5(MsiRSR, platform_name, bands)
+    for plat_name in ["Sentinel-2A", "Sentinel-2B", "Sentinel-2C"]:
+        tohdf5(MsiRSR, plat_name, sorted(MSI_BAND_NAMES))
