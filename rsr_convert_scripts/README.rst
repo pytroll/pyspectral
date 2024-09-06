@@ -95,8 +95,8 @@ Terra files have names like this: ``rsr.1.oobd.det``
 
    %> python msi_reader.py
 
-The original Sentinel-2 A&B MSI spectral responses. Filenames look like this
-``S2-SRF_COPE-GSEG-EOPG-TN-15-0007_3.0.xlsx``
+The original Sentinel-2 A,B, and C MSI spectral responses. Filenames look like this
+``COPE-GSEG-EOPG-TN-15-0007-Sentinel-2_Spectral_Response_Functions_2024-4.0.xlsx``
    
 .. code::
 
