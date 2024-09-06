@@ -28,8 +28,8 @@ https://earth.esa.int/documents/247904/685211/S2-SRF_COPE-GSEG-EOPG-TN-15-0007_3
 import logging
 import os
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 from pyspectral.raw_reader import InstrumentRSR
 from pyspectral.utils import convert2hdf5 as tohdf5
