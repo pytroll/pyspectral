@@ -1,4 +1,54 @@
-## Version <v0.13.1> (2024/05/07)
+## Version v0.13.4 (2024/08/14)
+
+### Issues Closed
+
+* [Issue 229](https://github.com/pytroll/pyspectral/issues/229) - Deprecate old scipy and remove use of trapz (numpy and scipy) ([PR 233](https://github.com/pytroll/pyspectral/pull/233) by [@djhoese](https://github.com/djhoese))
+
+In this release 1 issue was closed.
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 233](https://github.com/pytroll/pyspectral/pull/233) - Replace deprecated numpy trapezoid/trapz usage with scipy trapezoid ([229](https://github.com/pytroll/pyspectral/issues/229))
+* [PR 232](https://github.com/pytroll/pyspectral/pull/232) - Cleanup unused dependencies and deprecated code
+
+In this release 2 pull requests were closed.
+
+
+## Version v0.13.3 (2024/07/17)
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 231](https://github.com/pytroll/pyspectral/pull/231) - Updated the file name for the FY-3F Mersi-3 RSRs
+
+#### Features added
+
+* [PR 226](https://github.com/pytroll/pyspectral/pull/226) - Add RSR script for MERSI-3 onboard FY-3F
+
+In this release 2 pull requests were closed.
+
+
+## Version v0.13.2 (2024/06/27)
+
+### Issues Closed
+
+* [Issue 227](https://github.com/pytroll/pyspectral/issues/227) - Pyspectral 0.13.1 not compatible with SciPy 1.14.x -> update dependencies ([PR 228](https://github.com/pytroll/pyspectral/pull/228) by [@djhoese](https://github.com/djhoese))
+
+In this release 1 issue was closed.
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 228](https://github.com/pytroll/pyspectral/pull/228) - Fix scipy 1.14 compatibility and trapz usage ([227](https://github.com/pytroll/pyspectral/issues/227))
+
+In this release 1 pull request was closed.
+
+
+## Version v0.13.1 (2024/05/07)
 
 ### Issues Closed
 
@@ -20,7 +70,7 @@ In this release 2 issues were closed.
 In this release 5 pull requests were closed.
 
 
-## Version <v0.13.0> (2023/11/27)
+## Version v0.13.0 (2023/11/27)
 
 ### Issues Closed
 
@@ -43,7 +93,7 @@ In this release 2 issues were closed.
 In this release 6 pull requests were closed.
 
 
-## Version <v0.12.5> (2023/09/21)
+## Version 0.12.5 (2023/09/21)
 
 ### Pull Requests Merged
 
@@ -54,7 +104,7 @@ In this release 6 pull requests were closed.
 In this release 1 pull request was closed.
 
 
-## Version <v0.12.4> (2023/09/20)
+## Version v0.12.4 (2023/09/20)
 
 ### Issues Closed
 
@@ -76,7 +126,7 @@ In this release 1 issue was closed.
 In this release 3 pull requests were closed.
 
 
-## Version <v0.12.3> (2022/11/22)
+## Version v0.12.3 (2022/11/22)
 
 ### Issues Closed
 
@@ -102,7 +152,7 @@ In this release 5 issues were closed.
 In this release 3 pull requests were closed.
 
 
-## Version <v0.12.2> (2022/10/24)
+## Version 0.12.2 (2022/10/24)
 
 ### Issues Closed
 
@@ -119,7 +169,7 @@ In this release 1 issue was closed.
 In this release 1 pull request was closed.
 
 
-## Version <v0.12.1> (2022/10/20)
+## Version v0.12.1 (2022/10/20)
 
 
 ### Pull Requests Merged
@@ -135,7 +185,7 @@ In this release 1 pull request was closed.
 In this release 2 pull requests were closed.
 
 
-## Version <v0.12.0> (2022/10/11)
+## Version v0.12.0 (2022/10/11)
 
 ### Issues Closed
 
@@ -170,7 +220,7 @@ In this release 1 issue was closed.
 In this release 13 pull requests were closed.
 
 
-## Version <v0.11.0> (2022/03/01)
+## Version v0.11.0 (2022/03/01)
 
 
 ### Pull Requests Merged
@@ -183,7 +233,7 @@ In this release 13 pull requests were closed.
 In this release 2 pull requests were closed.
 
 
-## Version <v0.10.6> (2021/12/22)
+## Version v0.10.6 (2021/12/22)
 
 ### Issues Closed
 
@@ -209,7 +259,7 @@ In this release 2 issues were closed.
 In this release 6 pull requests were closed.
 
 
-## Version <v0.10.5> (2021/04/29)
+## Version v0.10.5 (2021/04/29)
 
 ### Pull Requests Merged
 
@@ -228,7 +278,7 @@ In this release 6 pull requests were closed.
 In this release 2 pull requests were closed.
 
 
-## Version <v0.10.4> (2020/12/07)
+## Version v0.10.4 (2020/12/07)
 
 
 ### Pull Requests Merged
@@ -240,7 +290,7 @@ In this release 2 pull requests were closed.
 In this release 1 pull request was closed.
 
 
-## Version <v0.10.3> (2020/12/04)
+## Version v0.10.3 (2020/12/04)
 
 ### Issues Closed
 
@@ -248,7 +298,8 @@ In this release 1 pull request was closed.
 
 In this release 1 issue was closed.
 
-## Version <v0.10.2> (2020/11/20)
+
+## Version v0.10.2 (2020/11/20)
 
 ### Issues Closed
 
@@ -279,7 +330,7 @@ In this release 1 issue was closed.
 In this release 9 pull requests were closed.
 
 
-## Version <v0.10.1> (2020/10/06)
+## Version v0.10.1 (2020/10/06)
 
 ### Issues Closed
 

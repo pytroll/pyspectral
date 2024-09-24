@@ -21,6 +21,7 @@
 
 import logging
 import os
+import sys
 import tarfile
 import warnings
 from functools import wraps
@@ -28,6 +29,7 @@ from inspect import getfullargspec
 
 import numpy as np
 import requests
+from scipy.integrate import trapezoid
 
 from pyspectral.bandnames import BANDNAMES
 from pyspectral.config import get_config
@@ -108,9 +110,9 @@ INSTRUMENT_TRANSLATION_DASH2SLASH = {'avhrr-1': 'avhrr/1',
 
 HTTP_PYSPECTRAL_RSR = "https://zenodo.org/records/13833977/files/pyspectral_rsr_data.tgz"
 
-
 RSR_DATA_VERSION_FILENAME = "PYSPECTRAL_RSR_VERSION"
 RSR_DATA_VERSION = "v1.4.0"
+
 
 ATM_CORRECTION_LUT_VERSION = {}
 ATM_CORRECTION_LUT_VERSION['antarctic_aerosol'] = {'version': 'v1.0.1',
@@ -226,7 +228,7 @@ def get_central_wave(wav, resp, weight=1.0):
     # if info['unit'].find('-1') > 0:
     # Wavenumber:
     #     res *=
-    return np.trapz(resp * wav * weight, wav) / np.trapz(resp * weight, wav)
+    return trapezoid(resp * wav * weight, wav) / trapezoid(resp * weight, wav)
 
 
 def get_bandname_from_wavelength(sensor, wavelength, rsr, epsilon=0.1, multiple_bands=False):
@@ -415,7 +417,8 @@ def _download_tarball_and_extract(tarball_url, local_pathname, extract_dir):
             handle.write(data)
 
     tar = tarfile.open(local_pathname)
-    tar.extractall(extract_dir)
+    tar_kwargs = {} if sys.version_info < (3, 12) else {"filter": "data"}
+    tar.extractall(extract_dir, **tar_kwargs)
     tar.close()
     os.remove(local_pathname)
 
@@ -509,20 +512,23 @@ def convert2str(value):
 
 
 def np2str(value):
-    """Convert an `numpy.string_` to str.
+    """Convert an ``numpy.bytes_`` to str.
+
+    Note: ``numpy.string_`` was deprecated in numpy 2.0 in favor of
+    ``numpy.bytes_``.
 
     Args:
         value (ndarray): scalar or 1-element numpy array to convert
     Raises:
         ValueError: if value is array larger than 1-element or it is not of
-                    type `numpy.string_` or it is not a numpy array
+                    type `numpy.bytes_` or it is not a numpy array
 
     """
     if isinstance(value, str):
         return value
 
     if hasattr(value, 'dtype') and \
-            issubclass(value.dtype.type, (np.str_, np.string_, np.object_)) \
+            issubclass(value.dtype.type, (np.str_, np.bytes_, np.object_)) \
             and value.size == 1:
         value = value.item()
         # python 3 - was scalar numpy array of bytes

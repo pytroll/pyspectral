@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2022 Pytroll developers
+# Copyright (c) 2014-2024 Pytroll developers
 #
 #
 # This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@ import os
 from glob import glob
 from os.path import expanduser
 
-import numpy as np
+from scipy.integrate import trapezoid
 
 from pyspectral.bandnames import BANDNAMES
 from pyspectral.config import get_config
@@ -214,7 +214,7 @@ class RelativeSpectralResponse(RSRDataBaseClass):
         for det in self.rsr[bandname].keys():
             wvl = self.rsr[bandname][det]['wavelength']
             resp = self.rsr[bandname][det]['response']
-            intg[det] = np.trapz(resp, wvl)
+            intg[det] = trapezoid(resp, wvl)
         return intg
 
     def convert(self):

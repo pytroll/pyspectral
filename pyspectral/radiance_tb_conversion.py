@@ -28,7 +28,7 @@ import logging
 from numbers import Number
 
 import numpy as np
-from scipy import integrate
+from scipy.integrate import trapezoid
 
 from pyspectral.blackbody import C_SPEED, H_PLANCK, K_BOLTZMANN, blackbody, blackbody_wn
 from pyspectral.rsr_reader import RelativeSpectralResponse
@@ -155,7 +155,7 @@ class RadTbConverter(object):
                                          self._wave_si_scale)
         self.response = self.rsr[self.bandname][self.detector]['response']
         # Get the integral of the spectral response curve:
-        self.rsr_integral = np.trapz(self.response, self.wavelength_or_wavenumber)
+        self.rsr_integral = trapezoid(self.response, self.wavelength_or_wavenumber)
 
     def _getsatname(self):
         """Get the satellite name used in the rsr-reader, from the platform and number."""
@@ -221,9 +221,9 @@ class RadTbConverter(object):
 
         planck = self.blackbody_function(self.wavelength_or_wavenumber, tb_) * self.response
         if normalized:
-            radiance = integrate.trapz(planck, self.wavelength_or_wavenumber) / self.rsr_integral
+            radiance = trapezoid(planck, self.wavelength_or_wavenumber) / self.rsr_integral
         else:
-            radiance = integrate.trapz(planck, self.wavelength_or_wavenumber)
+            radiance = trapezoid(planck, self.wavelength_or_wavenumber)
 
         return {'radiance': radiance,
                 'unit': unit,
