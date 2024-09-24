@@ -85,6 +85,9 @@ have been included in Pyspectral.
     * - Sentinel-2B msi
       - `rsr_msi_Sentinel-2B.h5`
       - ESA-Sentinel-MSI_
+    * - Sentinel-2C msi
+      - `rsr_msi_Sentinel-2C.h5`
+      - ESA-Sentinel-MSI_
     * - NOAA-20 viirs
       - `rsr_viirs_NOAA-20.h5`
       - NESDIS_

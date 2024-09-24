@@ -154,10 +154,12 @@ download_from_internet: True
 # Arctica-M-N1-msu-gsa:
 #  path: /path/to/original/Arctica_M_N1_SRF.xlsx
 
-# Sentinel-2A-msi:
-#   path: /path/to/original/sentinel-2a/msi/data/S2-SRF_COPE-GSEG-EOPG-TN-15-0007_3.0.xlsx
-# Sentinel-2B-msi:
-#   path: /path/to/original/sentinel-2b/msi/data/S2-SRF_COPE-GSEG-EOPG-TN-15-0007_3.0.xlsx
+#Sentinel-2A-msi:
+#   path: /path/to/COPE-GSEG-EOPG-TN-15-0007-Sentinel-2_Spectral_Response_Functions_2024-4.0.xlsx
+#Sentinel-2B-msi:
+#   path: /path/to/COPE-GSEG-EOPG-TN-15-0007-Sentinel-2_Spectral_Response_Functions_2024-4.0.xlsx
+#Sentinel-2C-msi:
+#   path: /path/to/COPE-GSEG-EOPG-TN-15-0007-Sentinel-2_Spectral_Response_Functions_2024-4.0.xlsx
 
 # Himawari-8-ahi:
 #   path: /path/to/original/ahi/data
