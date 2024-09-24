@@ -1,3 +1,14 @@
+## Version 0.13.5 (2024/09/24)
+
+### Pull Requests Merged
+
+#### Features added
+
+* [PR 234](https://github.com/pytroll/pyspectral/pull/234) - Add support for Sentinel-2C
+
+In this release 1 pull request was closed.
+
+
 ## Version v0.13.4 (2024/08/14)
 
 ### Issues Closed
