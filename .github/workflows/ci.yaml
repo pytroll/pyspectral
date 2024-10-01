@@ -31,9 +31,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           environment-file: continuous_integration/environment.yaml
-          miniforge-variant: Mambaforge
           miniforge-version: latest
-          use-mamba: true
           python-version: ${{ matrix.python-version }}
           activate-environment: test-environment
 
