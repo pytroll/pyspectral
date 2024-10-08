@@ -170,7 +170,7 @@ class Rayleigh(RayleighConfigBaseClass):
 
         if not self._lutfiles_version_uptodate and self.do_download:
             LOG.info("Will download from internet...")
-            download_luts(aerosol_type=aerosol_type)
+            download_luts(aerosol_types=[aerosol_type])
 
         if (not os.path.exists(self.reflectance_lut_filename) or
                 not os.path.isfile(self.reflectance_lut_filename)):
