@@ -73,7 +73,7 @@ def blackbody_wn_rad2temp(wavenumber, radiance):
         The derived temperature in Kelvin.
 
     """
-    with np.errstate(invalid='ignore'):
+    with np.errstate(divide='ignore', invalid='ignore'):
         return PLANCK_C1 * wavenumber / np.log((PLANCK_C2 * wavenumber**3) / radiance + 1.0)
 
 
