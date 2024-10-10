@@ -20,3 +20,4 @@ The following people have made contributions to this project:
 - [Rolf Helge Pfeiffer](https://github.com/HelgeCPH)
 - [Antonio Valentino](https://github.com/avalentino)
 - [Lu Liu (yukaribbba)](https://github.com/yukaribbba)
+- [Chung-Hsiang Horng (chorng)](https://github.com/chorng)
