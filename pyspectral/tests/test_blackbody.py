@@ -117,7 +117,7 @@ class TestBlackbody:
         """Test that zero division warning is ignored."""
         with warnings.catch_warnings():
             warnings.simplefilter("error")
-            _ = blackbody_rad2temp(np.ones(1),  np.zeros(1))
-            _ = blackbody_wn_rad2temp(np.ones(1),  np.zeros(1))
-            _ = blackbody(np.ones(2),  np.array([0, 1]))
-            _ = blackbody_wn(np.ones(2),  np.array([0, 1]))
+            _ = blackbody_rad2temp(np.ones(1), np.zeros(1))
+            _ = blackbody_wn_rad2temp(np.ones(1), np.zeros(1))
+            _ = blackbody(np.ones(2), np.array([0, 1]))
+            _ = blackbody_wn(np.ones(2), np.array([0, 1]))
