@@ -18,14 +18,19 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Landsat-8/9 OLI/TIRS reader.
+
 This reader generates spectral responses for OLI and TIRS instruments aboard Landsat-8 and -9.
 We assume that the instruments are one combined instrument from the user perspective, called `oli_tirs` rather
 than generating RSRs for the two instruments separately.
 The original spectral response data can be found at the links below.
-Landsat-8/OLI:    https://landsat.gsfc.nasa.gov/wp-content/uploads/2014/09/Ball_BA_RSR.v1.2.xlsx
-Landsat-9/OLI-2:  https://landsat.gsfc.nasa.gov/wp-content/uploads/2024/03/L9_OLI2_Ball_BA_RSR.v2-1.xlsx
-Landsat-8/TIRS:   https://landsat.gsfc.nasa.gov/wp-content/uploads/2013/06/TIRS_Relative_Spectral_Responses.BA_.v1.xlsx
-Landsat-9/TIRS-2: https://landsat.gsfc.nasa.gov/wp-content/uploads/2021-10/L9_TIRS2_Relative_Spectral_Responses.BA.v1.0.xlsx
+Landsat-8/OLI:
+ = https://landsat.gsfc.nasa.gov/wp-content/uploads/2014/09/Ball_BA_RSR.v1.2.xlsx
+Landsat-9/OLI-2:
+ = https://landsat.gsfc.nasa.gov/wp-content/uploads/2024/03/L9_OLI2_Ball_BA_RSR.v2-1.xlsx
+Landsat-8/TIRS:
+ = https://landsat.gsfc.nasa.gov/wp-content/uploads/2013/06/TIRS_Relative_Spectral_Responses.BA_.v1.xlsx
+Landsat-9/TIRS-2:
+ = https://landsat.gsfc.nasa.gov/wp-content/uploads/2021-10/L9_TIRS2_Relative_Spectral_Responses.BA.v1.0.xlsx
 """
 
 import logging
@@ -97,6 +102,8 @@ class OliRSR(InstrumentRSR):
             elif self.platform_name == "Landsat-9":
                 sheet_name = TIRS_SHEETNAMES_L9[self.band]
                 band_name = TIRS_BAND_NAMES_L9[self.band]
+            else:
+                raise ValueError(f"Unknown platform: {self.platform_name}")
             df = pd.read_excel(self.path, engine="openpyxl", sheet_name=sheet_name)
 
             wvl = np.array(df["wavelength [um]"]) / 1000.
