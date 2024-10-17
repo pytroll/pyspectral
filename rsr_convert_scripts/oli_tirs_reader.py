@@ -88,7 +88,7 @@ class OliRSR(InstrumentRSR):
         """Load the Landsat OLI relative spectral responses."""
         if self.band in OLI_BAND_NAMES:
             df = pd.read_excel(self.path, engine="openpyxl", sheet_name=OLI_BAND_NAMES[self.band])
-            wvl = np.array(df["Wavelength"])
+            wvl = np.array(df["Wavelength"]) / 1000.
             resp = np.array(df["BA RSR [watts]"])
         else:
             if self.platform_name == "Landsat-8":
@@ -99,7 +99,7 @@ class OliRSR(InstrumentRSR):
                 band_name = TIRS_BAND_NAMES_L9[self.band]
             df = pd.read_excel(self.path, engine="openpyxl", sheet_name=sheet_name)
 
-            wvl = np.array(df["wavelength [um]"])
+            wvl = np.array(df["wavelength [um]"]) / 1000.
             resp = np.array(df[band_name])
 
         # Cut unneeded points
