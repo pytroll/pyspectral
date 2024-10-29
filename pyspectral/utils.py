@@ -109,10 +109,10 @@ INSTRUMENT_TRANSLATION_DASH2SLASH = {'avhrr-1': 'avhrr/1',
                                      'avhrr-2': 'avhrr/2',
                                      'avhrr-3': 'avhrr/3'}
 
-HTTP_PYSPECTRAL_RSR = "https://zenodo.org/records/13833977/files/pyspectral_rsr_data.tgz"
+HTTP_PYSPECTRAL_RSR = "https://zenodo.org/records/14008148/files/pyspectral_rsr_data.tgz"
 
 RSR_DATA_VERSION_FILENAME = "PYSPECTRAL_RSR_VERSION"
-RSR_DATA_VERSION = "v1.4.0"
+RSR_DATA_VERSION = "v1.4.1"
 
 
 ATM_CORRECTION_LUT_VERSION = {}
