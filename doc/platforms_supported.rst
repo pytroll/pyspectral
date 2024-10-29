@@ -95,8 +95,17 @@ have been included in Pyspectral.
       - `rsr_viirs_Suomi-NPP.h5`
       - GSICS_
     * - Landsat-8 oli
-      - `rsr_oli_Landsat-8.h5`
-      - NASA-Landsat-OLI_
+      - `rsr_oli_tirs_Landsat-8.h5`
+      - NASA-Landsat-8-OLI_
+    * - Landsat-8 tirs
+      - `rsr_oli_tirs_Landsat-8.h5`
+      - NASA-Landsat-8-TIRS_
+    * - Landsat-9 oli-2
+      - `rsr_oli_tirs_Landsat-9.h5`
+      - NASA-Landsat-9-OLI_
+    * - Landsat-9 tirs-2
+      - `rsr_oli_tirs_Landsat-9.h5`
+      - NASA-Landsat-9-TIRS_
     * - FY-3D mersi-2
       - `rsr_mersi-2_FY-3D.h5`
       - CMA_ (Acquired via personal contact)
@@ -125,7 +134,10 @@ have been included in Pyspectral.
 .. _ESA-Sentinel-OLCI: https://sentinel.esa.int/documents/247904/322304/OLCI+SRF+%28NetCDF%29/15cfd7a6-b7bc-4051-87f8-c35d765ae43a
 .. _ESA-Sentinel-SLSTR: https://sentinel.esa.int/web/sentinel/technical-guides/sentinel-3-slstr/instrument/measured-spectral-response-function-data
 .. _ESA-Sentinel-MSI: https://earth.esa.int/documents/247904/685211/S2-SRF_COPE-GSEG-EOPG-TN-15-0007_3.0.xlsx
-.. _NASA-Landsat-OLI: https://landsat.gsfc.nasa.gov/wp-content/uploads/2013/06/Ball_BA_RSR.v1.1-1.xlsx
+.. _NASA-Landsat-8-OLI: https://landsat.gsfc.nasa.gov/wp-content/uploads/2014/09/Ball_BA_RSR.v1.2.xlsx
+.. _NASA-Landsat-9-OLI: https://landsat.gsfc.nasa.gov/wp-content/uploads/2024/03/L9_OLI2_Ball_BA_RSR.v2-1.xlsx
+.. _NASA-Landsat-8-TIRS: https://landsat.gsfc.nasa.gov/wp-content/uploads/2013/06/TIRS_Relative_Spectral_Responses.BA_.v1.xlsx
+.. _NASA-Landsat-9-TIRS: https://landsat.gsfc.nasa.gov/wp-content/uploads/2021-10/L9_TIRS2_Relative_Spectral_Responses.BA.v1.0.xlsx
 .. _NESDIS: https://ncc.nesdis.noaa.gov/J1VIIRS/J1VIIRSSpectralResponseFunctions.php
 .. _CMA: http://www.cma.gov.cn/en2014/
 .. _NWPSAF-MetImage: https://nwpsaf.eu/downloads/rtcoef_rttov12/ir_srf/rtcoef_metopsg_1_metimage_srf.html
