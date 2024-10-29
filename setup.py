@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2013-2022 Pytroll
+# Copyright (c) 2013-2022, 2024 Pytroll
 #
 #
 # This program is free software: you can redistribute it and/or modify
@@ -71,6 +71,7 @@ setup(name=NAME,
                       'matplotlib': ['matplotlib'],
                       'pandas': ['pandas'],
                       'tqdm': ['tqdm'],
+                      'openpyxl': ['openpyxl'],
                       'test': test_requires,
                       'dask': dask_extra},
       scripts=['bin/plot_rsr.py', 'bin/composite_rsr_plot.py',

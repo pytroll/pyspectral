@@ -34,7 +34,7 @@ Landsat-9/TIRS-2:
 """
 
 import logging
-import os
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -76,14 +76,14 @@ class OliRSR(InstrumentRSR):
         self.band = bandname
         opts = self.options[f"{platform_name}-{self.instrument}"]
         if bandname in OLI_BAND_NAMES:
-            self.path = opts["path"] + opts["oli"]
+            self.path = Path(opts["path"]) / Path(opts["oli"])
         elif bandname in TIRS_BAND_NAMES_L8:
-            self.path = opts["path"] + opts["tirs"]
+            self.path = Path(opts["path"]) / Path(opts["tirs"])
         else:
             raise ValueError(f"Unknown band name: {bandname}")
 
         LOG.debug(f"Filename: {self.path}")
-        if os.path.exists(self.path):
+        if self.path.exists():
             self._load()
         else:
             raise IOError("Couldn't find an existing file for this band: " +
