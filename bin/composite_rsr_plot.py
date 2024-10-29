@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2016-2022 Pytroll developers
+# Copyright (c) 2016-2022, 2024 Pytroll developers
 #
 #
 # This program is free software: you can redistribute it and/or modify
@@ -184,24 +184,21 @@ if __name__ == "__main__":
 
         else:
             wvlx = wvlmin
-            prev_band = None
+            prev_bands = []
             while wvlx < wvlmax:
                 bands = rsr.get_bandname_from_wavelength(wvlx, wavel_res, multiple_bands=True)
-
-                if isinstance(bands, list):
-                    b__ = bands[0]
-                    for b in bands[1:]:
-                        LOG.warning("Skipping band %s", str(b))
-                else:
-                    b__ = bands
-
                 wvlx = wvlx + wavel_res / 5.
-                if not b__:
+                if not bands:
                     continue
-                if b__ != prev_band:
-                    plt = plot_band(plt, b__, rsr,
-                                    platform_name_in_legend=(not no_platform_name_in_legend))
-                    prev_band = b__
+
+                if not isinstance(bands, list):
+                    bands = [bands]
+
+                for b__ in bands:
+                    if b__ not in prev_bands:
+                        plt = plot_band(plt, b__, rsr,
+                                        platform_name_in_legend=(not no_platform_name_in_legend))
+                    prev_bands.append(b__)
 
     if not something2plot:
         LOG.error("Nothing to plot!")
