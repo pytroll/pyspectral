@@ -136,6 +136,16 @@ download_from_internet: True
 # Envisat-aatsr:
 #   path: /path/to/original/envisat/aatsr/data
 
+# Landsat-8-oli_tirs:
+#   path: D:\sat_data\
+#   oli: Ball_BA_RSR.v1.2.xlsx
+#   tirs: TIRS_Relative_Spectral_Responses.BA_.v1.xlsx
+
+# Landsat-9-oli_tirs:
+#   path: D:\sat_data\
+#   oli: L9_OLI2_Ball_BA_RSR.v2-1.xlsx
+#   tirs: L9_TIRS2_Relative_Spectral_Responses.BA.v1.0.xlsx
+
 # Sentinel-3A-slstr:
 #   path: /path/to/original/sentinel-3a/slstr/data
 #   ch1: SLSTR_FM02_S1_20150122.nc
