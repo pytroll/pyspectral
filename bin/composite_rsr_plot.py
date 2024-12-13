@@ -103,6 +103,11 @@ def get_arguments():
                        help="The wavelength range for the plot",
                        default=[None, None], type=float)
 
+    parser.add_argument("--exclude_bandnames", nargs='*',
+                        default=[],
+                        required=False,
+                        help="Sensor band names to exclude from the plot", type=str)
+
     return parser.parse_args()
 
 
@@ -138,6 +143,8 @@ if __name__ == "__main__":
         band = args.bandname
     elif args.wavelength:
         req_wvl = args.wavelength
+
+    excluded_bandnames = args.exclude_bandnames
 
     figscale = 1.0
     if wvlmin:
@@ -195,7 +202,7 @@ if __name__ == "__main__":
                     bands = [bands]
 
                 for b__ in bands:
-                    if b__ not in prev_bands:
+                    if b__ not in excluded_bandnames and b__ not in prev_bands:
                         plt = plot_band(plt, b__, rsr,
                                         platform_name_in_legend=(not no_platform_name_in_legend))
                     prev_bands.append(b__)
