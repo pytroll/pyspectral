@@ -19,6 +19,8 @@
 
 """Unit testing the Blackbody/Plack radiation derivation."""
 
+import warnings
+
 import dask
 import dask.array as da
 import numpy as np
@@ -110,3 +112,12 @@ class TestBlackbody:
         expected = np.array([290.3276916, 283.76115441,
                              302.4181330, 333.1414164]).reshape(2, 2)
         np.testing.assert_allclose(t__, expected)
+
+    def test_ignore_division_warning(self):
+        """Test that zero division warning is ignored."""
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            _ = blackbody_rad2temp(np.ones(1), np.zeros(1))
+            _ = blackbody_wn_rad2temp(np.ones(1), np.zeros(1))
+            _ = blackbody(np.ones(2), np.array([0, 1]))
+            _ = blackbody_wn(np.ones(2), np.array([0, 1]))
