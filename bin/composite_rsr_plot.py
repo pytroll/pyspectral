@@ -105,8 +105,7 @@ def get_arguments():
 
     parser.add_argument("--exclude_bandnames", nargs='*',
                         default=[],
-                        required=False,
-                        help="Sensor band names to exclude from the plot", type=str)
+                        help="Sensor band names to exclude from the plot")
 
     return parser.parse_args()
 
