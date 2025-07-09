@@ -36,7 +36,7 @@ color imagery.
 .. _github: http://github.com/pytroll/pyspectral
 .. _mpop: http://www.github.com/pytroll/mpop
 .. _SatPy: http://www.github.com/pytroll/satpy
-.. _MSG Interpretation Guide: http://oiswww.eumetsat.org/WEBOPS/msg_interpretation/index.php 
+.. _MSG Interpretation Guide: https://resources.eumetrain.org/IntGuide/ 
 
 
 .. toctree::
