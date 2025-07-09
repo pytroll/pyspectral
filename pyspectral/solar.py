@@ -131,18 +131,21 @@ class SolarIrradianceSpectrum(object):
     def inband_solarflux(self, rsr, scale=1.0, **options):
         """Get the in band solar flux.
 
-        Derive the inband solar flux for a given instrument relative
+        Derive the in-band integrated solar flux for a given instrument relative
         spectral response valid for an earth-sun distance of one AU.
+
+        This is the total solar flux in the band in units of W/m^2.
         """
         return self._band_calculations(rsr, True, scale, **options)
 
     def inband_solarirradiance(self, rsr, scale=1.0, **options):
         """Get the in band solar irradiance.
 
-        Derive the inband solar irradiance for a given instrument relative
+        Derive the in-band spectral solar irradiance for a given instrument relative
         spectral response valid for an earth-sun distance of one AU.
 
-        (Same as the in band solar flux).
+        This is the total solar flux in the band convolved with the
+        spectral response function in units of W/m^2/micron.
         """
         return self._band_calculations(rsr, False, scale, **options)
 
