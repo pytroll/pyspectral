@@ -1,3 +1,31 @@
+## Version 0.13.6 (2025/07/09)
+
+### Issues Closed
+
+* [Issue 244](https://github.com/pytroll/pyspectral/issues/244) - Seeking References for “near_infrared_reflectance”
+* [Issue 238](https://github.com/pytroll/pyspectral/issues/238) - Eliminate division warning of blackbody_wn_rad2temp
+
+In this release 2 issues were closed.
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 254](https://github.com/pytroll/pyspectral/pull/254) - Fix broken link to MSG interpretation guide
+* [PR 235](https://github.com/pytroll/pyspectral/pull/235) - Remove deprecated aerosol_type download_luts usage in rayleigh
+
+#### Features added
+
+* [PR 246](https://github.com/pytroll/pyspectral/pull/246) - Tiny fix simplifying the rsr plot code
+* [PR 240](https://github.com/pytroll/pyspectral/pull/240) - Fix rsr plotting to allow for similar (overlapping) bands
+
+#### Documentation changes
+
+* [PR 254](https://github.com/pytroll/pyspectral/pull/254) - Fix broken link to MSG interpretation guide
+
+In this release 5 pull requests were closed.
+
+
 ## Version 0.13.5 (2024/09/24)
 
 ### Pull Requests Merged
