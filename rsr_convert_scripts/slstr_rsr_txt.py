@@ -48,7 +48,7 @@ class SlstrTxtRSR(InstrumentRSR):
     def __init__(self, bandname, platform_name):
         """Read the SLSTR relative spectral responses for all channels."""
         super(SlstrTxtRSR, self).__init__(bandname, platform_name,
-                                       SLSTR_BAND_NAMES)
+                                          SLSTR_BAND_NAMES)
 
         self.instrument = 'slstr'
 
@@ -68,7 +68,7 @@ class SlstrTxtRSR(InstrumentRSR):
     def _load(self, scale=1.0):
         """Load the SLSTR relative spectral responses."""
         LOG.debug("File: %s", str(self.requested_band_filename))
-        
+
         rsr_data = np.genfromtxt(self.requested_band_filename, skip_header=4)
 
         wvn = rsr_data[:, 0][::-1]
