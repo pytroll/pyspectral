@@ -158,6 +158,18 @@ download_from_internet: True
 #   ch8: SLSTR_FM02_S8_20150122.nc
 #   ch9: SLSTR_FM02_S9_20150122.nc
 
+#Sentinel-3C-slstr:
+#   path: C:/data/slstr_srf
+#   ch1: rtcoef_sentinel3_3_slstr_srf_ch01.txt
+#   ch2: rtcoef_sentinel3_3_slstr_srf_ch02.txt
+#   ch3: rtcoef_sentinel3_3_slstr_srf_ch03.txt
+#   ch4: rtcoef_sentinel3_3_slstr_srf_ch04.txt
+#   ch5: rtcoef_sentinel3_3_slstr_srf_ch05.txt
+#   ch6: rtcoef_sentinel3_3_slstr_srf_ch06.txt
+#   ch7: rtcoef_sentinel3_3_slstr_srf_ch07.txt
+#   ch8: rtcoef_sentinel3_3_slstr_srf_ch08.txt
+#   ch9: rtcoef_sentinel3_3_slstr_srf_ch09.txt
+
 # Sentinel-3A-olci:
 #   path: /path/to/original/sentinel-3a/olci/data
 
