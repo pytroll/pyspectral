@@ -20,8 +20,7 @@
 """Sentinel-3 SLSTR spectral response function interface.
 
 See:
-https://sentinel.esa.int/web/
-sentinel/technical-guides/sentinel-3-slstr/instrument/measured-spectral-response-function-data
+https://sentiwiki.copernicus.eu/web/s3-slstr-instrument?utm_source=chatgpt.com#S3SLSTRInstrument-SpectralResponseFunctionDataS3-SLSTR-Instrument-SRFD
 
 """
 
