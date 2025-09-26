@@ -28,10 +28,10 @@ https://nwp-saf.eumetsat.int/site/software/rttov/download/coefficients/spectral-
 
 """
 
-import numpy as np
-
 import logging
 import os
+
+import numpy as np
 
 from pyspectral.raw_reader import InstrumentRSR
 from pyspectral.utils import convert2hdf5 as tohdf5
