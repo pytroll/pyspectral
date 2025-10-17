@@ -68,14 +68,35 @@ class Calculator(RadTbConverter):
         """Initialize the Class instance."""
         super(Calculator, self).__init__(platform_name, instrument, band, detector=detector, wavespace=wavespace)
 
-        from numbers import Number
         self.bandname = None
         self.bandwavelength = None
+        self.detector = detector
+        self.lut = None
+        self.lutfile = None
+        self.masking_limit = masking_limit
+        self.solar_flux = solar_flux
+        self.sunz_threshold = sunz_threshold
+        self._e3x = None
+        self._r3x = None
+        self._rad3x = None
+        self._rad3x_t11 = None
+        self._rad3x_correction = 1.0
+        self._solar_radiance = None
+
+        self._set_bandname_and_wavelength(band)
+
+        if self.solar_flux is None:
+            self._get_solarflux()
+
+        self._set_lutfile()
+        self._set_lut()
+
+    def _set_bandname_and_wavelength(self, band):
+        from numbers import Number
 
         if isinstance(band, str):
             self.bandname = BANDNAMES.get(self.instrument, BANDNAMES['generic']).get(band, band)
-            self.bandwavelength = self.rsr[self.bandname][
-                'det-1']['central_wavelength']
+            self.bandwavelength = self.rsr[self.bandname]['det-1']['central_wavelength']
         elif isinstance(band, Number):
             self.bandwavelength = band
             self.bandname = get_bandname_from_wavelength(self.instrument, band, self.rsr)
@@ -84,36 +105,25 @@ class Calculator(RadTbConverter):
             raise NotImplementedError('NIR reflectance is not supported outside ' +
                                       'the 3.5-3.95 micron interval')
 
+    def _set_lutfile(self):
         options = get_config()
-
-        self.solar_flux = solar_flux
-        if self.solar_flux is None:
-            self._get_solarflux()
-
-        # The sun-zenith angle limit in degrees defining how far towards the
-        # terminator we try derive a
-        self.detector = detector
-        self.sunz_threshold = sunz_threshold
-        self.masking_limit = masking_limit
-        self._rad3x = None
-        self._rad3x_t11 = None
-        self._solar_radiance = None
-        self._rad3x_correction = 1.0
-        self._r3x = None
-        self._e3x = None
-        self.lutfile = None
-
-        platform_sensor = platform_name + '-' + instrument
         tb2rad_dir = options.get('tb2rad_dir', tempfile.gettempdir())
+
+        self._lutfile_from_config(options, tb2rad_dir)
+
+        if self.lutfile is None:
+            LOG.info("No lut filename available in config file. "
+                     "Will generate filename automatically")
+            lutname = 'tb2rad_lut_{0}_{1}_{band}'.format(
+                self.platform_name.lower(), self.instrument.lower(), band=self.bandname.lower())
+            self.lutfile = os.path.join(tb2rad_dir, lutname + '.npz')
+
+    def _lutfile_from_config(self, options, tb2rad_dir):
+        platform_sensor = self.platform_name + '-' + self.instrument
+
         if platform_sensor in options and 'tb2rad_lut_filename' in options[platform_sensor]:
             if isinstance(options[platform_sensor]['tb2rad_lut_filename'], dict):
-                for item in options[platform_sensor]['tb2rad_lut_filename']:
-                    if item == self.bandname or item == self.bandname.lower():
-                        self.lutfile = options[platform_sensor]['tb2rad_lut_filename'][item]
-                        break
-                if self.lutfile is None:
-                    LOG.warning("Failed determine LUT filename from config: %s", str(
-                        options[platform_sensor]['tb2rad_lut_filename']))
+                self._lutfile_from_dict(options)
             else:
                 self.lutfile = options[platform_sensor]['tb2rad_lut_filename']
 
@@ -125,13 +135,16 @@ class Calculator(RadTbConverter):
                     "Directory %s does not exist! Check config file", os.path.dirname(self.lutfile))
                 self.lutfile = os.path.join(tb2rad_dir, os.path.basename(self.lutfile))
 
+    def _lutfile_from_dict(self, options):
+        for item in options[platform_sensor]['tb2rad_lut_filename']:
+            if item == self.bandname or item == self.bandname.lower():
+                self.lutfile = options[platform_sensor]['tb2rad_lut_filename'][item]
+                break
         if self.lutfile is None:
-            LOG.info("No lut filename available in config file. "
-                     "Will generate filename automatically")
-            lutname = 'tb2rad_lut_{0}_{1}_{band}'.format(
-                self.platform_name.lower(), self.instrument.lower(), band=self.bandname.lower())
-            self.lutfile = os.path.join(tb2rad_dir, lutname + '.npz')
+            LOG.warning("Failed determine LUT filename from config: %s", str(
+                options[platform_sensor]['tb2rad_lut_filename']))
 
+    def _set_lut(self):
         LOG.info("lut filename: " + str(self.lutfile))
         if not os.path.exists(self.lutfile):
             self.make_tb2rad_lut(self.lutfile)
