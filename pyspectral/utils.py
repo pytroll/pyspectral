@@ -183,34 +183,52 @@ def convert2wavenumber(rsr):
     """
     retv = {}
     for chname in rsr.keys():  # Go through bands/channels
-        retv[chname] = {}
-        for det in rsr[chname].keys():  # Go through detectors
-            retv[chname][det] = {}
-            if 'wavenumber' in rsr[chname][det].keys():
-                # Make a copy. Data are already in wave number space
-                retv[chname][det] = rsr[chname][det].copy()
-                LOG.debug("RSR data already in wavenumber space. No conversion needed.")
-                continue
-
-            for sat in rsr[chname][det].keys():
-                if sat == "wavelength":
-                    # micro meters to cm
-                    wnum = 1. / (1e-4 * rsr[chname][det][sat])
-                    retv[chname][det]['wavenumber'] = wnum[::-1]
-                elif sat == "response":
-                    # Flip the response array:
-                    if isinstance(rsr[chname][det][sat], dict):
-                        retv[chname][det][sat] = {}
-                        for name in rsr[chname][det][sat].keys():
-                            resp = rsr[chname][det][sat][name]
-                            retv[chname][det][sat][name] = resp[::-1]
-                    else:
-                        resp = rsr[chname][det][sat]
-                        retv[chname][det][sat] = resp[::-1]
+        retv[chname] = _band2wavenumber(rsr[chname])
 
     unit = 'cm-1'
     si_scale = 100.0
     return retv, {'unit': unit, 'si_scale': si_scale}
+
+def _band2wavenumber(ch_rsr):
+    band_wavenumbers = {}
+    for det in ch_rsr.keys():  # Go through detectors
+        if 'wavenumber' in ch_rsr[det].keys():
+            # Make a copy. Data are already in wave number space
+            band_wavenumbers[det] = ch_rsr[det].copy()
+            LOG.debug("RSR data already in wavenumber space. No conversion needed.")
+            continue
+        band_wavenumbers[det] = _detector2wavenumber(ch_rsr[det])
+
+    return band_wavenumbers
+
+
+def _detector2wavenumber(det_rsr):
+    det_wavenumbers = {}
+    for key in det_rsr.keys():
+        _wavelength2wavenumber(det_rsr, key, det_wavenumbers)
+        _collect_responses(det_rsr, key, det_wavenumbers)
+
+    return det_wavenumbers
+
+
+def _wavelength2wavenumber(det_rsr, key, det_wavenumbers):
+    if key == "wavelength":
+        # micro meters to cm
+        wnum = 1. / (1e-4 * det_rsr[key])
+        det_wavenumbers['wavenumber'] = wnum[::-1]
+
+
+def _collect_responses(det_rsr, key, det_wavenumbers):
+    if key == "response":
+        # Flip the response array:
+        if isinstance(det_rsr[key], dict):
+            det_wavenumbers[key] = {}
+            for name in det_rsr[key].keys():
+                resp = det_rsr[key][name]
+                det_wavenumbers[key][name] = resp[::-1]
+        else:
+            resp = det_rsr[key]
+            det_wavenumbers[key] = resp[::-1]
 
 
 def get_central_wave(wav, resp, weight=1.0):
