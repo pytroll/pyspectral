@@ -112,8 +112,8 @@ class Calculator(RadTbConverter):
         self._lutfile_from_config(options, tb2rad_dir)
 
         if self.lutfile is None:
-            LOG.info("No lut filename available in config file. "
-                     "Will generate filename automatically")
+            LOG.debug("No lut filename available in config file. "
+                      "Will generate filename automatically")
             lutname = "tb2rad_lut_{0}_{1}_{band}".format(
                 self.platform_name.lower(), self.instrument.lower(), band=self.bandname.lower())
             self.lutfile = os.path.join(tb2rad_dir, lutname + ".npz")
@@ -141,18 +141,18 @@ class Calculator(RadTbConverter):
                 self.lutfile = options[platform_sensor]["tb2rad_lut_filename"][item]
                 break
         if self.lutfile is None:
-            LOG.warning("Failed determine LUT filename from config: %s", str(
+            LOG.warning("Failed to determine LUT filename from config: %s", str(
                 options[platform_sensor]["tb2rad_lut_filename"]))
 
     def _set_lut(self):
-        LOG.info("lut filename: " + str(self.lutfile))
+        LOG.debug("lut filename: " + str(self.lutfile))
         if not os.path.exists(self.lutfile):
             self.make_tb2rad_lut(self.lutfile)
             self.lut = self.read_tb2rad_lut(self.lutfile)
-            LOG.info("LUT file created")
+            LOG.debug("LUT file created")
         else:
             self.lut = self.read_tb2rad_lut(self.lutfile)
-            LOG.info("File was there and has been read!")
+            LOG.debug("File was there and has been read!")
 
     def derive_rad39_corr(self, bt11, bt13, method="rosenfeld"):
         """Derive the CO2 correction to be applied to the 3.9 channel.
@@ -275,7 +275,7 @@ class Calculator(RadTbConverter):
         # 13.4 micron is provided:
         if co2corr:
             self.derive_rad39_corr(tb_therm, tbco2)
-            LOG.info("CO2 correction applied...")
+            LOG.debug("CO2 correction applied...")
         else:
             self._rad3x_correction = np.float64(1.0)
         self._rad3x_correction = self._rad3x_correction.astype(dtype)
@@ -284,11 +284,11 @@ class Calculator(RadTbConverter):
         rsr_integral = tb_therm.dtype.type(self.rsr_integral)
         thermal_emiss_one = self._rad3x_t11 * rsr_integral
         if thermal_emiss_one.ravel().shape[0] < 10:
-            LOG.info("thermal_emiss_one = %s", str(thermal_emiss_one))
+            LOG.debug("thermal_emiss_one = %s", str(thermal_emiss_one))
         corrected_thermal_emiss_one = thermal_emiss_one * self._rad3x_correction
         l_nir = self._rad3x * rsr_integral
         if l_nir.ravel().shape[0] < 10:
-            LOG.info("l_nir = %s", str(l_nir))
+            LOG.debug("l_nir = %s", str(l_nir))
         nomin = l_nir - corrected_thermal_emiss_one
         denom = self._solar_radiance - corrected_thermal_emiss_one
         data = nomin / denom
