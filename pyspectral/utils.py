@@ -303,52 +303,71 @@ def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06, detectors=None)
     """
     import h5py
 
-    instr = ClassIn(bandnames[0], platform_name)
-    instr_name = instr.instrument.replace('/', '')
-    filename = os.path.join(instr.output_dir,
+    instruments = [ClassIn(bandnames[i], platform_name) for i in range(len(bandnames))]
+    instr_name = instruments[0].instrument.replace('/', '')
+    filename = os.path.join(instruments[0].output_dir,
                             "rsr_{0}_{1}.h5".format(instr_name,
                                                     platform_name))
 
     with h5py.File(filename, "w") as h5f:
-        h5f.attrs['description'] = ('Relative Spectral Responses for ' +
-                                    instr.instrument.upper())
-        h5f.attrs['platform_name'] = platform_name
-        h5f.attrs['band_names'] = bandnames
+        _write_global_attrs(h5f, instruments[0], platform_name, bandnames)
+        _write_channels(h5f, instruments, bandnames, scale, detectors)
 
-        for chname in bandnames:
-            sensor = ClassIn(chname, platform_name)
-            grp = h5f.create_group(chname)
 
-            # If multiple detectors, assume all have same wavelength range in SRF.
-            if detectors is not None:
-                wvl = sensor.rsr[detectors[0]]['wavelength'][~np.isnan(sensor.rsr[detectors[0]]['wavelength'])]
-                arr = sensor.rsr[detectors[0]]['wavelength']
-                grp.attrs['number_of_detectors'] = len(detectors)
-            else:
-                wvl = sensor.rsr['wavelength'][~np.isnan(sensor.rsr['wavelength'])]
-                arr = sensor.rsr['wavelength']
+def _write_global_attrs(h5f, instrument, platform_name, bandnames):
+    h5f.attrs['description'] = ('Relative Spectral Responses for ' +
+                                instrument.instrument.upper())
+    h5f.attrs['platform_name'] = platform_name
+    h5f.attrs['band_names'] = bandnames
 
-            # Save wavelengths to file
-            dset = grp.create_dataset('wavelength', arr.shape, dtype='f')
-            dset.attrs['unit'] = 'm'
-            dset.attrs['scale'] = scale
-            dset[...] = arr
 
-            # Now to do the responses
-            if detectors is None:
-                rsp = sensor.rsr['response'][~np.isnan(sensor.rsr['wavelength'])]
-                grp.attrs['central_wavelength'] = get_central_wave(wvl, rsp)
-                arr = sensor.rsr['response']
-                dset = grp.create_dataset('response', arr.shape, dtype='f')
-                dset[...] = arr
-            else:
-                for cur_det in detectors:
-                    det_grp = grp.create_group(cur_det)
-                    rsp = sensor.rsr[cur_det]['response'][~np.isnan(sensor.rsr[cur_det]['wavelength'])]
-                    det_grp.attrs['central_wavelength'] = get_central_wave(wvl, rsp)
-                    arr = sensor.rsr[cur_det]['response']
-                    dset = det_grp.create_dataset('response', arr.shape, dtype='f')
-                    dset[...] = arr
+def _write_channels(h5f, instruments, bandnames, scale, detectors):
+    for i, chname in enumerate(bandnames):
+        sensor = instruments[i]
+        grp = h5f.create_group(chname)
+
+        # If multiple detectors, assume all have same wavelength range in SRF.
+        if detectors is not None:
+            _write_multidetector_data(grp, sensor, scale, detectors)
+        else:
+            _write_single_detector_data(grp, sensor, scale, detectors)
+
+
+def _write_single_detector_data(grp, sensor, scale, detectors):
+    wvl = sensor.rsr['wavelength'][~np.isnan(sensor.rsr['wavelength'])]
+    # Store detector central wavelength
+    rsp = sensor.rsr['response'][~np.isnan(sensor.rsr['wavelength'])]
+    grp.attrs['central_wavelength'] = get_central_wave(wvl, rsp)
+
+    # Store resonse data
+    arr = sensor.rsr['response']
+    dset = grp.create_dataset('response', arr.shape, dtype='f')
+    dset[...] = arr
+
+    _save_wavelengths(grp, arr, scale)
+
+
+def _save_wavelengths(grp, arr, scale):
+    dset = grp.create_dataset('wavelength', arr.shape, dtype='f')
+    dset.attrs['unit'] = 'm'
+    dset.attrs['scale'] = scale
+    dset[...] = arr
+
+
+def _write_multidetector_data(grp, sensor, scale, detectors):
+    # Get wavelength
+    wvl = sensor.rsr[detectors[0]]['wavelength'][~np.isnan(sensor.rsr[detectors[0]]['wavelength'])]
+    grp.attrs['number_of_detectors'] = len(detectors)
+
+    for cur_det in detectors:
+        det_grp = grp.create_group(cur_det)
+        rsp = sensor.rsr[cur_det]['response'][~np.isnan(sensor.rsr[cur_det]['wavelength'])]
+        det_grp.attrs['central_wavelength'] = get_central_wave(wvl, rsp)
+        arr = sensor.rsr[cur_det]['response']
+        dset = det_grp.create_dataset('response', arr.shape, dtype='f')
+        dset[...] = arr
+
+    _save_wavelengths(grp, arr, scale)
 
 
 def download_rsr(dest_dir: str | Path | None = None, dry_run: bool = False) -> None:
