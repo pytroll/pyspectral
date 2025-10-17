@@ -186,6 +186,7 @@ def convert2wavenumber(rsr):
     si_scale = 100.0
     return retv, {"unit": unit, "si_scale": si_scale}
 
+
 def _band2wavenumber(ch_rsr):
     band_wavenumbers = {}
     for det in ch_rsr.keys():  # Go through detectors
