@@ -123,7 +123,7 @@ class Calculator(RadTbConverter):
 
         if platform_sensor in options and "tb2rad_lut_filename" in options[platform_sensor]:
             if isinstance(options[platform_sensor]["tb2rad_lut_filename"], dict):
-                self._lutfile_from_dict(options)
+                self._lutfile_from_dict(options, platform_sensor)
             else:
                 self.lutfile = options[platform_sensor]["tb2rad_lut_filename"]
 
@@ -135,7 +135,7 @@ class Calculator(RadTbConverter):
                     "Directory %s does not exist! Check config file", os.path.dirname(self.lutfile))
                 self.lutfile = os.path.join(tb2rad_dir, os.path.basename(self.lutfile))
 
-    def _lutfile_from_dict(self, options):
+    def _lutfile_from_dict(self, options, platform_sensor):
         for item in options[platform_sensor]["tb2rad_lut_filename"]:
             if item == self.bandname or item == self.bandname.lower():
                 self.lutfile = options[platform_sensor]["tb2rad_lut_filename"][item]
