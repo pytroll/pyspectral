@@ -60,7 +60,7 @@ class RSRDict(dict):
         dict.__init__(self)
 
     def __getitem__(self, key):
-        """Get value either directly or fallback to pre-configured 'standard' names.."""
+        """Get value either directly or fallback to pre-configured 'standard' names."""
         try:
             val = dict.__getitem__(self, key)
         except KeyError:
@@ -92,14 +92,8 @@ class RSRDataBaseClass(object):
 
         options = get_config()
         self.rsr_dir = options['rsr_dir']
-        self.do_download = False
-        self._rsr_data_version_uptodate = False
-
-        if 'download_from_internet' in options and options['download_from_internet']:
-            self.do_download = True
-
-        if self._get_rsr_data_version() == RSR_DATA_VERSION:
-            self._rsr_data_version_uptodate = True
+        self.do_download = options.get("download_from_internet", False)
+        self._rsr_data_version_uptodate = self._get_rsr_data_version() == RSR_DATA_VERSION
 
     def _get_rsr_data_version(self):
         """Check the version of the RSR data from the version file in the RSR directory."""
