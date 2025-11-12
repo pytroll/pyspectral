@@ -19,6 +19,8 @@
 
 """Utility functions."""
 
+from __future__ import annotations
+
 import logging
 import os
 import sys
@@ -26,6 +28,7 @@ import tarfile
 import warnings
 from functools import wraps
 from inspect import getfullargspec
+from pathlib import Path
 
 import numpy as np
 import requests
@@ -412,7 +415,7 @@ HEADERS = {
 }
 
 
-def _download_tarball_and_extract(tarball_url, local_pathname, extract_dir):
+def _download_tarball_and_extract(tarball_url: str, local_pathname: str | Path, extract_dir: str | Path) -> None:
     chunk_size = 1024 * 1024  # 1 MB
 
     response = requests.get(
