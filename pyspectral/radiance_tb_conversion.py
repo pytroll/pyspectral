@@ -170,7 +170,7 @@ class RadTbConverter(object):
         """Index the lut, numpy style."""
         return lut[block]
 
-    def tb2radiance(self, tb_, **kwargs):
+    def tb2radiance(self, tb_, lut=None, normalized=True):
         """Get the radiance from the brightness temperature (Tb) given the band name.
 
         Input:
@@ -184,9 +184,6 @@ class RadTbConverter(object):
             If False the radiance is the band integrated radiance. Default is True.
 
         """
-        lut = kwargs.get('lut', None)
-        normalized = kwargs.get('normalized', True)
-
         if self.wavespace == WAVE_NUMBER:
             if normalized:
                 unit = 'W/m^2 sr^-1 (m^-1)^-1'
