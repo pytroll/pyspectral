@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import contextlib
+import os
 import shutil
 import tempfile
+from collections.abc import Iterator
 from pathlib import Path
 from unittest import mock
 
@@ -17,37 +19,53 @@ TMP_LUT_BASE_DIR = Path(tempfile.gettempdir()) / "pyspectral_fake_luts"
 @contextlib.contextmanager
 def mock_pyspectral_downloads(tmp_path: Path = TMP_LUT_BASE_DIR):
     """Mock pyspectral's LUT downloads with fake realistic files."""
-    from pyspectral.config import get_config
+    config_options = {}
+    # we want the tests to try to download files and create fake ones when that happens
+    config_options["download_from_internet"] = True
 
-    # TODO: Call this once when we enter the mocking (separate function?) then
-    #    set `get_config.return_value` instead of `side_effect`.
-    def _force_fake_lut_dirs():
-        config = get_config()
+    rsr_dir = tmp_path / "fake_rsr"
+    # rsr_dir.mkdir(parents=True, exist_ok=True)
+    rayleigh_dir = tmp_path / "fake_rayleigh"
+    # rayleigh_dir.mkdir(parents=True, exist_ok=True)
+    tb2rad_dir = tmp_path / "fake_tb2rad"
+    tb2rad_dir.mkdir(parents=True, exist_ok=True)
+    config_options["rsr_dir"] = str(rsr_dir)
+    config_options["rayleigh_dir"] = str(rayleigh_dir)
+    config_options["tb2rad_dir"] = str(tb2rad_dir)
 
-        rsr_dir = tmp_path / "fake_rsr"
-        rsr_dir.mkdir(parents=True, exist_ok=True)
-        rayleigh_dir = tmp_path / "fake_rayleigh"
-        rayleigh_dir.mkdir(parents=True, exist_ok=True)
-        tb2rad_dir = tmp_path / "fake_tb2rad"
-        tb2rad_dir.mkdir(parents=True, exist_ok=True)
-        config["rsr_dir"] = str(rsr_dir)
-        config["rayleigh_dir"] = str(rayleigh_dir)
-        config["tb2rad_dir"] = str(tb2rad_dir)
-
-        return config
-
-    with mock.patch("pyspectral.utils._download_tarball_and_extract") as download_tarball_and_extract:
+    with mock.patch("pyspectral.utils._download_tarball_and_extract") as download_tarball_and_extract, \
+            override_config(config_options=config_options):
         download_tarball_and_extract.side_effect = _fake_download
-        # TODO: Replace get_config mocking with overwritten config file
-        # TODO: Also set download_from_internet to False?
-        with mock.patch("pyspectral.utils.get_config") as get_config1, \
-                mock.patch("pyspectral.near_infrared_reflectance.get_config") as get_config2:
-            get_config1.side_effect = _force_fake_lut_dirs
-            get_config2.side_effect = _force_fake_lut_dirs
-            yield
+        yield
+
+
+@contextlib.contextmanager
+def override_config(config_options: dict | None = None) -> Iterator[Path]:
+    """Override builtin config with temporary on-disk YAML file."""
+    import yaml
+
+    old_config_env = os.getenv("PSP_CONFIG_FILE", None)
+
+    if config_options is None:
+        config_options = {}
+
+    print(config_options)
+    with tempfile.TemporaryDirectory(prefix="fake_pyspectral_config_") as tmpdir:
+        config_path = Path(tmpdir) / "pyspectral.yaml"
+        with config_path.open("w") as config_file:
+            yaml.dump(config_options, config_file)
+
+        os.environ["PSP_CONFIG_FILE"] = str(config_path)
+        yield config_path
+
+    if old_config_env is None:
+        del os.environ["PSP_CONFIG_FILE"]
+    else:
+        os.environ["PSP_CONFIG_FILE"] = old_config_env
 
 
 def _fake_download(tarball_url: str, tarball_local_path: str | Path, extract_dir: str | Path) -> None:
+    print(tarball_url, tarball_local_path, extract_dir)
     del tarball_url  # unused in this mocked version
 
     extract_dir = Path(extract_dir)
