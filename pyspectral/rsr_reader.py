@@ -177,7 +177,11 @@ class RelativeSpectralResponse(_RSRDataBase):
         self.si_scale = 1e-6  # How to scale the wavelengths to become SI unit
         self._wavespace = WAVE_LENGTH
 
-        rsr_info = _load_rsr_info_from_file(self.filename)
+        if filename is None:
+            # if the user didn't provide a specific file, then make sure we have the most up to date RSRs
+            self.download_rsr_updates()
+
+        rsr_info = self._load_rsr_info()
         if self.platform_name is None:
             self.platform_name = rsr_info["platform_name"]
         if self.instrument is None:
@@ -200,8 +204,6 @@ class RelativeSpectralResponse(_RSRDataBase):
                 raise ValueError("'instrument' and 'platform_name' cannot be specified if 'filename' is specified.")
 
             file_path = Path(filename)
-            if not file_path.is_file():
-                raise FileNotFoundError(f"RSR file does not exist! Filename = {file_path}")
             # platform_name and instrument will be loaded from the file later
         else:
             if instrument is None or platform_name is None:
@@ -210,17 +212,18 @@ class RelativeSpectralResponse(_RSRDataBase):
             instrument = check_and_adjust_instrument_name(platform_name, instrument)
             file_path = self.rsr_dir / _get_rsr_filename(platform_name, instrument)
             LOG.debug(f"RSR filename generated from platform_name and instrument: {file_path}")
-            self._check_and_download_rsr_file_for_instrument(file_path, platform_name, instrument)
         return file_path, platform_name, instrument
 
-    def _check_and_download_rsr_file_for_instrument(self, filename: Path, platform_name: str, instrument: str):
-        """Get the RSR filename from platform and instrument names, and download if not available."""
-        self.download_rsr_updates()
-        if not filename.is_file():
-            fmatch = list(self.rsr_dir.glob(f"*{instrument}*{platform_name}*.h5"))
-            errmsg = (f"pyspectral RSR file does not exist! Filename = {filename}"
-                      f"\nFiles matching instrument and satellite platform: {fmatch}")
-            raise FileNotFoundError(errmsg)
+    def _load_rsr_info(self) -> dict:
+        try:
+            return _load_rsr_info_from_file(self.filename)
+        except FileNotFoundError as e:
+            # provide more helpful information if the user didn't provide an explicit filename
+            if self.platform_name is not None and self.instrument is not None:
+                fmatch = list(self.rsr_dir.glob(f"*{self.instrument}*{self.platform_name}*.h5"))
+                errmsg = str(e) + f"\nFiles matching instrument and satellite platform: {fmatch}"
+                raise FileNotFoundError(errmsg) from e
+            raise
 
     def integral(self, band_name):
         """Calculate the integral of the spectral response function for each detector."""
@@ -264,6 +267,9 @@ class RelativeSpectralResponse(_RSRDataBase):
 def _load_rsr_info_from_file(filename: Path) -> dict[str, Any]:
     """Read the internally formated HDF5 relative spectral response data."""
     import h5py
+
+    if not filename.is_file():
+        raise FileNotFoundError(f"RSR file does not exist! Filename = {filename}")
 
     with h5py.File(filename, "r") as h5f:
         band_names = [convert2str(x) for x in h5f.attrs['band_names']]
