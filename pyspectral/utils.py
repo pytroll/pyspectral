@@ -161,11 +161,11 @@ for atype in AEROSOL_TYPES:
     HTTPS_RAYLEIGH_LUTS[atype] = url
 
 
-def get_rayleigh_lut_dir(aerosol_type):
+def get_rayleigh_lut_dir(aerosol_type: str) -> Path:
     """Get the rayleigh LUT directory for the specified aerosol type."""
     conf = get_config()
-    local_rayleigh_dir = conf.get('rayleigh_dir')
-    return os.path.join(local_rayleigh_dir, aerosol_type)
+    local_rayleigh_dir = Path(conf.get('rayleigh_dir'))  # type: ignore
+    return local_rayleigh_dir / aerosol_type
 
 
 def convert2wavenumber(rsr):
@@ -333,7 +333,7 @@ def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06, detectors=None)
                     dset[...] = arr
 
 
-def download_rsr(dest_dir=None, dry_run=False):
+def download_rsr(dest_dir: str | Path | None = None, dry_run: bool = False) -> None:
     """Download the relative spectral response functions.
 
     Download the pre-compiled HDF5 formatted relative spectral response
@@ -344,24 +344,23 @@ def download_rsr(dest_dir=None, dry_run=False):
     of this process that only downloads the necessary files.
 
     Args:
-        dest_dir (str): Path to put the temporary tarball and extracted RSR
-            files.
-        dry_run (bool): If True, don't actually download files, only log what
+        dest_dir: Path to put the temporary tarball and extracted RSR files.
+        dry_run: If True, don't actually download files, only log what
             URLs would be downloaded. Defaults to False.
 
     """
     config = get_config()
-    local_rsr_dir = config.get('rsr_dir')
-    dest_dir = dest_dir or local_rsr_dir
+    local_rsr_dir = Path(config.get('rsr_dir'))  # type: ignore
+    dest_path = Path(dest_dir) if dest_dir is not None else local_rsr_dir
 
-    LOG.info("Download RSR files and store in directory %s", dest_dir)
-    filename = os.path.join(dest_dir, "pyspectral_rsr_data.tgz")
-    LOG.debug("RSR URL: %s", HTTP_PYSPECTRAL_RSR)
-    LOG.debug("Destination = %s", dest_dir)
+    LOG.info(f"Download RSR files and store in directory {dest_path}")
+    filename = dest_path / "pyspectral_rsr_data.tgz"
+    LOG.debug(f"RSR URL: {HTTP_PYSPECTRAL_RSR}")
+    LOG.debug(f"Destination = {dest_path}")
     if dry_run:
         return
 
-    _download_tarball_and_extract(HTTP_PYSPECTRAL_RSR, filename, dest_dir)
+    _download_tarball_and_extract(HTTP_PYSPECTRAL_RSR, filename, dest_path)
 
 
 def download_luts(aerosol_types=None, dry_run=False, aerosol_type=None):
@@ -386,13 +385,13 @@ def download_luts(aerosol_types=None, dry_run=False, aerosol_type=None):
         LOG.debug('Atmospheric LUT URL = %s', lut_tarball_url)
 
         subdir_path = get_rayleigh_lut_dir(subname)
-        LOG.debug('Create directory: %s', subdir_path)
+        LOG.debug(f"Create directory: {subdir_path}")
         if not dry_run:
-            os.makedirs(subdir_path, exist_ok=True)
+            subdir_path.mkdir(exist_ok=True, parents=True)
         if dry_run:
             continue
 
-        local_tarball_pathname = os.path.join(subdir_path, "pyspectral_rayleigh_correction_luts.tgz")
+        local_tarball_pathname = subdir_path / "pyspectral_rayleigh_correction_luts.tgz"
         _download_tarball_and_extract(lut_tarball_url, local_tarball_pathname, subdir_path)
 
 
@@ -415,7 +414,7 @@ HEADERS = {
 }
 
 
-def _download_tarball_and_extract(tarball_url: str, local_pathname: str | Path, extract_dir: str | Path) -> None:
+def _download_tarball_and_extract(tarball_url: str, local_pathname: Path, extract_dir: Path) -> None:
     chunk_size = 1024 * 1024  # 1 MB
 
     response = requests.get(
@@ -437,7 +436,7 @@ def _download_tarball_and_extract(tarball_url: str, local_pathname: str | Path, 
 
     tar_kwargs = {} if sys.version_info < (3, 12) else {"filter": "data"}
     with tarfile.open(local_pathname) as tar:
-        tar.extractall(extract_dir, **tar_kwargs)
+        tar.extractall(extract_dir, **tar_kwargs)  # type: ignore
 
     os.remove(local_pathname)
 
