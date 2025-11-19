@@ -18,17 +18,18 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Unit testing the generic rsr hdf5 reader."""
+from __future__ import annotations
+
 import contextlib
 import os.path
 import unittest
-from unittest.mock import patch
 
 import numpy as np
 import pytest
 import xarray as xr
 
 from pyspectral.rsr_reader import RelativeSpectralResponse, RSRDict
-from pyspectral.tests.unittest_helpers import assertNumpyArraysEqual
+from pyspectral.testing import mock_pyspectral_downloads
 from pyspectral.utils import RSR_DATA_VERSION, RSR_DATA_VERSION_FILENAME, WAVE_NUMBER
 
 TEST_RSR = {'20': {}, }
@@ -75,78 +76,187 @@ TEST_RSR_DIR = os.path.join(*DIR_PATH_ITEMS)
 TEST_CONFIG['rsr_dir'] = TEST_RSR_DIR
 
 
-class TestRsrReader(unittest.TestCase):
-    """Class for testing pyspectral.rsr_reader."""
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"platform_name": "GOES-16"},
+        {"instrument": "ABI"},
+        {"filename": "/tmp/to/something", "instrument": "ABI"},
+    ]
+)
+def test_get_rsr_invalid_args(kwargs):
+    """Test invalid argument combinations cause errors."""
+    with pytest.raises(ValueError):
+        RelativeSpectralResponse(**kwargs)
 
-    @patch('os.path.exists')
-    @patch('os.path.isfile')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-    @patch('pyspectral.rsr_reader.download_rsr')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_rsr_data_version')
-    def test_get_rsr_from_platform_name_and_instrument(self, get_rsr_version,
-                                                       download_rsr, load, isfile, exists):
-        """Test the RelativeSpectralResponse class initialisation.
 
-        Test getting the rsr from platform_name and instrument.
-        """
-        load.return_code = None
-        download_rsr.return_code = None
-        isfile.return_code = True
-        exists.return_code = True
-        get_rsr_version.return_code = RSR_DATA_VERSION
+def test_convert():
+    """Test the conversion method."""
+    with mock_pyspectral_downloads() as download_mocks:
+        load_rsr_info = download_mocks["load_rsr_info"]
+        load_rsr_info.side_effect = None
+        load_rsr_info.return_value = {
+            "description": "",
+            "instrument": "modis",
+            "platform_name": "EOS-Aqua",
+            "band_names": list(TEST_RSR.keys()),
+            "rsr": TEST_RSR,
+        }
+        test_rsr = RelativeSpectralResponse("EOS-Aqua", "modis")
+        test_rsr.convert()
+        np.testing.assert_allclose(test_rsr.rsr["20"]["det-1"]["central_wavenumber"], 2647.397, atol=1e-3)
+        np.testing.assert_allclose(test_rsr.rsr["20"]["det-1"][WAVE_NUMBER], RESULT_WVN_RSR, 5)
+        assert test_rsr._wavespace == WAVE_NUMBER
 
-        with patch('pyspectral.rsr_reader.get_config', return_value=TEST_CONFIG):
-            with self.assertRaises(AttributeError):
-                _ = RelativeSpectralResponse('GOES-16')
-
-            with self.assertRaises(AttributeError):
-                _ = RelativeSpectralResponse(instrument='ABI')
-
-    @patch('os.path.exists')
-    @patch('os.path.isfile')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-    @patch('pyspectral.rsr_reader.download_rsr')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_rsr_data_version')
-    def test_convert(self, get_rsr_version, download_rsr, load, isfile, exists):
-        """Test the conversion method."""
-        load.return_code = None
-        download_rsr.return_code = None
-        isfile.return_code = True
-        exists.return_code = True
-        get_rsr_version.return_code = RSR_DATA_VERSION
-
-        with patch('pyspectral.rsr_reader.get_config', return_value=TEST_CONFIG):
-            test_rsr = RelativeSpectralResponse('EOS-Aqua', 'modis')
-            test_rsr.rsr = TEST_RSR
+        with pytest.raises(NotImplementedError):
             test_rsr.convert()
-            self.assertAlmostEqual(test_rsr.rsr['20']['det-1']['central_wavenumber'], 2647.397, 3)
-            self.assertTrue(np.allclose(test_rsr.rsr['20']['det-1'][WAVE_NUMBER], RESULT_WVN_RSR, 5))
-            self.assertEqual(test_rsr._wavespace, WAVE_NUMBER)
-
-            with self.assertRaises(NotImplementedError):
-                test_rsr.convert()
-
-    @patch('os.path.exists')
-    @patch('os.path.isfile')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-    @patch('pyspectral.rsr_reader.download_rsr')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_rsr_data_version')
-    def test_integral(self, get_rsr_version, download_rsr, load, isfile, exists):
-        """Test the calculation of the integral of the spectral responses."""
-        load.return_code = None
-        download_rsr.return_code = None
-        isfile.return_code = True
-        exists.return_code = True
-        get_rsr_version.return_code = RSR_DATA_VERSION
-
-        with patch('pyspectral.rsr_reader.get_config', return_value=TEST_CONFIG):
-            test_rsr = RelativeSpectralResponse('EOS-Aqua', 'modis')
-            test_rsr.rsr = TEST_RSR2
-            res = test_rsr.integral('20')
-            self.assertAlmostEqual(res['det-1'], 0.185634, 6)
 
 
-class MyHdf5Mock(object):
+def test_integral():
+    """Test the calculation of the integral of the spectral responses."""
+    with mock_pyspectral_downloads() as download_mocks:
+        load_rsr_info = download_mocks["load_rsr_info"]
+        load_rsr_info.side_effect = None
+        load_rsr_info.return_value = {
+            "description": "",
+            "instrument": "modis",
+            "platform_name": "EOS-Aqua",
+            "band_names": list(TEST_RSR2.keys()),
+            "rsr": TEST_RSR,
+        }
+        test_rsr = RelativeSpectralResponse("EOS-Aqua", "modis")
+        test_rsr.rsr = TEST_RSR2
+        res = test_rsr.integral("20")
+        np.testing.assert_almost_equal(res["det-1"], 0.185634, 6)
+
+
+def test_metadata_from_hdf5_with_platform_instrument():
+    """Test metadata is accepted from HDF5 file."""
+    with mock_pyspectral_downloads() as download_mocks:
+        load_rsr_info = download_mocks["load_rsr_info"]
+        load_rsr_info.side_effect = None
+        load_rsr_info.return_value = {
+            "description": "ABCD",
+            "instrument": "modis123",
+            "platform_name": "EOS-Aqua456",
+            "band_names": list(TEST_RSR2.keys()),
+            "rsr": TEST_RSR,
+        }
+        test_rsr = RelativeSpectralResponse("EOS-Aqua", "modis")
+        assert test_rsr.description == "ABCD"
+        # platform and instrument are not overwritten by file content
+        assert test_rsr.platform_name == "EOS-Aqua"
+        assert test_rsr.instrument == "modis"
+        assert test_rsr.band_names == list(TEST_RSR2.keys())
+        assert test_rsr.filename.name == "rsr_modis_EOS-Aqua.h5"
+
+
+def test_get_band_from_wavelength():
+    """Test metadata is accepted from HDF5 file."""
+    with mock_pyspectral_downloads() as download_mocks:
+        load_rsr_info = download_mocks["load_rsr_info"]
+        load_rsr_info.side_effect = None
+        load_rsr_info.return_value = {
+            "description": "ABCD",
+            "instrument": "modis123",
+            "platform_name": "EOS-Aqua456",
+            "band_names": list(TEST_RSR2.keys()),
+            "rsr": TEST_RSR,
+        }
+        test_rsr = RelativeSpectralResponse("EOS-Aqua", "modis")
+        assert test_rsr.get_bandname_from_wavelength(3.75) == "20"
+
+
+def test_metadata_from_hdf5_with_filename(tmp_path):
+    """Test metadata is accepted from HDF5 file when using a filename directly."""
+    import h5py
+
+    filename = tmp_path / "my_file.h5"
+    band_names = ["ch1", "ch2", "ch3"]
+    band_central_wvl = [0.47, 0.64, 0.865]
+    response = np.linspace(0.0009, 1.0, 1000, dtype=np.float32)
+    wvl = np.linspace(-0.04, 0.04, 1000, dtype=np.float32)
+    with h5py.File(filename, "w") as h:
+        h.attrs["band_names"] = band_names
+        h.attrs["description"] = "ABCD"
+        h.attrs["platform_name"] = "GOES-16"
+
+        for band_name, band_cwl in zip(band_names, band_central_wvl):
+            band_group = h.create_group(band_name)
+            band_group.attrs["central_wavelength"] = band_cwl
+            band_group.create_dataset("response", data=response)
+            wvl_ds = band_group.create_dataset("wavelength", data=wvl + band_cwl)
+            wvl_ds.attrs["scale"] = 1e-6
+            wvl_ds.attrs["unit"] = "m"
+
+    test_rsr = RelativeSpectralResponse(filename=filename)
+    assert test_rsr.description == "ABCD"
+    assert test_rsr.platform_name == "GOES-16"
+    assert test_rsr.instrument == "abi"  # guessed from platform_name in file
+    assert test_rsr.band_names == band_names
+    assert test_rsr.filename == filename
+    for band_name, band_cwl in zip(band_names, band_central_wvl):
+        assert test_rsr.rsr[band_name]["det-1"]["central_wavelength"] == band_cwl
+        # scaling and unscaling causes small differences in wavelength to not be *exactly* equal
+        np.testing.assert_almost_equal(test_rsr.rsr[band_name]["det-1"]["wavelength"], (wvl + band_cwl))
+        np.testing.assert_equal(test_rsr.rsr[band_name]["det-1"]["response"], response)
+
+
+def test_platform_missing_sat_number(tmp_path):
+    """Test missing 'sat_number' with 'platform' attribute in RSR file."""
+    import h5py
+
+    filename = tmp_path / "my_file.h5"
+    band_names = ["1"]
+    band_central_wvl = [0.47]
+    response = np.linspace(0.0009, 1.0, 1000, dtype=np.float32)
+    wvl = np.linspace(-0.04, 0.04, 1000, dtype=np.float32)
+    with h5py.File(filename, "w") as h:
+        h.attrs["band_names"] = band_names
+        h.attrs["description"] = "ABCD"
+        h.attrs["platform"] = "eos"
+
+        for band_name, band_cwl in zip(band_names, band_central_wvl):
+            band_group = h.create_group(band_name)
+            band_group.attrs["central_wavelength"] = band_cwl
+            band_group.create_dataset("response", data=response)
+            wvl_ds = band_group.create_dataset("wavelength", data=wvl + band_cwl)
+            wvl_ds.attrs["scale"] = 1e-6
+            wvl_ds.attrs["unit"] = "m"
+
+    test_rsr = RelativeSpectralResponse(filename=filename)
+    assert test_rsr.platform_name is None
+
+
+def test_metadata_via_sat_number(tmp_path):
+    """Test an RSR file that uses 'platform' and 'sat_number'."""
+    import h5py
+
+    filename = tmp_path / "my_file.h5"
+    band_names = ["1"]
+    band_central_wvl = [0.47]
+    response = np.linspace(0.0009, 1.0, 1000, dtype=np.float32)
+    wvl = np.linspace(-0.04, 0.04, 1000, dtype=np.float32)
+    with h5py.File(filename, "w") as h:
+        h.attrs["band_names"] = band_names
+        h.attrs["description"] = "ABCD"
+        h.attrs["platform"] = "eos"
+        h.attrs["sat_number"] = 2
+
+        for band_name, band_cwl in zip(band_names, band_central_wvl):
+            band_group = h.create_group(band_name)
+            band_group.attrs["central_wavelength"] = band_cwl
+            band_group.create_dataset("response", data=response)
+            wvl_ds = band_group.create_dataset("wavelength", data=wvl + band_cwl)
+            wvl_ds.attrs["scale"] = 1e-6
+            wvl_ds.attrs["unit"] = "m"
+
+    test_rsr = RelativeSpectralResponse(filename=filename)
+    assert test_rsr.platform_name == "EOS-Aqua"
+    assert test_rsr.instrument == "modis"
+
+
+class MyHdf5Mock:
     """A Mock for the RSR data normally stored in a HDF5 file."""
 
     def __init__(self, attrs):
@@ -154,278 +264,89 @@ class MyHdf5Mock(object):
         self.attrs = attrs
 
 
-class TestPopulateRSRObject(unittest.TestCase):
-    """Testing populate the RelativeSpectralResponse instance from the hdf5 file."""
+def _create_fake_modis_data():
+    """Initialise the tests."""
+    bandnames = np.array([b'1', b'2', b'3', b'4', b'5', b'6', b'7', b'8', b'9', b'10', b'11',
+                          b'12', b'13', b'14', b'15', b'16', b'17', b'18', b'19', b'20',
+                          b'21', b'22', b'23', b'24', b'25', b'26', b'27', b'28', b'29',
+                          b'30', b'31', b'32', b'33', b'34', b'35', b'36'], dtype='|S2')
+    hdf5_attrs_aqua_modis = {'band_names': bandnames,
+                             'description': 'Relative Spectral Responses for MODIS',
+                             'platform': 'eos',
+                             'sat_number': 2}
+    modis_bandnames = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
+                            '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
+                            '21', '22', '23', '24', '25', '26', '27', '28', '29', '30',
+                            '31', '32', '33', '34', '35', '36']
 
-    def setUp(self):
-        """Initialise the tests."""
-        bandnames = np.array([b'1', b'2', b'3', b'4', b'5', b'6', b'7', b'8', b'9', b'10', b'11',
-                              b'12', b'13', b'14', b'15', b'16', b'17', b'18', b'19', b'20',
-                              b'21', b'22', b'23', b'24', b'25', b'26', b'27', b'28', b'29',
-                              b'30', b'31', b'32', b'33', b'34', b'35', b'36'], dtype='|S2')
-        hdf5_attrs_aqua_modis = {'band_names': bandnames,
-                                 'description': 'Relative Spectral Responses for MODIS',
-                                 'platform': 'eos',
-                                 'sat_number': 2}
-        hdf5_attrs_aqua_modis_b = {'band_names': bandnames,
-                                   'description': b'Relative Spectral Responses for MODIS',
-                                   'platform': b'eos',
-                                   'sat_number': 2}
-        self.modis_bandnames = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
-                                '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
-                                '21', '22', '23', '24', '25', '26', '27', '28', '29', '30',
-                                '31', '32', '33', '34', '35', '36']
-
-        self.h5f_aqua_modis = MyHdf5Mock(hdf5_attrs_aqua_modis)
-        self.h5f_aqua_modis_b = MyHdf5Mock(hdf5_attrs_aqua_modis_b)
-
-        hdf5_attrs_aqua_modis_err = {'band_names': bandnames,
-                                     'description': 'Relative Spectral Responses for MODIS',
-                                     'platform': 'eos'}
-
-        self.h5f_aqua_modis_err = MyHdf5Mock(hdf5_attrs_aqua_modis_err)
-
-        bandnames = np.array([b'M1', b'M2', b'M3', b'M4', b'M5', b'M6', b'M7', b'M8', b'M9',
-                              b'M10', b'M11', b'M12', b'M13', b'M14', b'M15', b'M16', b'I1',
-                              b'I2', b'I3', b'I4', b'I5', b'DNB'], dtype='|S3')
-
-        hdf5_attrs_noaa20_viirs = {'band_names': bandnames,
-                                   'description': b'Relative Spectral Responses for VIIRS',
-                                   'platform_name': b'NOAA-20',
-                                   'sensor': b'viirs'}
-        self.viirs_bandnames = ['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9', 'M10',
-                                'M11', 'M12', 'M13', 'M14', 'M15', 'M16',
-                                'I1', 'I2', 'I3', 'I4', 'I5', 'DNB']
-        self.viirs_detector_names = ['det-1', 'det-2', 'det-3', 'det-4', 'det-5',
-                                     'det-6', 'det-7', 'det-8', 'det-9', 'det-10',
-                                     'det-11', 'det-12', 'det-13', 'det-14', 'det-15',
-                                     'det-16']
-        self.viirs_rsr_data = xr.Dataset({'wavelength': xr.DataArray(np.arange(10)),
-                                          'response': xr.DataArray(np.arange(10))})
-        self.viirs_rsr_data.attrs['central_wavelength'] = 100.0
-        self.viirs_rsr_data['wavelength'].attrs['scale'] = 0.01
-
-        self.h5f_noaa20_viirs = MyHdf5Mock(hdf5_attrs_noaa20_viirs)
-
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_filename_exist')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_filename')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_instrument')
-    def test_create_rsr_instance(self, check_instrument, get_filename, check_filename_exist, load):
-        """Test creating the instance."""
-        load.return_value = None
-        check_filename_exist.return_value = None
-        get_filename.return_value = None
-        check_instrument.return_value = None
-
-        with pytest.raises(AttributeError) as exec_info:
-            _ = RelativeSpectralResponse('MyPlatform')
-
-        exception_raised = exec_info.value
-        expected_value = 'Either platform name and sensor, or filename, must be specified'
-        self.assertEqual(str(exception_raised), expected_value)
-
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_consistent_input')
-    def test_set_description(self, check_consistent_input, load):
-        """Test setting the description."""
-        load.return_value = None
-        check_consistent_input.return_value = None
-
-        test_rsr = RelativeSpectralResponse('NOAA-20', 'viirs')
-        test_rsr.set_description(self.h5f_noaa20_viirs)
-
-        self.assertEqual(test_rsr.description, 'Relative Spectral Responses for VIIRS')
-
-        test_rsr = RelativeSpectralResponse('EOS-Aqua', 'modis')
-        test_rsr.set_description(self.h5f_aqua_modis)
-
-        self.assertEqual(test_rsr.description, 'Relative Spectral Responses for MODIS')
-
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_consistent_input')
-    def test_set_platform_name(self, check_consistent_input, load):
-        """Test setting the platform name."""
-        load.return_value = None
-        check_consistent_input.return_value = None
-
-        test_rsr = RelativeSpectralResponse('EOS-Aqua', 'modis')
-        test_rsr.set_platform_name(self.h5f_aqua_modis)
-        self.assertEqual(test_rsr.platform_name, 'EOS-Aqua')
-
-        test_rsr = RelativeSpectralResponse('MyPlatform', 'modis')
-        self.assertEqual(test_rsr.platform_name, 'MyPlatform')
-
-        modis_aqua_filepath = "/mypath/myfilename"
-        test_rsr = RelativeSpectralResponse(filename=modis_aqua_filepath)
-        test_rsr.filename = modis_aqua_filepath
-
-        test_rsr.set_platform_name(self.h5f_aqua_modis)
-        self.assertEqual(test_rsr.platform_name, 'EOS-Aqua')
-
-        modis_aqua_filepath = "/mypath/myfilename"
-        test_rsr = RelativeSpectralResponse(filename=modis_aqua_filepath)
-        test_rsr.filename = modis_aqua_filepath
-
-        test_rsr.set_platform_name(self.h5f_aqua_modis_b)
-        self.assertEqual(test_rsr.platform_name, 'EOS-Aqua')
-
-        viirs_noaa20_filepath = "/mypath/myfilename"
-        test_rsr = RelativeSpectralResponse(filename=viirs_noaa20_filepath)
-        test_rsr.filename = viirs_noaa20_filepath
-
-        test_rsr.set_platform_name(self.h5f_noaa20_viirs)
-        self.assertEqual(test_rsr.platform_name, 'NOAA-20')
-
-        test_rsr = RelativeSpectralResponse(filename=modis_aqua_filepath)
-        test_rsr.filename = modis_aqua_filepath
-        test_rsr.set_platform_name(self.h5f_aqua_modis_err)
-        self.assertEqual(test_rsr.platform_name, None)
-
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_consistent_input')
-    def test_set_instrument(self, check_consistent_input, load):
-        """Test setting the instrument name."""
-        load.return_value = None
-        check_consistent_input.return_value = None
-
-        test_rsr = RelativeSpectralResponse('EOS-Aqua', 'modis')
-        test_rsr.set_instrument(self.h5f_aqua_modis)
-        self.assertEqual(test_rsr.instrument, 'modis')
-
-        modis_aqua_filepath = "/mypath/myfilename"
-        test_rsr = RelativeSpectralResponse(filename=modis_aqua_filepath)
-        test_rsr.filename = modis_aqua_filepath
-        test_rsr.platform_name = 'EOS-Aqua'
-        test_rsr.set_instrument(self.h5f_aqua_modis)
-        self.assertEqual(test_rsr.instrument, 'modis')
-
-        viirs_noaa20_filepath = "/mypath/myfilename"
-        test_rsr = RelativeSpectralResponse(filename=viirs_noaa20_filepath)
-        test_rsr.filename = viirs_noaa20_filepath
-
-        test_rsr.set_instrument(self.h5f_noaa20_viirs)
-        self.assertEqual(test_rsr.instrument, 'viirs')
-
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_consistent_input')
-    def test_set_band_names(self, check_consistent_input, load):
-        """Test setting the band names."""
-        load.return_value = None
-        check_consistent_input.return_value = None
-
-        test_rsr = RelativeSpectralResponse('EOS-Aqua', 'modis')
-        test_rsr.set_band_names(self.h5f_aqua_modis)
-        expected = self.modis_bandnames
-        self.assertCountEqual(test_rsr.band_names, expected)
-
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_consistent_input')
-    def test_set_band_central_wavelength_per_detector(self,
-                                                      check_consistent_input, load):
-        """Test setting the band specific central wavelength for a detector."""
-        load.return_value = None
-        check_consistent_input.return_value = None
-
-        test_rsr = RelativeSpectralResponse('NOAA-20', 'viirs')
-
-        h5f = {}
-        for name in self.viirs_bandnames:
-            h5f[name] = {}
-            for det_name in self.viirs_detector_names:
-                h5f[name][det_name] = self.viirs_rsr_data
-
-        test_rsr.rsr['M1'] = {'det-1': {}}
-        test_rsr.set_band_central_wavelength_per_detector(h5f, 'M1', 'det-1')
-        self.assertIn('central_wavelength', test_rsr.rsr['M1']['det-1'])
-        self.assertEqual(test_rsr.rsr['M1']['det-1']['central_wavelength'], 100.)
-
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_consistent_input')
-    def test_set_band_wavelengths_per_detector(self,
-                                               check_consistent_input, load):
-        """Test setting the band wavelengths for a detector."""
-        load.return_value = None
-        check_consistent_input.return_value = None
-
-        test_rsr = RelativeSpectralResponse('NOAA-20', 'viirs')
-
-        h5f = {}
-        for name in self.viirs_bandnames:
-            h5f[name] = {}
-            for det_name in self.viirs_detector_names:
-                h5f[name][det_name] = self.viirs_rsr_data
-
-        test_rsr.rsr['M1'] = {'det-1': {}}
-        test_rsr.set_band_wavelengths_per_detector(h5f, 'M1', 'det-1')
-
-        expected = np.array([0., 10000., 20000., 30000., 40000., 50000.,
-                             60000., 70000., 80000., 90000.])
-        assertNumpyArraysEqual(test_rsr.rsr['M1']['det-1']['wavelength'].data, expected)
-
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_consistent_input')
-    def test_set_band_responses_per_detector(self,
-                                             check_consistent_input, load):
-        """Test setting the band responses for a detector."""
-        load.return_value = None
-        check_consistent_input.return_value = None
-
-        test_rsr = RelativeSpectralResponse('NOAA-20', 'viirs')
-
-        h5f = {}
-        for name in self.viirs_bandnames:
-            h5f[name] = {}
-            for det_name in self.viirs_detector_names:
-                h5f[name][det_name] = self.viirs_rsr_data
-
-        test_rsr.rsr['M1'] = {'det-1': {}}
-        test_rsr.set_band_responses_per_detector(h5f, 'M1', 'det-1')
-
-        expected = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-        assertNumpyArraysEqual(test_rsr.rsr['M1']['det-1']['response'].data, expected)
-
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse._check_consistent_input')
-    def test_get_bandname_from_rsr(self,
-                                   check_consistent_input, load):
-        """Test get the matching band name from the rsr object."""
-        load.return_value = None
-        check_consistent_input.return_value = None
-
-        test_rsr = RelativeSpectralResponse('EOS-Aqua', 'modis')
-        test_rsr.rsr = TEST_RSR
-
-        myband = test_rsr.get_bandname_from_wavelength(3.75)
-        assert myband == '20'
-
-    def test_rsr_dict(self):
-        """Test finding correct band names from utils dicts."""
-        test_rsr = RSRDict(instrument='viirs')
-        test_rsr['M1'] = 0
-        test_rsr['VIS0.6'] = 1
-        # Check for correct band name
-        self.assertEqual(test_rsr['M1'], 0)
-        # Check for alternative band name on same instrument
-        self.assertEqual(test_rsr['M01'], 0)
-        # Check for generic band name
-        self.assertEqual(test_rsr['VIS006'], 1)
-        # Check exception raised if incorrect band name given
-        with self.assertRaises(KeyError):
-            print('d', test_rsr['VIS030'])
-
-    def test_rsr_unconfigured_sensor(self):
-        """Test RSRDict finds generic band conversions when specific sensor is not configured."""
-        test_rsr = RSRDict(instrument="i dont exist")
-        test_rsr["ch1"] = 2
-        assert test_rsr['1'] == 2
+    return MyHdf5Mock(hdf5_attrs_aqua_modis), modis_bandnames
 
 
-@patch('os.path.exists')
-@patch('os.path.isfile')
-@patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-@patch('pyspectral.rsr_reader.download_rsr')
-@patch('pyspectral.rsr_reader.RelativeSpectralResponse._get_rsr_data_version')
+def _create_fake_modis_data_bytes():
+    data, modis_bandnames = _create_fake_modis_data()
+    data.attrs.update({
+        "description": b"Relative Spectral Responses for MODIS",
+        "platform": b"eos",
+        "sat_number": 2,
+    })
+    return MyHdf5Mock(data), modis_bandnames
+
+
+def _create_fake_viirs_data():
+    bandnames = np.array([b'M1', b'M2', b'M3', b'M4', b'M5', b'M6', b'M7', b'M8', b'M9',
+                          b'M10', b'M11', b'M12', b'M13', b'M14', b'M15', b'M16', b'I1',
+                          b'I2', b'I3', b'I4', b'I5', b'DNB'], dtype='|S3')
+
+    hdf5_attrs_noaa20_viirs = {'band_names': bandnames,
+                               'description': b'Relative Spectral Responses for VIIRS',
+                               'platform_name': b'NOAA-20',
+                               'sensor': b'viirs'}
+    viirs_bandnames = ['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9', 'M10',
+                       'M11', 'M12', 'M13', 'M14', 'M15', 'M16',
+                       'I1', 'I2', 'I3', 'I4', 'I5', 'DNB']
+    viirs_detector_names = ['det-1', 'det-2', 'det-3', 'det-4', 'det-5',
+                            'det-6', 'det-7', 'det-8', 'det-9', 'det-10',
+                            'det-11', 'det-12', 'det-13', 'det-14', 'det-15',
+                            'det-16']
+    viirs_rsr_data = xr.Dataset({'wavelength': xr.DataArray(np.arange(10)),
+                                 'response': xr.DataArray(np.arange(10))})
+    viirs_rsr_data.attrs['central_wavelength'] = 100.0
+    viirs_rsr_data['wavelength'].attrs['scale'] = 0.01
+
+    return MyHdf5Mock(hdf5_attrs_noaa20_viirs), viirs_bandnames, viirs_detector_names
+
+
+@pytest.mark.parametrize(
+    ("band_name", "exp_value"),
+    [
+        ("M1", 0),
+        ("M01", 0),
+        ("VIS006", 1),
+    ]
+)
+def test_rsr_dict(band_name, exp_value):
+    """Test finding correct band names from utils dicts."""
+    test_rsr = RSRDict(instrument="viirs")
+    test_rsr["M1"] = 0
+    test_rsr["VIS0.6"] = 1
+    assert test_rsr[band_name] == exp_value
+
+
+def test_rsr_dict_incorrect_band_alias():
+    """Check exception raised if incorrect band name given."""
+    test_rsr = RSRDict(instrument='viirs')
+
+    with pytest.raises(KeyError):
+        _ = test_rsr['VIS030']
+
+
+def test_rsr_unconfigured_sensor():
+    """Test RSRDict finds generic band conversions when specific sensor is not configured."""
+    test_rsr = RSRDict(instrument="i dont exist")
+    test_rsr["ch1"] = 2
+    assert test_rsr['1'] == 2
+
+
 @pytest.mark.parametrize(
     ("platform_name", "instrument", "exp_filename", "exp_instrument"),
     [
@@ -439,32 +360,13 @@ class TestPopulateRSRObject(unittest.TestCase):
         ('GOES-18', 'AbI', 'rsr_abi_GOES-18.h5', 'abi'),
     ]
 )
-def test_get_rsr_from_platform_and_instrument(get_rsr_version,
-                                              download_rsr, load, isfile, exists,
-                                              platform_name, instrument,
-                                              exp_filename, exp_instrument):
+def test_get_rsr_from_platform_and_instrument(platform_name, instrument, exp_filename, exp_instrument):
     """Test getting the rsr filename correct when specifying the platform and instrument names."""
-    load.return_code = None
-    download_rsr.return_code = None
-    isfile.return_code = True
-    exists.return_code = True
-    get_rsr_version.return_code = RSR_DATA_VERSION
-
-    with patch('pyspectral.rsr_reader.get_config', return_value=TEST_CONFIG):
+    with mock_pyspectral_downloads():
         test_rsr = RelativeSpectralResponse(platform_name, instrument)
         assert test_rsr.platform_name == platform_name
         assert test_rsr.instrument == exp_instrument
-        assert os.path.basename(test_rsr.filename) == exp_filename
-
-    # def test_get_bandname_from_wavelength_inconsistent_instrument_name(self):
-    #     """Test the right bandname is found provided the wavelength in micro meters.
-
-    #     Here we test that if you enter with a sensor name different from what
-    #     is set in the RSR object, an error is raised.
-
-    #     """
-    #     with pytest.raises(AttributeError):
-    #         bname = utils.get_bandname_from_wavelength('ahi', 0.4, self.rsr)
+        assert test_rsr.filename.name == exp_filename
 
 
 @pytest.mark.parametrize(

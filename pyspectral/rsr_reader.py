@@ -372,9 +372,9 @@ def _get_band_wavelengths_per_detector(h5f, band_name: str, detector_name: str) 
 def _get_band_central_wavelength_per_detector(h5f, band_name: str, detector_name: str) -> float:
     """Get the central wavelength for the band and detector."""
     try:
-        central_wvl = h5f[band_name][detector_name].attrs['central_wavelength']
+        central_wvl = h5f[band_name][detector_name].attrs["central_wavelength"]
     except KeyError:
-        central_wvl = h5f[band_name].attrs['central_wavelength']
+        central_wvl = h5f[band_name].attrs["central_wavelength"]
     return central_wvl
 
 

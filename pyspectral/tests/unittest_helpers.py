@@ -19,16 +19,6 @@
 
 """Helper functions for unit testing."""
 
-import numpy as np
-
-
-def assertNumpyArraysEqual(self, other):
-    """Assert if two numpy arrays are equal."""
-    if self.shape != other.shape:
-        raise AssertionError("Shapes don't match")
-    if not np.allclose(self, other):
-        raise AssertionError("Elements don't match!")
-
 
 class ComputeCountingScheduler:
     """Scheduler raising an exception if data are computed too many times."""
