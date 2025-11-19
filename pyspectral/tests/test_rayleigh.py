@@ -272,22 +272,33 @@ class TestRayleigh:
         retv = rayleigh.Rayleigh.reduce_rayleigh_highzenith(sun_zenith, in_rayleigh, 30., 90., 1.5)
         np.testing.assert_allclose(retv, TEST_RAYLEIGH_RESULT_R2)
 
-    def test_rayleigh_getname(self):
+    @pytest.mark.parametrize(
+        ("platform_name", "sensor"),
+        [
+            ("FY-4B", "VIIRS"),
+            ("FY-4B", "nosensor"),
+        ]
+    )
+    def test_rayleigh_getname_failures(self, platform_name, sensor):
+        """Test Rayleigh instrument selection arguments that should fail."""
+        from pyspectral.rayleigh import check_and_normalize_sensor
+
+        with pytest.raises(ValueError):
+            check_and_normalize_sensor(platform_name, sensor)
+
+    @pytest.mark.parametrize(
+        ("platform_name", "sensor", "exp_name"),
+        [
+            ("FY-4A", "agri", "agri"),
+            ("FY-4B", "agri", "agri"),
+            ("FY-4B", "ghi", "ghi"),
+        ]
+    )
+    def test_rayleigh_getname(self, platform_name, sensor, exp_name):
         """Test logic for Rayleigh instrument selection."""
-        with pytest.raises(ValueError):
-            _create_rayleigh(platform='FY-4B')
+        from pyspectral.rayleigh import check_and_normalize_sensor
 
-        rayl = _create_rayleigh(platform='FY-4A', sensor='agri')
-        assert rayl.sensor == 'agri'
-
-        rayl = _create_rayleigh(platform='FY-4B', sensor='agri')
-        assert rayl.sensor == 'agri'
-
-        rayl = _create_rayleigh(platform='FY-4B', sensor='ghi')
-        assert rayl.sensor == 'ghi'
-
-        with pytest.raises(ValueError):
-            _create_rayleigh(platform='FY-4B', sensor='nosensor')
+        assert check_and_normalize_sensor(platform_name, sensor) == exp_name
 
     @patch('pyspectral.rayleigh.da', None)
     def test_get_reflectance_redband_outside_clip(self, fake_lut_hdf5):
@@ -398,9 +409,14 @@ class TestRayleigh:
 
     def test_get_reflectance_no_lut(self, fake_lut_hdf5):
         """Test that missing a LUT causes an exception.."""
-        # test LUT doesn't have a subartic_summer file
-        with pytest.raises(IOError):
-            rayleigh.Rayleigh('UFO', 'unknown', atmosphere='subarctic summer')
+        ryl = rayleigh.Rayleigh('UFO', 'unknown', atmosphere='subarctic summer')
+
+        with pytest.raises(FileNotFoundError):
+            ryl.get_reflectance(
+                np.zeros((5, 5), dtype=np.float64),
+                np.zeros((5, 5), dtype=np.float64),
+                np.zeros((5, 5), dtype=np.float64),
+                0.64)
 
 
 @pytest.mark.parametrize(

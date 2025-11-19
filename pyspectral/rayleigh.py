@@ -22,6 +22,7 @@
 import logging
 import numbers
 import os
+from pathlib import Path
 
 import h5py
 import numpy as np
@@ -145,40 +146,18 @@ class Rayleigh(RayleighConfigBaseClass):
         aerosol_type = kwargs.get('aerosol_type', 'marine_clean_aerosol')
 
         super(Rayleigh, self).__init__(aerosol_type, atm_type)
-
+        self.sensor = check_and_normalize_sensor(platform_name, sensor)
         self.platform_name = platform_name
-        self.sensor = sensor
-        self.coeff_filename = None
 
-        # Try to fix instrument naming
-        instr = INSTRUMENTS.get(platform_name, sensor)
-        if instr != sensor:
-            if isinstance(instr, list):
-                if sensor not in instr:
-                    raise ValueError("This satellite has multiple sensors, you must explicitly state which to use.")
-            else:
-                sensor = instr
-                LOG.warning("Inconsistent sensor/satellite input - " +
-                            "sensor set to %s", sensor)
-
-        self.sensor = sensor.replace('/', '')
-
-        rayleigh_dir = get_rayleigh_lut_dir(aerosol_type)
+        rayleigh_path = get_rayleigh_lut_dir(aerosol_type)
         ext = atm_type.replace(' ', '_')
         lutname = "rayleigh_lut_{0}.h5".format(ext)
-        self.reflectance_lut_filename = os.path.join(rayleigh_dir, lutname)
+        self.reflectance_lut_filename = rayleigh_path / lutname
+        LOG.debug(f"LUT filename: {self.reflectance_lut_filename}")
 
-        if not self._lutfiles_version_uptodate and self.do_download:
-            LOG.info("Will download from internet...")
+        if not self.lutfiles_version_uptodate and self.do_download:
+            LOG.info("RSR files not up to date, will download from internet...")
             download_luts(aerosol_types=[aerosol_type])
-
-        if (not os.path.exists(self.reflectance_lut_filename) or
-                not os.path.isfile(self.reflectance_lut_filename)):
-            raise IOError('pyspectral file for Rayleigh scattering correction ' +
-                          'does not exist! Filename = ' +
-                          str(self.reflectance_lut_filename))
-
-        LOG.debug('LUT filename: %s', str(self.reflectance_lut_filename))
 
     def _get_effective_wavelength_and_band_name(self, band_name_or_wavelength):
         """Get the effective wavelength in nanometers and name of the band/channel.
@@ -301,6 +280,20 @@ class Rayleigh(RayleighConfigBaseClass):
         return rayref * factor
 
 
+def check_and_normalize_sensor(platform_name: str, sensor: str) -> str:
+    """Check sensor belongs to platform and is consistently named."""
+    instr = INSTRUMENTS.get(platform_name, sensor)
+    if instr != sensor:
+        if isinstance(instr, list):
+            if sensor not in instr:
+                raise ValueError("This satellite has multiple sensors, you must explicitly state which to use.")
+        else:
+            sensor = instr
+            LOG.warning(f"Inconsistent sensor/satellite input - sensor set to {sensor}")
+
+    return sensor.replace("/", "")
+
+
 def _get_rsr_wavelength_from_band_name(platform_name, sensor, band_name):
     try:
         rsr = RelativeSpectralResponse(platform_name, sensor)
@@ -317,7 +310,11 @@ def _get_rsr_wavelength_from_band_name(platform_name, sensor, band_name):
     return cwvl
 
 
-def _get_wavelength_adjusted_lut_rayleigh_reflectance(lut_filename, wvl):
+def _get_wavelength_adjusted_lut_rayleigh_reflectance(lut_filename: Path, wvl: float) -> np.ndarray:
+    if not lut_filename.is_file():
+        raise FileNotFoundError(
+            f"pyspectral file for Rayleigh scattering correction does not exist! Filename = {lut_filename}")
+
     with h5py.File(lut_filename, 'r') as h5f:
         rayleigh_refl = h5f["reflectance"]
         wvl_coord = h5f["wavelengths"][:]
