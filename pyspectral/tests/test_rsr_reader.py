@@ -81,7 +81,7 @@ TEST_CONFIG['rsr_dir'] = TEST_RSR_DIR
     [
         {"platform_name": "GOES-16"},
         {"instrument": "ABI"},
-        {"filename": "/tmp/to/something", "instrument": "ABI"},
+        {"filename": "/path/to/something", "instrument": "ABI"},
     ]
 )
 def test_get_rsr_invalid_args(kwargs):
