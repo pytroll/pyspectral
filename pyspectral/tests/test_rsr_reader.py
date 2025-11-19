@@ -26,7 +26,6 @@ import unittest
 
 import numpy as np
 import pytest
-import xarray as xr
 
 from pyspectral.rsr_reader import RelativeSpectralResponse, RSRDict
 from pyspectral.testing import mock_pyspectral_downloads
@@ -254,66 +253,6 @@ def test_metadata_via_sat_number(tmp_path):
     test_rsr = RelativeSpectralResponse(filename=filename)
     assert test_rsr.platform_name == "EOS-Aqua"
     assert test_rsr.instrument == "modis"
-
-
-class MyHdf5Mock:
-    """A Mock for the RSR data normally stored in a HDF5 file."""
-
-    def __init__(self, attrs):
-        """Initialize the mock class."""
-        self.attrs = attrs
-
-
-def _create_fake_modis_data():
-    """Initialise the tests."""
-    bandnames = np.array([b'1', b'2', b'3', b'4', b'5', b'6', b'7', b'8', b'9', b'10', b'11',
-                          b'12', b'13', b'14', b'15', b'16', b'17', b'18', b'19', b'20',
-                          b'21', b'22', b'23', b'24', b'25', b'26', b'27', b'28', b'29',
-                          b'30', b'31', b'32', b'33', b'34', b'35', b'36'], dtype='|S2')
-    hdf5_attrs_aqua_modis = {'band_names': bandnames,
-                             'description': 'Relative Spectral Responses for MODIS',
-                             'platform': 'eos',
-                             'sat_number': 2}
-    modis_bandnames = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
-                            '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
-                            '21', '22', '23', '24', '25', '26', '27', '28', '29', '30',
-                            '31', '32', '33', '34', '35', '36']
-
-    return MyHdf5Mock(hdf5_attrs_aqua_modis), modis_bandnames
-
-
-def _create_fake_modis_data_bytes():
-    data, modis_bandnames = _create_fake_modis_data()
-    data.attrs.update({
-        "description": b"Relative Spectral Responses for MODIS",
-        "platform": b"eos",
-        "sat_number": 2,
-    })
-    return MyHdf5Mock(data), modis_bandnames
-
-
-def _create_fake_viirs_data():
-    bandnames = np.array([b'M1', b'M2', b'M3', b'M4', b'M5', b'M6', b'M7', b'M8', b'M9',
-                          b'M10', b'M11', b'M12', b'M13', b'M14', b'M15', b'M16', b'I1',
-                          b'I2', b'I3', b'I4', b'I5', b'DNB'], dtype='|S3')
-
-    hdf5_attrs_noaa20_viirs = {'band_names': bandnames,
-                               'description': b'Relative Spectral Responses for VIIRS',
-                               'platform_name': b'NOAA-20',
-                               'sensor': b'viirs'}
-    viirs_bandnames = ['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9', 'M10',
-                       'M11', 'M12', 'M13', 'M14', 'M15', 'M16',
-                       'I1', 'I2', 'I3', 'I4', 'I5', 'DNB']
-    viirs_detector_names = ['det-1', 'det-2', 'det-3', 'det-4', 'det-5',
-                            'det-6', 'det-7', 'det-8', 'det-9', 'det-10',
-                            'det-11', 'det-12', 'det-13', 'det-14', 'det-15',
-                            'det-16']
-    viirs_rsr_data = xr.Dataset({'wavelength': xr.DataArray(np.arange(10)),
-                                 'response': xr.DataArray(np.arange(10))})
-    viirs_rsr_data.attrs['central_wavelength'] = 100.0
-    viirs_rsr_data['wavelength'].attrs['scale'] = 0.01
-
-    return MyHdf5Mock(hdf5_attrs_noaa20_viirs), viirs_bandnames, viirs_detector_names
 
 
 @pytest.mark.parametrize(
