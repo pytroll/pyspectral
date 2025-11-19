@@ -263,9 +263,11 @@ def test_download_rsr_dry_run():
     requests_mock.assert_not_called()
 
 
+@pytest.mark.allow_downloads(use=True)
 def test_download_rsr(tmp_path):
     """Test basic usage of the download_rsr function."""
-    tar_data = _create_fake_rsr_tarball_bytes()
+    version_data = "v1.2.3.4.5"
+    tar_data = _create_fake_rsr_tarball_bytes(version_data)
     with responses.RequestsMock() as rsps:
         rsps.add(
             "GET",
@@ -278,16 +280,19 @@ def test_download_rsr(tmp_path):
             },
         )
         utils.download_rsr(dest_dir=str(tmp_path))
-    assert os.path.isfile(tmp_path / "PYSPECTRAL_RSR_VERSION")
+    version_path = tmp_path / "PYSPECTRAL_RSR_VERSION"
+    assert version_path.is_file()
+    with version_path.open() as version_file:
+        assert version_file.read() == version_data
 
 
-def _create_fake_rsr_tarball_bytes():
+def _create_fake_rsr_tarball_bytes(version_data=utils.RSR_DATA_VERSION):
     file_obj = BytesIO()
 
     with tarfile.open(mode="w:gz", fileobj=file_obj) as rsr_tar:
         info = tarfile.TarInfo(utils.RSR_DATA_VERSION_FILENAME)
-        info.size = len(utils.RSR_DATA_VERSION)
-        rsr_tar.addfile(info, BytesIO(utils.RSR_DATA_VERSION.encode("ascii")))
+        info.size = len(version_data)
+        rsr_tar.addfile(info, BytesIO(version_data.encode("ascii")))
 
     file_obj.seek(0)
     return file_obj.read()
@@ -308,6 +313,7 @@ def test_download_luts_dry_run():
         (None, "desert_aerosol", True),
     ]
 )
+@pytest.mark.allow_downloads(use=True)
 def test_download_luts(tmp_path, aerosol_types, aerosol_type, exp_warning):
     """Test basic usage of the download_luts function."""
     atypes_to_create = _atypes_to_create(aerosol_types, aerosol_type)

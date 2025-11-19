@@ -221,6 +221,11 @@ def forbid_pyspectral_downloads():
     other context managers and functions in ``pyspectral.testing`` for available
     pyspectral-provided functionality.
 
+    Note if you need some tests to not use this limitation (ex. tests that
+    only run outside of CI) then the fixture can't be session scoped. See
+    pyspectral's own ``pyspectral/tests/conftest.py`` for an example of using
+    a pytest mark to control when tests are allowed to access downloads.
+
     """
     with mock.patch("pyspectral.utils.requests") as mock_requests:
         mock_requests.get.side_effect = RuntimeError(
