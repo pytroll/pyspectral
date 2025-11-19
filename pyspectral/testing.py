@@ -145,54 +145,33 @@ def _create_fake_rayleigh_file(rayl_path: Path, atmo_name: str) -> None:
         )
 
 
-def _create_fake_rsr_info(rsr_file: Path) -> dict:
-    parts = rsr_file.name.split("_")
-    instrument = parts[1]
-    platform_name = parts[2]
-    return {
-        "instrument": instrument,
-        "platform_name": platform_name,
-        "description": f"Relative Response for {instrument}",
-        "band_names": [],
-        "rsr": {},
-    }
-
-
-class _FakeRSRDict(dict):
-
-    def __getitem__(self, key):
-        """Get RSR information dynamically and generate anything that is asked for."""
-        print(f"Trying to access RSR for band {key}")
-        return dict.__getitem__(self, key)
-
-
-def _create_fake_rsr_files(rsr_path: Path, instrument: str, platform: str) -> None:
-    import h5py
-
+def _create_fake_rsr_info(rsr_path: Path) -> dict:
     from pyspectral.bandnames import BANDNAMES
 
-    fn = f"rsr_{instrument}_{platform}.h5"
-    base_file_path = rsr_path / fn
-    if base_file_path.exists():
-        return
-
+    parts = rsr_path.stem.split("_")
+    instrument = parts[1]
+    platform_name = parts[2]
+    if instrument.startswith("avhrr"):
+        instrument = "avhrr/" + instrument[-1]
     band_names = BANDNAMES.get(
         instrument.lower().replace("/", "-"), BANDNAMES["generic"]
     )
+    rsr_info = {
+        "platform_name": platform_name,
+        "instrument": instrument,
+        "description": f"Relative Response for {instrument}",
+        "band_names": band_names,
+        "rsr": {},
+    }
     response = np.linspace(0.0009, 1.0, 1000, dtype=np.float32)
     wvl = np.linspace(0.44, 0.5, 1000, dtype=np.float32)
-    with h5py.File(base_file_path, "w") as h:
-        h.band_names = band_names
-        h.description = f"Relative Response for {instrument}"
-        h.platform_name = platform
-
-        for band_name in band_names:
-            band_group = h.create_group(band_name)
-            band_group.central_wavelength = 1.5  # TODO
-            band_group.create_dataset("response", data=response)
-            wvl_ds = band_group.create_dataset("wavelength", data=wvl)
-            wvl_ds.scale = 1e-6
-            wvl_ds.unit = "m"
+    for band_name in band_names:
+        rsr_info["rsr"][band_name] = {"det-1": {
+            "wavelength": wvl,
+            "central_wavelength": 0.46,
+            "response": response,
+        }}
+    return rsr_info
 
 
 def cleanup_fake_luts():
