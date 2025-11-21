@@ -8,10 +8,12 @@ import shutil
 import tempfile
 from collections.abc import Iterator
 from pathlib import Path
+from typing import Callable
 from unittest import mock
 
 import numpy as np
 
+from pyspectral.rsr_reader import RSRDict
 from pyspectral.utils import ATMOSPHERES, RSR_DATA_VERSION, RSR_DATA_VERSION_FILENAME
 
 TMP_LUT_BASE_DIR = Path(tempfile.gettempdir()) / "pyspectral_fake_luts"
@@ -22,6 +24,7 @@ def mock_pyspectral_downloads(
     tmp_path: Path = TMP_LUT_BASE_DIR,
     rsr_data_version: str = RSR_DATA_VERSION,
     extra_config_options: dict | None = None,
+    central_wavelengths: dict[str, float] | None = None,
 ):
     """Mock pyspectral's LUT downloads with fake realistic files."""
     config_options = {}
@@ -53,7 +56,7 @@ def mock_pyspectral_downloads(
         mock.patch("pyspectral.rsr_reader._load_rsr_info_from_file") as load_rsr,
     ):
         download_tarball.side_effect = _fake_download
-        load_rsr.side_effect = _create_fake_rsr_info
+        load_rsr.side_effect = _fake_rsr_info_factory(central_wavelengths=central_wavelengths)
         # give the user the opportunity to customize the side effects
         yield {
             "download_tarball": download_tarball,
@@ -145,33 +148,45 @@ def _create_fake_rayleigh_file(rayl_path: Path, atmo_name: str) -> None:
         )
 
 
-def _create_fake_rsr_info(rsr_path: Path) -> dict:
-    from pyspectral.bandnames import BANDNAMES
+def _fake_rsr_info_factory(central_wavelengths: dict[str, float] | None = None) -> Callable:
+    def _create_fake_rsr_info(rsr_path: Path) -> dict:
+        from pyspectral.bandnames import BANDNAMES
 
-    parts = rsr_path.stem.split("_")
-    instrument = parts[1]
-    platform_name = parts[2]
-    if instrument.startswith("avhrr"):
-        instrument = "avhrr/" + instrument[-1]
-    band_names = BANDNAMES.get(
-        instrument.lower().replace("/", "-"), BANDNAMES["generic"]
-    )
-    rsr_info = {
-        "platform_name": platform_name,
-        "instrument": instrument,
-        "description": f"Relative Response for {instrument}",
-        "band_names": band_names,
-        "rsr": {},
-    }
-    response = np.linspace(0.0009, 1.0, 1000, dtype=np.float32)
-    wvl = np.linspace(0.44, 0.5, 1000, dtype=np.float32)
-    for band_name in band_names:
-        rsr_info["rsr"][band_name] = {"det-1": {
-            "wavelength": wvl,
-            "central_wavelength": 0.46,
-            "response": response,
-        }}
-    return rsr_info
+        parts = rsr_path.stem.split("_")
+        instrument = parts[1]
+        platform_name = parts[2]
+        if instrument.startswith("avhrr"):
+            instrument = "avhrr/" + instrument[-1]
+        band_name_map = BANDNAMES.get(
+            instrument.lower().replace("/", "-"), BANDNAMES["generic"]
+        )
+        band_names = list(band_name_map.values())
+        rsr_info = {
+            "platform_name": platform_name,
+            "instrument": instrument,
+            "description": f"Relative Response for {instrument}",
+            "band_names": band_names,
+            "rsr": RSRDict(instrument),
+        }
+        central_wvl_map = RSRDict(instrument)
+
+        central_wvl_map.update(central_wavelengths)
+        for band_name, cwvl in central_wavelengths.items():
+            # map user name to pyspectral "standard" name
+            new_band_name = band_name_map.get(band_name, band_name)
+            central_wvl_map[new_band_name] = cwvl
+        response = np.linspace(0.0009, 1.0, 1000, dtype=np.float32)
+        wvl = np.linspace(-0.02, 0.02, 1000, dtype=np.float32)
+        for band_name in band_names:
+            central_wvl = central_wvl_map.get(band_name, 0.46)
+            rsr_info["rsr"][band_name] = {"det-1": {
+                "wavelength": wvl + central_wvl,
+                "central_wavelength": central_wvl,
+                "response": response,
+            }}
+        return rsr_info
+
+    return _create_fake_rsr_info
 
 
 def cleanup_fake_luts():

@@ -83,6 +83,13 @@ class RSRDict(dict):
                 raise KeyError(f'Band not found in RSR for {self.instrument}: {key}')
         return val
 
+    def get(self, key, default=None):
+        """Get value either directly or fallback to pre-configured 'standard' names."""
+        try:
+            return self[key]
+        except KeyError:
+            return default
+
 
 class _RSRDataBase:
     """Directory and configuration manager for Relative Spectral Responses (RSR) on disk.
