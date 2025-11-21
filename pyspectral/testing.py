@@ -149,6 +149,9 @@ def _create_fake_rayleigh_file(rayl_path: Path, atmo_name: str) -> None:
 
 
 def _fake_rsr_info_factory(central_wavelengths: dict[str, float] | None = None) -> Callable:
+    if central_wavelengths is None:
+        central_wavelengths = {}
+
     def _create_fake_rsr_info(rsr_path: Path) -> dict:
         from pyspectral.bandnames import BANDNAMES
 
@@ -169,8 +172,6 @@ def _fake_rsr_info_factory(central_wavelengths: dict[str, float] | None = None) 
             "rsr": RSRDict(instrument),
         }
         central_wvl_map = RSRDict(instrument)
-
-        central_wvl_map.update(central_wavelengths)
         for band_name, cwvl in central_wavelengths.items():
             # map user name to pyspectral "standard" name
             new_band_name = band_name_map.get(band_name, band_name)
