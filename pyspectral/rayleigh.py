@@ -146,7 +146,7 @@ class Rayleigh(RayleighConfigBaseClass):
         aerosol_type = kwargs.get('aerosol_type', 'marine_clean_aerosol')
 
         super(Rayleigh, self).__init__(aerosol_type, atm_type)
-        self.sensor = check_and_normalize_sensor(platform_name, sensor)
+        self.sensor = normalize_sensor(platform_name, sensor)
         self.platform_name = platform_name
 
         rayleigh_path = get_rayleigh_lut_dir(aerosol_type)
@@ -280,7 +280,7 @@ class Rayleigh(RayleighConfigBaseClass):
         return rayref * factor
 
 
-def check_and_normalize_sensor(platform_name: str, sensor: str) -> str:
+def normalize_sensor(platform_name: str, sensor: str) -> str:
     """Check sensor belongs to platform and is consistently named."""
     instr = INSTRUMENTS.get(platform_name, sensor)
     if instr != sensor:

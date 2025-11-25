@@ -281,10 +281,10 @@ class TestRayleigh:
     )
     def test_rayleigh_getname_failures(self, platform_name, sensor):
         """Test Rayleigh instrument selection arguments that should fail."""
-        from pyspectral.rayleigh import check_and_normalize_sensor
+        from pyspectral.rayleigh import normalize_sensor
 
         with pytest.raises(ValueError):
-            check_and_normalize_sensor(platform_name, sensor)
+            normalize_sensor(platform_name, sensor)
 
     @pytest.mark.parametrize(
         ("platform_name", "sensor", "exp_name"),
@@ -292,13 +292,14 @@ class TestRayleigh:
             ("FY-4A", "agri", "agri"),
             ("FY-4B", "agri", "agri"),
             ("FY-4B", "ghi", "ghi"),
+            ("Metop-C", "avhrr/3", "avhrr3"),
         ]
     )
     def test_rayleigh_getname(self, platform_name, sensor, exp_name):
         """Test logic for Rayleigh instrument selection."""
-        from pyspectral.rayleigh import check_and_normalize_sensor
+        from pyspectral.rayleigh import normalize_sensor
 
-        assert check_and_normalize_sensor(platform_name, sensor) == exp_name
+        assert normalize_sensor(platform_name, sensor) == exp_name
 
     @patch('pyspectral.rayleigh.da', None)
     def test_get_reflectance_redband_outside_clip(self, fake_lut_hdf5):
