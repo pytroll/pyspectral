@@ -146,12 +146,11 @@ class _RSRDataBase:
         if self.rsr_data_version_uptodate:
             return False
 
-        LOG.warning("RSR data may not be up to date")
         if not self.do_download:
-            LOG.debug("Skipping RSR download from internet due to 'download_from_internet' configuration value")
+            LOG.warning("RSR data are old but updates are not downloaded due to 'download_from_internet' setting")
             return True
 
-        LOG.info("Will download from internet...")
+        LOG.info("Downloading RSR update from internet...")
         download_rsr(dest_dir=dest_dir, dry_run=dry_run)
         return True
 
