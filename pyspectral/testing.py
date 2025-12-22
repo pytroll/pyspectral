@@ -17,6 +17,7 @@ from pyspectral.rsr_reader import RSRDict
 from pyspectral.utils import ATMOSPHERES, RSR_DATA_VERSION, RSR_DATA_VERSION_FILENAME
 
 TMP_LUT_BASE_DIR = Path(tempfile.gettempdir()) / "pyspectral_fake_luts"
+BASE_RAYLEIGH_LUT_FILENAME = "base_fake_rayleigh_lut.h5"
 
 
 @contextlib.contextmanager
@@ -51,17 +52,101 @@ def mock_pyspectral_downloads(
         rsr_version_file.write(rsr_data_version)
 
     with (
-        mock.patch("pyspectral.utils._download_tarball_and_extract") as download_tarball,
+        mock.patch(
+            "pyspectral.utils._download_tarball_and_extract"
+        ) as download_tarball,
         override_config(config_options=config_options),
+        mock_rayleigh_luts(rayleigh_dir, mock_config=False),
         mock.patch("pyspectral.rsr_reader._load_rsr_info_from_file") as load_rsr,
     ):
         download_tarball.side_effect = _fake_download
-        load_rsr.side_effect = _fake_rsr_info_factory(central_wavelengths=central_wavelengths)
+        load_rsr.side_effect = _fake_rsr_info_factory(
+            central_wavelengths=central_wavelengths
+        )
         # give the user the opportunity to customize the side effects
         yield {
             "download_tarball": download_tarball,
             "load_rsr_info": load_rsr,
         }
+
+
+@contextlib.contextmanager
+def mock_rayleigh_luts(
+    rayleigh_dir: Path, existing_version: bool | str = True, mock_config: bool = True,
+) -> Iterator[None]:
+    """Mock the rayleigh LUT directories.
+
+    Args:
+        rayleigh_dir: Path where rayleigh LUTs should be created.
+        existing_version: How to prepare the fake LUT directory. This can be
+        ``True`` (default) meaning the directory should be created as if
+        they are the most up-to-date versions of the LUTs. If ``False`` then
+        the version and LUT files are not created beforehand and will be
+        created as downloads are requested. Downloads are mocked so no
+        internet connection is accessed.
+        If a string value is provided then that will be used as the version
+        of the LUT files (ex. 'v0.0.0' to represent out-of-date files).
+        Note that a "template" HDF5 will be
+        created in the root of the rayleigh directory so it can be linked to
+        in any later LUT creation instead of creating a new LUT file every time.
+        mock_config: Whether to include mocking pyspectral's config with the
+        location of the rayleigh directory. Defaults to ``True``. If this is
+        set to ``False`` then :func:`override_config` must be used to specify
+        the ``rayleigh_dir`` provided to this function or pyspectral won't find
+        the created LUTs.
+
+    """
+    from pyspectral.utils import AEROSOL_TYPES
+
+    # TODO: Optional config override
+    # TODO: Add existing data to replace what's in test_rayleigh.py
+    _create_fake_rayleigh_file(rayleigh_dir / BASE_RAYLEIGH_LUT_FILENAME, "fake")
+
+    if existing_version:
+        # True==up-to-date else custom version
+        _init_rayleigh_version_files(rayleigh_dir, existing_version)
+
+        for aerosol_type in AEROSOL_TYPES:
+            atype_subdir = rayleigh_dir / aerosol_type
+            atype_subdir.mkdir(exist_ok=True)
+            for atmo_name in ATMOSPHERES:
+                atmo = atmo_name.replace(" ", "_")
+                rayl_fn = f"rayleigh_lut_{atmo}.h5"
+                rayl_path = atype_subdir / rayl_fn
+                _symlink_rayleigh_lut(rayl_path)
+
+    fake_config = {
+        "rayleigh_dir": str(rayleigh_dir),
+        "rsr_dir": str(rayleigh_dir),  # XXX: Correct?
+        "download_from_internet": True,
+    }
+    config_cm = contextlib.nullcontext() if not mock_config else override_config(fake_config)
+    with config_cm:
+        yield
+
+
+@contextlib.contextmanager
+def _mock_download() -> Iterator[mock.Mock]:
+    with mock.patch("pyspectral.utils._download_tarball_and_extract") as download_tarball:
+        download_tarball.side_effect = _fake_download
+        yield download_tarball
+
+
+def _init_rayleigh_version_files(
+    rayleigh_dir: Path, existing_version: bool | str
+) -> None:
+    from pyspectral.utils import AEROSOL_TYPES, ATM_CORRECTION_LUT_VERSION
+
+    for aerosol_type in AEROSOL_TYPES:
+        atype_version_fn = ATM_CORRECTION_LUT_VERSION[aerosol_type]["filename"]
+        atype_version = ATM_CORRECTION_LUT_VERSION[aerosol_type]["version"]
+        atype_subdir = rayleigh_dir / aerosol_type
+        atype_subdir.mkdir(exist_ok=True)
+        version_filename = str(atype_subdir / atype_version_fn)
+        if isinstance(existing_version, str):
+            atype_version = existing_version
+        with open(version_filename, "w") as version_file:
+            version_file.write(atype_version)
 
 
 @contextlib.contextmanager
@@ -80,29 +165,30 @@ def override_config(config_options: dict | None = None) -> Iterator[Path]:
             yaml.dump(config_options, config_file)
 
         os.environ["PSP_CONFIG_FILE"] = str(config_path)
-        yield config_path
-
-    if old_config_env is None:
-        del os.environ["PSP_CONFIG_FILE"]
-    else:
-        os.environ["PSP_CONFIG_FILE"] = old_config_env
+        try:
+            yield config_path
+        finally:
+            if old_config_env is None:
+                del os.environ["PSP_CONFIG_FILE"]
+            else:
+                os.environ["PSP_CONFIG_FILE"] = old_config_env
 
 
 def _fake_download(
     tarball_url: str, tarball_local_path: str | Path, extract_dir: str | Path
 ) -> None:
-    print(tarball_url, tarball_local_path, extract_dir)
     del tarball_url  # unused in this mocked version
 
     extract_dir = Path(extract_dir)
     extract_dir.mkdir(parents=True, exist_ok=True)
-    if "fake_rayleigh" in str(tarball_local_path):
+    if tarball_local_path.name.endswith("rayleigh_correct_luts.tgz"):
         for atmo_name in ATMOSPHERES:
-            rayl_fn = f"rayleigh_lut_{atmo_name}.h5"
+            atmo = atmo_name.replace(" ", "_")
+            rayl_fn = f"rayleigh_lut_{atmo}.h5"
             rayl_path = extract_dir / rayl_fn
             if rayl_path.exists():
                 continue
-            _create_fake_rayleigh_file(rayl_path, atmo_name)
+            _symlink_rayleigh_lut(rayl_path)
     else:
         raise NotImplementedError("Fake RSR creation is not implemented at this time")
 
@@ -148,7 +234,18 @@ def _create_fake_rayleigh_file(rayl_path: Path, atmo_name: str) -> None:
         )
 
 
-def _fake_rsr_info_factory(central_wavelengths: dict[str, float] | None = None) -> Callable:
+def _symlink_rayleigh_lut(link_path: Path) -> None:
+    if link_path.exists():
+        return
+
+    rayleigh_dir = link_path.parent.parent
+    base_file = rayleigh_dir / BASE_RAYLEIGH_LUT_FILENAME
+    link_path.symlink_to(base_file)
+
+
+def _fake_rsr_info_factory(
+    central_wavelengths: dict[str, float] | None = None,
+) -> Callable:
     if central_wavelengths is None:
         central_wavelengths = {}
 
@@ -180,11 +277,13 @@ def _fake_rsr_info_factory(central_wavelengths: dict[str, float] | None = None) 
         wvl = np.linspace(-0.02, 0.02, 1000, dtype=np.float32)
         for band_name in band_names:
             central_wvl = central_wvl_map.get(band_name, 0.46)
-            rsr_info["rsr"][band_name] = {"det-1": {
-                "wavelength": wvl + central_wvl,
-                "central_wavelength": central_wvl,
-                "response": response,
-            }}
+            rsr_info["rsr"][band_name] = {
+                "det-1": {
+                    "wavelength": wvl + central_wvl,
+                    "central_wavelength": central_wvl,
+                    "response": response,
+                }
+            }
         return rsr_info
 
     return _create_fake_rsr_info
@@ -227,5 +326,6 @@ def forbid_pyspectral_downloads():
             "Pyspectral is attempting a download during tests. Mock pyspectral as necessary to avoid this. "
             "See 'pyspectral.testing' for pyspectral-provided mocking functionality. This message is "
             "configured via a context manager likely being used from a 'your_pkg/tests/conftest.py' "
-            "fixture.")
+            "fixture."
+        )
         yield
