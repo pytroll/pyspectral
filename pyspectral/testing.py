@@ -6,7 +6,8 @@ import contextlib
 import os
 import shutil
 import tempfile
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
+from contextlib import nullcontext
 from pathlib import Path
 from typing import Callable
 from unittest import mock
@@ -14,7 +15,7 @@ from unittest import mock
 import numpy as np
 
 from pyspectral.rsr_reader import RSRDict
-from pyspectral.utils import ATMOSPHERES, RSR_DATA_VERSION, RSR_DATA_VERSION_FILENAME
+from pyspectral.utils import AEROSOL_TYPES, ATMOSPHERES, RSR_DATA_VERSION, RSR_DATA_VERSION_FILENAME
 
 TMP_LUT_BASE_DIR = Path(tempfile.gettempdir()) / "pyspectral_fake_luts"
 BASE_RAYLEIGH_LUT_FILENAME = "base_fake_rayleigh_lut.h5"
@@ -72,7 +73,12 @@ def mock_pyspectral_downloads(
 
 @contextlib.contextmanager
 def mock_rayleigh_luts(
-    rayleigh_dir: Path, existing_version: bool | str = True, mock_config: bool = True,
+    rayleigh_dir: Path,
+    existing_version: bool | str = True,
+    mock_config: bool = True,
+    lut_data: dict | None = None,
+    aerosol_types: Iterable[str] | None = None,
+    atmospheres: Iterable[str] | None = None,
 ) -> Iterator[None]:
     """Mock the rayleigh LUT directories.
 
@@ -94,22 +100,32 @@ def mock_rayleigh_luts(
         set to ``False`` then :func:`override_config` must be used to specify
         the ``rayleigh_dir`` provided to this function or pyspectral won't find
         the created LUTs.
+        lut_data: Dictionary of numpy arrays to store to the HDF5 LUT file.
+        Keys must include "azimuth_difference", "reflectance",
+        "satellite_zenith_secant", "sun_zenith_secant", and "wavelengths".
+        aerosol_types: List of aerosol types to create files for. Defaults to
+        all supported types.
+        atmospheres: Atmospheres to create LUTs for. Defaults to all supported
+        atmosphere types.
 
     """
-    from pyspectral.utils import AEROSOL_TYPES
+    if aerosol_types is None:
+        aerosol_types = AEROSOL_TYPES
+    if atmospheres is None:
+        atmospheres = ATMOSPHERES
 
-    # TODO: Optional config override
-    # TODO: Add existing data to replace what's in test_rayleigh.py
-    _create_fake_rayleigh_file(rayleigh_dir / BASE_RAYLEIGH_LUT_FILENAME, "fake")
+    _create_fake_rayleigh_file(
+        rayleigh_dir / BASE_RAYLEIGH_LUT_FILENAME, "fake", lut_data
+    )
 
     if existing_version:
         # True==up-to-date else custom version
-        _init_rayleigh_version_files(rayleigh_dir, existing_version)
+        _init_rayleigh_version_files(rayleigh_dir, existing_version, aerosol_types)
 
-        for aerosol_type in AEROSOL_TYPES:
+        for aerosol_type in aerosol_types:
             atype_subdir = rayleigh_dir / aerosol_type
             atype_subdir.mkdir(exist_ok=True)
-            for atmo_name in ATMOSPHERES:
+            for atmo_name in atmospheres:
                 atmo = atmo_name.replace(" ", "_")
                 rayl_fn = f"rayleigh_lut_{atmo}.h5"
                 rayl_path = atype_subdir / rayl_fn
@@ -120,24 +136,30 @@ def mock_rayleigh_luts(
         "rsr_dir": str(rayleigh_dir),  # XXX: Correct?
         "download_from_internet": True,
     }
-    config_cm = contextlib.nullcontext() if not mock_config else override_config(fake_config)
+    config_cm = (
+        contextlib.nullcontext() if not mock_config else override_config(config_options=fake_config)
+    )
     with config_cm:
         yield
 
 
 @contextlib.contextmanager
 def _mock_download() -> Iterator[mock.Mock]:
-    with mock.patch("pyspectral.utils._download_tarball_and_extract") as download_tarball:
+    with mock.patch(
+        "pyspectral.utils._download_tarball_and_extract"
+    ) as download_tarball:
         download_tarball.side_effect = _fake_download
         yield download_tarball
 
 
 def _init_rayleigh_version_files(
-    rayleigh_dir: Path, existing_version: bool | str
+    rayleigh_dir: Path,
+    existing_version: bool | str,
+    aerosol_types: Iterable[str],
 ) -> None:
-    from pyspectral.utils import AEROSOL_TYPES, ATM_CORRECTION_LUT_VERSION
+    from pyspectral.utils import ATM_CORRECTION_LUT_VERSION
 
-    for aerosol_type in AEROSOL_TYPES:
+    for aerosol_type in aerosol_types:
         atype_version_fn = ATM_CORRECTION_LUT_VERSION[aerosol_type]["filename"]
         atype_version = ATM_CORRECTION_LUT_VERSION[aerosol_type]["version"]
         atype_subdir = rayleigh_dir / aerosol_type
@@ -150,20 +172,19 @@ def _init_rayleigh_version_files(
 
 
 @contextlib.contextmanager
-def override_config(config_options: dict | None = None) -> Iterator[Path]:
+def override_config(
+    config_options: dict | None = None, config_path: Path | None = None
+) -> Iterator[Path]:
     """Override builtin config with temporary on-disk YAML file."""
-    import yaml
-
     old_config_env = os.getenv("PSP_CONFIG_FILE", None)
 
-    if config_options is None:
-        config_options = {}
+    config_path_cm = (
+        nullcontext(config_path)
+        if config_path is not None
+        else _create_temp_rayleigh_config_file(config_options)
+    )
 
-    with tempfile.TemporaryDirectory(prefix="fake_pyspectral_config_") as tmpdir:
-        config_path = Path(tmpdir) / "pyspectral.yaml"
-        with config_path.open("w") as config_file:
-            yaml.dump(config_options, config_file)
-
+    with config_path_cm as config_path:
         os.environ["PSP_CONFIG_FILE"] = str(config_path)
         try:
             yield config_path
@@ -172,6 +193,42 @@ def override_config(config_options: dict | None = None) -> Iterator[Path]:
                 del os.environ["PSP_CONFIG_FILE"]
             else:
                 os.environ["PSP_CONFIG_FILE"] = old_config_env
+
+
+@contextlib.contextmanager
+def _create_temp_rayleigh_config_file(config_options: dict | None = None) -> Iterator[Path]:
+    with _pyspectral_temp_config_path() as config_path:
+        create_rayleigh_config_file(config_path, config_options=config_options)
+        yield config_path
+
+
+def create_rayleigh_config_file(
+        config_path: Path, config_options: dict | None = None
+) -> None:
+    """Create an on-disk YAML file with the provided options.
+
+    Args:
+        config_path: Path of the config file to create.
+        config_options: Configuration options to write to YAML file. If
+        not provided then an empty dictionary is used.
+    """
+    import yaml
+
+    if config_options is None:
+        config_options = {}
+
+    with config_path.open("w") as config_file:
+        yaml.dump(config_options, config_file)
+
+
+@contextlib.contextmanager
+def _pyspectral_temp_config_path() -> Iterator[Path]:
+    """Create temporary directory and get a YAML file location inside that directory.
+
+    Windows doesn't like NamedTemporaryFile when things may be left open or cached.
+    """
+    with tempfile.TemporaryDirectory(prefix="fake_pyspectral_config_") as tmpdir:
+        yield Path(tmpdir) / "pyspectral.yaml"
 
 
 def _fake_download(
@@ -193,45 +250,55 @@ def _fake_download(
         raise NotImplementedError("Fake RSR creation is not implemented at this time")
 
 
-def _create_fake_rayleigh_file(rayl_path: Path, atmo_name: str) -> None:
+def _create_fake_rayleigh_file(
+    rayl_path: Path, atmo_name: str, lut_data: dict | None = None
+) -> None:
     import h5py
 
+    if lut_data is None:
+        lut_data = _default_rayleigh_lut_data()
+
+    dtype = np.float64
     with h5py.File(rayl_path, "w") as h:
         h.info = "Fake pyspectral rayleigh LUT file"
-        h.create_dataset(
-            "azimuth_difference", data=np.linspace(0.0, 180.0, 19, dtype=np.float64)
-        )
-        # NOTE: Create constant correction for each wavelength
-        refl_data = np.repeat(
-            np.repeat(
-                np.repeat(
-                    np.linspace(0.668, 0.115, 81, dtype=np.float64)[
-                        :, np.newaxis, np.newaxis, np.newaxis
-                    ],
-                    96,
-                    axis=1,
-                ),
-                19,
-                axis=2,
-            ),
-            9,
-            axis=3,
-        )
-        refl_var = h.create_dataset("reflectance", data=refl_data)
+        h.create_dataset("azimuth_difference", data=lut_data["azimuth_difference"].astype(dtype))
+        refl_var = h.create_dataset("reflectance", data=lut_data["reflectance"].astype(dtype))
         setattr(refl_var, "1-axis", "wavelength")
         setattr(refl_var, "2-axis", "sun zenith secant")
         setattr(refl_var, "3-axis", "azimuth difference angle")
         setattr(refl_var, "4-axis", "satellite zenith secant")
         refl_var.atmosphere = atmo_name
         h.create_dataset(
-            "satellite_zenith_secant", data=np.linspace(1.0, 3.0, 9, dtype=np.float64)
+            "satellite_zenith_secant", data=lut_data["satellite_zenith_secant"].astype(dtype)
         )
-        h.create_dataset(
-            "sun_zenith_secant", data=np.linspace(1.0, 24.75, 96, dtype=np.float64)
-        )
-        h.create_dataset(
-            "wavelengths", data=np.linspace(400, 800, 81, dtype=np.float64)
-        )
+        h.create_dataset("sun_zenith_secant", data=lut_data["sun_zenith_secant"].astype(dtype))
+        h.create_dataset("wavelengths", data=lut_data["wavelengths"].astype(dtype))
+
+
+def _default_rayleigh_lut_data() -> dict:
+    # NOTE: Create constant correction for each wavelength
+    refl_data = np.repeat(
+        np.repeat(
+            np.repeat(
+                np.linspace(0.668, 0.115, 81, dtype=np.float64)[
+                    :, np.newaxis, np.newaxis, np.newaxis
+                ],
+                96,
+                axis=1,
+            ),
+            19,
+            axis=2,
+        ),
+        9,
+        axis=3,
+    )
+    return {
+        "azimuth_difference": np.linspace(0.0, 180.0, 19, dtype=np.float64),
+        "reflectance": refl_data,
+        "wavelengths": np.linspace(400, 800, 81, dtype=np.float64),
+        "satellite_zenith_secant": np.linspace(1.0, 3.0, 9, dtype=np.float64),
+        "sun_zenith_secant": np.linspace(1.0, 24.75, 96, dtype=np.float64),
+    }
 
 
 def _symlink_rayleigh_lut(link_path: Path) -> None:

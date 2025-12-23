@@ -64,7 +64,8 @@ def get_config(config_file: str | Path | None = None) -> dict:
 
     config: dict[str, Any] = {}
     with open(config_file, 'r') as fp_:
-        config = recursive_dict_update(config, yaml.load(fp_, Loader=UnsafeLoader))
+        loaded_config_content = yaml.load(fp_, Loader=UnsafeLoader)
+    config = recursive_dict_update(config, loaded_config_content)
 
     app_dirs = AppDirs('pyspectral', 'pytroll')
     user_datadir = app_dirs.user_data_dir
