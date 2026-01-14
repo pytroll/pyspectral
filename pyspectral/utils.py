@@ -407,7 +407,7 @@ def _get_aerosol_types(aerosol_types, aerosol_type):
 
 
 HEADERS = {
-    "User-Agent": "pyspectral/0.12 (+https://github.com/pytroll/pyspectral)",
+    "User-Agent": "pyspectral (+https://github.com/pytroll/pyspectral)",
     "Accept": "*/*",
 }
 
