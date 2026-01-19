@@ -406,21 +406,36 @@ def _get_aerosol_types(aerosol_types, aerosol_type):
     return aerosol_types
 
 
+HEADERS = {
+    "User-Agent": "pyspectral (+https://github.com/pytroll/pyspectral)",
+    "Accept": "*/*",
+}
+
+
 def _download_tarball_and_extract(tarball_url, local_pathname, extract_dir):
     chunk_size = 1024 * 1024  # 1 MB
-    response = requests.get(tarball_url)
-    total_size = int(response.headers['content-length'])
+
+    response = requests.get(
+        tarball_url,
+        headers=HEADERS,
+        stream=True,
+        allow_redirects=True,
+    )
+    response.raise_for_status()
+
+    total_size = int(response.headers.get("content-length", 0))
 
     with open(local_pathname, "wb") as handle:
         for data in _tqdm_or_iter(response.iter_content(chunk_size=chunk_size),
                                   total=(int(total_size / chunk_size + 0.5)),
                                   unit='kB'):
-            handle.write(data)
+            if data:
+                handle.write(data)
 
-    tar = tarfile.open(local_pathname)
     tar_kwargs = {} if sys.version_info < (3, 12) else {"filter": "data"}
-    tar.extractall(extract_dir, **tar_kwargs)
-    tar.close()
+    with tarfile.open(local_pathname) as tar:
+        tar.extractall(extract_dir, **tar_kwargs)
+
     os.remove(local_pathname)
 
 
