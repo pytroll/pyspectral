@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import contextlib
 import os
-import shutil
 import tempfile
 from collections.abc import Iterable, Iterator
 from contextlib import nullcontext
@@ -22,17 +21,22 @@ from pyspectral.utils import (
     RSR_DATA_VERSION_FILENAME,
 )
 
-TMP_LUT_BASE_DIR = Path(tempfile.gettempdir()) / "pyspectral_fake_luts"
 BASE_RAYLEIGH_LUT_FILENAME = "base_fake_rayleigh_lut.h5"
 
 
 @contextlib.contextmanager
 def mock_pyspectral_downloads(
-    tmp_path: Path = TMP_LUT_BASE_DIR,
+    *,
+    tmp_path: Path | None = None,
     extra_config_options: dict | None = None,
     rsr_files_kwargs: dict | None = None,
 ):
     """Mock pyspectral's LUT downloads with fake realistic files."""
+    tmp_path_manager = None
+    if tmp_path is None:
+        tmp_path_manager = tempfile.TemporaryDirectory(prefix="pyspectral_testing_")
+        tmp_path = tmp_path_manager.name
+
     config_options = {}
     config_options["download_from_internet"] = False
 
@@ -49,18 +53,27 @@ def mock_pyspectral_downloads(
 
     with (
         override_config(config_options=config_options),
-        mock_rayleigh_luts(rayleigh_dir),
+        mock_rayleigh_luts(rayleigh_dir=rayleigh_dir),
         init_tb_cache(tb2rad_dir),
         mock_rsr_files(rsr_dir, **rsr_files_kwargs),
     ):
         yield
+    # NOTE: Temporary directory created by tempfile is deleted on garbage collection
+    del tmp_path_manager
 
 
 @contextlib.contextmanager
 def mock_tb_conversion(
-    tb2rad_dir: Path, rsr_dir: Path, **rsr_files_kwargs
+    *, tb2rad_dir: Path | None = None, rsr_dir: Path | None = None, **rsr_files_kwargs
 ) -> Iterator[mock.Mock]:
     """Mock pyspectral to avoid downloads and caching for Calculator and RadTbConverter."""
+    tmp_path_manager = None
+    if tb2rad_dir is None:
+        tmp_path_manager = tempfile.TemporaryDirectory(prefix="pyspectral_testing_")
+        tb2rad_dir = tmp_path_manager.name
+    if rsr_dir is None:
+        rsr_dir = tb2rad_dir
+
     fake_config = {
         "rsr_dir": str(rsr_dir),
         "tb2rad_dir": str(tb2rad_dir),
@@ -73,6 +86,9 @@ def mock_tb_conversion(
     )
     with config_cm, rsr_files_cm as load_rsr:
         yield load_rsr
+
+    # NOTE: Temporary directory created by tempfile is deleted on garbage collection
+    del tmp_path_manager
 
 
 @contextlib.contextmanager
@@ -87,7 +103,8 @@ def init_tb_cache(tb2rad_dir: Path) -> Iterator[None]:
 
 @contextlib.contextmanager
 def mock_rsr(
-    rsr_dir: Path,
+    *,
+    rsr_dir: Path | None = None,
     rsr_data_version: str = RSR_DATA_VERSION,
     central_wavelengths: dict[str, float] | None = None,
     side_effect: Any = "__unset__",
@@ -101,6 +118,10 @@ def mock_rsr(
     allow the fake RSR files to be used.
 
     """
+    tmp_path_manager = None
+    if rsr_dir is None:
+        tmp_path_manager = tempfile.TemporaryDirectory(prefix="pyspectral_testing_")
+        rsr_dir = tmp_path_manager.name
     fake_config = {
         "rsr_dir": str(rsr_dir),
         "download_from_internet": False,
@@ -115,11 +136,14 @@ def mock_rsr(
     )
     with config_cm, rsr_files_cm as load_rsr:
         yield load_rsr
+    # NOTE: Temporary directory created by tempfile is deleted on garbage collection
+    del tmp_path_manager
 
 
 @contextlib.contextmanager
 def mock_rsr_files(
     rsr_dir: Path,
+    *,
     rsr_data_version: str = RSR_DATA_VERSION,
     central_wavelengths: dict[str, float] | None = None,
     side_effect: Any = "__unset__",
@@ -156,12 +180,13 @@ def mock_rsr_files(
 
 @contextlib.contextmanager
 def mock_rayleigh(
-    rayleigh_dir: Path,
+    *,
+    rayleigh_dir: Path | None = None,
+    rsr_dir: Path | None = None,
     existing_version: bool | str = True,
     lut_data: dict | None = None,
     aerosol_types: Iterable[str] | None = None,
     atmospheres: Iterable[str] | None = None,
-    rsr_dir: Path | None = None,
 ) -> Iterator[None]:
     """Mock the Rayleigh interfaces to avoid LUT downloads.
 
@@ -169,29 +194,37 @@ def mock_rayleigh(
     and creates fake rayleigh LUT files using `mock_rayleigh_luts`.
 
     """
+    tmp_path_manager = None
+    if rayleigh_dir is None:
+        tmp_path_manager = tempfile.TemporaryDirectory(prefix="pyspectral_testing_")
+        rayleigh_dir = tmp_path_manager.name
+
+    if rsr_dir is None:
+        rsr_dir = rayleigh_dir
     fake_config = {
         "rayleigh_dir": str(rayleigh_dir),
-        "rsr_dir": str(rayleigh_dir),  # XXX: Correct?
+        "rsr_dir": str(rsr_dir),
         "download_from_internet": False,
     }
     config_cm = override_config(config_options=fake_config)
     luts_cm = mock_rayleigh_luts(
-        rayleigh_dir,
+        rayleigh_dir=rayleigh_dir,
         existing_version=existing_version,
         lut_data=lut_data,
         aerosol_types=aerosol_types,
         atmospheres=atmospheres,
     )
-    if rsr_dir is None:
-        rsr_dir = rayleigh_dir
     rsr_files_cm = mock_rsr_files(rsr_dir)
     with config_cm, luts_cm, rsr_files_cm:
         yield
+    # NOTE: Temporary directory created by tempfile is deleted on garbage collection
+    del tmp_path_manager
 
 
 @contextlib.contextmanager
 def mock_rayleigh_luts(
-    rayleigh_dir: Path,
+    *,
+    rayleigh_dir: Path | None = None,
     existing_version: bool | str = True,
     lut_data: dict | None = None,
     aerosol_types: Iterable[str] | None = None,
@@ -303,11 +336,11 @@ def _create_temp_rayleigh_config_file(
     config_options: dict | None = None,
 ) -> Iterator[Path]:
     with _pyspectral_temp_config_path() as config_path:
-        create_rayleigh_config_file(config_path, config_options=config_options)
+        create_pyspectral_config_file(config_path, config_options=config_options)
         yield config_path
 
 
-def create_rayleigh_config_file(
+def create_pyspectral_config_file(
     config_path: Path, config_options: dict | None = None
 ) -> None:
     """Create an on-disk YAML file with the provided options.
@@ -447,11 +480,6 @@ def _fake_rsr_info_factory(
         return rsr_info
 
     return _create_fake_rsr_info
-
-
-def cleanup_fake_luts():
-    """Clean up any fake LUT directories and files that were created."""
-    shutil.rmtree(TMP_LUT_BASE_DIR)
 
 
 @contextlib.contextmanager

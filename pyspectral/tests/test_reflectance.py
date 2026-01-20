@@ -103,7 +103,7 @@ class TestReflectance:
             "band_names": list(TEST_RSR.keys()),
             "rsr": TEST_RSR,
         }
-        with mock_tb_conversion(tmp_path, tmp_path, return_value=return_value):
+        with mock_tb_conversion(tb2rad_dir=tmp_path, return_value=return_value):
             refl37 = Calculator('EOS-Aqua', 'modis', '20')
 
         expected = 1.8563451e-07  # unit = 'm' (meter)
@@ -119,7 +119,7 @@ class TestReflectance:
             "rsr": TEST_RSR_WN,
         }
 
-        with mock_tb_conversion(tmp_path, tmp_path, return_value=return_value):
+        with mock_tb_conversion(tb2rad_dir=tmp_path, return_value=return_value):
             refl37 = Calculator('EOS-Aqua', 'modis', '20', wavespace='wavenumber')
 
         expected = 13000.385  # SI units = 'm-1' (1/meter)
@@ -135,7 +135,7 @@ class TestReflectance:
             "band_names": ["ch20", "99"],
             "rsr": TEST_RSR,
         }
-        with mock_tb_conversion(tmp_path, tmp_path, return_value=return_value):
+        with mock_tb_conversion(tb2rad_dir=tmp_path, return_value=return_value):
             # VIIRS doesn't have a channel '20' like MODIS so the generic
             # mapping this test will end up using will find 'ch20' for VIIRS
             with pytest.raises(NotImplementedError):
@@ -143,14 +143,15 @@ class TestReflectance:
 
     def test_reflectance_viirs(self, tmp_path):
         """Test the derivation of the reflective part of a 3.7 micron band."""
+        viirs_rsr = {"ch20": TEST_RSR["20"], "99": TEST_RSR["99"]}
         return_value = {
             "description": "ABCD",
             "instrument": "viirs",
             "platform_name": "Suomi-NPP",
-            "band_names": ["ch20", "99"],
-            "rsr": TEST_RSR,
+            "band_names": list(viirs_rsr.keys()),
+            "rsr": viirs_rsr,
         }
-        with mock_tb_conversion(tmp_path, tmp_path, return_value=return_value):
+        with mock_tb_conversion(tb2rad_dir=tmp_path, return_value=return_value):
             refl37 = Calculator('Suomi-NPP', 'viirs', 3.7)
             assert refl37.bandwavelength == 3.7
             assert refl37.bandname == 'ch20'
@@ -166,7 +167,7 @@ class TestReflectance:
             "band_names": list(TEST_RSR.keys()),
             "rsr": TEST_RSR,
         }
-        with mock_tb_conversion(tmp_path, tmp_path, return_value=return_value):
+        with mock_tb_conversion(tb2rad_dir=tmp_path, return_value=return_value):
             refl37_sz88 = Calculator('EOS-Aqua', 'modis', '20', sunz_threshold=88.0, masking_limit=None)
             assert refl37_sz88.sunz_threshold == 88.0
             assert refl37_sz88.masking_limit is None
@@ -188,7 +189,7 @@ class TestReflectance:
             "band_names": list(TEST_RSR.keys()),
             "rsr": TEST_RSR,
         }
-        with mock_tb_conversion(tmp_path, tmp_path, return_value=return_value):
+        with mock_tb_conversion(tb2rad_dir=tmp_path, return_value=return_value):
             refl37 = Calculator('EOS-Aqua', 'modis', '20')
             assert refl37.sunz_threshold == TERMINATOR_LIMIT
             assert refl37.masking_limit == TERMINATOR_LIMIT

@@ -105,7 +105,7 @@ def fake_lut_hdf5(rayleigh_lut_dir):
         "sun_zenith_secant": TEST_RAYLEIGH_SUNZ_COORD,
         "satellite_zenith_secant": TEST_RAYLEIGH_SATZ_COORD,
     }
-    with mock_rayleigh_luts(rayleigh_lut_dir,
+    with mock_rayleigh_luts(rayleigh_dir=rayleigh_lut_dir,
                             lut_data=rayl_data,
                             aerosol_types=("marine_clean_aerosol",),
                             atmospheres=("midlatitude_summer", "subarctic_winter", "tropical", "us-standard"),
@@ -116,7 +116,7 @@ def fake_lut_hdf5(rayleigh_lut_dir):
 @pytest.fixture(scope="module")
 def fake_config_path(tmp_path_factory, rayleigh_lut_dir):
     """Create a custom config YAML on disk for this module's tests."""
-    from pyspectral.testing import create_rayleigh_config_file
+    from pyspectral.testing import create_pyspectral_config_file
 
     config_path = tmp_path_factory.mktemp("pyspectral_fake_configs_") / "pyspectral.yaml"
     fake_config = {
@@ -124,7 +124,7 @@ def fake_config_path(tmp_path_factory, rayleigh_lut_dir):
         "rayleigh_dir": str(rayleigh_lut_dir),
         "download_from_internet": False,
     }
-    create_rayleigh_config_file(config_path, fake_config)
+    create_pyspectral_config_file(config_path, fake_config)
     yield config_path
 
 
@@ -455,7 +455,7 @@ def test_check_and_download(tmp_path, version, exp_download):
     from pyspectral.rayleigh import check_and_download
     from pyspectral.testing import mock_rayleigh
 
-    with mock_rayleigh(tmp_path, existing_version=version), \
+    with mock_rayleigh(rayleigh_dir=tmp_path, existing_version=version), \
             unittest.mock.patch("pyspectral.rayleigh.download_luts") as download:
         check_and_download()
         if exp_download:
