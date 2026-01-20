@@ -106,7 +106,6 @@ def fake_lut_hdf5(rayleigh_lut_dir):
         "satellite_zenith_secant": TEST_RAYLEIGH_SATZ_COORD,
     }
     with mock_rayleigh_luts(rayleigh_lut_dir,
-                            mock_config=False,
                             lut_data=rayl_data,
                             aerosol_types=("marine_clean_aerosol",),
                             atmospheres=("midlatitude_summer", "subarctic_winter", "tropical", "us-standard"),
@@ -454,9 +453,9 @@ class TestRayleigh:
 def test_check_and_download(tmp_path, version, exp_download):
     """Test that check_and_download only downloads when necessary."""
     from pyspectral.rayleigh import check_and_download
-    from pyspectral.testing import mock_rayleigh_luts
+    from pyspectral.testing import mock_rayleigh
 
-    with mock_rayleigh_luts(tmp_path, existing_version=version), \
+    with mock_rayleigh(tmp_path, existing_version=version), \
             unittest.mock.patch("pyspectral.rayleigh.download_luts") as download:
         check_and_download()
         if exp_download:

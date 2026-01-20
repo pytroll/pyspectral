@@ -21,14 +21,13 @@
 from __future__ import annotations
 
 import contextlib
-import os.path
 import unittest
 
 import numpy as np
 import pytest
 
 from pyspectral.rsr_reader import RelativeSpectralResponse, RSRDict
-from pyspectral.testing import mock_pyspectral_downloads
+from pyspectral.testing import mock_rsr_files
 from pyspectral.utils import RSR_DATA_VERSION, RSR_DATA_VERSION_FILENAME, WAVE_NUMBER
 
 TEST_RSR = {'20': {}, }
@@ -68,12 +67,6 @@ RESULT_WVN_RSR = np.array([2529.38232422,  2533.8840332,  2540.390625,  2546.814
                            2719.94970703,  2727.43554688,  2734.8605957,  2742.37988281,
                            2749.9831543,  2757.48510742,  2765.21142578,  2768.24291992], dtype=np.float32)
 
-DIR_PATH_ITEMS = ['test', 'path', 'to', 'rsr', 'data']
-TEST_CONFIG = {}
-
-TEST_RSR_DIR = os.path.join(*DIR_PATH_ITEMS)
-TEST_CONFIG['rsr_dir'] = TEST_RSR_DIR
-
 
 @pytest.mark.parametrize(
     "kwargs",
@@ -89,18 +82,16 @@ def test_get_rsr_invalid_args(kwargs):
         RelativeSpectralResponse(**kwargs)
 
 
-def test_convert():
+def test_convert(tmp_path):
     """Test the conversion method."""
-    with mock_pyspectral_downloads() as download_mocks:
-        load_rsr_info = download_mocks["load_rsr_info"]
-        load_rsr_info.side_effect = None
-        load_rsr_info.return_value = {
-            "description": "",
-            "instrument": "modis",
-            "platform_name": "EOS-Aqua",
-            "band_names": list(TEST_RSR.keys()),
-            "rsr": TEST_RSR,
-        }
+    return_value = {
+        "description": "",
+        "instrument": "modis",
+        "platform_name": "EOS-Aqua",
+        "band_names": list(TEST_RSR.keys()),
+        "rsr": TEST_RSR,
+    }
+    with mock_rsr_files(tmp_path, return_value=return_value):
         test_rsr = RelativeSpectralResponse("EOS-Aqua", "modis")
         test_rsr.convert()
         np.testing.assert_allclose(test_rsr.rsr["20"]["det-1"]["central_wavenumber"], 2647.397, atol=1e-3)
@@ -111,36 +102,32 @@ def test_convert():
             test_rsr.convert()
 
 
-def test_integral():
+def test_integral(tmp_path):
     """Test the calculation of the integral of the spectral responses."""
-    with mock_pyspectral_downloads() as download_mocks:
-        load_rsr_info = download_mocks["load_rsr_info"]
-        load_rsr_info.side_effect = None
-        load_rsr_info.return_value = {
-            "description": "",
-            "instrument": "modis",
-            "platform_name": "EOS-Aqua",
-            "band_names": list(TEST_RSR2.keys()),
-            "rsr": TEST_RSR,
-        }
+    return_value = {
+        "description": "",
+        "instrument": "modis",
+        "platform_name": "EOS-Aqua",
+        "band_names": list(TEST_RSR2.keys()),
+        "rsr": TEST_RSR,
+    }
+    with mock_rsr_files(tmp_path, return_value=return_value):
         test_rsr = RelativeSpectralResponse("EOS-Aqua", "modis")
         test_rsr.rsr = TEST_RSR2
         res = test_rsr.integral("20")
         np.testing.assert_almost_equal(res["det-1"], 0.185634, 6)
 
 
-def test_metadata_from_hdf5_with_platform_instrument():
+def test_metadata_from_hdf5_with_platform_instrument(tmp_path):
     """Test metadata is accepted from HDF5 file."""
-    with mock_pyspectral_downloads() as download_mocks:
-        load_rsr_info = download_mocks["load_rsr_info"]
-        load_rsr_info.side_effect = None
-        load_rsr_info.return_value = {
-            "description": "ABCD",
-            "instrument": "modis123",
-            "platform_name": "EOS-Aqua456",
-            "band_names": list(TEST_RSR2.keys()),
-            "rsr": TEST_RSR,
-        }
+    return_value = {
+        "description": "ABCD",
+        "instrument": "modis123",
+        "platform_name": "EOS-Aqua456",
+        "band_names": list(TEST_RSR2.keys()),
+        "rsr": TEST_RSR,
+    }
+    with mock_rsr_files(tmp_path, return_value=return_value):
         test_rsr = RelativeSpectralResponse("EOS-Aqua", "modis")
         assert test_rsr.description == "ABCD"
         # platform and instrument are not overwritten by file content
@@ -150,18 +137,16 @@ def test_metadata_from_hdf5_with_platform_instrument():
         assert test_rsr.filename.name == "rsr_modis_EOS-Aqua.h5"
 
 
-def test_get_band_from_wavelength():
+def test_get_band_from_wavelength(tmp_path):
     """Test metadata is accepted from HDF5 file."""
-    with mock_pyspectral_downloads() as download_mocks:
-        load_rsr_info = download_mocks["load_rsr_info"]
-        load_rsr_info.side_effect = None
-        load_rsr_info.return_value = {
-            "description": "ABCD",
-            "instrument": "modis123",
-            "platform_name": "EOS-Aqua456",
-            "band_names": list(TEST_RSR2.keys()),
-            "rsr": TEST_RSR,
-        }
+    return_value = {
+        "description": "ABCD",
+        "instrument": "modis123",
+        "platform_name": "EOS-Aqua456",
+        "band_names": list(TEST_RSR2.keys()),
+        "rsr": TEST_RSR,
+    }
+    with mock_rsr_files(tmp_path, return_value=return_value):
         test_rsr = RelativeSpectralResponse("EOS-Aqua", "modis")
         assert test_rsr.get_bandname_from_wavelength(3.75) == "20"
 
@@ -299,9 +284,9 @@ def test_rsr_unconfigured_sensor():
         ('GOES-18', 'AbI', 'rsr_abi_GOES-18.h5', 'abi'),
     ]
 )
-def test_get_rsr_from_platform_and_instrument(platform_name, instrument, exp_filename, exp_instrument):
+def test_get_rsr_from_platform_and_instrument(tmp_path, platform_name, instrument, exp_filename, exp_instrument):
     """Test getting the rsr filename correct when specifying the platform and instrument names."""
-    with mock_pyspectral_downloads():
+    with mock_rsr_files(tmp_path):
         test_rsr = RelativeSpectralResponse(platform_name, instrument)
         assert test_rsr.platform_name == platform_name
         assert test_rsr.instrument == exp_instrument

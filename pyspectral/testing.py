@@ -9,13 +9,18 @@ import tempfile
 from collections.abc import Iterable, Iterator
 from contextlib import nullcontext
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable
 from unittest import mock
 
 import numpy as np
 
 from pyspectral.rsr_reader import RSRDict
-from pyspectral.utils import AEROSOL_TYPES, ATMOSPHERES, RSR_DATA_VERSION, RSR_DATA_VERSION_FILENAME
+from pyspectral.utils import (
+    AEROSOL_TYPES,
+    ATMOSPHERES,
+    RSR_DATA_VERSION,
+    RSR_DATA_VERSION_FILENAME,
+)
 
 TMP_LUT_BASE_DIR = Path(tempfile.gettempdir()) / "pyspectral_fake_luts"
 BASE_RAYLEIGH_LUT_FILENAME = "base_fake_rayleigh_lut.h5"
@@ -24,63 +29,183 @@ BASE_RAYLEIGH_LUT_FILENAME = "base_fake_rayleigh_lut.h5"
 @contextlib.contextmanager
 def mock_pyspectral_downloads(
     tmp_path: Path = TMP_LUT_BASE_DIR,
-    rsr_data_version: str = RSR_DATA_VERSION,
     extra_config_options: dict | None = None,
-    central_wavelengths: dict[str, float] | None = None,
+    rsr_files_kwargs: dict | None = None,
 ):
     """Mock pyspectral's LUT downloads with fake realistic files."""
     config_options = {}
-    # we want the tests to try to download files and create fake ones when that happens
-    config_options["download_from_internet"] = True
+    config_options["download_from_internet"] = False
 
     rsr_dir = tmp_path / "fake_rsr"
-    rsr_dir.mkdir(parents=True, exist_ok=True)
     rayleigh_dir = tmp_path / "fake_rayleigh"
-    rayleigh_dir.mkdir(parents=True, exist_ok=True)
     tb2rad_dir = tmp_path / "fake_tb2rad"
-    tb2rad_dir.mkdir(parents=True, exist_ok=True)
     config_options["rsr_dir"] = str(rsr_dir)
     config_options["rayleigh_dir"] = str(rayleigh_dir)
     config_options["tb2rad_dir"] = str(tb2rad_dir)
 
     if extra_config_options:
         config_options.update(extra_config_options)
+    rsr_files_kwargs = rsr_files_kwargs or {}
 
-    # setup rsr directory
+    with (
+        override_config(config_options=config_options),
+        mock_rayleigh_luts(rayleigh_dir),
+        init_tb_cache(tb2rad_dir),
+        mock_rsr_files(rsr_dir, **rsr_files_kwargs),
+    ):
+        yield
+
+
+@contextlib.contextmanager
+def mock_tb_conversion(
+    tb2rad_dir: Path, rsr_dir: Path, **rsr_files_kwargs
+) -> Iterator[mock.Mock]:
+    """Mock pyspectral to avoid downloads and caching for Calculator and RadTbConverter."""
+    fake_config = {
+        "rsr_dir": str(rsr_dir),
+        "tb2rad_dir": str(tb2rad_dir),
+        "download_from_internet": False,
+    }
+    config_cm = override_config(config_options=fake_config)
+    rsr_files_cm = mock_rsr_files(
+        rsr_dir,
+        **rsr_files_kwargs,
+    )
+    with config_cm, rsr_files_cm as load_rsr:
+        yield load_rsr
+
+
+@contextlib.contextmanager
+def init_tb_cache(tb2rad_dir: Path) -> Iterator[None]:
+    """Initialize RadTbConverter and Calculator cache directory.
+
+    It will be filled when tests call the necessary methods of the effected classes.
+    """
+    tb2rad_dir.mkdir(parents=True, exist_ok=True)
+    yield
+
+
+@contextlib.contextmanager
+def mock_rsr(
+    rsr_dir: Path,
+    rsr_data_version: str = RSR_DATA_VERSION,
+    central_wavelengths: dict[str, float] | None = None,
+    side_effect: Any = "__unset__",
+    return_value: Any = "__unset__",
+) -> Iterator[mock.Mock]:
+    """Mock the RelativeSpectralResponse class to avoid download of RSR files.
+
+    This is the high-level function that uses `mock_rsr_files` to do the
+    work of creating fake RSR files and mocking the necessary parts of pyspectral.
+    Additionally, this function overrides the global pyspectral config file to
+    allow the fake RSR files to be used.
+
+    """
+    fake_config = {
+        "rsr_dir": str(rsr_dir),
+        "download_from_internet": False,
+    }
+    config_cm = override_config(config_options=fake_config)
+    rsr_files_cm = mock_rsr_files(
+        rsr_dir,
+        rsr_data_version=rsr_data_version,
+        central_wavelengths=central_wavelengths,
+        side_effect=side_effect,
+        return_value=return_value,
+    )
+    with config_cm, rsr_files_cm as load_rsr:
+        yield load_rsr
+
+
+@contextlib.contextmanager
+def mock_rsr_files(
+    rsr_dir: Path,
+    rsr_data_version: str = RSR_DATA_VERSION,
+    central_wavelengths: dict[str, float] | None = None,
+    side_effect: Any = "__unset__",
+    return_value: Any = "__unset__",
+) -> Iterator[mock.Mock]:
+    """Mock the RelativeSpectralResponse class and create fake RSR files to avoid downloads.
+
+    This function does not override the pyspectral global configuration and as such
+    the modifications applied by this function do not completely mock all access to
+    RSR files. You must either use the higher-level `mock_rsr` function instead or override
+    the configuration yourself using `override_config` and set ``rsr_dir`` to the
+    path passed to this function.
+    :exception
+    """
+    rsr_dir.mkdir(parents=True, exist_ok=True)
+
     rsr_version_path = rsr_dir / RSR_DATA_VERSION_FILENAME
     with rsr_version_path.open("w") as rsr_version_file:
         # defaults to active version, no downloading
         rsr_version_file.write(rsr_data_version)
 
-    with (
-        mock.patch(
-            "pyspectral.utils._download_tarball_and_extract"
-        ) as download_tarball,
-        override_config(config_options=config_options),
-        mock_rayleigh_luts(rayleigh_dir, mock_config=False),
-        mock.patch("pyspectral.rsr_reader._load_rsr_info_from_file") as load_rsr,
-    ):
-        download_tarball.side_effect = _fake_download
-        load_rsr.side_effect = _fake_rsr_info_factory(
-            central_wavelengths=central_wavelengths
-        )
-        # give the user the opportunity to customize the side effects
-        yield {
-            "download_tarball": download_tarball,
-            "load_rsr_info": load_rsr,
-        }
+    with mock.patch("pyspectral.rsr_reader._load_rsr_info_from_file") as load_rsr:
+        if return_value != "__unset__":
+            load_rsr.return_value = return_value
+        elif side_effect != "__unset__":
+            load_rsr.side_effect = side_effect
+        else:
+            load_rsr.side_effect = _fake_rsr_info_factory(
+                central_wavelengths=central_wavelengths
+            )
+
+        yield load_rsr
+
+
+@contextlib.contextmanager
+def mock_rayleigh(
+    rayleigh_dir: Path,
+    existing_version: bool | str = True,
+    lut_data: dict | None = None,
+    aerosol_types: Iterable[str] | None = None,
+    atmospheres: Iterable[str] | None = None,
+    rsr_dir: Path | None = None,
+) -> Iterator[None]:
+    """Mock the Rayleigh interfaces to avoid LUT downloads.
+
+    This high-level function overrides the pyspectral configuration
+    and creates fake rayleigh LUT files using `mock_rayleigh_luts`.
+
+    """
+    fake_config = {
+        "rayleigh_dir": str(rayleigh_dir),
+        "rsr_dir": str(rayleigh_dir),  # XXX: Correct?
+        "download_from_internet": False,
+    }
+    config_cm = override_config(config_options=fake_config)
+    luts_cm = mock_rayleigh_luts(
+        rayleigh_dir,
+        existing_version=existing_version,
+        lut_data=lut_data,
+        aerosol_types=aerosol_types,
+        atmospheres=atmospheres,
+    )
+    if rsr_dir is None:
+        rsr_dir = rayleigh_dir
+    rsr_files_cm = mock_rsr_files(rsr_dir)
+    with config_cm, luts_cm, rsr_files_cm:
+        yield
 
 
 @contextlib.contextmanager
 def mock_rayleigh_luts(
     rayleigh_dir: Path,
     existing_version: bool | str = True,
-    mock_config: bool = True,
     lut_data: dict | None = None,
     aerosol_types: Iterable[str] | None = None,
     atmospheres: Iterable[str] | None = None,
 ) -> Iterator[None]:
     """Mock the rayleigh LUT directories.
+
+    Note this function does not mock the pyspectral global configuration necessary
+    for the fake rayleigh LUTs to be used by pyspectral. You must either use
+    :func:`mock_rayleigh` instead or use :func:`override_config` to override
+    the configuration yourself and call :func:`mock_rsr_files` to mock the RSR
+    files used by the Rayleigh class. The new configuration data must include
+    ``rayleigh_dir`` passed to this function and ``rsr_dir`` passed to the
+    :func:`mock_rsr_files` function.
 
     Args:
         rayleigh_dir: Path where rayleigh LUTs should be created.
@@ -95,11 +220,6 @@ def mock_rayleigh_luts(
         Note that a "template" HDF5 will be
         created in the root of the rayleigh directory so it can be linked to
         in any later LUT creation instead of creating a new LUT file every time.
-        mock_config: Whether to include mocking pyspectral's config with the
-        location of the rayleigh directory. Defaults to ``True``. If this is
-        set to ``False`` then :func:`override_config` must be used to specify
-        the ``rayleigh_dir`` provided to this function or pyspectral won't find
-        the created LUTs.
         lut_data: Dictionary of numpy arrays to store to the HDF5 LUT file.
         Keys must include "azimuth_difference", "reflectance",
         "satellite_zenith_secant", "sun_zenith_secant", and "wavelengths".
@@ -114,6 +234,7 @@ def mock_rayleigh_luts(
     if atmospheres is None:
         atmospheres = ATMOSPHERES
 
+    rayleigh_dir.mkdir(parents=True, exist_ok=True)
     _create_fake_rayleigh_file(
         rayleigh_dir / BASE_RAYLEIGH_LUT_FILENAME, "fake", lut_data
     )
@@ -131,25 +252,7 @@ def mock_rayleigh_luts(
                 rayl_path = atype_subdir / rayl_fn
                 _symlink_rayleigh_lut(rayl_path)
 
-    fake_config = {
-        "rayleigh_dir": str(rayleigh_dir),
-        "rsr_dir": str(rayleigh_dir),  # XXX: Correct?
-        "download_from_internet": True,
-    }
-    config_cm = (
-        contextlib.nullcontext() if not mock_config else override_config(config_options=fake_config)
-    )
-    with config_cm:
-        yield
-
-
-@contextlib.contextmanager
-def _mock_download() -> Iterator[mock.Mock]:
-    with mock.patch(
-        "pyspectral.utils._download_tarball_and_extract"
-    ) as download_tarball:
-        download_tarball.side_effect = _fake_download
-        yield download_tarball
+    yield
 
 
 def _init_rayleigh_version_files(
@@ -196,14 +299,16 @@ def override_config(
 
 
 @contextlib.contextmanager
-def _create_temp_rayleigh_config_file(config_options: dict | None = None) -> Iterator[Path]:
+def _create_temp_rayleigh_config_file(
+    config_options: dict | None = None,
+) -> Iterator[Path]:
     with _pyspectral_temp_config_path() as config_path:
         create_rayleigh_config_file(config_path, config_options=config_options)
         yield config_path
 
 
 def create_rayleigh_config_file(
-        config_path: Path, config_options: dict | None = None
+    config_path: Path, config_options: dict | None = None
 ) -> None:
     """Create an on-disk YAML file with the provided options.
 
@@ -231,25 +336,6 @@ def _pyspectral_temp_config_path() -> Iterator[Path]:
         yield Path(tmpdir) / "pyspectral.yaml"
 
 
-def _fake_download(
-    tarball_url: str, tarball_local_path: str | Path, extract_dir: str | Path
-) -> None:
-    del tarball_url  # unused in this mocked version
-
-    extract_dir = Path(extract_dir)
-    extract_dir.mkdir(parents=True, exist_ok=True)
-    if tarball_local_path.name.endswith("rayleigh_correct_luts.tgz"):
-        for atmo_name in ATMOSPHERES:
-            atmo = atmo_name.replace(" ", "_")
-            rayl_fn = f"rayleigh_lut_{atmo}.h5"
-            rayl_path = extract_dir / rayl_fn
-            if rayl_path.exists():
-                continue
-            _symlink_rayleigh_lut(rayl_path)
-    else:
-        raise NotImplementedError("Fake RSR creation is not implemented at this time")
-
-
 def _create_fake_rayleigh_file(
     rayl_path: Path, atmo_name: str, lut_data: dict | None = None
 ) -> None:
@@ -261,17 +347,24 @@ def _create_fake_rayleigh_file(
     dtype = np.float64
     with h5py.File(rayl_path, "w") as h:
         h.info = "Fake pyspectral rayleigh LUT file"
-        h.create_dataset("azimuth_difference", data=lut_data["azimuth_difference"].astype(dtype))
-        refl_var = h.create_dataset("reflectance", data=lut_data["reflectance"].astype(dtype))
+        h.create_dataset(
+            "azimuth_difference", data=lut_data["azimuth_difference"].astype(dtype)
+        )
+        refl_var = h.create_dataset(
+            "reflectance", data=lut_data["reflectance"].astype(dtype)
+        )
         setattr(refl_var, "1-axis", "wavelength")
         setattr(refl_var, "2-axis", "sun zenith secant")
         setattr(refl_var, "3-axis", "azimuth difference angle")
         setattr(refl_var, "4-axis", "satellite zenith secant")
         refl_var.atmosphere = atmo_name
         h.create_dataset(
-            "satellite_zenith_secant", data=lut_data["satellite_zenith_secant"].astype(dtype)
+            "satellite_zenith_secant",
+            data=lut_data["satellite_zenith_secant"].astype(dtype),
         )
-        h.create_dataset("sun_zenith_secant", data=lut_data["sun_zenith_secant"].astype(dtype))
+        h.create_dataset(
+            "sun_zenith_secant", data=lut_data["sun_zenith_secant"].astype(dtype)
+        )
         h.create_dataset("wavelengths", data=lut_data["wavelengths"].astype(dtype))
 
 

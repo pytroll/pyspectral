@@ -156,7 +156,7 @@ class Rayleigh(RayleighConfigBaseClass):
         LOG.debug(f"LUT filename: {self.reflectance_lut_filename}")
 
         if not self.lutfiles_version_uptodate and self.do_download:
-            LOG.info("RSR files not up to date, will download from internet...")
+            LOG.info("Rayleigh LUT files not up to date, will download from internet...")
             download_luts(aerosol_types=[aerosol_type])
 
     def _get_effective_wavelength_and_band_name(self, band_name_or_wavelength):
