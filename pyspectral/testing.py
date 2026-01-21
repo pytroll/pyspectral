@@ -1,4 +1,63 @@
-"""Utilities for users writing tests that interact with Pyspectral."""
+"""Utilities for writing third-party tests that interact with Pyspectral.
+
+The :mod:`pyspectral.testing` module provides functionality primarily for
+users of pyspectral to add to their own testing. By using these utilities
+you can avoid downloading pyspectral LUTs and other files that pyspectral
+may want to download. This should make your tests faster and require less
+disk space while also making your CI runners and pyspectral's data host
+happier due to fewer (or no) downloads.
+
+There are two levels of utilities. High-level utilities are most useful
+and typically mock a single component/interface of Pyspectral. Lower-level
+utilities are used by the higher-level utilities and generally only handle
+one part of the necessary changes to avoid Pyspectral downloads. For example,
+a low-level utility may set up the environment to create fake LUT files, but
+won't set up the Pyspectral configuration to make Pyspectral use those files.
+Unless you are trying to optimize how and when the mocking is performed, it
+is recommended to use the high-level utilities.
+
+Pytest fixtures
+^^^^^^^^^^^^^^^
+
+Many of these utilities are context managers. If using these functions
+from pytest-based unit tests, it can be a good idea, although not required,
+to make a pytest fixture and pass pytest's `tmp_path` to the utilities that
+require a directory. For example:
+
+.. code-block::
+
+   @pytest.mark.fixture
+   def fake_pyspectral(tmp_path):
+       from pyspectral.testing import mock_pyspectral_downloads
+
+       with mock_pyspectral_downloads(tmp_path=tmp_path):
+           yield
+
+This is especially useful for utilities like :func:`forbid_pyspectral_downloads`
+which can be set to run at the start of the pytest session and apply to all
+tests. See the individual function API documentation for examples.
+
+High-level utilities
+^^^^^^^^^^^^^^^^^^^^
+
+* :func:`mock_pyspectral_downloads`
+* :func:`mock_tb_conversion`
+* :func:`mock_rsr`
+* :func:`mock_rayleigh`
+* :func:`override_config`
+* :func:`forbid_pyspectral_downloads`
+
+See the API documentation linked above for more information on how to use
+these functions.
+
+Lower-level utilities
+^^^^^^^^^^^^^^^^^^^^^
+
+* :func:`init_tb_cache`
+* :func:`mock_rsr_files`
+* :func:`mock_rayleigh_luts`
+
+"""
 
 from __future__ import annotations
 
@@ -30,8 +89,25 @@ def mock_pyspectral_downloads(
     tmp_path: Path | None = None,
     extra_config_options: dict | None = None,
     rsr_files_kwargs: dict | None = None,
-):
-    """Mock pyspectral's LUT downloads with fake realistic files."""
+) -> Iterator[None]:
+    """Mock pyspectral's interfaces to avoid downloading files from the internet.
+
+    This currently mocks and creates fakes versions of Rayleigh LUTs, RSR
+    files, and the TB2Rad cache. It also overrides
+    the pyspectral global configuration file to use these fake files.
+    This function is an all-in-one version of the other high-level testing
+    mocking utilities.
+
+    Args:
+        tmp_path: Base directory to create fake files. If not provided
+        or None, a directory will be created when the context manager is
+        entered and deleted when exited. If provided, the directory and its
+        contents will not be deleted.
+        extra_config_options: Extra pyspectral configuration settings to set
+        in addition to those required for mocking to succeed.
+        rsr_files_kwargs: Keyword arguments to pass to :func:`mock_rsr_files`.
+
+    """
     tmp_path_manager = None
     if tmp_path is None:
         tmp_path_manager = tempfile.TemporaryDirectory(prefix="pyspectral_testing_")
