@@ -100,11 +100,11 @@ def mock_pyspectral_downloads(
 
     Args:
         tmp_path: Base directory to create fake files. If not provided
-        or None, a directory will be created when the context manager is
-        entered and deleted when exited. If provided, the directory and its
-        contents will not be deleted.
+            or None, a directory will be created when the context manager is
+            entered and deleted when exited. If provided, the directory and its
+            contents will not be deleted.
         extra_config_options: Extra pyspectral configuration settings to set
-        in addition to those required for mocking to succeed.
+            in addition to those required for mocking to succeed.
         rsr_files_kwargs: Keyword arguments to pass to :func:`mock_rsr_files`.
 
     """
@@ -142,7 +142,16 @@ def mock_pyspectral_downloads(
 def mock_tb_conversion(
     *, tb2rad_dir: Path | None = None, rsr_dir: Path | None = None, **rsr_files_kwargs
 ) -> Iterator[mock.Mock]:
-    """Mock pyspectral to avoid downloads and caching for Calculator and RadTbConverter."""
+    """Mock pyspectral to avoid downloads and caching for Calculator and RadTbConverter classes.
+
+    Args:
+        tb2rad_dir: Path to store Tb to radiance LUT data. If not provided
+            a temporary one will be used and deleted on exit of the context manager.
+        rsr_dir: Path to store fake RSR files. If not provided then the
+            ``tb2rad_dir`` will be used.
+        rsr_files_kwargs: Keyword arguments to pass to :func:`mock_rsr_files`.
+
+    """
     tmp_path_manager = None
     if tb2rad_dir is None:
         tmp_path_manager = tempfile.TemporaryDirectory(prefix="pyspectral_testing_")
@@ -193,6 +202,24 @@ def mock_rsr(
     Additionally, this function overrides the global pyspectral config file to
     allow the fake RSR files to be used.
 
+    Args:
+        rsr_dir: Path to store fake RSR files. If not provided then a
+            temporary directory is used and deleted on exit of the context manager.
+        rsr_data_version: Version number to use for the created fake RSR files.
+            By default, the newest/active version number will be used.
+        central_wavelengths: Dictionary mapping a channel name to a central wavelength
+            floating point number. This is used to generate more realistic data in the
+            created fake RSR files. This has no effect if ``side_effect`` or
+            ``return_value`` are specified.
+        side_effect: Force the mocking of the data coming from the fake files.to use
+            this callback or exception class. This is a low-level option and typically
+            does not need to be specified. This has no effect if ``return_value`` is
+            specified.
+        return_value: Force the mocking of the data coming from the fake file to be
+            exactly this value. This is a low-level option and typically does not need
+            to be specified. This value takes priority over ``side_effect`` and
+            ``central_wavelengths``.
+
     """
     tmp_path_manager = None
     if rsr_dir is None:
@@ -232,7 +259,24 @@ def mock_rsr_files(
     RSR files. You must either use the higher-level `mock_rsr` function instead or override
     the configuration yourself using `override_config` and set ``rsr_dir`` to the
     path passed to this function.
-    :exception
+
+    Args:
+        rsr_dir: Path to store fake RSR files.
+        rsr_data_version: Version number to use for the created fake RSR files.
+            By default, the newest/active version number will be used.
+        central_wavelengths: Dictionary mapping a channel name to a central wavelength
+            floating point number. This is used to generate more realistic data in the
+            created fake RSR files. This has no effect if ``side_effect`` or
+            ``return_value`` are specified.
+        side_effect: Force the mocking of the data coming from the fake files.to use
+            this callback or exception class. This is a low-level option and typically
+            does not need to be specified. This has no effect if ``return_value`` is
+            specified.
+        return_value: Force the mocking of the data coming from the fake file to be
+            exactly this value. This is a low-level option and typically does not need
+            to be specified. This value takes priority over ``side_effect`` and
+            ``central_wavelengths``.
+
     """
     rsr_dir.mkdir(parents=True, exist_ok=True)
 
@@ -269,6 +313,30 @@ def mock_rayleigh(
     This high-level function overrides the pyspectral configuration
     and creates fake rayleigh LUT files using `mock_rayleigh_luts`.
 
+    Args:
+        rayleigh_dir: Path where rayleigh LUTs should be created.
+            If not specified then a temporary directory will be created and
+            deleted on exit of the context manager.
+        rsr_dir: Path to store fake RSR files. If not specified then this is
+            set to ``rayleigh_dir``.
+        existing_version: How to prepare the fake LUT directory. This can be
+            ``True`` (default) meaning the directory should be created as if
+            they are the most up-to-date versions of the LUTs. If ``False`` then
+            the version and LUT files are not created beforehand and will be
+            created as downloads are requested. Downloads are mocked so no
+            internet connection is accessed.
+            If a string value is provided then that will be used as the version
+            of the LUT files (ex. 'v0.0.0' to represent out-of-date files).
+            Note that a "template" HDF5 will be
+            created in the root of the rayleigh directory so it can be linked to
+            in any later LUT creation instead of creating a new LUT file every time.
+        lut_data: Dictionary of numpy arrays to store to the HDF5 LUT file.
+            Keys must include "azimuth_difference", "reflectance",
+            "satellite_zenith_secant", "sun_zenith_secant", and "wavelengths".
+        aerosol_types: List of aerosol types to create files for. Defaults to
+            all supported types.
+        atmospheres: Atmospheres to create LUTs for. Defaults to all supported
+            atmosphere types.
     """
     tmp_path_manager = None
     if rayleigh_dir is None:
@@ -299,8 +367,8 @@ def mock_rayleigh(
 
 @contextlib.contextmanager
 def mock_rayleigh_luts(
+    rayleigh_dir: Path,
     *,
-    rayleigh_dir: Path | None = None,
     existing_version: bool | str = True,
     lut_data: dict | None = None,
     aerosol_types: Iterable[str] | None = None,
@@ -319,23 +387,23 @@ def mock_rayleigh_luts(
     Args:
         rayleigh_dir: Path where rayleigh LUTs should be created.
         existing_version: How to prepare the fake LUT directory. This can be
-        ``True`` (default) meaning the directory should be created as if
-        they are the most up-to-date versions of the LUTs. If ``False`` then
-        the version and LUT files are not created beforehand and will be
-        created as downloads are requested. Downloads are mocked so no
-        internet connection is accessed.
-        If a string value is provided then that will be used as the version
-        of the LUT files (ex. 'v0.0.0' to represent out-of-date files).
-        Note that a "template" HDF5 will be
-        created in the root of the rayleigh directory so it can be linked to
-        in any later LUT creation instead of creating a new LUT file every time.
+            ``True`` (default) meaning the directory should be created as if
+            they are the most up-to-date versions of the LUTs. If ``False`` then
+            the version and LUT files are not created beforehand and will be
+            created as downloads are requested. Downloads are mocked so no
+            internet connection is accessed.
+            If a string value is provided then that will be used as the version
+            of the LUT files (ex. 'v0.0.0' to represent out-of-date files).
+            Note that a "template" HDF5 will be
+            created in the root of the rayleigh directory so it can be linked to
+            in any later LUT creation instead of creating a new LUT file every time.
         lut_data: Dictionary of numpy arrays to store to the HDF5 LUT file.
-        Keys must include "azimuth_difference", "reflectance",
-        "satellite_zenith_secant", "sun_zenith_secant", and "wavelengths".
+            Keys must include "azimuth_difference", "reflectance",
+            "satellite_zenith_secant", "sun_zenith_secant", and "wavelengths".
         aerosol_types: List of aerosol types to create files for. Defaults to
-        all supported types.
+            all supported types.
         atmospheres: Atmospheres to create LUTs for. Defaults to all supported
-        atmosphere types.
+            atmosphere types.
 
     """
     if aerosol_types is None:
@@ -424,7 +492,7 @@ def create_pyspectral_config_file(
     Args:
         config_path: Path of the config file to create.
         config_options: Configuration options to write to YAML file. If
-        not provided then an empty dictionary is used.
+            not provided then an empty dictionary is used.
     """
     import yaml
 
