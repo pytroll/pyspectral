@@ -46,71 +46,71 @@ except ImportError:
 
 LOG = logging.getLogger(__name__)
 
-WAVE_LENGTH = 'wavelength'
-WAVE_NUMBER = 'wavenumber'
+WAVE_LENGTH = "wavelength"
+WAVE_NUMBER = "wavenumber"
 
-INSTRUMENTS = {'Envisat': 'aatsr',
-               'GOES-16': 'abi',
-               'GOES-17': 'abi',
-               'GOES-18': 'abi',
-               'GOES-19': 'abi',
-               'FY-4A': 'agri',
-               'FY-4B': ['agri', 'ghi'],
-               'Himawari-8': 'ahi',
-               'Himawari-9': 'ahi',
-               'GEO-KOMPSAT-2A': 'ami',
-               'GEO-KOMPSAT-2B': 'goci-2',
-               'NOAA-10': 'avhrr/1',
-               'NOAA-6': 'avhrr/1',
-               'NOAA-8': 'avhrr/1',
-               'TIROS-N': 'avhrr/1',
-               'NOAA-11': 'avhrr/2',
-               'NOAA-12': 'avhrr/2',
-               'NOAA-14': 'avhrr/2',
-               'NOAA-7': 'avhrr/2',
-               'NOAA-9': 'avhrr/2',
-               'Metop-A': 'avhrr/3',
-               'Metop-B': 'avhrr/3',
-               'Metop-C': 'avhrr/3',
-               'NOAA-15': 'avhrr/3',
-               'NOAA-16': 'avhrr/3',
-               'NOAA-17': 'avhrr/3',
-               'NOAA-18': 'avhrr/3',
-               'NOAA-19': 'avhrr/3',
-               'HY-1C': 'cocts',
-               'Meteosat-12': 'fci',
-               'MTG-I1': 'fci',
-               'Metop-SG-A1': 'metimage',
-               'EOS-Aqua': 'modis',
-               'EOS-Terra': 'modis',
-               'Sentinel-2A': 'msi',
-               'Sentinel-2B': 'msi',
-               'Sentinel-2C': 'msi',
-               'Arctica-M-N1': 'msu-gsa',
-               'Electro-L-N2': 'msu-gs',
-               'Sentinel-3A': ['olci', 'slstr'],
-               'Sentinel-3B': ['olci', 'slstr'],
-               'Landsat-8': 'oli_tirs',
-               'Landsat-9': 'oli_tirs',
-               'Meteosat-10': 'seviri',
-               'Meteosat-11': 'seviri',
-               'Meteosat-8': 'seviri',
-               'Meteosat-9': 'seviri',
-               'NOAA-20': 'viirs',
-               'NOAA-21': 'viirs',
-               'Suomi-NPP': 'viirs',
-               'FY-3A': ['virr', 'mersi-1'],
-               'FY-3B': ['virr', 'mersi-1'],
-               'FY-3C': ['virr', 'mersi-1'],
-               'FY-3D': 'mersi-2',
-               'FY-3F': 'mersi-3',
-               'FY-3G': 'mersi-rm',
-               'DSCOVR': 'epic'}
+INSTRUMENTS = {"Envisat": "aatsr",
+               "GOES-16": "abi",
+               "GOES-17": "abi",
+               "GOES-18": "abi",
+               "GOES-19": "abi",
+               "FY-4A": "agri",
+               "FY-4B": ["agri", "ghi"],
+               "Himawari-8": "ahi",
+               "Himawari-9": "ahi",
+               "GEO-KOMPSAT-2A": "ami",
+               "GEO-KOMPSAT-2B": "goci-2",
+               "NOAA-10": "avhrr/1",
+               "NOAA-6": "avhrr/1",
+               "NOAA-8": "avhrr/1",
+               "TIROS-N": "avhrr/1",
+               "NOAA-11": "avhrr/2",
+               "NOAA-12": "avhrr/2",
+               "NOAA-14": "avhrr/2",
+               "NOAA-7": "avhrr/2",
+               "NOAA-9": "avhrr/2",
+               "Metop-A": "avhrr/3",
+               "Metop-B": "avhrr/3",
+               "Metop-C": "avhrr/3",
+               "NOAA-15": "avhrr/3",
+               "NOAA-16": "avhrr/3",
+               "NOAA-17": "avhrr/3",
+               "NOAA-18": "avhrr/3",
+               "NOAA-19": "avhrr/3",
+               "HY-1C": "cocts",
+               "Meteosat-12": "fci",
+               "MTG-I1": "fci",
+               "Metop-SG-A1": "metimage",
+               "EOS-Aqua": "modis",
+               "EOS-Terra": "modis",
+               "Sentinel-2A": "msi",
+               "Sentinel-2B": "msi",
+               "Sentinel-2C": "msi",
+               "Arctica-M-N1": "msu-gsa",
+               "Electro-L-N2": "msu-gs",
+               "Sentinel-3A": ["olci", "slstr"],
+               "Sentinel-3B": ["olci", "slstr"],
+               "Landsat-8": "oli_tirs",
+               "Landsat-9": "oli_tirs",
+               "Meteosat-10": "seviri",
+               "Meteosat-11": "seviri",
+               "Meteosat-8": "seviri",
+               "Meteosat-9": "seviri",
+               "NOAA-20": "viirs",
+               "NOAA-21": "viirs",
+               "Suomi-NPP": "viirs",
+               "FY-3A": ["virr", "mersi-1"],
+               "FY-3B": ["virr", "mersi-1"],
+               "FY-3C": ["virr", "mersi-1"],
+               "FY-3D": "mersi-2",
+               "FY-3F": "mersi-3",
+               "FY-3G": "mersi-rm",
+               "DSCOVR": "epic"}
 
 
-INSTRUMENT_TRANSLATION_DASH2SLASH = {'avhrr-1': 'avhrr/1',
-                                     'avhrr-2': 'avhrr/2',
-                                     'avhrr-3': 'avhrr/3'}
+INSTRUMENT_TRANSLATION_DASH2SLASH = {"avhrr-1": "avhrr/1",
+                                     "avhrr-2": "avhrr/2",
+                                     "avhrr-3": "avhrr/3"}
 
 HTTP_PYSPECTRAL_RSR = "https://zenodo.org/records/14008148/files/pyspectral_rsr_data.tgz"
 
@@ -119,44 +119,44 @@ RSR_DATA_VERSION = "v1.4.1"
 
 
 ATM_CORRECTION_LUT_VERSION = {}
-ATM_CORRECTION_LUT_VERSION['antarctic_aerosol'] = {'version': 'v1.0.1',
-                                                   'filename': 'PYSPECTRAL_ATM_CORR_LUT_AA'}
-ATM_CORRECTION_LUT_VERSION['continental_average_aerosol'] = {'version': 'v1.0.1',
-                                                             'filename': 'PYSPECTRAL_ATM_CORR_LUT_CAA'}
-ATM_CORRECTION_LUT_VERSION['continental_clean_aerosol'] = {'version': 'v1.0.1',
-                                                           'filename': 'PYSPECTRAL_ATM_CORR_LUT_CCA'}
-ATM_CORRECTION_LUT_VERSION['continental_polluted_aerosol'] = {'version': 'v1.0.1',
-                                                              'filename': 'PYSPECTRAL_ATM_CORR_LUT_CPA'}
-ATM_CORRECTION_LUT_VERSION['desert_aerosol'] = {'version': 'v1.0.1',
-                                                'filename': 'PYSPECTRAL_ATM_CORR_LUT_DA'}
-ATM_CORRECTION_LUT_VERSION['marine_clean_aerosol'] = {'version': 'v1.0.1',
-                                                      'filename': 'PYSPECTRAL_ATM_CORR_LUT_MCA'}
-ATM_CORRECTION_LUT_VERSION['marine_polluted_aerosol'] = {'version': 'v1.0.1',
-                                                         'filename': 'PYSPECTRAL_ATM_CORR_LUT_MPA'}
-ATM_CORRECTION_LUT_VERSION['marine_tropical_aerosol'] = {'version': 'v1.0.1',
-                                                         'filename': 'PYSPECTRAL_ATM_CORR_LUT_MTA'}
-ATM_CORRECTION_LUT_VERSION['rural_aerosol'] = {'version': 'v1.0.1',
-                                               'filename': 'PYSPECTRAL_ATM_CORR_LUT_RA'}
-ATM_CORRECTION_LUT_VERSION['urban_aerosol'] = {'version': 'v1.0.1',
-                                               'filename': 'PYSPECTRAL_ATM_CORR_LUT_UA'}
-ATM_CORRECTION_LUT_VERSION['rayleigh_only'] = {'version': 'v1.0.1',
-                                               'filename': 'PYSPECTRAL_ATM_CORR_LUT_RO'}
+ATM_CORRECTION_LUT_VERSION["antarctic_aerosol"] = {"version": "v1.0.1",
+                                                   "filename": "PYSPECTRAL_ATM_CORR_LUT_AA"}
+ATM_CORRECTION_LUT_VERSION["continental_average_aerosol"] = {"version": "v1.0.1",
+                                                             "filename": "PYSPECTRAL_ATM_CORR_LUT_CAA"}
+ATM_CORRECTION_LUT_VERSION["continental_clean_aerosol"] = {"version": "v1.0.1",
+                                                           "filename": "PYSPECTRAL_ATM_CORR_LUT_CCA"}
+ATM_CORRECTION_LUT_VERSION["continental_polluted_aerosol"] = {"version": "v1.0.1",
+                                                              "filename": "PYSPECTRAL_ATM_CORR_LUT_CPA"}
+ATM_CORRECTION_LUT_VERSION["desert_aerosol"] = {"version": "v1.0.1",
+                                                "filename": "PYSPECTRAL_ATM_CORR_LUT_DA"}
+ATM_CORRECTION_LUT_VERSION["marine_clean_aerosol"] = {"version": "v1.0.1",
+                                                      "filename": "PYSPECTRAL_ATM_CORR_LUT_MCA"}
+ATM_CORRECTION_LUT_VERSION["marine_polluted_aerosol"] = {"version": "v1.0.1",
+                                                         "filename": "PYSPECTRAL_ATM_CORR_LUT_MPA"}
+ATM_CORRECTION_LUT_VERSION["marine_tropical_aerosol"] = {"version": "v1.0.1",
+                                                         "filename": "PYSPECTRAL_ATM_CORR_LUT_MTA"}
+ATM_CORRECTION_LUT_VERSION["rural_aerosol"] = {"version": "v1.0.1",
+                                               "filename": "PYSPECTRAL_ATM_CORR_LUT_RA"}
+ATM_CORRECTION_LUT_VERSION["urban_aerosol"] = {"version": "v1.0.1",
+                                               "filename": "PYSPECTRAL_ATM_CORR_LUT_UA"}
+ATM_CORRECTION_LUT_VERSION["rayleigh_only"] = {"version": "v1.0.1",
+                                               "filename": "PYSPECTRAL_ATM_CORR_LUT_RO"}
 
 #: Aerosol types available as downloadable LUTs for rayleigh correction
-AEROSOL_TYPES = ['antarctic_aerosol', 'continental_average_aerosol',
-                 'continental_clean_aerosol', 'continental_polluted_aerosol',
-                 'desert_aerosol', 'marine_clean_aerosol',
-                 'marine_polluted_aerosol', 'marine_tropical_aerosol',
-                 'rayleigh_only', 'rural_aerosol', 'urban_aerosol']
+AEROSOL_TYPES = ["antarctic_aerosol", "continental_average_aerosol",
+                 "continental_clean_aerosol", "continental_polluted_aerosol",
+                 "desert_aerosol", "marine_clean_aerosol",
+                 "marine_polluted_aerosol", "marine_tropical_aerosol",
+                 "rayleigh_only", "rural_aerosol", "urban_aerosol"]
 
-ATMOSPHERES = {'subarctic summer': 4, 'subarctic winter': 5,
-               'midlatitude summer': 6, 'midlatitude winter': 7,
-               'tropical': 8, 'us-standard': 9}
+ATMOSPHERES = {"subarctic summer": 4, "subarctic winter": 5,
+               "midlatitude summer": 6, "midlatitude winter": 7,
+               "tropical": 8, "us-standard": 9}
 
 HTTPS_RAYLEIGH_LUTS = {}
 LUT_URL_PREFIX = "https://zenodo.org/record/1288441/files/pyspectral_atm_correction_luts"
 for atype in AEROSOL_TYPES:
-    name = {'rayleigh_only': 'no_aerosol'}.get(atype, atype)
+    name = {"rayleigh_only": "no_aerosol"}.get(atype, atype)
     url = "{prefix}_{name}.tgz".format(prefix=LUT_URL_PREFIX, name=name)
     HTTPS_RAYLEIGH_LUTS[atype] = url
 
@@ -183,34 +183,53 @@ def convert2wavenumber(rsr):
     """
     retv = {}
     for chname in rsr.keys():  # Go through bands/channels
-        retv[chname] = {}
-        for det in rsr[chname].keys():  # Go through detectors
-            retv[chname][det] = {}
-            if 'wavenumber' in rsr[chname][det].keys():
-                # Make a copy. Data are already in wave number space
-                retv[chname][det] = rsr[chname][det].copy()
-                LOG.debug("RSR data already in wavenumber space. No conversion needed.")
-                continue
+        retv[chname] = _band2wavenumber(rsr[chname])
 
-            for sat in rsr[chname][det].keys():
-                if sat == "wavelength":
-                    # micro meters to cm
-                    wnum = 1. / (1e-4 * rsr[chname][det][sat])
-                    retv[chname][det]['wavenumber'] = wnum[::-1]
-                elif sat == "response":
-                    # Flip the response array:
-                    if isinstance(rsr[chname][det][sat], dict):
-                        retv[chname][det][sat] = {}
-                        for name in rsr[chname][det][sat].keys():
-                            resp = rsr[chname][det][sat][name]
-                            retv[chname][det][sat][name] = resp[::-1]
-                    else:
-                        resp = rsr[chname][det][sat]
-                        retv[chname][det][sat] = resp[::-1]
-
-    unit = 'cm-1'
+    unit = "cm-1"
     si_scale = 100.0
-    return retv, {'unit': unit, 'si_scale': si_scale}
+    return retv, {"unit": unit, "si_scale": si_scale}
+
+
+def _band2wavenumber(ch_rsr):
+    band_wavenumbers = {}
+    for det in ch_rsr.keys():  # Go through detectors
+        if "wavenumber" in ch_rsr[det].keys():
+            # Make a copy. Data are already in wave number space
+            band_wavenumbers[det] = ch_rsr[det].copy()
+            LOG.debug("RSR data already in wavenumber space. No conversion needed.")
+            continue
+        band_wavenumbers[det] = _detector2wavenumber(ch_rsr[det])
+
+    return band_wavenumbers
+
+
+def _detector2wavenumber(det_rsr):
+    det_wavenumbers = {}
+    for key in det_rsr.keys():
+        _wavelength2wavenumber(det_rsr, key, det_wavenumbers)
+        _collect_responses(det_rsr, key, det_wavenumbers)
+
+    return det_wavenumbers
+
+
+def _wavelength2wavenumber(det_rsr, key, det_wavenumbers):
+    if key == "wavelength":
+        # micro meters to cm
+        wnum = 1. / (1e-4 * det_rsr[key])
+        det_wavenumbers["wavenumber"] = wnum[::-1]
+
+
+def _collect_responses(det_rsr, key, det_wavenumbers):
+    if key == "response":
+        # Flip the response array:
+        if isinstance(det_rsr[key], dict):
+            det_wavenumbers[key] = {}
+            for name in det_rsr[key].keys():
+                resp = det_rsr[key][name]
+                det_wavenumbers[key][name] = resp[::-1]
+        else:
+            resp = det_rsr[key]
+            det_wavenumbers[key] = resp[::-1]
 
 
 def get_central_wave(wav, resp, weight=1.0):
@@ -222,14 +241,14 @@ def get_central_wave(wav, resp, weight=1.0):
     1./lambda**4 for Rayleigh scattering calculations
 
     """
-    # info: {'unit': unit, 'si_scale': si_scale}
+    # info: {"unit": unit, "si_scale": si_scale}
     # To get the wavelenght/wavenumber in SI units (m or m-1):
-    # wav = wav * info['si_scale']
+    # wav = wav * info["si_scale"]
 
     # res = np.trapz(resp*wav, wav) / np.trapz(resp, wav)
     # Check if it is a wavelength or a wavenumber and convert to microns or cm-1:
     # This should perhaps be user defined!?
-    # if info['unit'].find('-1') > 0:
+    # if info["unit"].find("-1") > 0:
     # Wavenumber:
     #     res *=
     return trapezoid(resp * wav * weight, wav) / trapezoid(resp * weight, wav)
@@ -241,14 +260,14 @@ def get_bandname_from_wavelength(sensor, wavelength, rsr, epsilon=0.1, multiple_
     chfound = []
     for channel in rsr:
         chdist = abs(
-            rsr[channel]['det-1']['central_wavelength'] - wavelength)
+            rsr[channel]["det-1"]["central_wavelength"] - wavelength)
         if chdist < chdist_min and chdist < epsilon:
-            chfound.append(BANDNAMES.get(sensor, BANDNAMES['generic']).get(channel, channel))
+            chfound.append(BANDNAMES.get(sensor, BANDNAMES["generic"]).get(channel, channel))
 
     if len(chfound) == 1:
         return chfound[0]
     if len(chfound) > 1:
-        bstrlist = ['band={}'.format(b) for b in chfound]
+        bstrlist = ["band={}".format(b) for b in chfound]
         if not multiple_bands:
             raise AttributeError("More than one band found with that wavelength! {}".format(str(bstrlist)))
         LOG.debug("More than one band found with requested wavelength: %s", str(bstrlist))
@@ -285,52 +304,71 @@ def convert2hdf5(ClassIn, platform_name, bandnames, scale=1e-06, detectors=None)
     """
     import h5py
 
-    instr = ClassIn(bandnames[0], platform_name)
-    instr_name = instr.instrument.replace('/', '')
-    filename = os.path.join(instr.output_dir,
+    instruments = [ClassIn(bandnames[i], platform_name) for i in range(len(bandnames))]
+    instr_name = instruments[0].instrument.replace("/", "")
+    filename = os.path.join(instruments[0].output_dir,
                             "rsr_{0}_{1}.h5".format(instr_name,
                                                     platform_name))
 
     with h5py.File(filename, "w") as h5f:
-        h5f.attrs['description'] = ('Relative Spectral Responses for ' +
-                                    instr.instrument.upper())
-        h5f.attrs['platform_name'] = platform_name
-        h5f.attrs['band_names'] = bandnames
+        _write_global_attrs(h5f, instruments[0], platform_name, bandnames)
+        _write_channels(h5f, instruments, bandnames, scale, detectors)
 
-        for chname in bandnames:
-            sensor = ClassIn(chname, platform_name)
-            grp = h5f.create_group(chname)
 
-            # If multiple detectors, assume all have same wavelength range in SRF.
-            if detectors is not None:
-                wvl = sensor.rsr[detectors[0]]['wavelength'][~np.isnan(sensor.rsr[detectors[0]]['wavelength'])]
-                arr = sensor.rsr[detectors[0]]['wavelength']
-                grp.attrs['number_of_detectors'] = len(detectors)
-            else:
-                wvl = sensor.rsr['wavelength'][~np.isnan(sensor.rsr['wavelength'])]
-                arr = sensor.rsr['wavelength']
+def _write_global_attrs(h5f, instrument, platform_name, bandnames):
+    h5f.attrs["description"] = ("Relative Spectral Responses for " +
+                                instrument.instrument.upper())
+    h5f.attrs["platform_name"] = platform_name
+    h5f.attrs["band_names"] = bandnames
 
-            # Save wavelengths to file
-            dset = grp.create_dataset('wavelength', arr.shape, dtype='f')
-            dset.attrs['unit'] = 'm'
-            dset.attrs['scale'] = scale
-            dset[...] = arr
 
-            # Now to do the responses
-            if detectors is None:
-                rsp = sensor.rsr['response'][~np.isnan(sensor.rsr['wavelength'])]
-                grp.attrs['central_wavelength'] = get_central_wave(wvl, rsp)
-                arr = sensor.rsr['response']
-                dset = grp.create_dataset('response', arr.shape, dtype='f')
-                dset[...] = arr
-            else:
-                for cur_det in detectors:
-                    det_grp = grp.create_group(cur_det)
-                    rsp = sensor.rsr[cur_det]['response'][~np.isnan(sensor.rsr[cur_det]['wavelength'])]
-                    det_grp.attrs['central_wavelength'] = get_central_wave(wvl, rsp)
-                    arr = sensor.rsr[cur_det]['response']
-                    dset = det_grp.create_dataset('response', arr.shape, dtype='f')
-                    dset[...] = arr
+def _write_channels(h5f, instruments, bandnames, scale, detectors):
+    for i, chname in enumerate(bandnames):
+        sensor = instruments[i]
+        grp = h5f.create_group(chname)
+
+        # If multiple detectors, assume all have same wavelength range in SRF.
+        if detectors is not None:
+            _write_multidetector_data(grp, sensor, scale, detectors)
+        else:
+            _write_single_detector_data(grp, sensor, scale, detectors)
+
+
+def _write_single_detector_data(grp, sensor, scale, detectors):
+    wvl = sensor.rsr["wavelength"][~np.isnan(sensor.rsr["wavelength"])]
+    # Store detector central wavelength
+    rsp = sensor.rsr["response"][~np.isnan(sensor.rsr["wavelength"])]
+    grp.attrs["central_wavelength"] = get_central_wave(wvl, rsp)
+
+    # Store resonse data
+    arr = sensor.rsr["response"]
+    dset = grp.create_dataset("response", arr.shape, dtype="f")
+    dset[...] = arr
+
+    _save_wavelengths(grp, arr, scale)
+
+
+def _save_wavelengths(grp, arr, scale):
+    dset = grp.create_dataset("wavelength", arr.shape, dtype="f")
+    dset.attrs["unit"] = "m"
+    dset.attrs["scale"] = scale
+    dset[...] = arr
+
+
+def _write_multidetector_data(grp, sensor, scale, detectors):
+    # Get wavelength
+    wvl = sensor.rsr[detectors[0]]["wavelength"][~np.isnan(sensor.rsr[detectors[0]]["wavelength"])]
+    grp.attrs["number_of_detectors"] = len(detectors)
+
+    for cur_det in detectors:
+        det_grp = grp.create_group(cur_det)
+        rsp = sensor.rsr[cur_det]["response"][~np.isnan(sensor.rsr[cur_det]["wavelength"])]
+        det_grp.attrs["central_wavelength"] = get_central_wave(wvl, rsp)
+        arr = sensor.rsr[cur_det]["response"]
+        dset = det_grp.create_dataset("response", arr.shape, dtype="f")
+        dset[...] = arr
+
+    _save_wavelengths(grp, arr, scale)
 
 
 def download_rsr(dest_dir: str | Path | None = None, dry_run: bool = False) -> None:
@@ -350,7 +388,7 @@ def download_rsr(dest_dir: str | Path | None = None, dry_run: bool = False) -> N
 
     """
     config = get_config()
-    local_rsr_dir = Path(config.get('rsr_dir'))  # type: ignore
+    local_rsr_dir = Path(config.get("rsr_dir"))  # type: ignore
     dest_path = Path(dest_dir) if dest_dir is not None else local_rsr_dir
 
     LOG.info(f"Download RSR files and store in directory {dest_path}")
@@ -380,9 +418,9 @@ def download_luts(aerosol_types=None, dry_run=False, aerosol_type=None):
     """
     aerosol_types = _get_aerosol_types(aerosol_types, aerosol_type)
     for subname in aerosol_types:
-        LOG.debug('Aerosol type: %s', subname)
+        LOG.debug("Aerosol type: %s", subname)
         lut_tarball_url = HTTPS_RAYLEIGH_LUTS[subname]
-        LOG.debug('Atmospheric LUT URL = %s', lut_tarball_url)
+        LOG.debug("Atmospheric LUT URL = %s", lut_tarball_url)
 
         subdir_path = get_rayleigh_lut_dir(subname)
         LOG.debug(f"Create directory: {subdir_path}")
@@ -430,7 +468,7 @@ def _download_tarball_and_extract(tarball_url: str, local_pathname: Path, extrac
     with open(local_pathname, "wb") as handle:
         for data in _tqdm_or_iter(response.iter_content(chunk_size=chunk_size),
                                   total=(int(total_size / chunk_size + 0.5)),
-                                  unit='kB'):
+                                  unit="kB"):
             if data:
                 handle.write(data)
 
@@ -465,12 +503,12 @@ def logging_on(level=logging.WARNING):
         console = logging.StreamHandler()
         console.setFormatter(logging.Formatter("[%(levelname)s: %(asctime)s :"
                                                " %(name)s] %(message)s",
-                                               '%Y-%m-%d %H:%M:%S'))
+                                               "%Y-%m-%d %H:%M:%S"))
         console.setLevel(level)
-        logging.getLogger('').addHandler(console)
+        logging.getLogger("").addHandler(console)
         _is_logging_on = True
 
-    log = logging.getLogger('')
+    log = logging.getLogger("")
     log.setLevel(level)
     for h in log.handlers:
         h.setLevel(level)
@@ -485,7 +523,7 @@ class NullHandler(logging.Handler):
 
 def logging_off():
     """Turn logging off."""
-    logging.getLogger('').handlers = [NullHandler()]
+    logging.getLogger("").handlers = [NullHandler()]
 
 
 def get_logger(name):
@@ -506,10 +544,10 @@ def get_wave_range(in_chan, threshold=0.15):
     given channel, and can be used, for example, in Satpy reader YAML files.
 
     """
-    cwl = get_central_wave(in_chan['wavelength'], in_chan['response'])
+    cwl = get_central_wave(in_chan["wavelength"], in_chan["response"])
 
-    wvls = in_chan['wavelength']
-    rsr = in_chan['response']
+    wvls = in_chan["wavelength"]
+    rsr = in_chan["response"]
 
     pts = (rsr > threshold).nonzero()
     min_wvl = wvls[pts[0][0]]
@@ -545,12 +583,12 @@ def np2str(value):
     if isinstance(value, str):
         return value
 
-    if hasattr(value, 'dtype') and \
+    if hasattr(value, "dtype") and \
             issubclass(value.dtype.type, (np.str_, np.bytes_, np.object_)) \
             and value.size == 1:
         value = value.item()
         # python 3 - was scalar numpy array of bytes
-        # otherwise python 2 - scalar numpy array of 'str'
+        # otherwise python 2 - scalar numpy array of "str"
         if not isinstance(value, str):
             return value.decode()
         return value
@@ -561,7 +599,7 @@ def np2str(value):
 def bytes2string(var):
     """Decode a bytes variable and return a string."""
     if isinstance(var, bytes):
-        return var.decode('utf-8')
+        return var.decode("utf-8")
     return var
 
 
@@ -578,7 +616,7 @@ def check_and_adjust_instrument_name(platform_name, instrument):
 
     It checks against the possible listed instrument names for each platform.
     It also makes an adjustment replacing names like avhrr/1 with avhrr1,
-    removing the '/'.
+    removing the "/".
     """
     instr = INSTRUMENTS.get(platform_name, instrument.lower())
     if isinstance(instr, list):
@@ -594,15 +632,15 @@ def check_and_adjust_instrument_name(platform_name, instrument):
         LOG.warning("Inconsistent instrument/satellite input - instrument set to %s",
                     instrument)
 
-    return instrument.lower().replace('/', '').replace('-', '')
+    return instrument.lower().replace("/", "").replace("-", "")
 
 
 def are_instruments_identical(name1, name2):
     """Given two instrument names check if they are both describing the same instrument.
 
     Takes care of the case of AVHRR where the internal pyspectral naming
-    (following WMO Oscar) is is with a slash as in 'avhrr/1', but where a
-    naming using a dash instead is equally accepted, as in 'avhrr-1'.
+    (following WMO Oscar) is is with a slash as in "avhrr/1", but where a
+    naming using a dash instead is equally accepted, as in "avhrr-1".
     """
     if not isinstance(name1, str) or not isinstance(name2, str):
         raise ValueError("Instrument names must be strings.")
