@@ -548,9 +548,9 @@ def get_fullwidth_halfmax(rsp, wvl):
         fwhm = wvl[indices[-1]] - wvl[indices[0]]
     return fwhm
 
+
 def get_bounds_integrated_energy(rsp, wvl, ener_perc_lim=1):
-    """Compute the minimum and maximum wavelengths over which the band integrated energy
-    is greater than a threshold value.
+    """Compute wavelengths over which the integrated energy is greater than a threshold.
 
     This measure is typically used to assess out of band performance and to ensure that
     the spectral response function is not sensitive to specific absorption or emission
@@ -564,8 +564,9 @@ def get_bounds_integrated_energy(rsp, wvl, ener_perc_lim=1):
     crs = crs / np.max(crs) * 100.
     mini_ind = np.where(crs >= ener_perc_lim)[0]
     maxi_ind = np.where(crs <= (100 - ener_perc_lim))[0]
-    
+
     return wvl[mini_ind][0], wvl[maxi_ind][-1]
+
 
 def get_wave_range(in_chan, threshold=0.15):
     """Return central, min and max wavelength in an RSR greater than threshold.
