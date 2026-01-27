@@ -12,3 +12,20 @@ skip_gitignore = true
 default_section = "THIRDPARTY"
 known_first_party = "pyspectral"
 line_length = 120
+
+[tool.pytest]
+minversion = "9.0"
+addopts = ["-ra", "--showlocals", "--strict-markers", "--strict-config"]
+markers = [
+    "allow_downloads",
+]
+xfail_strict = true
+log_cli_level = "info"
+testpaths = ["pyspectral/tests"]
+filterwarnings = [
+    # Uncomment once all warnings are removed so a warning is now a failure:
+    # "error",
+    "ignore:numpy.ndarray size changed, may indicate binary incompatibility:RuntimeWarning",
+    # uncomment
+    # "ignore:invalid value encountered in:RuntimeWarning",
+]

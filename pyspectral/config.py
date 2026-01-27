@@ -24,6 +24,7 @@ import os
 from collections.abc import Mapping
 from os.path import expanduser
 from pathlib import Path
+from typing import Any
 
 import yaml
 from platformdirs import AppDirs
@@ -56,14 +57,15 @@ def recursive_dict_update(d, u):
     return d
 
 
-def get_config(config_file: str | Path = None) -> dict:
+def get_config(config_file: str | Path | None = None) -> dict:
     """Get configuration options from YAML file."""
     if config_file is None:
         config_file = _get_env_or_builtin_config_path()
 
-    config = {}
+    config: dict[str, Any] = {}
     with open(config_file, 'r') as fp_:
-        config = recursive_dict_update(config, yaml.load(fp_, Loader=UnsafeLoader))
+        loaded_config_content = yaml.load(fp_, Loader=UnsafeLoader)
+    config = recursive_dict_update(config, loaded_config_content)
 
     app_dirs = AppDirs('pyspectral', 'pytroll')
     user_datadir = app_dirs.user_data_dir

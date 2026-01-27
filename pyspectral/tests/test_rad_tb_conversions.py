@@ -294,7 +294,6 @@ class TestRadTbConversions(unittest.TestCase):
 
     def setUp(self):
         """Set up."""
-        # mymock:
         with patch('pyspectral.radiance_tb_conversion.RelativeSpectralResponse') as mymock:
             instance = mymock.return_value
             instance.rsr = TEST_RSR
@@ -304,24 +303,15 @@ class TestRadTbConversions(unittest.TestCase):
             self.modis = RadTbConverter('EOS-Aqua', 'modis', '20')
             self.modis2 = RadTbConverter('EOS-Aqua', 'modis', 3.75)
 
-    @patch('os.path.exists')
-    @patch('os.path.isfile')
-    @patch('pyspectral.rsr_reader.RelativeSpectralResponse.load')
-    @patch('pyspectral.rsr_reader.download_rsr')
-    def test_get_bandname(self, download_rsr, load, isfile, exists):
+    def test_get_bandname(self):
         """Test getting the band name from the wave length."""
-        load.return_code = None
-        download_rsr.return_code = None
-        isfile.return_code = True
-        exists.return_code = True
-
         with patch('pyspectral.radiance_tb_conversion.RelativeSpectralResponse') as mymock:
             instance = mymock.return_value
             instance.rsr = VIIRS_RSR
             instance.unit = 'm'
             instance.si_scale = 1.
 
-            with self.assertRaises(AttributeError):
+            with pytest.raises(AttributeError):
                 RadTbConverter('Suomi-NPP', 'viirs', 3.7)
 
     def test_rad2tb(self):

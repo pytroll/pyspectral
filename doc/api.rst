@@ -56,3 +56,11 @@ Utils
     :members:
     :undoc-members:
     :show-inheritance:
+
+Testing Utilities
+-----------------
+
+.. automodule:: pyspectral.testing
+    :members:
+    :undoc-members:
+    :show-inheritance:
