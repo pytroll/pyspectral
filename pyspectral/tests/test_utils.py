@@ -225,22 +225,29 @@ class TestUtils(unittest.TestCase):
         expected_range = [0.60931027, 0.6393011276027835, 0.67512828]
         np.testing.assert_allclose(wvl_range, expected_range)
 
-    def test_get_fullwidth_halfmax(self):
-        """Test computation of the FWHM method of bandwidth calculation."""
-        res = utils.get_fullwidth_halfmax(self.rsr.rsr['ch3']['det-1']['wavelength'],
-                                          self.rsr.rsr['ch3']['det-1']['response'])
-        assert res == RESULT_BW_CALC
 
-    def test_get_bounds_integrated_energy(self):
-        """Get the inegrated energy method of bandwidth calculation."""
-        res1 = utils.get_bounds_integrated_energy(self.rsr.rsr['ch3']['det-1']['wavelength'],
-                                                  self.rsr.rsr['ch3']['det-1']['response'],
-                                                  ener_perc_lim=1)
-        res2 = utils.get_bounds_integrated_energy(self.rsr.rsr['ch3']['det-1']['wavelength'],
-                                                  self.rsr.rsr['ch3']['det-1']['response'],
-                                                  ener_perc_lim=10)
-        assert np.allclose(res1, RESULT_INTEG_ENER_ONEPERC)
-        assert np.allclose(res2, RESULT_INTEG_ENER_TENPERC)
+def test_get_fullwidth_halfmax():
+    """Test computation of the FWHM method of bandwidth calculation."""
+    rsr = RsrTestData()
+    res = utils.get_fullwidth_halfmax(rsr.rsr['ch3']['det-1']['wavelength'],
+                                      rsr.rsr['ch3']['det-1']['response'])
+    assert res == RESULT_BW_CALC
+
+
+@pytest.mark.parametrize(
+    ("ener_perc_lim", "exp_res"),
+    [
+        (1, RESULT_INTEG_ENER_ONEPERC),
+        (10, RESULT_INTEG_ENER_TENPERC),
+    ]
+)
+def test_get_bounds_integrated_energy(ener_perc_lim, exp_res):
+    """Get the inegrated energy method of bandwidth calculation."""
+    rsr = RsrTestData()
+    res1 = utils.get_bounds_integrated_energy(rsr.rsr['ch3']['det-1']['wavelength'],
+                                              rsr.rsr['ch3']['det-1']['response'],
+                                              ener_perc_lim=ener_perc_lim)
+    np.testing.assert_allclose(res1, exp_res)
 
 
 @pytest.mark.parametrize(
