@@ -556,7 +556,7 @@ def get_bounds_integrated_energy(rsp, wvl, ener_perc_lim=1):
     the spectral response function is not sensitive to specific absorption or emission
     features. On occasion, it is also used to define or measure the bandwidth of a sensor.
 
-    The `ener_perc_lim` variable defines the threshold percentage of integrated energy.
+    The ``ener_perc_lim`` variable defines the threshold percentage of integrated energy.
     This function returns the minimum and maximum wavelengths over which the integrated
     energy is greater than (minimum) and less than (maximum) the threshold.
     """
