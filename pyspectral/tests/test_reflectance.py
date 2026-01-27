@@ -19,12 +19,13 @@
 
 """Unit testing the 3.7 micron reflectance calculations."""
 
-import unittest
 from unittest.mock import patch
 
 import numpy as np
+import pytest
 
 from pyspectral.near_infrared_reflectance import TERMINATOR_LIMIT, Calculator, get_as_array
+from pyspectral.testing import mock_tb_conversion
 
 TEST_RSR = {'20': {},
             '99': {}}
@@ -90,70 +91,108 @@ TEST_RSR_WN['20']['det-1']['wavenumber'] = WVN
 TEST_RSR_WN['20']['det-1']['response'] = RESP
 
 
-class TestReflectance(unittest.TestCase):
+class TestReflectance:
     """Unit testing the reflectance calculations."""
 
-    def test_rsr_integral(self):
+    def test_rsr_integral(self, tmp_path):
         """Test calculating the integral of the relative spectral response function."""
-        with patch('pyspectral.radiance_tb_conversion.RelativeSpectralResponse') as mymock:
-            instance = mymock.return_value
-            instance.rsr = TEST_RSR
-            instance.unit = '1e-6 m'
-            instance.si_scale = 1e-6
-
+        return_value = {
+            "description": "ABCD",
+            "instrument": "modis",
+            "platform_name": "EOS-Aqua",
+            "band_names": list(TEST_RSR.keys()),
+            "rsr": TEST_RSR,
+        }
+        with mock_tb_conversion(tb2rad_dir=tmp_path, return_value=return_value):
             refl37 = Calculator('EOS-Aqua', 'modis', '20')
 
         expected = 1.8563451e-07  # unit = 'm' (meter)
         np.testing.assert_allclose(refl37.rsr_integral, expected)
 
-        with patch('pyspectral.radiance_tb_conversion.RelativeSpectralResponse') as mymock:
-            instance = mymock.return_value
-            instance.rsr = TEST_RSR_WN
-            instance.unit = 'cm-1'
-            instance.si_scale = 100.
+    def test_rsr_integral_wavenumber(self, tmp_path):
+        """Test calculating the integral of the relative spectral response function in wavenumber."""
+        return_value = {
+            "description": "ABCD",
+            "instrument": "modis",
+            "platform_name": "EOS-Aqua",
+            "band_names": list(TEST_RSR_WN.keys()),
+            "rsr": TEST_RSR_WN,
+        }
 
+        with mock_tb_conversion(tb2rad_dir=tmp_path, return_value=return_value):
             refl37 = Calculator('EOS-Aqua', 'modis', '20', wavespace='wavenumber')
 
         expected = 13000.385  # SI units = 'm-1' (1/meter)
         res = refl37.rsr_integral
         np.testing.assert_allclose(res / expected, 1.0, 6)
 
-    def test_reflectance(self):
-        """Test the derivation of the reflective part of a 3.7 micron band."""
-        with patch('pyspectral.radiance_tb_conversion.RelativeSpectralResponse') as mymock:
-            instance = mymock.return_value
+    def test_reflectance_invalid_channel(self, tmp_path):
+        """Test requesting non-existent channel causes an error."""
+        return_value = {
+            "description": "ABCD",
+            "instrument": "viirs",
+            "platform_name": "Suomi-NPP",
+            "band_names": ["ch20", "99"],
+            "rsr": TEST_RSR,
+        }
+        with mock_tb_conversion(tb2rad_dir=tmp_path, return_value=return_value):
             # VIIRS doesn't have a channel '20' like MODIS so the generic
             # mapping this test will end up using will find 'ch20' for VIIRS
-            viirs_rsr = {'ch20': TEST_RSR['20'], '99': TEST_RSR['99']}
-            instance.rsr = viirs_rsr
-            instance.unit = '1e-6 m'
-            instance.si_scale = 1e-6
+            with pytest.raises(NotImplementedError):
+                Calculator('Suomi-NPP', 'viirs', 10.8)
 
-            with self.assertRaises(NotImplementedError):
-                dummy = Calculator('Suomi-NPP', 'viirs', 10.8)
-                del dummy
-
+    def test_reflectance_viirs(self, tmp_path):
+        """Test the derivation of the reflective part of a 3.7 micron band."""
+        viirs_rsr = {"ch20": TEST_RSR["20"], "99": TEST_RSR["99"]}
+        return_value = {
+            "description": "ABCD",
+            "instrument": "viirs",
+            "platform_name": "Suomi-NPP",
+            "band_names": list(viirs_rsr.keys()),
+            "rsr": viirs_rsr,
+        }
+        with mock_tb_conversion(tb2rad_dir=tmp_path, return_value=return_value):
             refl37 = Calculator('Suomi-NPP', 'viirs', 3.7)
-            self.assertEqual(refl37.bandwavelength, 3.7)
-            self.assertEqual(refl37.bandname, 'ch20')
+            assert refl37.bandwavelength == 3.7
+            assert refl37.bandname == 'ch20'
             # Default sunz-threshold used to stay on day side and away from terminator:
-            self.assertEqual(refl37.sunz_threshold, 85.0)
+            assert refl37.sunz_threshold == 85.0
 
-        with patch('pyspectral.radiance_tb_conversion.RelativeSpectralResponse') as mymock:
-            instance = mymock.return_value
-            instance.rsr = TEST_RSR
-            instance.unit = '1e-6 m'
-            instance.si_scale = 1e-6
-
-            refl37 = Calculator('EOS-Aqua', 'modis', '20')
-            self.assertEqual(refl37.sunz_threshold, TERMINATOR_LIMIT)
-            self.assertEqual(refl37.masking_limit, TERMINATOR_LIMIT)
-
+    def test_reflectance_custom_limits(self, tmp_path):
+        """Test get_reflectance with custom sunz threshold and masking limits."""
+        return_value = {
+            "description": "ABCD",
+            "instrument": "modis",
+            "platform_name": "EOS-Aqua",
+            "band_names": list(TEST_RSR.keys()),
+            "rsr": TEST_RSR,
+        }
+        with mock_tb_conversion(tb2rad_dir=tmp_path, return_value=return_value):
             refl37_sz88 = Calculator('EOS-Aqua', 'modis', '20', sunz_threshold=88.0, masking_limit=None)
-            self.assertEqual(refl37_sz88.sunz_threshold, 88.0)
-            self.assertIsNone(refl37_sz88.masking_limit)
-            self.assertAlmostEqual(refl37_sz88.bandwavelength, 3.780282, 5)
-            self.assertEqual(refl37_sz88.bandname, '20')
+            assert refl37_sz88.sunz_threshold == 88.0
+            assert refl37_sz88.masking_limit is None
+            assert refl37_sz88.bandwavelength == pytest.approx(3.780282, abs=1e-5)
+            assert refl37_sz88.bandname == '20'
+
+        sunz = np.array([85.1])
+        tb3 = 290.
+        tb4 = 282.
+        refl_sz88 = refl37_sz88.reflectance_from_tbs(sunz, tb3, tb4)
+        np.testing.assert_allclose(refl_sz88[0], 1.2064644, 6)
+
+    def test_reflectance_default_limits(self, tmp_path):
+        """Test get_reflectance with default sunz threshold and masking limits."""
+        return_value = {
+            "description": "ABCD",
+            "instrument": "modis",
+            "platform_name": "EOS-Aqua",
+            "band_names": list(TEST_RSR.keys()),
+            "rsr": TEST_RSR,
+        }
+        with mock_tb_conversion(tb2rad_dir=tmp_path, return_value=return_value):
+            refl37 = Calculator('EOS-Aqua', 'modis', '20')
+            assert refl37.sunz_threshold == TERMINATOR_LIMIT
+            assert refl37.masking_limit == TERMINATOR_LIMIT
 
         sunz = 80.
         tb3 = 290.
@@ -169,12 +208,7 @@ class TestReflectance(unittest.TestCase):
 
         sunz = np.array([85.1])
         refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
-        self.assertTrue(np.isnan(refl[0]))
-
-        refl_sz88 = refl37_sz88.reflectance_from_tbs(sunz, tb3, tb4)
-        np.testing.assert_allclose(refl_sz88[0], 1.2064644, 6)
-        sunz = np.array([86.0])
-        self.assertTrue(np.isnan(refl[0]))
+        assert np.isnan(refl[0])
 
         tb3x = refl37.emissive_part_3x()
         np.testing.assert_allclose(tb3x, 276.213054, 6)
@@ -201,7 +235,7 @@ class TestReflectance(unittest.TestCase):
         tb3 = np.ma.masked_array([300.], mask=False)
         tb4 = np.ma.masked_array([285.], mask=False)
         refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
-        self.assertTrue(hasattr(refl, 'mask'))
+        assert hasattr(refl, 'mask')
 
         sunz = np.array([80.], dtype=np.float32)
         tb3 = np.array([295.], dtype=np.float32)
@@ -221,7 +255,7 @@ class TestReflectance(unittest.TestCase):
                 tb3 = da.from_array([300.], chunks=10)
                 tb4 = da.from_array([285.], chunks=10)
                 refl = refl37.reflectance_from_tbs(sunz, tb3, tb4)
-                self.assertTrue(hasattr(refl, 'compute'))
+                assert hasattr(refl, 'compute')
         except ImportError:
             pass
 

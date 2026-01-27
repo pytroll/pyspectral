@@ -165,10 +165,8 @@ class SolarIrradianceSpectrum(object):
         """
         from scipy.interpolate import InterpolatedUnivariateSpline
 
-        if 'detector' in options:
-            detector = options['detector']
-        else:
-            detector = 1
+        detector = options.get("detector", 1)
+        detector_name = f"det-{detector}"
 
         # Resample/Interpolate the response curve:
         if self.wavespace == 'wavelength':
@@ -176,15 +174,15 @@ class SolarIrradianceSpectrum(object):
                 wvl = rsr['wavelength'] * scale
                 resp = rsr['response']
             else:
-                wvl = rsr['det-{0:d}'.format(detector)]['wavelength'] * scale
-                resp = rsr['det-{0:d}'.format(detector)]['response']
+                wvl = rsr[detector_name]['wavelength'] * scale
+                resp = rsr[detector_name]['response']
         else:
             if 'response' in rsr:
                 wvl = rsr['wavenumber'] * scale
                 resp = rsr['response']
             else:
-                wvl = rsr['det-{0:d}'.format(detector)]['wavenumber'] * scale
-                resp = rsr['det-{0:d}'.format(detector)]['response']
+                wvl = rsr[detector_name]['wavenumber'] * scale
+                resp = rsr[detector_name]['response']
 
         start = wvl[0]
         end = wvl[-1]

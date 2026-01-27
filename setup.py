@@ -29,11 +29,11 @@ description = ('Reading and manipulaing satellite sensor spectral responses and 
 with open('./README.md', 'r') as fd:
     long_description = fd.read()
 
-requires = ['numpy', 'scipy>=1.6.0', 'python-geotiepoints>=1.1.1',
+requires = ['numpy>=1.21', 'scipy>=1.6.0', 'python-geotiepoints>=1.1.1',
             'h5py>=2.5', 'requests', 'pyyaml', 'platformdirs']
 
 dask_extra = ['dask[array]']
-test_requires = ['pyyaml', 'dask[array]', 'xlrd', 'pytest', 'xarray', 'responses']
+test_requires = ['pyyaml', 'dask[array]', 'xlrd', 'pytest>=9', 'xarray', 'responses']
 
 NAME = 'pyspectral'
 
