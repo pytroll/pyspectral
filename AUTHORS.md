@@ -1,4 +1,4 @@
-# Project Contributors
+# Pyspectral developers
 
 The following people have made contributions to this project:
 
