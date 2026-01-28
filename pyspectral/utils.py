@@ -515,6 +515,40 @@ def get_logger(name):
     return log
 
 
+def get_fullwidth_halfmax(rsp, wvl):
+    """Compute the full-width half maximum (bandwidth) for a given spectral response.
+
+    Ths FWHM is defined as the wavelength range over which the SRF is greater than half
+    of the maximum response. Often, this is referred to as the bandwidth of a channel.
+    """
+    half_max = 0.5
+    indices = np.where(rsp >= half_max)[0]
+    if len(indices) < 2:
+        raise ValueError("The FWHM cannot be computed.")
+    else:
+        fwhm = wvl[indices[-1]] - wvl[indices[0]]
+    return fwhm
+
+
+def get_bounds_integrated_energy(rsp, wvl, ener_perc_lim=1):
+    """Compute wavelengths over which the integrated energy is greater than a threshold.
+
+    This measure is typically used to assess out of band performance and to ensure that
+    the spectral response function is not sensitive to specific absorption or emission
+    features. On occasion, it is also used to define or measure the bandwidth of a sensor.
+
+    The ``ener_perc_lim`` variable defines the threshold percentage of integrated energy.
+    This function returns the minimum and maximum wavelengths over which the integrated
+    energy is greater than (minimum) and less than (maximum) the threshold.
+    """
+    crs = np.cumsum(rsp)
+    crs = crs / np.max(crs) * 100.
+    mini_ind = np.where(crs >= ener_perc_lim)[0]
+    maxi_ind = np.where(crs <= (100 - ener_perc_lim))[0]
+
+    return wvl[mini_ind][0], wvl[maxi_ind][-1]
+
+
 def get_wave_range(in_chan, threshold=0.15):
     """Return central, min and max wavelength in an RSR greater than threshold.
 

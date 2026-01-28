@@ -63,6 +63,10 @@ RESULT_RSR['20']['det-1']['response'] = np.array([
     0.0849, 0.05028, 0.03226, 0.01987, 0.0118, 0.01],
     dtype='float32')
 
+RESULT_BW_CALC = 6.73999984e-05
+RESULT_INTEG_ENER_ONEPERC = (2.61000005e-05, 0.00831819978)
+RESULT_INTEG_ENER_TENPERC = (0.000107899999, 0.00831819978)
+
 
 class _MockedRSR:
     def __init__(self, usedet=True):
@@ -201,6 +205,30 @@ class TestUtils(unittest.TestCase):
         wvl_range = utils.get_wave_range(self.rsr.rsr['ch3']['det-1'], 0.5)
         expected_range = [0.60931027, 0.6393011276027835, 0.67512828]
         np.testing.assert_allclose(wvl_range, expected_range)
+
+
+def test_get_fullwidth_halfmax():
+    """Test computation of the FWHM method of bandwidth calculation."""
+    rsr = RsrTestData()
+    res = utils.get_fullwidth_halfmax(rsr.rsr['ch3']['det-1']['wavelength'],
+                                      rsr.rsr['ch3']['det-1']['response'])
+    assert res == RESULT_BW_CALC
+
+
+@pytest.mark.parametrize(
+    ("ener_perc_lim", "exp_res"),
+    [
+        (1, RESULT_INTEG_ENER_ONEPERC),
+        (10, RESULT_INTEG_ENER_TENPERC),
+    ]
+)
+def test_get_bounds_integrated_energy(ener_perc_lim, exp_res):
+    """Get the inegrated energy method of bandwidth calculation."""
+    rsr = RsrTestData()
+    res1 = utils.get_bounds_integrated_energy(rsr.rsr['ch3']['det-1']['wavelength'],
+                                              rsr.rsr['ch3']['det-1']['response'],
+                                              ener_perc_lim=ener_perc_lim)
+    np.testing.assert_allclose(res1, exp_res)
 
 
 @pytest.mark.parametrize(
