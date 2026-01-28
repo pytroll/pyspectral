@@ -24,7 +24,7 @@ May 2021, Norrkoping, Sweden
 
 ## License
 
-Copyright 2014 Trollsift developers
+Copyright 2013 Pyspectral developers
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use these files except in compliance with the License.
