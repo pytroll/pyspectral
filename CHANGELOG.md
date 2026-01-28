@@ -1,3 +1,29 @@
+## Version 0.14.0 (2026/01/28)
+
+### Issues Closed
+
+* [Issue 262](https://github.com/pytroll/pyspectral/issues/262) - Add a testing module to facilate testing in external modules
+* [Issue 261](https://github.com/pytroll/pyspectral/issues/261) - Relicense to Apache Version 2
+
+In this release 2 issues were closed.
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 272](https://github.com/pytroll/pyspectral/pull/272) - Refactor utils module
+* [PR 271](https://github.com/pytroll/pyspectral/pull/271) - Fix Zenodo RSR download by adding User-Agent and HTTP checks
+
+#### Features added
+
+* [PR 274](https://github.com/pytroll/pyspectral/pull/274) - Relicense to Apache v2.0
+* [PR 273](https://github.com/pytroll/pyspectral/pull/273) - Add two helper functions for calculating bandwidth
+* [PR 269](https://github.com/pytroll/pyspectral/pull/269) - Add user-facing testing utilities for mocking downloads
+* [PR 264](https://github.com/pytroll/pyspectral/pull/264) - Refactor near-infrared reflectance calculator
+
+In this release 6 pull requests were closed.
+
+
 ## Version 0.13.6 (2025/07/09)
 
 ### Issues Closed
