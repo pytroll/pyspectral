@@ -111,7 +111,7 @@ def mock_pyspectral_downloads(
     tmp_path_manager = None
     if tmp_path is None:
         tmp_path_manager = tempfile.TemporaryDirectory(prefix="pyspectral_testing_")
-        tmp_path = tmp_path_manager.name
+        tmp_path = Path(tmp_path_manager.name)
 
     config_options = {}
     config_options["download_from_internet"] = False
@@ -155,7 +155,7 @@ def mock_tb_conversion(
     tmp_path_manager = None
     if tb2rad_dir is None:
         tmp_path_manager = tempfile.TemporaryDirectory(prefix="pyspectral_testing_")
-        tb2rad_dir = tmp_path_manager.name
+        tb2rad_dir = Path(tmp_path_manager.name)
     if rsr_dir is None:
         rsr_dir = tb2rad_dir
 
@@ -224,7 +224,7 @@ def mock_rsr(
     tmp_path_manager = None
     if rsr_dir is None:
         tmp_path_manager = tempfile.TemporaryDirectory(prefix="pyspectral_testing_")
-        rsr_dir = tmp_path_manager.name
+        rsr_dir = Path(tmp_path_manager.name)
     fake_config = {
         "rsr_dir": str(rsr_dir),
         "download_from_internet": False,
@@ -341,7 +341,7 @@ def mock_rayleigh(
     tmp_path_manager = None
     if rayleigh_dir is None:
         tmp_path_manager = tempfile.TemporaryDirectory(prefix="pyspectral_testing_")
-        rayleigh_dir = tmp_path_manager.name
+        rayleigh_dir = Path(tmp_path_manager.name)
 
     if rsr_dir is None:
         rsr_dir = rayleigh_dir
