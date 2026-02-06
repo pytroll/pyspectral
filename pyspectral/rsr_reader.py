@@ -152,14 +152,14 @@ class RelativeSpectralResponse(_RSRDataBase):
 
         """
         super(RelativeSpectralResponse, self).__init__()
-        filename, platform_name, instrument = self._sanitize_inputs(
+        resolved_filename, resolved_platform_name, resolved_instrument = self._sanitize_inputs(
             filename,
             platform_name,
             instrument,
         )
-        self.filename = filename
-        self.platform_name = platform_name
-        self.instrument = instrument
+        self.filename = resolved_filename
+        self.platform_name = resolved_platform_name
+        self.instrument = resolved_instrument
         self.unit = '1e-6 m'
         self.si_scale = 1e-6  # How to scale the wavelengths to become SI unit
         self._wavespace = WAVE_LENGTH
