@@ -124,6 +124,7 @@ class _RSRDataBase:
             updated was needed.
 
         """
+        print(self.rsr_data_version, self.rsr_data_version_uptodate, self.do_download)
         if self.rsr_data_version_uptodate:
             return False
 
@@ -152,18 +153,20 @@ class RelativeSpectralResponse(_RSRDataBase):
 
         """
         super(RelativeSpectralResponse, self).__init__()
-        filename, platform_name, instrument = self._sanitize_inputs(
+        print(filename, platform_name, instrument)
+        resolved_filename, resolved_platform_name, resolved_instrument = self._sanitize_inputs(
             filename,
             platform_name,
             instrument,
         )
-        self.filename = filename
-        self.platform_name = platform_name
-        self.instrument = instrument
+        self.filename = resolved_filename
+        self.platform_name = resolved_platform_name
+        self.instrument = resolved_instrument
         self.unit = '1e-6 m'
         self.si_scale = 1e-6  # How to scale the wavelengths to become SI unit
         self._wavespace = WAVE_LENGTH
 
+        print(filename, platform_name, instrument)
         if filename is None:
             # if the user didn't provide a specific file, then make sure we have the most up to date RSRs
             self.download_rsr_updates()

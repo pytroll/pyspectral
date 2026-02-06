@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 
 from pyspectral.rsr_reader import RelativeSpectralResponse, RSRDict
-from pyspectral.testing import mock_rsr_files
+from pyspectral.testing import mock_rsr_files, override_config
 from pyspectral.utils import RSR_DATA_VERSION, RSR_DATA_VERSION_FILENAME, WAVE_NUMBER
 
 TEST_RSR = {'20': {}, }
@@ -274,11 +274,20 @@ def test_get_rsr_from_platform_and_instrument(tmp_path, platform_name, instrumen
         assert test_rsr.filename.name == exp_filename
 
 
+def test_rsr_download_from_platform_and_instrument(tmp_path):
+    """Test that RSR files are downloaded when not present or not up to date."""
+    with (mock_rsr_files(tmp_path, rsr_data_version="v0.0.0"),
+          unittest.mock.patch("pyspectral.rsr_reader.download_rsr") as download):
+        RelativeSpectralResponse("GOES-16", "abi")
+        download.assert_called()
+
+
 @pytest.mark.parametrize(
     ("version", "exp_download"),
     [
         (RSR_DATA_VERSION, False),
         ("v1.0.0", True),
+        (None, True),
     ],
 )
 def test_check_and_download(tmp_path, version, exp_download):
@@ -294,21 +303,13 @@ def test_check_and_download(tmp_path, version, exp_download):
 
 @contextlib.contextmanager
 def _fake_rsr_dir(tmp_path, rsr_version):
-    with _fake_get_config(tmp_path):
+    new_config = {
+        "rsr_dir": str(tmp_path),
+        "download_from_internet": True,
+    }
+    with override_config(config_options=new_config):
         version_filename = str(tmp_path / RSR_DATA_VERSION_FILENAME)
-        with open(version_filename, "w") as version_file:
-            version_file.write(rsr_version)
-        yield
-
-
-@contextlib.contextmanager
-def _fake_get_config(tmp_path):
-    def _get_config():
-        return {
-            "rayleigh_dir": str(tmp_path),
-            "rsr_dir": str(tmp_path),
-            "download_from_internet": True,
-        }
-    with unittest.mock.patch("pyspectral.rsr_reader.get_config") as get_config:
-        get_config.side_effect = _get_config
+        if rsr_version is not None:
+            with open(version_filename, "w") as version_file:
+                version_file.write(rsr_version)
         yield
