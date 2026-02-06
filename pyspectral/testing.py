@@ -190,7 +190,8 @@ def init_tb_cache(tb2rad_dir: Path) -> Iterator[None]:
 def mock_rsr(
     *,
     rsr_dir: Path | None = None,
-    rsr_data_version: str = RSR_DATA_VERSION,
+    rsr_data_version: str | None = RSR_DATA_VERSION,
+    download_from_internet: bool = False,
     central_wavelengths: dict[str, float] | None = None,
     side_effect: Any = "__unset__",
     return_value: Any = "__unset__",
@@ -207,6 +208,10 @@ def mock_rsr(
             temporary directory is used and deleted on exit of the context manager.
         rsr_data_version: Version number to use for the created fake RSR files.
             By default, the newest/active version number will be used.
+        download_from_internet: Set pyspectral configuration value to allow or
+            disallow downloads to occur. Defaults to False and relies on mocking
+            to make the files seem like they exist. If ``True`` then downloads
+            may be attempted if ``rsr_data_version`` is out of date or ``None``.
         central_wavelengths: Dictionary mapping a channel name to a central wavelength
             floating point number. This is used to generate more realistic data in the
             created fake RSR files. This has no effect if ``side_effect`` or
@@ -227,7 +232,7 @@ def mock_rsr(
         rsr_dir = Path(tmp_path_manager.name)
     fake_config = {
         "rsr_dir": str(rsr_dir),
-        "download_from_internet": False,
+        "download_from_internet": download_from_internet,
     }
     config_cm = override_config(config_options=fake_config)
     rsr_files_cm = mock_rsr_files(
@@ -247,7 +252,7 @@ def mock_rsr(
 def mock_rsr_files(
     rsr_dir: Path,
     *,
-    rsr_data_version: str = RSR_DATA_VERSION,
+    rsr_data_version: str | None = RSR_DATA_VERSION,
     central_wavelengths: dict[str, float] | None = None,
     side_effect: Any = "__unset__",
     return_value: Any = "__unset__",
@@ -264,6 +269,12 @@ def mock_rsr_files(
         rsr_dir: Path to store fake RSR files.
         rsr_data_version: Version number to use for the created fake RSR files.
             By default, the newest/active version number will be used.
+            If ``None`` then no version file is written and no directory created.
+            Note setting to ``None`` will trigger downloads to occur if no further
+            mocking is done. This should only be used to test that downloads do
+            happen when needed. This does not prevent the mocking
+            (see ``side_effect`` and ``return_value``) from making pyspectral
+            think it has the downloads.
         central_wavelengths: Dictionary mapping a channel name to a central wavelength
             floating point number. This is used to generate more realistic data in the
             created fake RSR files. This has no effect if ``side_effect`` or
@@ -278,12 +289,13 @@ def mock_rsr_files(
             ``central_wavelengths``.
 
     """
-    rsr_dir.mkdir(parents=True, exist_ok=True)
+    if rsr_data_version is not None:
+        rsr_dir.mkdir(parents=True, exist_ok=True)
 
-    rsr_version_path = rsr_dir / RSR_DATA_VERSION_FILENAME
-    with rsr_version_path.open("w") as rsr_version_file:
-        # defaults to active version, no downloading
-        rsr_version_file.write(rsr_data_version)
+        rsr_version_path = rsr_dir / RSR_DATA_VERSION_FILENAME
+        with rsr_version_path.open("w") as rsr_version_file:
+            # defaults to active version, no downloading
+            rsr_version_file.write(rsr_data_version)
 
     with mock.patch("pyspectral.rsr_reader._load_rsr_info_from_file") as load_rsr:
         if return_value != "__unset__":

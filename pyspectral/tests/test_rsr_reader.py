@@ -1,15 +1,14 @@
 """Unit testing the generic rsr hdf5 reader."""
 from __future__ import annotations
 
-import contextlib
 import unittest
 
 import numpy as np
 import pytest
 
 from pyspectral.rsr_reader import RelativeSpectralResponse, RSRDict
-from pyspectral.testing import mock_rsr_files, override_config
-from pyspectral.utils import RSR_DATA_VERSION, RSR_DATA_VERSION_FILENAME, WAVE_NUMBER
+from pyspectral.testing import mock_rsr
+from pyspectral.utils import RSR_DATA_VERSION, WAVE_NUMBER
 
 TEST_RSR = {'20': {}, }
 TEST_RSR['20']['det-1'] = {}
@@ -72,7 +71,7 @@ def test_convert(tmp_path):
         "band_names": list(TEST_RSR.keys()),
         "rsr": TEST_RSR,
     }
-    with mock_rsr_files(tmp_path, return_value=return_value):
+    with mock_rsr(rsr_dir=tmp_path, return_value=return_value):
         test_rsr = RelativeSpectralResponse("EOS-Aqua", "modis")
         test_rsr.convert()
         np.testing.assert_allclose(test_rsr.rsr["20"]["det-1"]["central_wavenumber"], 2647.397, atol=1e-3)
@@ -92,7 +91,7 @@ def test_integral(tmp_path):
         "band_names": list(TEST_RSR2.keys()),
         "rsr": TEST_RSR,
     }
-    with mock_rsr_files(tmp_path, return_value=return_value):
+    with mock_rsr(rsr_dir=tmp_path, return_value=return_value):
         test_rsr = RelativeSpectralResponse("EOS-Aqua", "modis")
         test_rsr.rsr = TEST_RSR2
         res = test_rsr.integral("20")
@@ -108,7 +107,7 @@ def test_metadata_from_hdf5_with_platform_instrument(tmp_path):
         "band_names": list(TEST_RSR2.keys()),
         "rsr": TEST_RSR,
     }
-    with mock_rsr_files(tmp_path, return_value=return_value):
+    with mock_rsr(rsr_dir=tmp_path, return_value=return_value):
         test_rsr = RelativeSpectralResponse("EOS-Aqua", "modis")
         assert test_rsr.description == "ABCD"
         # platform and instrument are not overwritten by file content
@@ -127,7 +126,7 @@ def test_get_band_from_wavelength(tmp_path):
         "band_names": list(TEST_RSR2.keys()),
         "rsr": TEST_RSR,
     }
-    with mock_rsr_files(tmp_path, return_value=return_value):
+    with mock_rsr(rsr_dir=tmp_path, return_value=return_value):
         test_rsr = RelativeSpectralResponse("EOS-Aqua", "modis")
         assert test_rsr.get_bandname_from_wavelength(3.75) == "20"
 
@@ -267,16 +266,17 @@ def test_rsr_unconfigured_sensor():
 )
 def test_get_rsr_from_platform_and_instrument(tmp_path, platform_name, instrument, exp_filename, exp_instrument):
     """Test getting the rsr filename correct when specifying the platform and instrument names."""
-    with mock_rsr_files(tmp_path):
+    with mock_rsr(rsr_dir=tmp_path):
         test_rsr = RelativeSpectralResponse(platform_name, instrument)
         assert test_rsr.platform_name == platform_name
         assert test_rsr.instrument == exp_instrument
         assert test_rsr.filename.name == exp_filename
 
 
-def test_rsr_download_from_platform_and_instrument(tmp_path):
+@pytest.mark.parametrize("version", ["v0.0.0", None])
+def test_rsr_download_from_platform_and_instrument(tmp_path, version):
     """Test that RSR files are downloaded when not present or not up to date."""
-    with (mock_rsr_files(tmp_path, rsr_data_version="v0.0.0"),
+    with (mock_rsr(rsr_dir=tmp_path, download_from_internet=True, rsr_data_version=version),
           unittest.mock.patch("pyspectral.rsr_reader.download_rsr") as download):
         RelativeSpectralResponse("GOES-16", "abi")
         download.assert_called()
@@ -293,23 +293,10 @@ def test_rsr_download_from_platform_and_instrument(tmp_path):
 def test_check_and_download(tmp_path, version, exp_download):
     """Test that check_and_download only downloads when necessary."""
     from pyspectral.rsr_reader import check_and_download
-    with _fake_rsr_dir(tmp_path, version), unittest.mock.patch("pyspectral.rsr_reader.download_rsr") as download:
+    with (mock_rsr(rsr_dir=tmp_path, download_from_internet=True, rsr_data_version=version),
+          unittest.mock.patch("pyspectral.rsr_reader.download_rsr") as download):
         check_and_download()
         if exp_download:
             download.assert_called()
         else:
             download.assert_not_called()
-
-
-@contextlib.contextmanager
-def _fake_rsr_dir(tmp_path, rsr_version):
-    new_config = {
-        "rsr_dir": str(tmp_path),
-        "download_from_internet": True,
-    }
-    with override_config(config_options=new_config):
-        version_filename = str(tmp_path / RSR_DATA_VERSION_FILENAME)
-        if rsr_version is not None:
-            with open(version_filename, "w") as version_file:
-                version_file.write(rsr_version)
-        yield
