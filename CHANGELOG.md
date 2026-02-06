@@ -1,3 +1,21 @@
+## Version 0.14.1 (2026/02/06)
+
+### Issues Closed
+
+* [Issue 268](https://github.com/pytroll/pyspectral/issues/268) - Pyspectral documentation has problems with overflowing left-hand bar.
+
+In this release 1 issue was closed.
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 276](https://github.com/pytroll/pyspectral/pull/276) - Fix RSR downloads not downloading on-demand
+* [PR 275](https://github.com/pytroll/pyspectral/pull/275) - Fix testing utilities using strings as Path
+
+In this release 2 pull requests were closed.
+
+
 ## Version 0.14.0 (2026/01/28)
 
 ### Issues Closed
@@ -537,7 +555,7 @@ In this release 9 pull requests were closed.
 In this release 2 pull requests were closed.
 
 
-## Version <RELEASE_VERSION> (2019/09/30)
+## Version 0.14.1 (2019/09/30)
 
 ### Issues Closed
 
@@ -551,7 +569,7 @@ In this release 2 pull requests were closed.
 In this release 2 pull requests were closed.
 
 
-## Version <RELEASE_VERSION> (2019/08/30)
+## Version 0.14.1 (2019/08/30)
 
 ### Issues Closed
 
@@ -575,7 +593,7 @@ In this release 1 issue was closed.
 In this release 5 pull requests were closed.
 
 
-## Version <RELEASE_VERSION> (2019/06/07)
+## Version 0.14.1 (2019/06/07)
 
 ### Issues Closed
 
@@ -591,7 +609,7 @@ In this release 1 issue was closed.
 
 In this release 1 pull request was closed.
 
-## Version <RELEASE_VERSION> (2019/04/29)
+## Version 0.14.1 (2019/04/29)
 
 ### Issues Closed
 
@@ -615,7 +633,7 @@ In this release 4 issues were closed.
 In this release 4 pull requests were closed.
 
 
-## Version <RELEASE_VERSION> (2019/04/09)
+## Version 0.14.1 (2019/04/09)
 
 ### Issues Closed
 
@@ -640,7 +658,7 @@ In this release 3 issues were closed.
 In this release 2 pull requests were closed.
 
 
-## Version <RELEASE_VERSION> (2018/12/04)
+## Version 0.14.1 (2018/12/04)
 
 ### Issues Closed
 
@@ -657,7 +675,7 @@ In this release 1 issue was closed.
 In this release 1 pull request was closed.
 
 
-## Version <RELEASE_VERSION> (2018/11/30)
+## Version 0.14.1 (2018/11/30)
 
 ### Issues Closed
 
@@ -679,7 +697,7 @@ In this release 1 issue was closed.
 In this release 3 pull requests were closed.
 
 
-## Version <RELEASE_VERSION> (2018/11/30)
+## Version 0.14.1 (2018/11/30)
 
 ### Issues Closed
 
