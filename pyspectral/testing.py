@@ -208,6 +208,7 @@ def mock_rsr(
             temporary directory is used and deleted on exit of the context manager.
         rsr_data_version: Version number to use for the created fake RSR files.
             By default, the newest/active version number will be used.
+            See :func:`mock_rsr_files` for more details.
         download_from_internet: Set pyspectral configuration value to allow or
             disallow downloads to occur. Defaults to False and relies on mocking
             to make the files seem like they exist. If ``True`` then downloads
