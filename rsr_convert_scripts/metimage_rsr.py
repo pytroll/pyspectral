@@ -7,17 +7,30 @@ import logging
 import os
 
 import numpy as np
-
+from netCDF4 import Dataset
 from pyspectral.raw_reader import InstrumentRSR
 from pyspectral.utils import get_central_wave
-
+from pyspectral.bandnames import BANDNAMES
 LOG = logging.getLogger(__name__)
 
 METIMAGE_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5',
                        'ch6', 'ch7', 'ch8', 'ch9', 'ch10',
                        'ch11', 'ch12', 'ch13', 'ch14', 'ch15',
                        'ch16', 'ch17', 'ch18', 'ch19', 'ch20']
+BANDNAMES['VII']
 
+METIMAGE_BAND_NAMES = list(BANDNAMES['VII'].keys())
+
+def get_groupname_from_bandname(band):
+    groupname = "LVWIR"
+    wv = int(band.split("_")[-1])
+    if wv > 6000:
+        groupname = "LVWIR"
+    elif wv > 1000:
+        groupname = "SMWIR"
+    else:
+        groupname = "VISNIR"
+    return groupname
 
 class MetImageRSR(InstrumentRSR):
     """Container for the EPS-SG MetImage RSR data."""
@@ -29,11 +42,12 @@ class MetImageRSR(InstrumentRSR):
 
         self.instrument = 'metimage'
         self._get_options_from_config()
-        self._get_bandfilenames()
 
-        LOG.debug("Filenames: %s", str(self.filenames))
-        if self.filenames[bandname] and os.path.exists(self.filenames[bandname]):
-            self.requested_band_filename = self.filenames[bandname]
+        LOG.debug("Filename: %s", str(self.path))
+        if os.path.exists(self.path):
+            self.requested_band_filename = self.path
+            self.nc_band_name = bandname.replace("vii", "ISRF_cw")
+            self.group_name = get_groupname_from_bandname(bandname)
             self._load()
 
         else:
@@ -42,29 +56,22 @@ class MetImageRSR(InstrumentRSR):
 
         # To be compatible with VIIRS....
         self.filename = self.requested_band_filename
-
         self.unit = 'micrometer'
         self.wavespace = 'wavelength'
 
-    def _load(self, scale=0.001):
-        """Load the MetImage RSR data for the band requested."""
-        data = np.genfromtxt(self.requested_band_filename,
-                             unpack=True,
-                             names=['wavelength',
-                                    'response'],
-                             skip_header=0,
-                             delimiter=',')
-
-        # Data are in nanometer and need to transform to microns:
-        wavelength = data['wavelength'] * scale
-        response = data['response']
-
+    def _load(self, scale=1.0):
+        """Load the METimage relative spectral responses."""
+        LOG.debug("File: %s", str(self.requested_band_filename))
+        ncf = Dataset(self.requested_band_filename, 'r', format='NETCDF4')
+        wvl = ncf[self.group_name].variables[self.nc_band_name][:,0] * scale
+        resp = ncf[self.group_name].variables[self.nc_band_name][:,1]
         # The real MetImage has 24 detectors. However, for now we store the
         # single rsr as 'detector-1', indicating that there will be multiple
         # detectors in the future:
         detectors = {}
-        detectors['det-1'] = {'wavelength': wavelength, 'response': response}
+        detectors['det-1'] = {'wavelength': wvl, 'response': resp}
         self.rsr = detectors
+        ncf.close()
 
 
 def generate_metimage_file(platform_name):
