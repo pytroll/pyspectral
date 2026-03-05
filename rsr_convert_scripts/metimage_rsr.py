@@ -8,9 +8,11 @@ import os
 
 import numpy as np
 from netCDF4 import Dataset
+
+from pyspectral.bandnames import BANDNAMES
 from pyspectral.raw_reader import InstrumentRSR
 from pyspectral.utils import get_central_wave
-from pyspectral.bandnames import BANDNAMES
+
 LOG = logging.getLogger(__name__)
 
 METIMAGE_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5',
