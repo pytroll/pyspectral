@@ -194,6 +194,13 @@ for FY-3B come as ``.prn`` text files for each channel (ex. ``ch1.prn``). For
 FY-3C they come as ``.txt`` text files for channels 1, 2, 6, 7, 8, 9, and 10
 only with names like ``FY3C_VIRR_CH01.txt``.
 
+.. code::
+
+    %> python metimage_rsr.py
+
+Converting the Metop-SG-A1. Original one netcdf file: EPS-SGA1_METIMAGE_SRF.nc.
+
+
 PyTroll developers
 
 
