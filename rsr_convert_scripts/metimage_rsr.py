@@ -65,6 +65,7 @@ class MetImageRSR(InstrumentRSR):
         ncf = Dataset(self.requested_band_filename, 'r', format='NETCDF4')
         wvl = ncf[self.group_name].variables[self.nc_band_name][:,0] * scale
         resp = ncf[self.group_name].variables[self.nc_band_name][:,1]
+        resp = resp / max(resp)  # Not sure about this
         # The real MetImage has 24 detectors. However, for now we store the
         # single rsr as 'detector-1', indicating that there will be multiple
         # detectors in the future:
