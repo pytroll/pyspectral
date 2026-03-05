@@ -21,7 +21,9 @@ BANDNAMES['VII']
 
 METIMAGE_BAND_NAMES = list(BANDNAMES['VII'].keys())
 
+
 def get_groupname_from_bandname(band):
+    """Get group name in netcdf file from band name."""
     groupname = "LVWIR"
     wv = int(band.split("_")[-1])
     if wv > 6000:
@@ -31,6 +33,7 @@ def get_groupname_from_bandname(band):
     else:
         groupname = "VISNIR"
     return groupname
+
 
 class MetImageRSR(InstrumentRSR):
     """Container for the EPS-SG MetImage RSR data."""
@@ -63,8 +66,8 @@ class MetImageRSR(InstrumentRSR):
         """Load the METimage relative spectral responses."""
         LOG.debug("File: %s", str(self.requested_band_filename))
         ncf = Dataset(self.requested_band_filename, 'r', format='NETCDF4')
-        wvl = ncf[self.group_name].variables[self.nc_band_name][:,0] * scale
-        resp = ncf[self.group_name].variables[self.nc_band_name][:,1]
+        wvl = ncf[self.group_name].variables[self.nc_band_name][:, 0] * scale
+        resp = ncf[self.group_name].variables[self.nc_band_name][:, 1]
         resp = resp / max(resp)  # Not sure about this
         # The real MetImage has 24 detectors. However, for now we store the
         # single rsr as 'detector-1', indicating that there will be multiple
