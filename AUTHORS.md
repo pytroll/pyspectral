@@ -22,3 +22,4 @@ The following people have made contributions to this project:
 - [Lu Liu (yukaribbba)](https://github.com/yukaribbba)
 - [Chung-Hsiang Horng (chorng)](https://github.com/chorng)
 - [Gerrit Holl (gerritholl)](https://github.com/gerritholl)
+- [Nina Håkansson (ninahakansson)](https://github.com/ninahakansson)
