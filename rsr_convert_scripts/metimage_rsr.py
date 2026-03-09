@@ -15,13 +15,9 @@ from pyspectral.utils import get_central_wave
 
 LOG = logging.getLogger(__name__)
 
-METIMAGE_BAND_NAMES = ['ch1', 'ch2', 'ch3', 'ch4', 'ch5',
-                       'ch6', 'ch7', 'ch8', 'ch9', 'ch10',
-                       'ch11', 'ch12', 'ch13', 'ch14', 'ch15',
-                       'ch16', 'ch17', 'ch18', 'ch19', 'ch20']
-BANDNAMES['VII']
 
-METIMAGE_BAND_NAMES = list(BANDNAMES['VII'].keys())
+METIMAGE_BAND_NAMES_DICT = {BANDNAMES['VII'][k]: k for k in BANDNAMES['VII']}
+METIMAGE_BAND_NAMES = list(METIMAGE_BAND_NAMES_DICT.keys())
 
 
 def get_groupname_from_bandname(band):
@@ -43,7 +39,7 @@ class MetImageRSR(InstrumentRSR):
     def __init__(self, bandname, platform_name):
         """Initialize the class."""
         super(MetImageRSR, self).__init__(
-            bandname, platform_name, METIMAGE_BAND_NAMES)
+            bandname, platform_name, list(METIMAGE_BAND_NAMES))
 
         self.instrument = 'metimage'
         self._get_options_from_config()
@@ -51,8 +47,8 @@ class MetImageRSR(InstrumentRSR):
         LOG.debug("Filename: %s", str(self.path))
         if os.path.exists(self.path):
             self.requested_band_filename = self.path
-            self.nc_band_name = bandname.replace("vii", "ISRF_cw")
-            self.group_name = get_groupname_from_bandname(bandname)
+            self.nc_band_name = METIMAGE_BAND_NAMES_DICT[bandname].replace("vii", "ISRF_cw")
+            self.group_name = get_groupname_from_bandname(METIMAGE_BAND_NAMES_DICT[bandname])
             self._load()
 
         else:
