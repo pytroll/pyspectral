@@ -1,6 +1,46 @@
 Changelog for the Relative Spectral Response data
 =================================================
 
+Version v1.5.1 (Mon Mar  9 09:13:07 PM CET 2026)
+
+-------------------------------------------
+
+* Added actual measured (low resolution macro pixel) RSRs for METImage Metop-SG A1
+
+
+Version v1.5.0 (Tue Sep 30 09:53:59 PM CEST 2025)
+
+-------------------------------------------
+
+* Added SLSTR RSRs for Sentinel-3C and -D. Updated with the latest versions from ESA for Sentinel-3A and -B.
+
+
+Version v1.4.1 (Tue Oct 29 03:45:40 PM CET 2024)
+
+-------------------------------------------
+
+ * Added RSRs for Landsat-8 and -9 OLI & TIRS. Original RSR as provided by NASA. Previously we had only Landsat-8 OLI
+
+
+Version v1.4.0 (Tue Sep 24 03:35:15 PM CEST 2024)
+
+-------------------------------------------
+
+ * Added RSRs for Sentinel-2C MSI and updated the MSI RSR for Sentinel 2A & B
+
+
+Version v1.3.2 (Mon Jul 15 12:32:12 PM CEST 2024)
+
+-------------------------------------------
+
+ * Corrected the file name for the RSRs of Mersi-3 onboard FY-3F
+
+
+Version v1.3.1 (Mon Jul 15 11:12:10 AM CEST 2024)
+-------------------------------------------
+
+ * Added SRFs (RSRs) for the Mersi-3 sensor onboard FY-3F
+
 
 Version <v1.3.0> (Fri May  3 04:11:43 PM CEST 2024)
 -------------------------------------------
