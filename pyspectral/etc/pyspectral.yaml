@@ -569,3 +569,7 @@ download_from_internet: True
 #   ch2: TIROS_N_PFMC002.txt
 #   ch3: TIROS_N_PFMC003.txt
 #   ch4: TIROS_N_APFMC004.txt
+
+#Metop-SG-A1-metimage:
+#   path: /path/to/original/EPS-SGA1_METIMAGE_SRF.nc
+
