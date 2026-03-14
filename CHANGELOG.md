@@ -1,3 +1,19 @@
+## Version 0.14.2 (2026/03/14)
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 279](https://github.com/pytroll/pyspectral/pull/279) - Update to latest RSR data on Zenodo
+
+#### Features added
+
+* [PR 279](https://github.com/pytroll/pyspectral/pull/279) - Update to latest RSR data on Zenodo
+* [PR 278](https://github.com/pytroll/pyspectral/pull/278) - Add metimage average srf
+
+In this release 3 pull requests were closed.
+
+
 ## Version 0.14.1 (2026/02/06)
 
 ### Issues Closed
