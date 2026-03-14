@@ -4,7 +4,7 @@ Data from EUMETSAT. Published in March 2026:
 
 https://sftp.eumetsat.int/public/folder/UsCVknVOOkSyCdgpMimJNQ/User-Materials/EPS-SGUP/EPS-SGA1_METIMAGE_SRF.nc
 
-These are the so called low resolution macropixel (=average over all detectors)
+These are the so called low resolution macro pixel (=average over all detectors)
 SRFs. Higher resolution SRFs per detector are available, however, currently
 under export control, so not freely available.
 
