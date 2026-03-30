@@ -1,6 +1,14 @@
 Changelog for the Relative Spectral Response data
 =================================================
 
+Version v1.6.0 (Mon Mar 30 06:58:54 PM CEST 2026)
+
+-------------------------------------------
+
+* Updated the MODIS RSR files with new platform names, Terra and Aqua instead
+  of the previous EOS-Terra and EOS-Aqua, see the WMO OSCAR database
+
+
 Version v1.5.1 (Mon Mar  9 09:13:07 PM CET 2026)
 
 -------------------------------------------
