@@ -28,17 +28,33 @@ from pathlib import Path
 
 import h5py
 
-BASEDIR = "/data/pyspectral/"
+
+def get_arguments():
+    """Get the command line arguments."""
+    import argparse
+    parser = argparse.ArgumentParser(
+        description='Convert old modis files to new ones using the platform names now standard at WMO Oscar')
+
+    parser.add_argument("--directory", '-d',
+                        help="The directory path to where the old EOS-Aqua/EOS-Terra RSR files are stored",
+                        type=str, required=True)
+
+    return parser.parse_args()
+
 
 if __name__ == "__main__":
 
+    args = get_arguments()
+    basedir = args.directory
+
     for satname in ['Aqua', 'Terra']:
-        OLD_MODIS_FILE = Path(BASEDIR) / f'rsr_modis_EOS-{satname}.h5'
-        NEW_MODIS_FILE = Path(BASEDIR) / f'rsr_modis_{satname}.h5'
+        OLD_MODIS_FILE = Path(basedir) / f'rsr_modis_EOS-{satname}.h5'
+        NEW_MODIS_FILE = Path(basedir) / f'rsr_modis_{satname}.h5'
         shutil.copy(OLD_MODIS_FILE, NEW_MODIS_FILE)
 
         remove_attrs = ["platform", "sat_number"]
         new_attrs = {
+            "sensor": "modis",
             "platform_name": satname,
         }
 
