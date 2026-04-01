@@ -5,11 +5,13 @@ give wavelength range.
 
 """
 
+import logging
+
 import matplotlib.pyplot as plt
 import numpy as np
 
 from pyspectral.rsr_reader import RelativeSpectralResponse
-from pyspectral.utils import INSTRUMENTS, get_logger, logging_off, logging_on
+from pyspectral.utils import INSTRUMENTS, get_logger, logging_on
 
 
 def plot_band(plt_in, band_name, rsr_obj, **kwargs):
@@ -114,7 +116,7 @@ if __name__ == "__main__":
     if verbose:
         logging_on()
     else:
-        logging_off()
+        logging_on(level=logging.ERROR)
 
     req_wvl = None
     band = None
@@ -141,8 +143,8 @@ if __name__ == "__main__":
             try:
                 rsr = RelativeSpectralResponse(platform, sensor)
             except IOError:
-                # LOG.exception('Failed getting the rsr data for platform %s ' +
-                #              'and sensor %s', platform, sensor)
+                LOG.exception('Failed getting the rsr data for platform %s ' +
+                              'and sensor %s', platform, sensor)
                 rsr = None
             else:
                 break
