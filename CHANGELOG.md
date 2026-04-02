@@ -1,3 +1,20 @@
+## Version 0.14.3 (2026/04/02)
+
+### Issues Closed
+
+* [Issue 252](https://github.com/pytroll/pyspectral/issues/252) - MODIS platform name not compatible with satpy
+
+In this release 1 issue was closed.
+
+### Pull Requests Merged
+
+#### Documentation changes
+
+* [PR 280](https://github.com/pytroll/pyspectral/pull/280) - Upgrade RTD to Ubuntu 24 and miniforge
+
+In this release 1 pull request was closed.
+
+
 ## Version 0.14.2 (2026/03/14)
 
 ### Pull Requests Merged
