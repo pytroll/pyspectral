@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Setup Conda Environment
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v4
         with:
           environment-file: continuous_integration/environment.yaml
           miniforge-version: latest
@@ -71,5 +71,5 @@ jobs:
         uses: codecov/codecov-action@v6
         with:
           flags: unittests
-          file: ./coverage.xml
+          files: ./coverage.xml
           env_vars: OS,PYTHON_VERSION,UNSTABLE
