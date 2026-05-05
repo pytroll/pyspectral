@@ -6,7 +6,7 @@ dependencies:
   - dask
   - distributed
   - toolz
-  - Cython
+  - cython
   - sphinx
   - matplotlib
   - scipy
