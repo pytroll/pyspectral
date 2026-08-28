@@ -7,8 +7,7 @@ from pyspectral.config import get_config
 
 @pytest.mark.parametrize("dir_key", ["rsr_dir", "rayleigh_dir"])
 def test_get_config_tolerates_dangling_symlink(tmp_path, dir_key):
-    """``get_config`` must not crash when a configured directory lies behind a
-    symlink whose target does not exist yet.
+    """``get_config`` must not crash on a configured directory behind a dangling symlink.
 
     ``os.makedirs(..., exist_ok=True)`` raises ``FileExistsError`` in that
     case; the target directory should be created instead.
