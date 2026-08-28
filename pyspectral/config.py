@@ -41,16 +41,12 @@ def recursive_dict_update(d, u):
 def _ensure_dir(path: str) -> None:
     """Create ``path``, tolerating symlinked path components.
 
-    ``os.makedirs(..., exist_ok=True)`` still raises ``FileExistsError`` when a
-    component of the path is a symlink whose target does not exist. In that case
-    create the link target instead, so directories behind symlinks work like
-    ordinary directories.
+    ``os.makedirs(..., exist_ok=True)`` raises ``FileExistsError`` when a
+    component of the path is a symlink whose target does not exist.
+    ``os.path.realpath`` resolves such links to their target, which is then
+    created, so directories behind symlinks work like ordinary directories.
     """
-    try:
-        os.makedirs(path, exist_ok=True)
-    except FileExistsError:
-        if not os.path.isdir(path):
-            os.makedirs(os.path.realpath(path), exist_ok=True)
+    os.makedirs(os.path.realpath(path), exist_ok=True)
 
 
 def get_config(config_file: str | Path | None = None) -> dict:
