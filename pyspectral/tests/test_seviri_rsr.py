@@ -1,3 +1,9 @@
+"""Regression tests for the SEVIRI RSR converter.
+
+Ensures the first spreadsheet row of each IR channel is included when
+converting the bundled MSG SEVIRI spectral response workbook (issue #253).
+"""
+
 import importlib
 import sys
 import types
@@ -15,6 +21,7 @@ def _import_seviri_module(repo_root: Path):
 
 
 def test_ir_channels_include_the_first_spreadsheet_row(monkeypatch):
+    """IR channel RSR data must start at spreadsheet row 12, not row 13."""
     repo_root = Path(__file__).resolve().parents[2]
     xls_path = repo_root / "pyspectral" / "data" / "MSG_SEVIRI_Spectral_Response_Characterisation.XLS"
     workbook = open_workbook(str(xls_path))
