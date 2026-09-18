@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """Mirror the pyspectral data files for serving them from a local web location.
 
 Download the relative spectral response and atmospheric correction LUT
