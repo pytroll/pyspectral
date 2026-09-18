@@ -15,6 +15,14 @@
 # LUTs are downloaded from internet:
 download_from_internet: True
 
+# On default the data are downloaded from zenodo.org. If you run many
+# processing chains you may want to mirror the data on a web server of your own
+# to avoid being rate limited by the upstream host. Create the mirror with the
+# 'mirror_pyspectral_data.py' script, copy it to your web server, and give the
+# URL it is served from here. The PSP_DATA_BASE_URL environment variable
+# overrides this setting:
+#download_base_url: https://www.example.com/pyspectral
+
 # Everything below this line should not need to be changed!
 # Changes may be done if you want to change the name of the radiance<->Tb LUT filenames,
 # or if you want to store those files in different directories dependning on the platform/sensor.

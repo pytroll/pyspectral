@@ -67,6 +67,12 @@ stamp files written next to the data: `RSR_DATA_VERSION` / `ATM_CORRECTION_LUT_V
 in the data dirs to decide whether to re-download. When RSR data on Zenodo is updated, bump
 `RSR_DATA_VERSION` and `HTTP_PYSPECTRAL_RSR` together.
 
+Zenodo is the default source but not the only one: `get_rsr_url()` / `get_rayleigh_lut_url()`
+build the download URLs, and when a mirror is configured (`PSP_DATA_BASE_URL` environment
+variable, or `download_base_url` in the YAML) they point at it instead, using the versioned
+layout that `mirror_data()` and `bin/mirror_pyspectral_data.py` produce. Any new download
+should go through those functions rather than reading a URL constant directly.
+
 `utils.INSTRUMENTS` maps platform -> instrument(s) and is the authority on which
 platform/sensor combinations exist; `check_and_adjust_instrument_name` and
 `rayleigh.normalize_sensor` reconcile the several spellings in use (`avhrr-3` vs `avhrr/3`,
