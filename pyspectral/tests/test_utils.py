@@ -464,6 +464,23 @@ def test_get_rayleigh_lut_url_mirror(monkeypatch, aerosol_type, exp_name):
     assert utils.get_rayleigh_lut_url(aerosol_type) == exp_url
 
 
+def test_download_rsr_logs_the_url(tmp_path, monkeypatch, caplog):
+    """Test that the URL the RSR are downloaded from is logged at info level."""
+    monkeypatch.setenv(utils.BASE_URL_ENV_VAR, MIRROR_BASE_URL)
+    with _fake_get_config(tmp_path), caplog.at_level(logging.INFO):
+        utils.download_rsr(dry_run=True)
+    assert utils.get_rsr_url(base_url=MIRROR_BASE_URL) in caplog.text
+
+
+def test_download_luts_logs_the_url(tmp_path, monkeypatch, caplog):
+    """Test that the URL the LUTs are downloaded from is logged at info level."""
+    monkeypatch.setenv(utils.BASE_URL_ENV_VAR, MIRROR_BASE_URL)
+    aerosol_types = ["desert_aerosol"]
+    with _fake_get_config(tmp_path), caplog.at_level(logging.INFO):
+        utils.download_luts(aerosol_types=aerosol_types, dry_run=True)
+    assert utils.get_rayleigh_lut_url("desert_aerosol", base_url=MIRROR_BASE_URL) in caplog.text
+
+
 @pytest.mark.allow_downloads(use=True)
 def test_download_rsr_from_mirror(tmp_path, monkeypatch):
     """Test that download_rsr uses the configured mirror."""

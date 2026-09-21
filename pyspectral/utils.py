@@ -446,7 +446,7 @@ def download_rsr(dest_dir: str | Path | None = None, dry_run: bool = False) -> N
     LOG.info(f"Download RSR files and store in directory {dest_path}")
     filename = dest_path / "pyspectral_rsr_data.tgz"
     rsr_url = get_rsr_url()
-    LOG.debug(f"RSR URL: {rsr_url}")
+    LOG.info(f"RSR URL: {rsr_url}")
     LOG.debug(f"Destination = {dest_path}")
     if dry_run:
         return
@@ -473,7 +473,7 @@ def download_luts(aerosol_types=None, dry_run=False, aerosol_type=None):
     for subname in aerosol_types:
         LOG.debug("Aerosol type: %s", subname)
         lut_tarball_url = get_rayleigh_lut_url(subname)
-        LOG.debug("Atmospheric LUT URL = %s", lut_tarball_url)
+        LOG.info("Atmospheric LUT URL = %s", lut_tarball_url)
 
         subdir_path = get_rayleigh_lut_dir(subname)
         LOG.debug(f"Create directory: {subdir_path}")
