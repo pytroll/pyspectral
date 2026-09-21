@@ -33,7 +33,9 @@ satellite imaging sensors are available in a unified hdf5 format. Secondly,
 PySpectral comes with a set of Look-Up-Tables (LUTs) for the atmospheric
 correction in the short wave spectral range.
 
-Both these datasets downloads automagically from `zenodo.org`_ when needed.
+Both these datasets downloads automagically from `zenodo.org`_ when needed. If
+you run many processing chains, and want to avoid them all downloading from the
+same upstream host, the data can be mirrored locally, see :ref:`mirroring`.
 
 On default these static data will reside in the platform specific standard
 destination for storing user data, via the use of the platformdirs_ package. On
@@ -166,6 +168,66 @@ And then adjust the *pyspectral.yaml* so data downloading will not be attempted 
    rsr_dir = /path/to/internal/rsr_data
    rayleigh_dir = /path/to/rayleigh/correction/luts
    download_from_internet = False
+
+
+.. _mirroring:
+
+Mirroring the static data
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When several processing chains run *PySpectral* independently of each other,
+they may all try to download the static data from `zenodo.org`_ at about the
+same time. The upstream host may then start rate limiting the traffic, and the
+downloads fail. To avoid that, the data can be mirrored on a web server of your
+own, and *PySpectral* can be told to download from there instead.
+
+The *mirror_pyspectral_data.py* script downloads the tarballs and stores them,
+unextracted, in the directory layout a mirror is expected to serve:
+
+  .. code::
+
+   python ~/.local/bin/mirror_pyspectral_data.py -o /path/to/mirror -v
+
+This creates::
+
+   /path/to/mirror/rsr/<rsr version>/pyspectral_rsr_data.tgz
+   /path/to/mirror/luts/<lut version>/pyspectral_atm_correction_luts_<aerosol type>.tgz
+
+Copy (or rsync) that directory to the location your web server serves, and
+point the processing chains at it with the ``PSP_DATA_BASE_URL`` environment
+variable::
+
+  $> PSP_DATA_BASE_URL=https://www.example.com/pyspectral; export PSP_DATA_BASE_URL
+
+Alternatively, set it in the configuration file, which the environment variable
+overrides if both are used:
+
+.. code-block:: ini
+
+   download_base_url = https://www.example.com/pyspectral
+
+Everything else stays the same: the version checks, the ``download_from_internet``
+setting and the ``download_rsr.py`` and ``download_atm_correction_luts.py``
+scripts all work as before, they just fetch the tarballs from the mirror.
+
+Since the version of the data is part of the path, one mirror can serve several
+versions of the data at the same time. Upgrading *PySpectral* in one processing
+chain, and mirroring the data version it needs, therefore does not disturb the
+chains that still run an older version. Only the files that are missing are
+downloaded, so the script can be re-run, for example from cron, to pick up new
+data versions:
+
+  .. code::
+
+   python ~/.local/bin/mirror_pyspectral_data.py -o /path/to/mirror -v
+
+Use the ``-a`` option to limit the mirroring to the aerosol distributions you
+actually use, and ``--no_rsr`` or ``--no_luts`` to mirror only one of the two
+datasets:
+
+  .. code::
+
+   python ~/.local/bin/mirror_pyspectral_data.py -o /path/to/mirror -a desert_aerosol marine_clean_aerosol -v
 
 
 .. _pyspectral rsr: https://zenodo.org/record/1012412/files/pyspectral_rsr_data.tgz

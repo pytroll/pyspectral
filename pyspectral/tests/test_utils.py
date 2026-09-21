@@ -368,11 +368,12 @@ def _create_fake_lut_tarball_bytes(aerosol_types):
 
 
 @contextlib.contextmanager
-def _fake_get_config(tmp_path):
+def _fake_get_config(tmp_path, **extra_options):
     def _get_config():
         return {
             "rayleigh_dir": str(tmp_path),
             "rsr_dir": str(tmp_path),
+            **extra_options,
         }
     with unittest.mock.patch("pyspectral.utils.get_config") as get_config:
         get_config.side_effect = _get_config
@@ -392,6 +393,247 @@ def _check_expected_aerosol_files(atypes_to_create, tmp_path):
             assert atype_fn.is_file()
         else:
             assert not atype_fn.is_file()
+
+
+MIRROR_BASE_URL = "https://www.example.com/pyspectral"
+
+
+def test_get_base_url_not_configured(tmp_path, monkeypatch):
+    """Test that no mirror is used when neither environment nor config define one."""
+    monkeypatch.delenv(utils.BASE_URL_ENV_VAR, raising=False)
+    with _fake_get_config(tmp_path):
+        assert utils.get_base_url() is None
+
+
+def test_get_base_url_from_environment(tmp_path, monkeypatch):
+    """Test getting the mirror base URL from the environment variable."""
+    monkeypatch.setenv(utils.BASE_URL_ENV_VAR, MIRROR_BASE_URL + "/")
+    with _fake_get_config(tmp_path):
+        assert utils.get_base_url() == MIRROR_BASE_URL
+
+
+def test_get_base_url_from_config(tmp_path, monkeypatch):
+    """Test getting the mirror base URL from the configuration file."""
+    monkeypatch.delenv(utils.BASE_URL_ENV_VAR, raising=False)
+    with _fake_get_config(tmp_path, download_base_url=MIRROR_BASE_URL):
+        assert utils.get_base_url() == MIRROR_BASE_URL
+
+
+def test_get_base_url_environment_overrides_config(tmp_path, monkeypatch):
+    """Test that the environment variable takes precedence over the configuration file."""
+    monkeypatch.setenv(utils.BASE_URL_ENV_VAR, MIRROR_BASE_URL)
+    with _fake_get_config(tmp_path, download_base_url="https://www.example.com/other"):
+        assert utils.get_base_url() == MIRROR_BASE_URL
+
+
+def test_get_rsr_url_default(tmp_path, monkeypatch):
+    """Test that the RSR are downloaded from zenodo when no mirror is configured."""
+    monkeypatch.delenv(utils.BASE_URL_ENV_VAR, raising=False)
+    with _fake_get_config(tmp_path):
+        assert utils.get_rsr_url() == utils.HTTP_PYSPECTRAL_RSR
+
+
+def test_get_rsr_url_mirror(monkeypatch):
+    """Test that the RSR URL of a mirror includes the data version."""
+    monkeypatch.setenv(utils.BASE_URL_ENV_VAR, MIRROR_BASE_URL)
+    exp_url = f"{MIRROR_BASE_URL}/rsr/{utils.RSR_DATA_VERSION}/pyspectral_rsr_data.tgz"
+    assert utils.get_rsr_url() == exp_url
+    assert utils.get_rsr_url(base_url=MIRROR_BASE_URL + "/") == exp_url
+
+
+def test_get_rayleigh_lut_url_default(tmp_path, monkeypatch):
+    """Test that the LUTs are downloaded from zenodo when no mirror is configured."""
+    monkeypatch.delenv(utils.BASE_URL_ENV_VAR, raising=False)
+    with _fake_get_config(tmp_path):
+        for aerosol_type in utils.AEROSOL_TYPES:
+            assert utils.get_rayleigh_lut_url(aerosol_type) == utils.HTTPS_RAYLEIGH_LUTS[aerosol_type]
+
+
+@pytest.mark.parametrize(
+    ("aerosol_type", "exp_name"),
+    [
+        ("desert_aerosol", "desert_aerosol"),
+        ("rayleigh_only", "no_aerosol"),
+    ]
+)
+def test_get_rayleigh_lut_url_mirror(monkeypatch, aerosol_type, exp_name):
+    """Test that the LUT URL of a mirror includes the data version and the upstream file name."""
+    monkeypatch.setenv(utils.BASE_URL_ENV_VAR, MIRROR_BASE_URL)
+    version = utils.ATM_CORRECTION_LUT_VERSION[aerosol_type]["version"]
+    exp_url = f"{MIRROR_BASE_URL}/luts/{version}/pyspectral_atm_correction_luts_{exp_name}.tgz"
+    assert utils.get_rayleigh_lut_url(aerosol_type) == exp_url
+
+
+def test_download_rsr_logs_the_url(tmp_path, monkeypatch, caplog):
+    """Test that the URL the RSR are downloaded from is logged at info level."""
+    monkeypatch.setenv(utils.BASE_URL_ENV_VAR, MIRROR_BASE_URL)
+    with _fake_get_config(tmp_path), caplog.at_level(logging.INFO):
+        utils.download_rsr(dry_run=True)
+    assert utils.get_rsr_url(base_url=MIRROR_BASE_URL) in caplog.text
+
+
+def test_download_luts_logs_the_url(tmp_path, monkeypatch, caplog):
+    """Test that the URL the LUTs are downloaded from is logged at info level."""
+    monkeypatch.setenv(utils.BASE_URL_ENV_VAR, MIRROR_BASE_URL)
+    aerosol_types = ["desert_aerosol"]
+    with _fake_get_config(tmp_path), caplog.at_level(logging.INFO):
+        utils.download_luts(aerosol_types=aerosol_types, dry_run=True)
+    assert utils.get_rayleigh_lut_url("desert_aerosol", base_url=MIRROR_BASE_URL) in caplog.text
+
+
+@pytest.mark.allow_downloads(use=True)
+def test_download_rsr_from_mirror(tmp_path, monkeypatch):
+    """Test that download_rsr uses the configured mirror."""
+    monkeypatch.setenv(utils.BASE_URL_ENV_VAR, MIRROR_BASE_URL)
+    version_data = "v1.2.3.4.5"
+    tar_data = _create_fake_rsr_tarball_bytes(version_data)
+    with responses.RequestsMock() as rsps:
+        rsps.add(
+            "GET",
+            utils.get_rsr_url(base_url=MIRROR_BASE_URL),
+            body=tar_data,
+            status=200,
+            content_type="application/octet-stream",
+            headers={"Content-Length": str(len(tar_data))},
+        )
+        utils.download_rsr(dest_dir=str(tmp_path))
+    assert (tmp_path / "PYSPECTRAL_RSR_VERSION").is_file()
+
+
+@pytest.mark.allow_downloads(use=True)
+def test_download_luts_from_mirror(tmp_path, monkeypatch):
+    """Test that download_luts uses the configured mirror."""
+    monkeypatch.setenv(utils.BASE_URL_ENV_VAR, MIRROR_BASE_URL)
+    aerosol_types = ["desert_aerosol"]
+    tar_data = _create_fake_lut_tarball_bytes(aerosol_types=aerosol_types)
+    with responses.RequestsMock() as rsps:
+        rsps.add(
+            "GET",
+            utils.get_rayleigh_lut_url("desert_aerosol", base_url=MIRROR_BASE_URL),
+            body=tar_data,
+            status=200,
+            content_type="application/octet-stream",
+            headers={"Content-Length": str(len(tar_data))},
+        )
+        with _fake_get_config(tmp_path):
+            utils.download_luts(aerosol_types=aerosol_types)
+    _check_expected_aerosol_files(aerosol_types, tmp_path)
+
+
+def test_mirror_data_dry_run(tmp_path):
+    """Test that a dry run of mirror_data downloads nothing."""
+    with unittest.mock.patch("pyspectral.utils.requests") as requests_mock:
+        mirrored = utils.mirror_data(tmp_path, dry_run=True)
+    requests_mock.assert_not_called()
+    assert len(mirrored) == len(utils.AEROSOL_TYPES) + 1
+    assert not any(pathname.exists() for pathname in mirrored)
+
+
+@pytest.mark.allow_downloads(use=True)
+def test_mirror_data(tmp_path):
+    """Test that mirror_data stores the tarballs in the layout the downloads expect."""
+    aerosol_types = ["desert_aerosol", "rayleigh_only"]
+    with _mirror_source_urls_mocked(aerosol_types):
+        mirrored = utils.mirror_data(tmp_path, aerosol_types=aerosol_types)
+
+    exp_rsr_path = tmp_path / "rsr" / utils.RSR_DATA_VERSION / "pyspectral_rsr_data.tgz"
+    lut_version = utils.ATM_CORRECTION_LUT_VERSION["desert_aerosol"]["version"]
+    exp_lut_path = tmp_path / "luts" / lut_version / "pyspectral_atm_correction_luts_desert_aerosol.tgz"
+    exp_rayleigh_path = tmp_path / "luts" / lut_version / "pyspectral_atm_correction_luts_no_aerosol.tgz"
+    assert mirrored == [exp_rsr_path, exp_lut_path, exp_rayleigh_path]
+    assert all(pathname.is_file() for pathname in mirrored)
+    assert not list(tmp_path.rglob("*.part"))
+
+    # the files end up where the downloading functions ask a mirror for them
+    exp_urls = [utils.get_rsr_url(base_url=MIRROR_BASE_URL)]
+    exp_urls += [utils.get_rayleigh_lut_url(atype, base_url=MIRROR_BASE_URL) for atype in aerosol_types]
+    mirror_urls = [MIRROR_BASE_URL + "/" + pathname.relative_to(tmp_path).as_posix() for pathname in mirrored]
+    assert mirror_urls == exp_urls
+
+
+@pytest.mark.allow_downloads(use=True)
+def test_mirror_data_skips_existing_files(tmp_path):
+    """Test that re-running mirror_data doesn't download what is already mirrored."""
+    aerosol_types = ["desert_aerosol"]
+    with _mirror_source_urls_mocked(aerosol_types):
+        utils.mirror_data(tmp_path, aerosol_types=aerosol_types)
+
+    with unittest.mock.patch("pyspectral.utils.requests") as requests_mock:
+        mirrored = utils.mirror_data(tmp_path, aerosol_types=aerosol_types)
+    requests_mock.assert_not_called()
+    assert all(pathname.is_file() for pathname in mirrored)
+
+    with _mirror_source_urls_mocked(aerosol_types) as rsps:
+        utils.mirror_data(tmp_path, aerosol_types=aerosol_types, overwrite=True)
+        assert len(rsps.calls) == 2
+
+
+@pytest.mark.allow_downloads(use=True)
+def test_mirror_data_from_another_mirror(tmp_path):
+    """Test that a mirror can be filled from another mirror instead of from zenodo."""
+    aerosol_types = ["desert_aerosol"]
+    tar_data = _create_fake_lut_tarball_bytes(aerosol_types=aerosol_types)
+    with responses.RequestsMock() as rsps:
+        rsps.add(
+            "GET",
+            utils.get_rayleigh_lut_url("desert_aerosol", base_url=MIRROR_BASE_URL),
+            body=tar_data,
+            status=200,
+            content_type="application/octet-stream",
+            headers={"Content-Length": str(len(tar_data))},
+        )
+        utils.mirror_data(tmp_path, aerosol_types=aerosol_types, include_rsr=False,
+                          source_base_url=MIRROR_BASE_URL)
+    assert list(tmp_path.rglob("*.tgz"))
+
+
+@pytest.mark.allow_downloads(use=True)
+def test_mirror_data_incomplete_download(tmp_path):
+    """Test that a corrupt download doesn't leave a file that later runs consider mirrored."""
+    with responses.RequestsMock() as rsps:
+        rsps.add(
+            "GET",
+            utils.HTTP_PYSPECTRAL_RSR,
+            body=b"not a tarball",
+            status=200,
+            content_type="application/octet-stream",
+            headers={"Content-Length": "13"},
+        )
+        with pytest.raises(tarfile.TarError):
+            utils.mirror_data(tmp_path, include_luts=False)
+    assert not list(tmp_path.rglob("*.tgz"))
+    assert not list(tmp_path.rglob("*.part"))
+
+
+def test_mirror_data_unknown_aerosol_type(tmp_path):
+    """Test that an unknown aerosol type is reported before anything is downloaded."""
+    with pytest.raises(ValueError, match="no_such_aerosol"):
+        utils.mirror_data(tmp_path, aerosol_types=["no_such_aerosol"])
+
+
+@contextlib.contextmanager
+def _mirror_source_urls_mocked(aerosol_types):
+    """Mock the upstream zenodo URLs that mirror_data downloads from."""
+    rsr_tar_data = _create_fake_rsr_tarball_bytes()
+    lut_tar_data = _create_fake_lut_tarball_bytes(aerosol_types=aerosol_types)
+    with responses.RequestsMock() as rsps:
+        rsps.add(
+            "GET",
+            utils.HTTP_PYSPECTRAL_RSR,
+            body=rsr_tar_data,
+            status=200,
+            content_type="application/octet-stream",
+            headers={"Content-Length": str(len(rsr_tar_data))},
+        )
+        rsps.add(
+            "GET",
+            re.compile(re.escape(utils.LUT_URL_PREFIX) + r"_.+\.tgz"),
+            body=lut_tar_data,
+            status=200,
+            content_type="application/octet-stream",
+            headers={"Content-Length": str(len(lut_tar_data))},
+        )
+        yield rsps
 
 
 @pytest.mark.parametrize(

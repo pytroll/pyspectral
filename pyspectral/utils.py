@@ -7,6 +7,7 @@ import os
 import sys
 import tarfile
 import warnings
+from collections.abc import Iterable
 from functools import wraps
 from inspect import getfullargspec
 from pathlib import Path
@@ -141,6 +142,75 @@ for atype in AEROSOL_TYPES:
     name = {"rayleigh_only": "no_aerosol"}.get(atype, atype)
     url = "{prefix}_{name}.tgz".format(prefix=LUT_URL_PREFIX, name=name)
     HTTPS_RAYLEIGH_LUTS[atype] = url
+
+#: Name of the environment variable overriding the base URL of the data downloads
+BASE_URL_ENV_VAR = "PSP_DATA_BASE_URL"
+#: Name of the configuration option overriding the base URL of the data downloads
+BASE_URL_CONFIG_OPTION = "download_base_url"
+
+#: Path of the RSR tarball relative to the mirror base URL
+RSR_MIRROR_PATH = "rsr/{version}/pyspectral_rsr_data.tgz"
+#: Path of an atmospheric correction LUT tarball relative to the mirror base URL
+LUT_MIRROR_PATH = "luts/{version}/pyspectral_atm_correction_luts_{name}.tgz"
+
+
+def get_base_url() -> str | None:
+    """Get the base URL of a mirror of the pyspectral data files, if one is configured.
+
+    The mirror is taken from the ``PSP_DATA_BASE_URL`` environment variable, or,
+    if that is not set, from the ``download_base_url`` option in the pyspectral
+    configuration file. If neither is set, ``None`` is returned, meaning that
+    the default upstream locations on Zenodo are used.
+
+    See :func:`mirror_data` for creating the directory structure that such a
+    mirror is expected to serve.
+
+    """
+    base_url = os.environ.get(BASE_URL_ENV_VAR)
+    if base_url is None:
+        base_url = get_config().get(BASE_URL_CONFIG_OPTION)
+    if not base_url:
+        return None
+    return base_url.rstrip("/")
+
+
+def _aerosol_type_to_lut_name(aerosol_type: str) -> str:
+    """Get the name used in the LUT tarball filename for an aerosol type."""
+    return {"rayleigh_only": "no_aerosol"}.get(aerosol_type, aerosol_type)
+
+
+def get_rsr_url(base_url: str | None = None) -> str:
+    """Get the URL to download the relative spectral responses from.
+
+    Args:
+        base_url: Base URL of a mirror of the pyspectral data files. Defaults
+            to the mirror configured via :func:`get_base_url`, and to the
+            upstream location on Zenodo if no mirror is configured.
+
+    """
+    base_url = base_url if base_url is not None else get_base_url()
+    if base_url is None:
+        return HTTP_PYSPECTRAL_RSR
+    return base_url.rstrip("/") + "/" + RSR_MIRROR_PATH.format(version=RSR_DATA_VERSION)
+
+
+def get_rayleigh_lut_url(aerosol_type: str, base_url: str | None = None) -> str:
+    """Get the URL to download the atmospheric correction LUTs of one aerosol type from.
+
+    Args:
+        aerosol_type: Aerosol type to get the URL for. See :data:`AEROSOL_TYPES`
+            for the full list.
+        base_url: Base URL of a mirror of the pyspectral data files. Defaults
+            to the mirror configured via :func:`get_base_url`, and to the
+            upstream location on Zenodo if no mirror is configured.
+
+    """
+    base_url = base_url if base_url is not None else get_base_url()
+    if base_url is None:
+        return HTTPS_RAYLEIGH_LUTS[aerosol_type]
+    version = ATM_CORRECTION_LUT_VERSION[aerosol_type]["version"]
+    lut_path = LUT_MIRROR_PATH.format(version=version, name=_aerosol_type_to_lut_name(aerosol_type))
+    return base_url.rstrip("/") + "/" + lut_path
 
 
 def get_rayleigh_lut_dir(aerosol_type: str) -> Path:
@@ -375,12 +445,13 @@ def download_rsr(dest_dir: str | Path | None = None, dry_run: bool = False) -> N
 
     LOG.info(f"Download RSR files and store in directory {dest_path}")
     filename = dest_path / "pyspectral_rsr_data.tgz"
-    LOG.debug(f"RSR URL: {HTTP_PYSPECTRAL_RSR}")
+    rsr_url = get_rsr_url()
+    LOG.info(f"RSR URL: {rsr_url}")
     LOG.debug(f"Destination = {dest_path}")
     if dry_run:
         return
 
-    _download_tarball_and_extract(HTTP_PYSPECTRAL_RSR, filename, dest_path)
+    _download_tarball_and_extract(rsr_url, filename, dest_path)
 
 
 def download_luts(aerosol_types=None, dry_run=False, aerosol_type=None):
@@ -401,8 +472,8 @@ def download_luts(aerosol_types=None, dry_run=False, aerosol_type=None):
     aerosol_types = _get_aerosol_types(aerosol_types, aerosol_type)
     for subname in aerosol_types:
         LOG.debug("Aerosol type: %s", subname)
-        lut_tarball_url = HTTPS_RAYLEIGH_LUTS[subname]
-        LOG.debug("Atmospheric LUT URL = %s", lut_tarball_url)
+        lut_tarball_url = get_rayleigh_lut_url(subname)
+        LOG.info("Atmospheric LUT URL = %s", lut_tarball_url)
 
         subdir_path = get_rayleigh_lut_dir(subname)
         LOG.debug(f"Create directory: {subdir_path}")
@@ -428,6 +499,119 @@ def _get_aerosol_types(aerosol_types, aerosol_type):
     return aerosol_types
 
 
+def mirror_data(
+        dest_dir: str | Path,
+        aerosol_types: Iterable[str] | None = None,
+        include_rsr: bool = True,
+        include_luts: bool = True,
+        source_base_url: str | None = None,
+        overwrite: bool = False,
+        dry_run: bool = False,
+) -> list[Path]:
+    """Mirror the pyspectral data tarballs into a directory that can be served over HTTP(S).
+
+    This downloads the same tarballs that :func:`download_rsr` and
+    :func:`download_luts` fetch, but instead of extracting them it stores them
+    unmodified in the directory layout that pyspectral expects from a mirror::
+
+        <dest_dir>/rsr/<rsr version>/pyspectral_rsr_data.tgz
+        <dest_dir>/luts/<lut version>/pyspectral_atm_correction_luts_<name>.tgz
+
+    Copying (or rsync:ing) the resulting directory to a web server and pointing
+    the ``PSP_DATA_BASE_URL`` environment variable at the URL it is served from
+    makes all pyspectral installations download from there instead of from
+    Zenodo. This is useful when many processing chains would otherwise hit the
+    upstream host at the same time and get rate limited.
+
+    Because the version of the data is part of the path, mirroring a new
+    version of the data does not invalidate the files an older pyspectral
+    installation is asking for. Re-running this function only downloads the
+    files that are missing, so it can be run repeatedly, for example from cron.
+
+    Args:
+        dest_dir: Directory to write the mirrored files to. Created if needed.
+        aerosol_types: Aerosol types to mirror the LUTs for. Defaults to all
+            aerosol types. See :data:`AEROSOL_TYPES` for the full list.
+        include_rsr: Whether to mirror the relative spectral responses.
+            Defaults to True.
+        include_luts: Whether to mirror the atmospheric correction LUTs.
+            Defaults to True.
+        source_base_url: Base URL to download the files from. Defaults to the
+            upstream locations on Zenodo. Note that, unlike the downloading
+            functions, this deliberately ignores the configured mirror so that
+            a mirror is not refreshed from itself.
+        overwrite: Download files even if they already exist in ``dest_dir``.
+            Defaults to False, meaning existing files are left untouched.
+        dry_run: If True, don't download anything, only log what would be
+            downloaded. Defaults to False.
+
+    Returns:
+        The paths of all files the mirror consists of, including the ones that
+        already existed.
+
+    """
+    dest_path = Path(dest_dir)
+    urls_and_paths = _mirror_urls_and_paths(aerosol_types, include_rsr, include_luts, source_base_url)
+
+    mirrored_files = []
+    for url, relative_path in urls_and_paths:
+        local_pathname = dest_path / relative_path
+        mirrored_files.append(local_pathname)
+        if local_pathname.is_file() and not overwrite:
+            LOG.info("Already mirrored, skipping: %s", local_pathname)
+            continue
+        LOG.info("Mirroring %s -> %s", url, local_pathname)
+        if dry_run:
+            continue
+        local_pathname.parent.mkdir(parents=True, exist_ok=True)
+        _download_tarball_to(url, local_pathname)
+    return mirrored_files
+
+
+def _mirror_urls_and_paths(
+        aerosol_types: Iterable[str] | None,
+        include_rsr: bool,
+        include_luts: bool,
+        source_base_url: str | None,
+) -> list[tuple[str, str]]:
+    """Get the (source URL, path relative to the mirror root) pairs to mirror."""
+    urls_and_paths = []
+    if include_rsr:
+        url = HTTP_PYSPECTRAL_RSR if source_base_url is None else get_rsr_url(source_base_url)
+        urls_and_paths.append((url, RSR_MIRROR_PATH.format(version=RSR_DATA_VERSION)))
+    if include_luts:
+        for aerosol_type in (AEROSOL_TYPES if aerosol_types is None else aerosol_types):
+            if aerosol_type not in ATM_CORRECTION_LUT_VERSION:
+                raise ValueError(f"Unknown aerosol type: {aerosol_type}")
+            url = (HTTPS_RAYLEIGH_LUTS[aerosol_type] if source_base_url is None
+                   else get_rayleigh_lut_url(aerosol_type, source_base_url))
+            relative_path = LUT_MIRROR_PATH.format(
+                version=ATM_CORRECTION_LUT_VERSION[aerosol_type]["version"],
+                name=_aerosol_type_to_lut_name(aerosol_type),
+            )
+            urls_and_paths.append((url, relative_path))
+    return urls_and_paths
+
+
+def _download_tarball_to(url: str, local_pathname: Path) -> None:
+    """Download a tarball, checking that it is readable before putting it in place.
+
+    The file is downloaded to a temporary name and only moved to its final
+    location once it has been verified. An interrupted or corrupt download
+    therefore doesn't leave a file behind that later runs would consider
+    already mirrored.
+
+    """
+    incomplete_pathname = local_pathname.with_name(local_pathname.name + ".part")
+    try:
+        _download_file(url, incomplete_pathname)
+        with tarfile.open(incomplete_pathname) as tar:
+            tar.getmembers()
+        incomplete_pathname.replace(local_pathname)
+    finally:
+        incomplete_pathname.unlink(missing_ok=True)
+
+
 HEADERS = {
     "User-Agent": "pyspectral (+https://github.com/pytroll/pyspectral)",
     "Accept": "*/*",
@@ -435,10 +619,20 @@ HEADERS = {
 
 
 def _download_tarball_and_extract(tarball_url: str, local_pathname: Path, extract_dir: Path) -> None:
+    _download_file(tarball_url, local_pathname)
+
+    tar_kwargs = {} if sys.version_info < (3, 12) else {"filter": "data"}
+    with tarfile.open(local_pathname) as tar:
+        tar.extractall(extract_dir, **tar_kwargs)  # type: ignore
+
+    os.remove(local_pathname)
+
+
+def _download_file(url: str, local_pathname: Path) -> None:
     chunk_size = 1024 * 1024  # 1 MB
 
     response = requests.get(
-        tarball_url,
+        url,
         headers=HEADERS,
         stream=True,
         allow_redirects=True,
@@ -453,12 +647,6 @@ def _download_tarball_and_extract(tarball_url: str, local_pathname: Path, extrac
                                   unit="kB"):
             if data:
                 handle.write(data)
-
-    tar_kwargs = {} if sys.version_info < (3, 12) else {"filter": "data"}
-    with tarfile.open(local_pathname) as tar:
-        tar.extractall(extract_dir, **tar_kwargs)  # type: ignore
-
-    os.remove(local_pathname)
 
 
 def _tqdm_or_iter(an_iterable, **tqdm_kwargs):
