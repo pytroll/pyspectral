@@ -32,11 +32,11 @@ def get_groupname_from_bandname(band):
     groupname = "LVWIR"
     wv = int(band.split("_")[-1])
     if wv > 6000:
-        groupname = "LVWIR"
+        groupname = "Instrument/ISRF/LVWIR"
     elif wv > 1000:
-        groupname = "SMWIR"
+        groupname = "Instrument/ISRF/SMWIR"
     else:
-        groupname = "VISNIR"
+        groupname = "Instrument/ISRF/VISNIR"
     return groupname
 
 
