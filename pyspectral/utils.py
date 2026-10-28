@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 import os
-import sys
 import tarfile
 import warnings
 from collections.abc import Iterable
@@ -621,9 +620,8 @@ HEADERS = {
 def _download_tarball_and_extract(tarball_url: str, local_pathname: Path, extract_dir: Path) -> None:
     _download_file(tarball_url, local_pathname)
 
-    tar_kwargs = {} if sys.version_info < (3, 12) else {"filter": "data"}
     with tarfile.open(local_pathname) as tar:
-        tar.extractall(extract_dir, **tar_kwargs)  # type: ignore
+        tar.extractall(extract_dir, filter="data")
 
     os.remove(local_pathname)
 

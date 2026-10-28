@@ -59,6 +59,6 @@ setup(name=NAME,
                'bin/mirror_pyspectral_data.py'],
       data_files=[('share', ['pyspectral/data/e490_00a.dat',
                              'pyspectral/data/MSG_SEVIRI_Spectral_Response_Characterisation.XLS'])],
-      python_requires='>=3.10',
+      python_requires='>=3.12',
       zip_safe=False,
       )

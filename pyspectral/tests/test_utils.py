@@ -295,11 +295,33 @@ def test_download_rsr(tmp_path):
         assert version_file.read() == version_data
 
 
-def _create_fake_rsr_tarball_bytes(version_data=utils.RSR_DATA_VERSION):
+@pytest.mark.allow_downloads(use=True)
+def test_download_rsr_refuses_path_traversal(tmp_path):
+    """Test that a tarball member can't be extracted outside of the destination directory."""
+    dest_dir = tmp_path / "rsr"
+    dest_dir.mkdir()
+    tar_data = _create_fake_rsr_tarball_bytes(member_name="../escaped.txt")
+    with responses.RequestsMock() as rsps:
+        rsps.add(
+            "GET",
+            utils.HTTP_PYSPECTRAL_RSR,
+            body=tar_data,
+            status=200,
+            content_type="application/octet-stream",
+            headers={
+                "Content-Length": str(len(tar_data)),
+            },
+        )
+        with pytest.raises(tarfile.OutsideDestinationError):
+            utils.download_rsr(dest_dir=str(dest_dir))
+    assert not (tmp_path / "escaped.txt").exists()
+
+
+def _create_fake_rsr_tarball_bytes(version_data=utils.RSR_DATA_VERSION, member_name=utils.RSR_DATA_VERSION_FILENAME):
     file_obj = BytesIO()
 
     with tarfile.open(mode="w:gz", fileobj=file_obj) as rsr_tar:
-        info = tarfile.TarInfo(utils.RSR_DATA_VERSION_FILENAME)
+        info = tarfile.TarInfo(member_name)
         info.size = len(version_data)
         rsr_tar.addfile(info, BytesIO(version_data.encode("ascii")))
 
