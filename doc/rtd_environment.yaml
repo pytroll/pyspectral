@@ -2,7 +2,7 @@ name: readthedocs
 channels:
   - conda-forge
 dependencies:
-  - python=3.11
+  - python=3.14
   - pip
   - pytest
   - sphinx
