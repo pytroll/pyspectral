@@ -14,7 +14,7 @@ import numpy as np
 try:
     from dask.array import asanyarray, isnan, logical_or, where
 except ImportError:
-    from numpy import where, logical_or, asanyarray, isnan
+    from numpy import asanyarray, isnan, logical_or, where
 
 from pyspectral.config import get_config
 from pyspectral.radiance_tb_conversion import RadTbConverter
