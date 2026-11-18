@@ -22,21 +22,30 @@ def plot_band(plt_in, band_name, rsr_obj, **kwargs):
         platform_name_in_legend = False
 
     detectors = rsr_obj.rsr[band_name].keys()
-    # for det in detectors:
-    det = sorted(detectors)[0]
-    resp = rsr_obj.rsr[band_name][det]['response']
-    wvl = rsr_obj.rsr[band_name][det]['wavelength']
+    which_dets = kwargs.get('detectors')
 
-    resp = np.ma.masked_less_equal(resp, minimum_response)
-    wvl = np.ma.masked_array(wvl, resp.mask)
-    resp.compressed()
-    wvl.compressed()
+    if not which_dets:
+        detectors = [sorted(detectors)[0]]
+    elif isinstance(which_dets, list):
+        if which_dets[0] != 'all':
+            detectors = which_dets
 
-    if platform_name_in_legend:
-        plt_in.plot(wvl, resp, label='{platform} - {band}'.format(
-            platform=rsr_obj.platform_name, band=band_name))
-    else:
-        plt_in.plot(wvl, resp, label='{band}'.format(band=band_name))
+    for det in detectors:
+        resp = rsr_obj.rsr[band_name][det]['response']
+        wvl = rsr_obj.rsr[band_name][det]['wavelength']
+
+        resp = np.ma.masked_less_equal(resp, minimum_response)
+        wvl = np.ma.masked_array(wvl, resp.mask)
+        resp.compressed()
+        wvl.compressed()
+
+        label = f'{band_name}'
+        if platform_name_in_legend:
+            label = f'{rsr_obj.platform_name} - {band_name}'
+        if which_dets:
+            label = f'{label} / {det}'
+
+        plt_in.plot(wvl, resp, label=label)
 
     return plt_in
 
@@ -85,6 +94,11 @@ def get_arguments():
     group.add_argument("--range", "-r", nargs='*',
                        help="The wavelength range for the plot",
                        default=[None, None], type=float)
+
+    parser.add_argument("--detectors", nargs='*',
+                        help="The detectors to consider ('all' or actual names separated with spaces) " +
+                        "- default is 'det-1'",
+                        default=None, type=str)
 
     parser.add_argument("--exclude_bandnames", nargs='*',
                         default=[],
@@ -162,14 +176,17 @@ if __name__ == "__main__":
             if isinstance(bands, list):
                 for b__ in bands:
                     plt = plot_band(plt, b__, rsr,
-                                    platform_name_in_legend=(not no_platform_name_in_legend))
+                                    platform_name_in_legend=(not no_platform_name_in_legend),
+                                    detectors=args.detectors)
             else:
                 plt = plot_band(plt, bands, rsr,
-                                platform_name_in_legend=(not no_platform_name_in_legend))
+                                platform_name_in_legend=(not no_platform_name_in_legend),
+                                detectors=args.detectors)
 
         elif band:
             plt = plot_band(plt, band, rsr,
-                            platform_name_in_legend=(not no_platform_name_in_legend))
+                            platform_name_in_legend=(not no_platform_name_in_legend),
+                            detectors=args.detectors)
 
         else:
             wvlx = wvlmin
@@ -186,7 +203,8 @@ if __name__ == "__main__":
                 for b__ in bands:
                     if b__ not in excluded_bandnames and b__ not in prev_bands:
                         plt = plot_band(plt, b__, rsr,
-                                        platform_name_in_legend=(not no_platform_name_in_legend))
+                                        platform_name_in_legend=(not no_platform_name_in_legend),
+                                        detectors=args.detectors)
                     prev_bands.append(b__)
 
     if not something2plot:
