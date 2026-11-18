@@ -91,23 +91,23 @@ class Seviri(object):
                 self.rsr[ch_name]['Meteosat-11'] = met11
             elif ch_name.startswith('IR'):
                 wvl = np.array(
-                    sheet.col_values(0, start_rowx=13, end_rowx=113))
+                    sheet.col_values(0, start_rowx=12, end_rowx=112))
                 met8_95 = np.array(
-                    sheet.col_values(1, start_rowx=13, end_rowx=113))
+                    sheet.col_values(1, start_rowx=12, end_rowx=112))
                 met9_95 = np.array(
-                    sheet.col_values(3, start_rowx=13, end_rowx=113))
+                    sheet.col_values(3, start_rowx=12, end_rowx=112))
                 met10_95 = np.array(
-                    sheet.col_values(5, start_rowx=13, end_rowx=113))
+                    sheet.col_values(5, start_rowx=12, end_rowx=112))
                 met11_95 = np.array(
-                    sheet.col_values(7, start_rowx=13, end_rowx=113))
+                    sheet.col_values(7, start_rowx=12, end_rowx=112))
                 met8_85 = np.array(
-                    sheet.col_values(2, start_rowx=13, end_rowx=113))
+                    sheet.col_values(2, start_rowx=12, end_rowx=112))
                 met9_85 = np.array(
-                    sheet.col_values(4, start_rowx=13, end_rowx=113))
+                    sheet.col_values(4, start_rowx=12, end_rowx=112))
                 met10_85 = np.array(
-                    sheet.col_values(6, start_rowx=13, end_rowx=113))
+                    sheet.col_values(6, start_rowx=12, end_rowx=112))
                 met11_85 = np.array(
-                    sheet.col_values(8, start_rowx=13, end_rowx=113))
+                    sheet.col_values(8, start_rowx=12, end_rowx=112))
                 self.rsr[ch_name]['Meteosat-8'] = {'95': met8_95,
                                                    '85': met8_85}
                 self.rsr[ch_name]['Meteosat-9'] = {'95': met9_95,
