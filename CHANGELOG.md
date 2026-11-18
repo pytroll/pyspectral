@@ -1,3 +1,21 @@
+## Version 0.14.4 (2026/11/18)
+
+### Pull Requests Merged
+
+#### Bugs fixed
+
+* [PR 292](https://github.com/pytroll/pyspectral/pull/292) - Add 'metimage' bandnames mapping
+
+#### Features added
+
+* [PR 305](https://github.com/pytroll/pyspectral/pull/305) - Add latest metimage rsr v10
+* [PR 301](https://github.com/pytroll/pyspectral/pull/301) - Remove Python 3.10 and 3.11 support and cleanup safer tarball extraction
+* [PR 297](https://github.com/pytroll/pyspectral/pull/297) - Add zenodo mirroring
+* [PR 295](https://github.com/pytroll/pyspectral/pull/295) - Fix conversion script for v10 of METimage SRF
+
+In this release 5 pull requests were closed.
+
+
 ## Version 0.14.3 (2026/04/02)
 
 ### Issues Closed
