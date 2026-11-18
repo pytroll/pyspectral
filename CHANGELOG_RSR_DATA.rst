@@ -1,6 +1,14 @@
 Changelog for the Relative Spectral Response data
 =================================================
 
+Version v1.6.2 (Tue Nov 17 01:21:13 PM CET 2026)
+
+-------------------------------------------
+
+* Update the METimage RSR with v10 released by EUMETSAT during August 2026
+  Filename = EPS-SGA1-METIMAGE_SRF_V10.nc
+
+
 Version v1.6.1 (Wed Apr  1 08:14:23 PM CEST 2026)
 
 -------------------------------------------
